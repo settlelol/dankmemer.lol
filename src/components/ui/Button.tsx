@@ -22,11 +22,13 @@ const variantClasses = {
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	children: ReactNode;
+	className?: string;
 	size?: keyof typeof sizeClasses;
 	align?: keyof typeof alignClasses;
 	variant?: keyof typeof variantClasses;
 	block?: boolean;
 	href?: string;
+	disabled?: boolean;
 }
 
 export default function Button({
