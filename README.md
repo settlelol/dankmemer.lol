@@ -37,6 +37,9 @@ APPEALS_USER_WEBHOOK=webhook_url
 APPEALS_SUPPORT_WEBHOOK=webhook_url
 APPEALS_COMMUNITY_WEBHOOK=webhook_url
 JOBS_WEBHOOK=webhook_url
+STRIPE_STORE_WEBHOOK=webhook_url
+STRIPE_SECRET_TEST_KEY=key
+STRIPE_SECRET_LIVE_KEY=key
 ```
 
 -   You can generate CRYPT_KEYS by running: <br/>
