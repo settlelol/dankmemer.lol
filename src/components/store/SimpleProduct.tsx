@@ -15,7 +15,7 @@ export default function SimpleProduct({ name, image, price }: Product) {
 					{name}
 				</h3>
 				<p className="text-base text-light-600 leading-tight">
-					${price}
+					${price.toFixed(2)}
 				</p>
 			</div>
 			<div className="mt-6 flex flex-col">
