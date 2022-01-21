@@ -4,15 +4,9 @@ interface Product {
 	name: string;
 	image: string;
 	price: number;
-	contentsString: string;
 }
 
-export default function SimpleProduct({
-	name,
-	image,
-	price,
-	contentsString,
-}: Product) {
+export default function SubscriptionProduct({ name, image, price }: Product) {
 	return (
 		<div className="w-52 h-64 bg-light-500 dark:bg-[#000000] flex flex-col justify-center items-center rounded-lg">
 			<img src={image} width={90} height={90} />
@@ -26,8 +20,8 @@ export default function SimpleProduct({
 			</div>
 			<div className="mt-6 flex flex-col">
 				<Button size="small">Add to cart</Button>
-				<p className="underline text-dank-300 dark:text-[#6A6C6A] text-xs cursor-pointer mt-1">
-					{contentsString}
+				<p className="text-center underline text-dank-300 dark:text-[#6A6C6A] text-xs cursor-pointer mt-1">
+					View benefits
 				</p>
 			</div>
 		</div>

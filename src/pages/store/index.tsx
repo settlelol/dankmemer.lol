@@ -8,15 +8,28 @@ import Container from "src/components/ui/Container";
 import { PageProps } from "src/types";
 import Stripe from "stripe";
 import SimpleProduct from "src/components/store/SimpleProduct";
+import clsx from "clsx";
+import SubscriptionProduct from "src/components/store/SubscriptionProduct";
 
 interface Product extends Stripe.Product {
 	price: number;
 }
 
+interface SubscriptionPrice {
+	id: string;
+	price: number;
+	interval: string;
+}
+
+interface Subscription extends Stripe.Product {
+	prices: SubscriptionPrice[];
+}
+
 export default function StoreHome({ user }: PageProps) {
 	const [cartItems, setCartItems] = useState([]);
-	const [subscriptions, setSubscriptions] = useState([]);
+	const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
 	const [products, setProducts] = useState<Product[]>([]);
+	const [annualPricing, setAnnualPricing] = useState<Boolean>(false);
 
 	const getProducts = async () => {
 		const { data: products } = await axios(
@@ -77,20 +90,68 @@ export default function StoreHome({ user }: PageProps) {
 				</Button>
 			</div>
 			<div className="mt-4">
-				<Title size="small">Subscriptions</Title>
+				<div className="flex flex-col sm:flex-row justify-between items-center mt-12 space-y-2 sm:space-y-0">
+					<Title size="small">Subscriptions</Title>
+					<div className="flex justify-center items-center">
+						<p className="text-sm mr-2">Annual pricing</p>
+						<label
+							htmlFor="annualPricing"
+							onClick={() => setAnnualPricing(!annualPricing)}
+							className="flex items-center space-x-6 select-none text-dark-400 dark:text-white"
+						>
+							<span
+								className={clsx(
+									"absolute rounded-full h-4 w-4",
+									annualPricing
+										? "bg-dank-300"
+										: "bg-gray-400 dark:bg-dank-400"
+								)}
+							/>
+							<span>{annualPricing}</span>
+						</label>
+					</div>
+				</div>
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-y-7 gap-x-7 mt-4 place-content-stretch">
-					{subscriptions.map(({ name, images, price }) => (
+					{subscriptions.map(({ name, images, prices }) => (
 						<>
-							<SimpleProduct
+							<SubscriptionProduct
 								name={name}
 								image={images[0]}
-								price={price / 100}
+								price={
+									prices.filter(
+										(p: SubscriptionPrice) =>
+											p.interval ===
+											(annualPricing ? "year" : "month")
+									)[0].price / 100
+								}
+							/>
+							<SubscriptionProduct
+								name={name}
+								image={images[0]}
+								price={
+									prices.filter(
+										(p: SubscriptionPrice) =>
+											p.interval ===
+											(annualPricing ? "year" : "month")
+									)[0].price / 100
+								}
+							/>{" "}
+							<SubscriptionProduct
+								name={name}
+								image={images[0]}
+								price={
+									prices.filter(
+										(p: SubscriptionPrice) =>
+											p.interval ===
+											(annualPricing ? "year" : "month")
+									)[0].price / 100
+								}
 							/>
 						</>
 					))}
 				</div>
 			</div>
-			<div className="mt-4 mb-12">
+			<div className="mt-8 mb-12">
 				<Title size="small">In-game items</Title>
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-y-7 gap-x-7 mt-4 place-content-stretch">
 					{products.map(({ name, images, price }) => (
@@ -99,6 +160,19 @@ export default function StoreHome({ user }: PageProps) {
 								name={name}
 								image={images[0]}
 								price={price / 100}
+								contentsString={"View possible drops"}
+							/>
+							<SimpleProduct
+								name={name}
+								image={images[0]}
+								price={price / 100}
+								contentsString={"View possible drops"}
+							/>
+							<SimpleProduct
+								name={name}
+								image={images[0]}
+								price={price / 100}
+								contentsString={"View possible drops"}
 							/>
 						</>
 					))}
