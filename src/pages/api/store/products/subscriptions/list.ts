@@ -1,6 +1,6 @@
 import { stripeConnect } from "src/util/stripe";
 import { NextApiResponse } from "next";
-import { NextIronRequest, withSession } from "../../../../util/session";
+import { NextIronRequest, withSession } from "../../../../../util/session";
 import Stripe from "stripe";
 
 interface Product extends Stripe.Product {
@@ -17,8 +17,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	for (const i in products) {
 		const { data: price } = await stripe.prices.list({
 			product: products[i].id,
+			type: "recurring",
 		});
-		result.push({ ...products[i], price: price[0].unit_amount! });
+		if (price[0])
+			result.push({ ...products[i], price: price[0].unit_amount! });
 	}
 
 	return res.status(200).json(result);

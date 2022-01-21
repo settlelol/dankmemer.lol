@@ -8,7 +8,7 @@ interface Product {
 
 export default function SimpleProduct({ name, image, price }: Product) {
 	return (
-		<div className="w-52 h-64 bg-light-500 dark:bg-dark-400 flex flex-col justify-center items-center rounded-lg">
+		<div className="w-52 h-64 bg-light-500 dark:bg-[#000000] flex flex-col justify-center items-center rounded-lg">
 			<img src={image} width={90} height={90} />
 			<div className="text-center mt-4">
 				<h3 className="text-xl font-bold text-dark-200 dark:text-light-100 leading-tight">
