@@ -4,7 +4,13 @@ import { NextIronRequest, withSession } from "../../../../../util/session";
 import Stripe from "stripe";
 
 interface Product extends Stripe.Product {
+	prices: Price[];
+}
+
+interface Price {
+	id: string;
 	price: number;
+	interval: string;
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
@@ -15,12 +21,21 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	});
 
 	for (const i in products) {
-		const { data: price } = await stripe.prices.list({
+		const _prices: Price[] = [];
+		const { data: prices } = await stripe.prices.list({
 			product: products[i].id,
 			type: "recurring",
 		});
-		if (price[0])
-			result.push({ ...products[i], price: price[0].unit_amount! });
+		if (prices.length >= 1) {
+			for (const i in prices) {
+				_prices.push({
+					id: prices[i].id,
+					price: prices[i].unit_amount!,
+					interval: prices[i].recurring?.interval!,
+				});
+			}
+			result.push({ ...products[i], prices: _prices });
+		}
 	}
 
 	return res.status(200).json(result);
