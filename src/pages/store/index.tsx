@@ -15,20 +15,31 @@ interface Product extends Stripe.Product {
 
 export default function StoreHome({ user }: PageProps) {
 	const [cartItems, setCartItems] = useState([]);
+	const [subscriptions, setSubscriptions] = useState([]);
 	const [products, setProducts] = useState<Product[]>([]);
 
 	const getProducts = async () => {
-		const { data: products } = await axios("/api/store/products/list");
+		const { data: products } = await axios(
+			"/api/store/products/one-time/list"
+		);
 		setProducts(products);
+	};
+
+	const getSubscriptions = async () => {
+		const { data: subscriptions } = await axios(
+			"/api/store/products/subscriptions/list"
+		);
+		setSubscriptions(subscriptions);
 	};
 
 	useEffect(() => {
 		getProducts();
+		getSubscriptions();
 	}, []);
 
 	return (
 		<Container title="Store">
-			<div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+			<div className="flex flex-col sm:flex-row justify-between items-center mt-12 space-y-2 sm:space-y-0">
 				<Title size="big">Store</Title>
 				<Button
 					size="small"
@@ -65,13 +76,34 @@ export default function StoreHome({ user }: PageProps) {
 					</div>
 				</Button>
 			</div>
-			{products.map(({ name, images, price }) => (
-				<SimpleProduct
-					name={name}
-					image={images[0]}
-					price={price / 100}
-				/>
-			))}
+			<div className="mt-4">
+				<Title size="small">Subscriptions</Title>
+				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-y-7 gap-x-7 mt-4 place-content-stretch">
+					{subscriptions.map(({ name, images, price }) => (
+						<>
+							<SimpleProduct
+								name={name}
+								image={images[0]}
+								price={price / 100}
+							/>
+						</>
+					))}
+				</div>
+			</div>
+			<div className="mt-4 mb-12">
+				<Title size="small">In-game items</Title>
+				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-y-7 gap-x-7 mt-4 place-content-stretch">
+					{products.map(({ name, images, price }) => (
+						<>
+							<SimpleProduct
+								name={name}
+								image={images[0]}
+								price={price / 100}
+							/>
+						</>
+					))}
+				</div>
+			</div>
 		</Container>
 	);
 }
