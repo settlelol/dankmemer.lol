@@ -10,23 +10,44 @@ import Stripe from "stripe";
 import SimpleProduct from "src/components/store/SimpleProduct";
 import clsx from "clsx";
 import SubscriptionProduct from "src/components/store/SubscriptionProduct";
+import { GetServerSideProps } from "next";
+import { withSession } from "src/util/session";
+import { authenticatedRoute } from "src/util/redirects";
 
 interface Product extends Stripe.Product {
 	price: number;
 }
 
-interface SubscriptionPrice {
+type SubscriptionPrice = {
 	id: string;
 	price: number;
 	interval: string;
-}
+};
+
+type PriceInformation = {
+	type: Stripe.Price.Type;
+	interval?: Stripe.Price.Recurring.Interval;
+};
 
 interface Subscription extends Stripe.Product {
 	prices: SubscriptionPrice[];
 }
 
+interface Metadata {
+	type?: "membership";
+}
+
+type CartItem = {
+	id: string;
+	name: string;
+	price: PriceInformation;
+	unit_cost: number;
+	quantity: number;
+	metadata?: Metadata;
+};
+
 export default function StoreHome({ user }: PageProps) {
-	const [cartItems, setCartItems] = useState([]);
+	const [cartItems, setCartItems] = useState<CartItem[] | []>([]);
 	const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
 	const [products, setProducts] = useState<Product[]>([]);
 	const [annualPricing, setAnnualPricing] = useState<Boolean>(false);
@@ -39,10 +60,23 @@ export default function StoreHome({ user }: PageProps) {
 	};
 
 	const getSubscriptions = async () => {
-		const { data: subscriptions } = await axios(
+		let { data: subscriptions } = await axios(
 			"/api/store/products/subscriptions/list"
 		);
 		setSubscriptions(subscriptions);
+	};
+
+	const addToCart = async (item: CartItem) => {
+		if (
+			item.metadata?.type === "membership" &&
+			cartItems.filter(
+				(_item: CartItem) => _item.metadata?.type === "membership"
+			).length >= 1
+		)
+			return alert(
+				"Only one membership should be added to the cart. Remove the current membership item to add this one."
+			);
+		setCartItems((_items) => [..._items, item]);
 	};
 
 	useEffect(() => {
@@ -58,7 +92,7 @@ export default function StoreHome({ user }: PageProps) {
 					size="small"
 					className="w-full sm:w-auto"
 					variant="dark"
-					onClick={() => router.push(`/@${user?.id}`)}
+					onClick={() => router.push(`/store/cart`)}
 				>
 					<div className="flex items-center space-x-2">
 						<div>
@@ -82,8 +116,24 @@ export default function StoreHome({ user }: PageProps) {
 						<p>
 							{cartItems.length >= 1
 								? cartItems.length === 1
-									? `1 Item for`
-									: `${cartItems.length} items for`
+									? `1 Item for $${cartItems
+											.map(
+												(item: CartItem) =>
+													item.unit_cost *
+													item.quantity
+											)
+											.reduce((a, b) => a + b)
+											.toFixed(2)}`
+									: `${
+											cartItems.length
+									  } items for $${cartItems
+											.map(
+												(item: CartItem) =>
+													item.unit_cost *
+													item.quantity
+											)
+											.reduce((a, b) => a + b)
+											.toFixed(2)}`
 								: "Shopping cart"}
 						</p>
 					</div>
@@ -112,40 +162,12 @@ export default function StoreHome({ user }: PageProps) {
 					</div>
 				</div>
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-y-7 gap-x-7 mt-4 place-content-stretch">
-					{subscriptions.map(({ name, images, prices }) => (
+					{subscriptions.map((product) => (
 						<>
 							<SubscriptionProduct
-								name={name}
-								image={images[0]}
-								price={
-									prices.filter(
-										(p: SubscriptionPrice) =>
-											p.interval ===
-											(annualPricing ? "year" : "month")
-									)[0].price / 100
-								}
-							/>
-							<SubscriptionProduct
-								name={name}
-								image={images[0]}
-								price={
-									prices.filter(
-										(p: SubscriptionPrice) =>
-											p.interval ===
-											(annualPricing ? "year" : "month")
-									)[0].price / 100
-								}
-							/>{" "}
-							<SubscriptionProduct
-								name={name}
-								image={images[0]}
-								price={
-									prices.filter(
-										(p: SubscriptionPrice) =>
-											p.interval ===
-											(annualPricing ? "year" : "month")
-									)[0].price / 100
-								}
+								product={product}
+								annualPricing={annualPricing}
+								addToCart={addToCart}
 							/>
 						</>
 					))}
@@ -154,25 +176,22 @@ export default function StoreHome({ user }: PageProps) {
 			<div className="mt-8 mb-12">
 				<Title size="small">In-game items</Title>
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-y-7 gap-x-7 mt-4 place-content-stretch">
-					{products.map(({ name, images, price }) => (
+					{products.map((product) => (
 						<>
 							<SimpleProduct
-								name={name}
-								image={images[0]}
-								price={price / 100}
+								product={product}
 								contentsString={"View possible drops"}
+								addToCart={addToCart}
 							/>
 							<SimpleProduct
-								name={name}
-								image={images[0]}
-								price={price / 100}
+								product={product}
 								contentsString={"View possible drops"}
+								addToCart={addToCart}
 							/>
 							<SimpleProduct
-								name={name}
-								image={images[0]}
-								price={price / 100}
+								product={product}
 								contentsString={"View possible drops"}
+								addToCart={addToCart}
 							/>
 						</>
 					))}
@@ -181,3 +200,6 @@ export default function StoreHome({ user }: PageProps) {
 		</Container>
 	);
 }
+
+export const getServerSideProps: GetServerSideProps =
+	withSession(authenticatedRoute);
