@@ -36,7 +36,15 @@ export default function SubscriptionProduct({
 
 	return (
 		<div className="w-52 h-64 bg-light-500 dark:bg-[#060A07] flex flex-col justify-center items-center rounded-lg">
-			<img src={product.images[0]} width={90} height={90} />
+			<div
+				className="w-[90px] h-[90px]"
+				style={{
+					backgroundImage: `url('${product.images[0]}')`,
+					backgroundSize: "contain",
+					backgroundRepeat: "no-repeat",
+					backgroundPosition: "center",
+				}}
+			></div>
 			<div className="text-center mt-4">
 				<h3 className="text-xl font-bold text-dark-200 dark:text-light-100 leading-tight">
 					{product.name}
