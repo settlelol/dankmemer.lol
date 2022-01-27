@@ -16,10 +16,12 @@ export default function SubscriptionProduct({
 	product,
 	addToCart,
 	annualPricing,
+	openModal,
 }: {
 	product: Subscription;
 	addToCart: any;
 	annualPricing: Boolean;
+	openModal: any;
 }) {
 	const [formattedPrice, setFormattedPrice] = useState<Number>(0);
 
@@ -62,7 +64,10 @@ export default function SubscriptionProduct({
 				>
 					Add to cart
 				</Button>
-				<p className="text-center underline text-dank-300 dark:text-[#6A6C6A] text-xs cursor-pointer mt-1">
+				<p
+					className="text-center underline text-dank-300 dark:text-[#6A6C6A] text-xs cursor-pointer mt-1"
+					onClick={openModal}
+				>
 					View benefits
 				</p>
 			</div>

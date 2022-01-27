@@ -5,6 +5,7 @@ import Link from "next/link";
 const sizeClasses = {
 	small: "px-3 py-1 rounded-md text-sm",
 	medium: "px-5 py-2 rounded-md text-sm",
+	"medium-large": "px-10 py-2 rounded-md",
 	large: "px-5 py-3 rounded-md",
 };
 

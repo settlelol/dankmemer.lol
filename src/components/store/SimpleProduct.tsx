@@ -9,10 +9,12 @@ export default function SimpleProduct({
 	product,
 	contentsString,
 	addToCart,
+	openModal,
 }: {
 	product: Product;
 	contentsString: string;
 	addToCart: any;
+	openModal: any;
 }) {
 	return (
 		<div className="w-52 h-64 bg-light-500 dark:bg-[#060A07] flex flex-col justify-center items-center rounded-lg">
@@ -44,7 +46,10 @@ export default function SimpleProduct({
 				>
 					Add to cart
 				</Button>
-				<p className="underline text-dank-300 dark:text-[#6A6C6A] text-xs cursor-pointer mt-1">
+				<p
+					className="underline text-dank-300 dark:text-[#6A6C6A] text-xs cursor-pointer mt-1"
+					onClick={openModal}
+				>
 					{contentsString}
 				</p>
 			</div>
