@@ -5,40 +5,27 @@ import Stripe from "stripe";
 import Button from "../ui/Button";
 
 import { toTitleCase } from "../../util/string";
-
-type SubscriptionPrice = {
-	id: string;
-	price: number;
-	interval: string;
-};
-
-interface Product extends Stripe.Product {
-	price?: number;
-	prices?: SubscriptionPrice[];
-}
+import { ModalProps } from "src/pages/store";
 
 export default function Modal({
 	product,
 	annualPricing,
 	addToCart,
 	closeModal,
+	titles,
 	cta,
-}: {
-	product: Product;
-	annualPricing?: Boolean;
-	addToCart: any;
-	closeModal: any;
-	cta?: {
-		text: string;
-		callback: any;
-	};
-}) {
+}: ModalProps) {
 	const mdParser = new MarkdownIt();
 
 	const [price, setPrice] = useState("");
 
-	const [exclusiveBenefits, setExclusiveBenefits] = useState("");
-	const [otherBenefits, setOtherBenefits] = useState("");
+	const [includedTitle, setIncludedTitle] = useState(titles.included);
+	const [additionallyIncludedTitle, setAdditionallyIncludedTitle] = useState(
+		titles.additional || "Also included"
+	);
+
+	const [included, setIncluded] = useState("");
+	const [additionallyIncluded, setAdditionallyIncluded] = useState("");
 
 	useEffect(() => {
 		if (product.prices) {
@@ -114,23 +101,29 @@ export default function Modal({
 					</div>
 				</div>
 				<div className="mt-6">
-					<h1 className="text-xl font-bold">Exclusive benefits</h1>
-					<p
-						dangerouslySetInnerHTML={{
-							__html: tailwindHtml(
-								mdParser.render(exclusiveBenefits)
-							),
-						}}
-					></p>
-					{otherBenefits.length < 1 && (
+					{included.length < 1 && (
 						<>
-							<h1 className="mt-5 text-xl font-bold">
-								Also included
+							<h1 className="text-xl font-bold">
+								{includedTitle}
 							</h1>
 							<p
 								dangerouslySetInnerHTML={{
 									__html: tailwindHtml(
-										mdParser.render(exclusiveBenefits)
+										mdParser.render(included)
+									),
+								}}
+							></p>
+						</>
+					)}
+					{additionallyIncluded.length < 1 && (
+						<>
+							<h1 className="mt-5 text-xl font-bold">
+								{additionallyIncludedTitle}
+							</h1>
+							<p
+								dangerouslySetInnerHTML={{
+									__html: tailwindHtml(
+										mdParser.render(additionallyIncluded)
 									),
 								}}
 							></p>

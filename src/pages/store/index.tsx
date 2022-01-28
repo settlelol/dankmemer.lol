@@ -35,7 +35,7 @@ export interface Subscription extends Stripe.Product {
 }
 
 interface Metadata {
-	type?: "membership";
+	type?: "membership" | "lootbox";
 }
 
 type CartItem = {
@@ -47,11 +47,20 @@ type CartItem = {
 	metadata?: Metadata;
 };
 
-type ModalProps = {
-	product: Product | Subscription;
+interface ModalProduct extends Stripe.Product {
+	price?: number;
+	prices?: SubscriptionPrice[];
+}
+
+export type ModalProps = {
+	product: ModalProduct;
 	annualPricing?: Boolean;
 	addToCart: any;
 	closeModal: any;
+	titles: {
+		included: string;
+		additional?: string;
+	};
 	cta?: {
 		text: string;
 		callback: any;
@@ -105,6 +114,10 @@ export default function StoreHome({ user }: PageProps) {
 				annualPricing,
 				addToCart,
 				closeModal: () => setOpenModal(false),
+				titles: {
+					included: "Exclusive benefits",
+					additional: "Also included",
+				},
 				cta: {
 					text: "Compare All Subscriptions",
 					callback: () => {
@@ -117,6 +130,9 @@ export default function StoreHome({ user }: PageProps) {
 				product,
 				addToCart,
 				closeModal: () => setOpenModal(false),
+				titles: {
+					included: "Potential items",
+				},
 			});
 		}
 		setOpenModal(true);
