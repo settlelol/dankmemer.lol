@@ -50,7 +50,8 @@ export default function SubscriptionProduct({
 					{product.name}
 				</h3>
 				<p className="text-base text-light-600 leading-tight">
-					${formattedPrice.toFixed(2)}
+					${formattedPrice.toFixed(2)} per{" "}
+					{annualPricing ? "year" : "month"}
 				</p>
 			</div>
 			<div className="mt-6 flex flex-col">
