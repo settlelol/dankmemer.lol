@@ -24,7 +24,7 @@ export default function Modal({
 	closeModal,
 	cta,
 }: {
-	product: Product | undefined;
+	product: Product;
 	annualPricing?: Boolean;
 	addToCart: any;
 	closeModal: any;
@@ -41,17 +41,17 @@ export default function Modal({
 	const [otherBenefits, setOtherBenefits] = useState("");
 
 	useEffect(() => {
-		if (product!.prices) {
+		if (product.prices) {
 			setPrice(
 				(
-					product!.prices.filter(
+					product.prices.filter(
 						(price) =>
 							price.interval ===
 							(annualPricing ? "year" : "month")
 					)[0].price / 100
 				).toFixed(2)
 			);
-		} else if (product!.price) setPrice((product!.price! / 100).toFixed(2));
+		} else if (product.price) setPrice((product.price! / 100).toFixed(2));
 		// TODO: API request to get benefits for the product that is being shown.
 	}, []);
 
@@ -69,14 +69,14 @@ export default function Modal({
 					<div
 						className="w-32 h-32 mr-4 rounded-md bg-black bg-opacity-40 bg-center bg-[length:100px_100px] bg-no-repeat"
 						style={{
-							backgroundImage: `url('${product!.images[0]}')`,
+							backgroundImage: `url('${product.images[0]}')`,
 						}}
 					></div>
 					<div>
-						<h1 className="text-2xl font-bold">{product!.name}</h1>
+						<h1 className="text-2xl font-bold">{product.name}</h1>
 						<p className="text-[#A0A8A1]">
-							{product!.metadata.type &&
-								toTitleCase(product!.metadata?.type)}
+							{product.metadata.type &&
+								toTitleCase(product.metadata?.type)}
 						</p>
 						<div className="mt-3 font-montserrat">
 							{annualPricing === undefined && (
@@ -96,15 +96,15 @@ export default function Modal({
 							className="mt-1"
 							onClick={() => {
 								addToCart({
-									id: product!.id,
-									name: product!.name,
+									id: product.id,
+									name: product.name,
 									price: {
 										type: "recurring",
 										interval: "",
 									},
 									unit_cost: price,
 									quantity: 1,
-									metadata: product!.metadata,
+									metadata: product.metadata,
 								});
 								closeModal();
 							}}
