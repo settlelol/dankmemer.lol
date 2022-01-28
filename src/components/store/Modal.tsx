@@ -62,7 +62,7 @@ export default function Modal({
 			onClick={closeModal}
 		>
 			<div
-				className="relative w-3/12 h-4/6 px-8 py-7 rounded-md dark:bg-[#1C2F1E]"
+				className="relative w-3/12 h-4/6 px-8 py-7 rounded-md dark:bg-[#1C2F1E] motion-safe:animate-slide-in"
 				onClick={(e) => e.stopPropagation()}
 			>
 				<div className="flex">
