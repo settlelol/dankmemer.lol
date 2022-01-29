@@ -101,7 +101,7 @@ export default function Modal({
 					</div>
 				</div>
 				<div className="mt-6">
-					{included.length < 1 && (
+					{included.length > 1 && (
 						<>
 							<h1 className="text-xl font-bold">
 								{includedTitle}
@@ -115,7 +115,7 @@ export default function Modal({
 							></p>
 						</>
 					)}
-					{additionallyIncluded.length < 1 && (
+					{additionallyIncluded.length > 1 && (
 						<>
 							<h1 className="mt-5 text-xl font-bold">
 								{additionallyIncludedTitle}
