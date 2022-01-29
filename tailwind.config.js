@@ -39,7 +39,7 @@ module.exports = {
 				"slide-in": {
 					"0%": {
 						opacity: "0",
-						transform: "translateY(-100px)",
+						transform: "translateY(-30px)",
 					},
 					"100%": {
 						opacity: "1",
