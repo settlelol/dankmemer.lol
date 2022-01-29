@@ -21,7 +21,7 @@ export default function Modal({
 
 	const [includedTitle, setIncludedTitle] = useState(titles.included);
 	const [additionallyIncludedTitle, setAdditionallyIncludedTitle] = useState(
-		titles.additional || "Also included"
+		titles.additional
 	);
 
 	const [included, setIncluded] = useState("");
