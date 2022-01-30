@@ -22,13 +22,13 @@ export default function ControlPanelContainer({
 
 	return (
 		<>
-			<div className="fixed top-0 left-0 dark:bg-dark-300 h-full w-72 px-9 py-5">
+			<div className="fixed top-0 left-0 bg-[#ECEFF0] dark:bg-dark-300 h-full w-72 px-9 py-5">
 				<div
 					className="flex justify-start items-center mb-5 cursor-pointer"
 					onClick={() => router.push("/")}
 				>
 					<img src={"/img/memer.png"} width={41} height={41} />
-					<h1 className="font-montserrat font-bold text-2xl ml-3 select-none">
+					<h1 className="font-montserrat font-bold text-2xl ml-3 select-none text-dank-200 dark:text-white">
 						Dank Memer
 					</h1>
 				</div>
@@ -97,7 +97,7 @@ export default function ControlPanelContainer({
 					/>
 				</LinkGroup>
 				<div className="absolute bottom-0 left-0 w-full h-16 px-9 mb-2">
-					<div className="flex justify-between items-center dark:bg-[#131A14] w-full box-border h-14 rounded-md">
+					<div className="flex justify-between items-center bg-[#D8DCDE] dark:bg-[#131A14] w-full box-border h-14 rounded-md">
 						<div className="flex justify-start items-center pl-4">
 							<img
 								src={user?.avatar}
@@ -105,8 +105,10 @@ export default function ControlPanelContainer({
 								className="rounded-full"
 							/>
 							<div className="ml-2">
-								<p className="leading-none">{user?.username}</p>
-								<p className="text-xs leading-none dark:text-light-600">
+								<p className="leading-none text-gray-800 dark:text-white">
+									{user?.username}
+								</p>
+								<p className="text-xs leading-none text-light-600">
 									#{user?.discriminator}
 								</p>
 							</div>
@@ -119,7 +121,7 @@ export default function ControlPanelContainer({
 										: "akar-icons:sun-fill"
 								}
 								height="20"
-								className="transition-all dark:text-light-600 hover:!text-black dark:hover:!text-white cursor-pointer"
+								className="transition-all text-gray-500 dark:text-light-600 hover:!text-black dark:hover:!text-white cursor-pointer"
 								onClick={() =>
 									setTheme(
 										theme === "dark" ? "light" : "dark"
