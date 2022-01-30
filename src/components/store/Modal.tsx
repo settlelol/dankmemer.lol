@@ -6,6 +6,7 @@ import Button from "../ui/Button";
 
 import { toTitleCase } from "../../util/string";
 import { ModalProps } from "src/pages/store";
+import axios from "axios";
 
 export default function Modal({
 	product,
@@ -40,6 +41,14 @@ export default function Modal({
 			);
 		} else if (product.price) setPrice((product.price! / 100).toFixed(2));
 		// TODO: API request to get benefits for the product that is being shown.
+		axios(`/api/store/product/details?id=${product.id}`)
+			.then(({ data }) => {
+				console.log(data);
+			})
+			.catch((e) => {
+				console.error(e);
+				// closeModal()
+			});
 	}, []);
 
 	return (
