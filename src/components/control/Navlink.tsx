@@ -1,4 +1,5 @@
 import { Icon as Iconify } from "@iconify/react";
+import clsx from "clsx";
 import { useRouter } from "next/router";
 
 interface Props {
@@ -19,7 +20,15 @@ export default function Navlink({ icon, size = 22, text, href }: Props) {
 			<div className="grid place-items-center bg-dank-200 dark:bg-[#175a34] w-10 h-10 rounded-md mr-4 fill-white">
 				<Iconify icon={icon} color="white" height={size} />
 			</div>
-			<p className="text-gray-800 dark:text-white">{text}</p>
+			<p
+				className={clsx(
+					window.location.pathname === href
+						? "text-dank-200"
+						: "text-gray-800 dark:text-white group-hover:text-dank-100"
+				)}
+			>
+				{text}
+			</p>
 		</div>
 	);
 }
