@@ -15,7 +15,7 @@ interface LegalProps {
 function Legal({ title, children }: LegalProps) {
 	return (
 		<div className="flex flex-col space-y-2">
-			<div className="text-2xl font-bold font-montserrat text-dark-400 dark:text-white">
+			<div className="text-2xl font-bold font-montserrat text-dark-500 dark:text-white">
 				{title}
 			</div>
 			<div className="flex flex-col space-y-2 text-gray-500 dark:text-gray-400 leading-5">
@@ -33,7 +33,7 @@ export default function Privacy({ user }: PageProps) {
 					<div className="text-dank-300 text-6xl font-bold font-montserrat">
 						PRIVACY POLICY
 					</div>
-					<div className="font-montserrat font-bold text-dark-400 dark:text-white">
+					<div className="font-montserrat font-bold text-dark-500 dark:text-white">
 						Effective date: {EFFECTIVE_DATE}
 					</div>
 					<Legal>
@@ -91,7 +91,7 @@ export default function Privacy({ user }: PageProps) {
 								],
 							].map(([title, desc]) => (
 								<li>
-									<div className="font-bold text-dark-400 dark:text-white">
+									<div className="font-bold text-dark-500 dark:text-white">
 										{title}
 									</div>
 									<div>{desc}</div>
@@ -105,10 +105,10 @@ export default function Privacy({ user }: PageProps) {
 							for various purposes to provide and improve our
 							Service to you.
 						</div>
-						<div className="text-lg text-dark-400 dark:text-white font-bold">
+						<div className="text-lg text-dark-500 dark:text-white font-bold">
 							Types of Data Collected
 						</div>
-						<div className="text-md text-dark-400 dark:text-white font-bold">
+						<div className="text-md text-dark-500 dark:text-white font-bold">
 							Personal Data
 						</div>
 						<div>
@@ -130,7 +130,7 @@ export default function Privacy({ user }: PageProps) {
 							You may opt out of receiving any, or all, of these
 							communications from us by contacting us.
 						</div>
-						<div className="text-md text-dark-400 dark:text-white font-bold">
+						<div className="text-md text-dark-500 dark:text-white font-bold">
 							Usage Data
 						</div>
 						<div>
@@ -146,7 +146,7 @@ export default function Privacy({ user }: PageProps) {
 							future, only to send registered users emails about
 							our service.
 						</div>
-						<div className="text-md text-dark-400 dark:text-white font-bold">
+						<div className="text-md text-dark-500 dark:text-white font-bold">
 							Tracking & Cookies Data
 						</div>
 						<div>
@@ -172,7 +172,7 @@ export default function Privacy({ user }: PageProps) {
 						<div>Examples of Cookies we use: </div>
 						<ul className="list-disc ml-4 space-y-2">
 							<li>
-								<span className="font-bold text-dark-400 dark:text-white">
+								<span className="font-bold text-dark-500 dark:text-white">
 									Session Cookies.{" "}
 								</span>
 								We use Session Cookies to keep you logged in to
@@ -291,7 +291,7 @@ export default function Privacy({ user }: PageProps) {
 						</div>
 					</Legal>
 					<Legal title="Disclosure of Data">
-						<div className="text-md text-dark-400 dark:text-white font-bold">
+						<div className="text-md text-dark-500 dark:text-white font-bold">
 							Legal Requirements
 						</div>
 						<div>
@@ -343,7 +343,7 @@ export default function Privacy({ user }: PageProps) {
 						</div>
 						<ul className="list-disc ml-4 space-y-2">
 							<li>
-								<span className="font-bold text-dark-400 dark:text-white">
+								<span className="font-bold text-dark-500 dark:text-white">
 									The right to access, update or delete the
 									information we have on you.{" "}
 								</span>
@@ -354,7 +354,7 @@ export default function Privacy({ user }: PageProps) {
 								yourself, please contact us to assist you.
 							</li>
 							<li>
-								<span className="font-bold text-dark-400 dark:text-white">
+								<span className="font-bold text-dark-500 dark:text-white">
 									The right of rectification.{" "}
 								</span>
 								You have the right to have your information
@@ -362,21 +362,21 @@ export default function Privacy({ user }: PageProps) {
 								incomplete.
 							</li>
 							<li>
-								<span className="font-bold text-dark-400 dark:text-white">
+								<span className="font-bold text-dark-500 dark:text-white">
 									The right to object.{" "}
 								</span>
 								You have the right to object to our processing
 								of your Personal Data.
 							</li>
 							<li>
-								<span className="font-bold text-dark-400 dark:text-white">
+								<span className="font-bold text-dark-500 dark:text-white">
 									The right of restriction.{" "}
 								</span>
 								You have the right to request that we restrict
 								the processing of your personal information.
 							</li>
 							<li>
-								<span className="font-bold text-dark-400 dark:text-white">
+								<span className="font-bold text-dark-500 dark:text-white">
 									The right to data portability.{" "}
 								</span>
 								You have the right to be provided with a copy of
@@ -384,7 +384,7 @@ export default function Privacy({ user }: PageProps) {
 								machine-readable and commonly used format.
 							</li>
 							<li>
-								<span className="font-bold text-dark-400 dark:text-white">
+								<span className="font-bold text-dark-500 dark:text-white">
 									The right to data portability.{" "}
 								</span>
 								You also have the right to withdraw your consent
@@ -419,7 +419,7 @@ export default function Privacy({ user }: PageProps) {
 							other purpose.
 						</div>
 
-						<div className="text-md text-dark-400 dark:text-white font-bold">
+						<div className="text-md text-dark-500 dark:text-white font-bold">
 							Analytics
 						</div>
 						<div>
@@ -428,7 +428,7 @@ export default function Privacy({ user }: PageProps) {
 						</div>
 						<ul className="list-disc ml-4 space-y-2">
 							<li>
-								<div className="font-bold text-dark-400 dark:text-white">
+								<div className="font-bold text-dark-500 dark:text-white">
 									Google Analytics
 								</div>
 								<div className="space-y-2">
@@ -468,7 +468,7 @@ export default function Privacy({ user }: PageProps) {
 								</div>
 							</li>
 						</ul>
-						<div className="text-md text-dark-400 dark:text-white font-bold">
+						<div className="text-md text-dark-500 dark:text-white font-bold">
 							Advertising
 						</div>
 						<div>
@@ -478,7 +478,7 @@ export default function Privacy({ user }: PageProps) {
 						</div>
 						<ul className="list-disc ml-4 space-y-2">
 							<li>
-								<div className="font-bold text-dark-400 dark:text-white">
+								<div className="font-bold text-dark-500 dark:text-white">
 									Google AdSense & DoubleClick Cookie{" "}
 								</div>
 								<div className="space-y-2">
@@ -508,7 +508,7 @@ export default function Privacy({ user }: PageProps) {
 								</div>
 							</li>
 						</ul>
-						<div className="text-md text-dark-400 dark:text-white font-bold">
+						<div className="text-md text-dark-500 dark:text-white font-bold">
 							Payments
 						</div>
 						<div>
@@ -532,7 +532,7 @@ export default function Privacy({ user }: PageProps) {
 						<div>The payment processors we work with are:</div>
 						<ul className="list-disc ml-4 space-y-2">
 							<li>
-								<div className="font-bold text-dark-400 dark:text-white">
+								<div className="font-bold text-dark-500 dark:text-white">
 									PayPal / Braintree{" "}
 								</div>
 								<div className="space-y-2">

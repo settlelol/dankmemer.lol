@@ -45,7 +45,7 @@ export default function BlogPage({ user }: PageProps) {
 					{blog ? (
 						<>
 							<div className="flex flex-col items-center space-y-1">
-								<div className="text-5xl font-montserrat font-bold text-dark-400 dark:text-white text-center">
+								<div className="text-5xl font-montserrat font-bold text-dark-500 dark:text-white text-center">
 									{blog.title}
 								</div>
 								<div className="flex flex-col items-center -space-y-1">
@@ -70,7 +70,7 @@ export default function BlogPage({ user }: PageProps) {
 								</div>
 							</div>
 							<div
-								className="text-dark-400 dark:text-white text-justify max-w-[80vw]"
+								className="text-dark-500 dark:text-white text-justify max-w-[80vw]"
 								dangerouslySetInnerHTML={{
 									__html: tailwindHtml(
 										mdParser.render(blog.content)

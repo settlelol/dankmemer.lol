@@ -21,12 +21,12 @@ export function tailwindHtml(content: string) {
 		.replace(/\<\/table/g, `</table></div`)
 		.replace(
 			/\<tr/g,
-			`<tr class="table-row align-[inherit] border border-dank-500 even:bg-dank-500 bg-dark-300"`
+			`<tr class="table-row align-[inherit] border border-dank-500 even:bg-dank-500 bg-dark-400"`
 		)
-		.replace(/\<td/g, `<td class="border border-dark-300"`)
+		.replace(/\<td/g, `<td class="border border-dark-400"`)
 		.replace(/\<th/g, `<th class="bg-dank-400"`)
 		.replace(/"/g, "'")
-		.replace(/\<p\>/g, `<p class="text-dark-400 dark:text-gray-200 mb-3">`);
+		.replace(/\<p\>/g, `<p class="text-dark-500 dark:text-gray-200 mb-3">`);
 
 	Object.values(items).forEach((item) => {
 		content = content.replace(

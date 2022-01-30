@@ -14,7 +14,7 @@ export default function ControlAnalyticsPage({ user }: PageProps) {
 				<div className="flex flex-col my-20 space-y-8">
 					<div className="flex flex-col space-y-4">
 						<div
-							className="flex space-x-2 cursor-pointer text-sm items-center text-dark-300 dark:text-light-100"
+							className="flex space-x-2 cursor-pointer text-sm items-center text-dark-400 dark:text-light-100"
 							onClick={() => router.back()}
 						>
 							<span className="material-icons">arrow_back</span>

@@ -29,10 +29,10 @@ function ItemBox({ item, side, trade, update }: ItemBoxProps) {
 		>
 			<div className="flex flex-col items-center space-y-1">
 				<img src={item.image} className="w-6 h-6" />
-				<div className="text-xs text-center text-dark-400 dark:text-white">
+				<div className="text-xs text-center text-dark-500 dark:text-white">
 					{item.name}
 				</div>
-				<div className="flex items-center justify-center text-dark-400 dark:text-white bg-gray-300 dark:bg-dark-300 text-sm">
+				<div className="flex items-center justify-center text-dark-500 dark:text-white bg-gray-300 dark:bg-dark-400 text-sm">
 					<div
 						className="font-bold select-none px-1"
 						onClick={(e) => {
@@ -242,7 +242,7 @@ export default function TradePage({ user }: PageProps) {
 						<div className="flex space-x-12">
 							{Object.keys(trade).map((side) => (
 								<div className="flex flex-col space-y-4">
-									<div className="-mb-4 text-lg font-bold font-montserrat text-dark-400 dark:text-white">
+									<div className="-mb-4 text-lg font-bold font-montserrat text-dark-500 dark:text-white">
 										{side == "left" ? "You" : "Someone"}
 									</div>
 									<textarea

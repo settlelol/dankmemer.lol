@@ -37,10 +37,10 @@ export default function Expandable({
 	return (
 		<div
 			className={clsx(
-				"bg-light-400 dark:bg-dark-400 rounded-md p-4 border select-none",
+				"bg-light-400 dark:bg-dark-500 rounded-md p-4 border select-none",
 				expanded
 					? "border-dank-300"
-					: "bg-light-400 dark:border-dark-400"
+					: "bg-light-400 dark:border-dark-500"
 			)}
 			onClick={() => setExpanded(!expanded)}
 		>

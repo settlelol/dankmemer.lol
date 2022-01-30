@@ -29,7 +29,7 @@ function Triangle({ scale, translate, rotate }: TriangleProps) {
 				strokeWidth="1.5px"
 				style={{ filter: "drop-shadow(0px 0px 18px #14763d)" }}
 				points="62.5,15 12.5,100 112.5,100"
-				className="fill-current text-light-200 dark:text-dark-300"
+				className="fill-current text-light-200 dark:text-dark-400"
 			/>
 		</g>
 	);
@@ -143,7 +143,7 @@ export default function HomePage({ user }: PageProps) {
 					className={clsx(
 						"grid grid-cols-1 lg:grid-cols-2 gap-8",
 						"max-w-sm lg:max-w-3xl md:rounded-lg p-8",
-						"bg-light-500 lg:bg-light-500 dark:bg-dark-300 lg:dark:bg-dark-400",
+						"bg-light-500 lg:bg-light-500 dark:bg-dark-400 lg:dark:bg-dark-500",
 						"text-dark-100 dark:text-light-300"
 					)}
 				>
@@ -158,7 +158,7 @@ export default function HomePage({ user }: PageProps) {
 									"space-x-0 space-y-4 lg:space-x-8 lg:space-y-0 p-8 lg:p-0"
 								)}
 							>
-								<div className="grid place-items-center min-w-[45px] min-h-[45px] rounded-full w-10 h-10 bg-gray-50 dark:bg-dark-300">
+								<div className="grid place-items-center min-w-[45px] min-h-[45px] rounded-full w-10 h-10 bg-gray-50 dark:bg-dark-400">
 									<span className="material-icons text-dank-300">
 										{info.icon}
 									</span>

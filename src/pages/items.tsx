@@ -108,7 +108,7 @@ export default function ItemsPage({ user }: PageProps) {
 								<div
 									key={ccategory}
 									className={clsx(
-										"bg-light-500 dark:bg-dark-100 px-4 py-1 rounded-md border-2 cursor-pointer text-dark-400 dark:text-white",
+										"bg-light-500 dark:bg-dark-100 px-4 py-1 rounded-md border-2 cursor-pointer text-dark-500 dark:text-white",
 										ccategory === category
 											? "border-dank-300"
 											: "border-light-500 dark:border-dark-100"
@@ -180,7 +180,7 @@ export default function ItemsPage({ user }: PageProps) {
 						<div className="flex flex-col items-center space-y-20">
 							<div className="flex flex-col items-center space-y-2">
 								<img src={itemData.image} className="w-20" />
-								<div className="text-3xl text-center font-bold font-montserrat text-dark-400 dark:text-white">
+								<div className="text-3xl text-center font-bold font-montserrat text-dark-500 dark:text-white">
 									{itemData.name}
 								</div>
 								<div className="flex flex-col items-center">
@@ -196,7 +196,7 @@ export default function ItemsPage({ user }: PageProps) {
 								</div>
 
 								<div
-									className="text-center leading-5 text-dark-400 dark:text-gray-200"
+									className="text-center leading-5 text-dark-500 dark:text-gray-200"
 									dangerouslySetInnerHTML={{
 										__html: mdParser.renderInline(
 											itemData.longdescription ||
@@ -206,7 +206,7 @@ export default function ItemsPage({ user }: PageProps) {
 								></div>
 							</div>
 							{itemData.effects && (
-								<div className="flex flex-col items-center text-dark-400 dark:text-white">
+								<div className="flex flex-col items-center text-dark-500 dark:text-white">
 									<div className="text-lg font-bold ">
 										Effects
 									</div>
@@ -217,7 +217,7 @@ export default function ItemsPage({ user }: PageProps) {
 							)}
 							{itemData.items && (
 								<div className="flex flex-col items-center">
-									<div className="text-lg font-bold text-dark-400 dark:text-white">
+									<div className="text-lg font-bold text-dark-500 dark:text-white">
 										Items Inside
 									</div>
 									<div className="grid gap-2 grid-cols-6">
@@ -237,7 +237,7 @@ export default function ItemsPage({ user }: PageProps) {
 							)}
 							{itemData.reward?.items && (
 								<div className="flex flex-col items-center">
-									<div className="text-lg font-bold text-dark-400 dark:text-white">
+									<div className="text-lg font-bold text-dark-500 dark:text-white">
 										Possible Items
 									</div>
 									<div className="grid gap-2 grid-cols-6">
@@ -259,7 +259,7 @@ export default function ItemsPage({ user }: PageProps) {
 							)}
 							{itemData.components && (
 								<div className="flex flex-col items-center">
-									<div className="text-lg font-bold text-dark-400 dark:text-white">
+									<div className="text-lg font-bold text-dark-500 dark:text-white">
 										Craftable From
 									</div>
 									<div className="grid gap-2 grid-cols-6">
@@ -274,7 +274,7 @@ export default function ItemsPage({ user }: PageProps) {
 													src={itemsData[id].image}
 													className="w-6"
 												/>
-												<div className="absolute right-0.5 bottom-0 text-xs text-dark-400 dark:text-white">
+												<div className="absolute right-0.5 bottom-0 text-xs text-dark-500 dark:text-white">
 													x{amount}
 												</div>
 											</div>
@@ -284,7 +284,7 @@ export default function ItemsPage({ user }: PageProps) {
 							)}
 							<div className="flex justify-between w-2/3 flex-col sm:flex-row">
 								<div className="flex flex-col items-center">
-									<div className="text-lg font-bold font-montserrat text-dark-400 dark:text-white">
+									<div className="text-lg font-bold font-montserrat text-dark-500 dark:text-white">
 										Buy Price
 									</div>
 									<div className="text-sm text-dank-300">
@@ -292,7 +292,7 @@ export default function ItemsPage({ user }: PageProps) {
 									</div>
 								</div>
 								<div className="flex flex-col items-center">
-									<div className="text-lg font-bold font-montserrat text-dark-400 dark:text-white">
+									<div className="text-lg font-bold font-montserrat text-dark-500 dark:text-white">
 										Sell Price
 									</div>
 									<div className="text-sm text-dank-300">

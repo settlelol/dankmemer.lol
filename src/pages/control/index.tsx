@@ -48,6 +48,7 @@ export default function ControlPage({ user }: PageProps) {
 							<Panel link="/control/users" label="User Control" />
 							<Panel link="/control/website" label="Website" />
 							<Panel link="/control/jobs" label="Jobs" />
+							<Panel link="/control/store" label="Store" />
 						</div>
 					</div>
 				)}

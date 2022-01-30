@@ -20,7 +20,7 @@ function Block({ title, children, icon, customIcon, onClick }: BlockProps) {
 	return (
 		<div
 			className={clsx(
-				"flex justify-between space-x-4 items-center bg-light-500 dark:bg-dark-400 rounded-md p-8",
+				"flex justify-between space-x-4 items-center bg-light-500 dark:bg-dark-500 rounded-md p-8",
 				onClick && "cursor-pointer"
 			)}
 			onClick={onClick}
@@ -29,7 +29,7 @@ function Block({ title, children, icon, customIcon, onClick }: BlockProps) {
 				{customIcon || <span className="material-icons">{icon}</span>}
 			</div>
 			<div className="flex flex-col ">
-				<div className="text-2xl font-bold font-montserrat text-dark-400 dark:text-white">
+				<div className="text-2xl font-bold font-montserrat text-dark-500 dark:text-white">
 					{title}
 				</div>
 				<div className="flex flex-col space-y-2 text-gray-500 dark:text-gray-400 leading-5">
@@ -59,7 +59,7 @@ export default function LandingPage({ user }: PageProps) {
 			</div>
 			<div className="relative my-16">
 				<div className="flex flex-col items-center space-y-8">
-					<div className="text-dark-400 dark:text-white font-montserrat flex flex-col items-center -space-y-4">
+					<div className="text-dark-500 dark:text-white font-montserrat flex flex-col items-center -space-y-4">
 						<div className="text-4xl font-bold">
 							THANKS FOR ADDING
 						</div>

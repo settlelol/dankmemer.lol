@@ -161,7 +161,7 @@ export default function BlogEditPage({ user }: PageProps) {
 
 						{preview ? (
 							<div
-								className="text-dark-400 dark:text-white bg-dank-600 rounded-md p-4"
+								className="text-dark-500 dark:text-white bg-dank-600 rounded-md p-4"
 								dangerouslySetInnerHTML={{
 									__html: tailwindHtml(
 										mdParser.render(blog.content)

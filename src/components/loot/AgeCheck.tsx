@@ -30,8 +30,8 @@ export function AgeCheck({ checkAge }: Props) {
 	};
 
 	return (
-		<div className="mb-40 flex flex-col space-y-2 items-center text-center text-dark-400 dark:text-white">
-			<div className="bg-light-500 dark:bg-dark-400 rounded-md p-20">
+		<div className="mb-40 flex flex-col space-y-2 items-center text-center text-dark-500 dark:text-white">
+			<div className="bg-light-500 dark:bg-dark-500 rounded-md p-20">
 				<div className="text-5xl font-bold">Hold on!</div>
 				<div className="flex flex-col items-center space-y-4">
 					<div>

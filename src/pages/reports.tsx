@@ -61,7 +61,7 @@ export default function Reports({ user }: PageProps) {
 			<div className="relative my-16 flex justify-center">
 				<div className="max-w-3xl bg-gray-200 dark:bg-dark-200 flex flex-col rounded-md">
 					<div className="p-8 text-center border-b-8 border-gray-300 dark:border-dark-100">
-						<div className="text-3xl font-bold font-montserrat text-dark-400 dark:text-white">
+						<div className="text-3xl font-bold font-montserrat text-dark-500 dark:text-white">
 							Report a {type}
 						</div>
 						<div className="text-gray-500 dark:text-gray-400 max-w-2xl">
@@ -72,7 +72,7 @@ export default function Reports({ user }: PageProps) {
 					</div>
 					<div className="flex flex-col p-4 space-y-2">
 						<div className="flex flex-col space-y-2">
-							<div className="text-lg font-bold font-montserrat text-dark-400 dark:text-white">
+							<div className="text-lg font-bold font-montserrat text-dark-500 dark:text-white">
 								What type of report is this?
 							</div>
 							<div>
@@ -88,7 +88,7 @@ export default function Reports({ user }: PageProps) {
 														: "server"
 												)
 											}
-											className="flex items-center space-x-6 select-none text-dark-400 dark:text-white"
+											className="flex items-center space-x-6 select-none text-dark-500 dark:text-white"
 										>
 											<span
 												className={clsx(
@@ -113,7 +113,7 @@ export default function Reports({ user }: PageProps) {
 									value={id}
 									placeholder={""}
 								/>
-								<div className="text-dark-400 dark:text-white">
+								<div className="text-dark-500 dark:text-white">
 									ID of {type} you are reporting.
 								</div>
 							</div>
@@ -122,7 +122,7 @@ export default function Reports({ user }: PageProps) {
 
 					<div className="flex flex-col p-4 space-y-2">
 						<div className="flex flex-col space-y-2">
-							<div className="text-lg font-bold font-montserrat text-dark-400 dark:text-white">
+							<div className="text-lg font-bold font-montserrat text-dark-500 dark:text-white">
 								Which rules did they break?
 							</div>
 							<div className="flex flex-col space-y-1">
@@ -130,7 +130,9 @@ export default function Reports({ user }: PageProps) {
 									<label
 										key={i + 1}
 										htmlFor={"rule-" + i + 1}
-										onClick={(e) => updateBrokenRules(i + 1)}
+										onClick={(e) =>
+											updateBrokenRules(i + 1)
+										}
 										className="flex items-center space-x-6 select-none text-dark-400 dark:text-white"
 									>
 										<span
@@ -152,7 +154,7 @@ export default function Reports({ user }: PageProps) {
 
 					<div className="flex flex-col p-4 space-y-2">
 						<div className="flex flex-col space-y-2">
-							<div className="text-lg font-bold font-montserrat text-dark-400 dark:text-white">
+							<div className="text-lg font-bold font-montserrat text-dark-500 dark:text-white">
 								Please write your report below.
 							</div>
 							<textarea

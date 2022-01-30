@@ -35,7 +35,8 @@ export default function Appeals({ user }: PageProps) {
 			body: JSON.stringify({
 				appeal,
 				rules: brokenRules.map(
-					(i) => APPEALS[type.includes("Bot") ? "user" : "server"][i - 1]
+					(i) =>
+						APPEALS[type.includes("Bot") ? "user" : "server"][i - 1]
 				),
 				type,
 			}),
@@ -60,14 +61,16 @@ export default function Appeals({ user }: PageProps) {
 			<div className="relative my-16 flex justify-center">
 				<div className="max-w-3xl bg-gray-200 dark:bg-dark-200 flex flex-col rounded-md">
 					<div className="p-8 text-center border-b-8 border-gray-300 dark:border-dark-100">
-						<div className="text-3xl font-bold font-montserrat text-dark-400 dark:text-white">
+						<div className="text-3xl font-bold font-montserrat text-dark-500 dark:text-white">
 							Appeal{" "}
 							{
 								{
 									"Bot Ban": "a permanent bot ban",
 									"Bot Blacklist": "a temporary bot ban",
-									"Community Server Ban": "a community server ban",
-									"Support Server Ban": "a support server ban",
+									"Community Server Ban":
+										"a community server ban",
+									"Support Server Ban":
+										"a support server ban",
 								}[type]
 							}
 						</div>
@@ -92,7 +95,7 @@ export default function Appeals({ user }: PageProps) {
 									key={stype}
 									htmlFor={"type-" + stype}
 									onClick={() => setType(stype)}
-									className="flex items-center space-x-6 select-none text-dark-400 dark:text-white"
+									className="flex items-center space-x-6 select-none text-dark-500 dark:text-white"
 								>
 									<span
 										className={clsx(
@@ -109,13 +112,15 @@ export default function Appeals({ user }: PageProps) {
 					</div>
 					{type == "Bot Blacklist" && (
 						<div className="text-rose-600 px-4">
-							If a blacklist duration is under two weeks, it will not
-							be appealed.
+							If a blacklist duration is under two weeks, it will
+							not be appealed.
 						</div>
 					)}
 					{type == "Community Server Ban" && (
 						<div className="text-rose-600 px-4">
-							If you are still in the server but cannot talk, you are not banned. You are timed out. This cannot be appealed as it is temporary.
+							If you are still in the server but cannot talk, you
+							are not banned. You are timed out. This cannot be
+							appealed as it is temporary.
 						</div>
 					)}
 					{type == "Bot Ban" && (
@@ -126,7 +131,7 @@ export default function Appeals({ user }: PageProps) {
 					)}
 					<div className="flex flex-col p-4 space-y-2">
 						<div className="flex flex-col space-y-2">
-							<div className="text-lg font-bold font-montserrat text-dark-400 dark:text-white">
+							<div className="text-lg font-bold font-montserrat text-dark-500 dark:text-white">
 								Which rules did you break?
 							</div>
 							<div className="flex flex-col space-y-1">
@@ -136,7 +141,9 @@ export default function Appeals({ user }: PageProps) {
 									<label
 										key={i + 1}
 										htmlFor={"rule-" + (i + 1)}
-										onClick={(e) => updateBrokenRules(i + 1)}
+										onClick={(e) =>
+											updateBrokenRules(i + 1)
+										}
 										className="flex items-center space-x-6 select-none text-dark-400 dark:text-white"
 									>
 										<span
@@ -158,7 +165,7 @@ export default function Appeals({ user }: PageProps) {
 
 					<div className="flex flex-col p-4 space-y-2">
 						<div className="flex flex-col space-y-2">
-							<div className="text-lg font-bold font-montserrat text-dark-400 dark:text-white">
+							<div className="text-lg font-bold font-montserrat text-dark-500 dark:text-white">
 								Please write your appeal below.
 							</div>
 							<textarea

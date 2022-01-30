@@ -301,7 +301,7 @@ export default function ProfilePage({ user }: PageProps) {
 													"?size=512"
 												}
 												size="120px"
-												className="border-4 border-light-500 dark:border-dark-300 rounded-full"
+												className="border-4 border-light-500 dark:border-dark-400 rounded-full"
 											/>
 										</div>
 										<div className="inline-block md:hidden">
@@ -312,7 +312,7 @@ export default function ProfilePage({ user }: PageProps) {
 													"?size=512"
 												}
 												size="96px"
-												className="border-4 border-light-500 dark:border-dark-300 rounded-full"
+												className="border-4 border-light-500 dark:border-dark-400 rounded-full"
 											/>
 										</div>
 									</div>

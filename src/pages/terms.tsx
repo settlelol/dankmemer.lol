@@ -15,7 +15,7 @@ interface LegalProps {
 function Legal({ title, children }: LegalProps) {
 	return (
 		<div className="flex flex-col space-y-2">
-			<div className="text-2xl font-bold font-montserrat text-dark-400 dark:text-white">
+			<div className="text-2xl font-bold font-montserrat text-dark-500 dark:text-white">
 				{title}
 			</div>
 			<div className="flex flex-col space-y-2 text-gray-500 dark:text-gray-400 leading-5">
@@ -33,7 +33,7 @@ export default function Terms({ user }: PageProps) {
 					<div className="text-dank-300 text-6xl font-bold font-montserrat">
 						TERMS OF SERVICE
 					</div>
-					<div className="font-montserrat font-bold text-dark-400 dark:text-white">
+					<div className="font-montserrat font-bold text-dark-500 dark:text-white">
 						Last updated: {TERMS_LAST_UPDATE}
 					</div>
 					<Legal>

@@ -21,7 +21,7 @@ export function PossibleItems({ activeBox }: Props) {
 	return (
 		<div className="flex flex-col space-y-10">
 			<div>
-				<div className="text-xl font-bold text-dark-400 dark:text-white">
+				<div className="text-xl font-bold text-dark-500 dark:text-white">
 					Possible items
 				</div>
 				<div className="text-gray-400">
@@ -33,12 +33,12 @@ export function PossibleItems({ activeBox }: Props) {
 					<span className="text-dank-300">⏣ {activeBox.yield}</span>.
 				</div>
 			</div>
-			<table className="border border-gray-400 dark:border-dark-400 text-dark-400 dark:text-white">
+			<table className="border border-gray-400 dark:border-dark-500 text-dark-500 dark:text-white">
 				<thead className="text-left">
 					<tr
 						className={clsx(
-							"border border-gray-200 dark:border-dark-400 text-dark-400 dark:text-white",
-							theme === "dark" ? "bg-dark-400" : "bg-gray-100"
+							"border border-gray-200 dark:border-dark-500 text-dark-500 dark:text-white",
+							theme === "dark" ? "bg-dark-500" : "bg-gray-100"
 						)}
 					>
 						<th className="p-1">Item name</th>
@@ -50,9 +50,9 @@ export function PossibleItems({ activeBox }: Props) {
 						<tr
 							key={i}
 							className={clsx(
-								"border border-gray-200 dark:border-dark-400 text-dark-400 dark:text-white",
+								"border border-gray-200 dark:border-dark-500 text-dark-500 dark:text-white",
 								theme === "dark"
-									? "even:bg-dark-400"
+									? "even:bg-dark-500"
 									: "even:bg-gray-100"
 							)}
 						>

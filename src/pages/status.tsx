@@ -159,7 +159,7 @@ export default function Status({ user }: PageProps) {
 			<div className="relative my-16">
 				<div className="flex flex-col space-y-6">
 					<div>
-						<div className="text-3xl font-bold font-montserrat text-dark-400 dark:text-white">
+						<div className="text-3xl font-bold font-montserrat text-dark-500 dark:text-white">
 							Status
 						</div>
 						<div>

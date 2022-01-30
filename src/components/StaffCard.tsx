@@ -77,7 +77,7 @@ export function StaffCard({ member }: StaffCardProps) {
 			)}
 			onClick={() => router.push(`/@${member.vanity || member._id}`)}
 		>
-			<div className="flex flex-col space-y-4 text-dark-400 dark:text-white">
+			<div className="flex flex-col space-y-4 text-dark-500 dark:text-white">
 				<div className="flex space-x-4">
 					<img
 						onClick={(e) => {

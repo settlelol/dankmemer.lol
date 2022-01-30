@@ -20,7 +20,7 @@ export default function FancyButton({ text, link, variant = "big" }: Props) {
 					className={clsx(
 						variants[variant],
 						"relative block",
-						"border-[3px] border-dank-200 bg-light-200 dark:bg-dark-300 text-black dark:text-white"
+						"border-[3px] border-dank-200 bg-light-200 dark:bg-dark-400 text-black dark:text-white"
 					)}
 					rel="noreferrer noopener"
 				>

@@ -1,7 +1,7 @@
 export function Success({ id }: { id?: string }) {
 	return (
-		<div className="mb-40 flex flex-col items-center text-center text-dark-400 dark:text-white">
-			<div className="bg-light-500 dark:bg-dark-400 rounded-md p-20 flex flex-col space-y-2">
+		<div className="mb-40 flex flex-col items-center text-center text-dark-500 dark:text-white">
+			<div className="bg-light-500 dark:bg-dark-500 rounded-md p-20 flex flex-col space-y-2">
 				<div className="text-2xl font-bold text-dank-300">Success!</div>
 
 				<div className="flex flex-col space-y-4">

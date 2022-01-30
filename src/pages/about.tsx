@@ -14,7 +14,7 @@ interface BlockProps {
 function Block({ title, children }: BlockProps) {
 	return (
 		<div className="flex flex-col space-y-2">
-			<div className="text-2xl font-bold font-montserrat text-dark-400 dark:text-white">
+			<div className="text-2xl font-bold font-montserrat text-dark-500 dark:text-white">
 				{title}
 			</div>
 			<div className="flex flex-col space-y-2 text-gray-500 dark:text-gray-400 leading-5">
@@ -29,7 +29,7 @@ export default function AboutPage({ user }: PageProps) {
 		<Container title="About" user={user}>
 			<div className="relative max-w-4xl my-16">
 				<div className="flex flex-col space-y-2">
-					<div className="text-dark-400 dark:text-white text-6xl font-bold font-montserrat">
+					<div className="text-dark-500 dark:text-white text-6xl font-bold font-montserrat">
 						About Dank Memer
 					</div>
 				</div>
