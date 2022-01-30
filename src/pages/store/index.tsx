@@ -147,7 +147,7 @@ export default function StoreHome({ user }: PageProps) {
 		<>
 			{/* @ts-ignore */}
 			{openModal && <Modal {...modalProps} />}
-			<Container title="Store">
+			<Container title="Store" user={user}>
 				<div className="flex flex-col sm:flex-row justify-between items-center mt-12 space-y-2 sm:space-y-0">
 					<Title size="big">Store</Title>
 					<Button
