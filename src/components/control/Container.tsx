@@ -1,7 +1,10 @@
 import { ReactNode } from "react";
 import { User } from "src/types";
+import { Icon as Iconify } from "@iconify/react";
 import LinkGroup from "./LinkGroup";
 import Navlink from "./Navlink";
+import { useRouter } from "next/router";
+import { useTheme } from "next-themes";
 
 interface Props {
 	children: ReactNode;
@@ -14,12 +17,18 @@ export default function ControlPanelContainer({
 	title,
 	user,
 }: Props) {
+	const router = useRouter();
+	const { theme, setTheme } = useTheme();
+
 	return (
 		<>
-			<div className="fixed top-0 left-0 dark:bg-dark-300 h-full w-72 px-9 py-7">
-				<div className="flex justify-start items-center mb-7">
+			<div className="fixed top-0 left-0 dark:bg-dark-300 h-full w-72 px-9 py-5">
+				<div
+					className="flex justify-start items-center mb-5 cursor-pointer"
+					onClick={() => router.push("/")}
+				>
 					<img src={"/img/memer.png"} width={41} height={41} />
-					<h1 className="font-montserrat font-bold text-2xl ml-3">
+					<h1 className="font-montserrat font-bold text-2xl ml-3 select-none">
 						Dank Memer
 					</h1>
 				</div>
@@ -87,8 +96,41 @@ export default function ControlPanelContainer({
 						href="/control/data-upload"
 					/>
 				</LinkGroup>
+				<div className="absolute bottom-0 left-0 w-full h-16 px-9 mb-2">
+					<div className="flex justify-between items-center dark:bg-[#131A14] w-full box-border h-14 rounded-md">
+						<div className="flex justify-start items-center pl-4">
+							<img
+								src={user?.avatar}
+								width={32}
+								className="rounded-full"
+							/>
+							<div className="ml-2">
+								<p className="leading-none">{user?.username}</p>
+								<p className="text-xs leading-none dark:text-light-600">
+									#{user?.discriminator}
+								</p>
+							</div>
+						</div>
+						<div className="flex justify-end items-center pr-4">
+							<Iconify
+								icon={
+									theme === "light"
+										? "fluent:weather-moon-24-filled"
+										: "akar-icons:sun-fill"
+								}
+								height="20"
+								className="transition-all dark:text-light-600 hover:!text-black dark:hover:!text-white cursor-pointer"
+								onClick={() =>
+									setTheme(
+										theme === "dark" ? "light" : "dark"
+									)
+								}
+							/>
+						</div>
+					</div>
+				</div>
 			</div>
-			<div className="flex justify-center ml-10">
+			<div className="flex justify-start ml-80">
 				<div className="max-w-7xl relative w-full">{children}</div>
 			</div>
 		</>
