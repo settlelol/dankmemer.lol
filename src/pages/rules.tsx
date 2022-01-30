@@ -14,10 +14,10 @@ interface RuleProps {
 function Rule({ title, description, children }: RuleProps) {
 	return (
 		<div className="flex flex-col space-y-1 p-6 bg-gray-200 dark:bg-dark-200">
-			<div className="text-2xl font-bold font-montserrat text-dark-400 dark:text-white">
+			<div className="text-2xl font-bold font-montserrat text-dark-500 dark:text-white">
 				{title}
 			</div>
-			<div className="text-md font-montserrat text-dark-400 dark:text-white">
+			<div className="text-md font-montserrat text-dark-500 dark:text-white">
 				{description}
 			</div>
 			<div className="flex flex-col space-y-2 text-gray-500 dark:text-gray-400 leading-5">
@@ -32,7 +32,7 @@ export default function Rules({ user }: PageProps) {
 		<Container title="Rules" user={user}>
 			<div className="relative my-16">
 				<div className="flex flex-col space-y-2">
-					<div className="text-dark-400 dark:text-white text-6xl font-bold font-montserrat">
+					<div className="text-dark-500 dark:text-white text-6xl font-bold font-montserrat">
 						Dank Memer Rules
 					</div>
 					<div className="font-montserrat text-gray-400">
@@ -50,7 +50,9 @@ export default function Rules({ user }: PageProps) {
 						anything else enabling automation of commands is
 						strictly forbidden. In addition to this, massive amounts
 						of spam is not allowed and will be punished with equal
-						severity. Lastly, alts that are used to bypass bans or bypass systems in Dank Memer such as (but not limited to) the lottery, drops, or vote rewards are not allowed.
+						severity. Lastly, alts that are used to bypass bans or
+						bypass systems in Dank Memer such as (but not limited
+						to) the lottery, drops, or vote rewards are not allowed.
 					</Rule>
 					<Rule title="Rule Two" description="Sharing Exploits">
 						<div>

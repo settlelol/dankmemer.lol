@@ -209,7 +209,7 @@ export default function StoreHome({ user }: PageProps) {
 							<label
 								htmlFor="annualPricing"
 								onClick={() => setAnnualPricing(!annualPricing)}
-								className="flex items-center space-x-6 select-none text-dark-400 dark:text-white"
+								className="flex items-center space-x-6 select-none text-dark-500 dark:text-white"
 							>
 								<span
 									className={clsx(

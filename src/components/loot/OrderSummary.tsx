@@ -45,7 +45,7 @@ export function OrderSummary({
 	return (
 		<div className="flex flex-col space-y-10">
 			<div>
-				<div className="text-xl font-bold text-dark-400 dark:text-white">
+				<div className="text-xl font-bold text-dark-500 dark:text-white">
 					Order summary
 				</div>
 				<div className="text-gray-400">
@@ -55,7 +55,7 @@ export function OrderSummary({
 					continue. Orders over $20 will receive a 10% discount.
 				</div>
 			</div>
-			<div className="text-dark-400 dark:text-white">
+			<div className="text-dark-500 dark:text-white">
 				<div className="flex justify-between">
 					<div>
 						{boxCount}x {activeBox.name}

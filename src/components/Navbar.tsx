@@ -73,7 +73,7 @@ export default function Navbar({ user }: Props) {
 									<div className="flex items-center space-x-2 cursor-pointer">
 										<span>Store</span>
 										{!!discount && (
-											<span className="text-xs bg-yellow-300 text-dark-400 rounded-md px-2 font-bold font-montserrat">
+											<span className="text-xs bg-yellow-300 text-dark-500 rounded-md px-2 font-bold font-montserrat">
 												SALE: {discount}%
 											</span>
 										)}
@@ -127,7 +127,7 @@ export default function Navbar({ user }: Props) {
 												link={user.avatar}
 												size="32px"
 											/>
-											<div className="text-dark-400 dark:text-white">
+											<div className="text-dark-500 dark:text-white">
 												{user.username}
 											</div>
 											<span className="material-icons text-dark-100 dark:text-white">
@@ -193,27 +193,27 @@ export default function Navbar({ user }: Props) {
 				{hamburger && (
 					<ul className="absolute flex flex-col bg-light-200 dark:bg-dark-200 box-border w-screen h-screen z-[9999999] px-6 top-[74px]">
 						<Link href="/commands">
-							<li className="text-dark-400 dark:text-white hover:text-light-600 pt-5">
+							<li className="text-dark-500 dark:text-white hover:text-light-600 pt-5">
 								Commands
 							</li>
 						</Link>
 						<Link href="/faq">
-							<li className="text-dark-400 dark:text-white hover:text-light-600 pt-5">
+							<li className="text-dark-500 dark:text-white hover:text-light-600 pt-5">
 								Frequently asked questions
 							</li>
 						</Link>
 						<Link href="/community">
-							<li className="text-dark-400 dark:text-white hover:text-light-600 pt-5">
+							<li className="text-dark-500 dark:text-white hover:text-light-600 pt-5">
 								Community
 							</li>
 						</Link>
 						<Link href="/loot">
-							<li className="text-dark-400 dark:text-white hover:text-light-600 pt-5">
+							<li className="text-dark-500 dark:text-white hover:text-light-600 pt-5">
 								Store
 							</li>
 						</Link>
 						<Link href="/items">
-							<li className="text-dark-400 dark:text-white hover:text-light-600 pt-5">
+							<li className="text-dark-500 dark:text-white hover:text-light-600 pt-5">
 								Items
 							</li>
 						</Link>
@@ -266,18 +266,18 @@ export default function Navbar({ user }: Props) {
 									}}
 								>
 									<Link href="/appeals">
-										<li className="text-dark-400 dark:text-white hover:text-light-600 pt-5">
+										<li className="text-dark-500 dark:text-white hover:text-light-600 pt-5">
 											Appeal a ban
 										</li>
 									</Link>
 									<Link href="/reports">
-										<li className="text-dark-400 dark:text-white hover:text-light-600 pt-5">
+										<li className="text-dark-500 dark:text-white hover:text-light-600 pt-5">
 											Report a user
 										</li>
 									</Link>
 									{user?.moderator && (
 										<Link href="/control">
-											<li className="text-dark-400 dark:text-white hover:text-light-600 pt-5">
+											<li className="text-dark-500 dark:text-white hover:text-light-600 pt-5">
 												Control panel
 											</li>
 										</Link>

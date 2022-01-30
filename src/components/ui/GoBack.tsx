@@ -15,7 +15,7 @@ export default function GoBack({}: Props) {
 
 	return (
 		<div
-			className="flex space-x-2 cursor-pointer text-sm items-center text-dark-300 dark:text-light-100"
+			className="flex space-x-2 cursor-pointer text-sm items-center text-dark-400 dark:text-light-100"
 			onClick={() =>
 				history
 					? router.back()

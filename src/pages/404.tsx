@@ -11,7 +11,7 @@ export default function Error({}: PageProps) {
 				<div className="text-dank-300 text-6xl font-bold font-montserrat">
 					Uh Oh
 				</div>
-				<div className="font-montserrat font-bold text-dark-400 dark:text-white">
+				<div className="font-montserrat font-bold text-dark-500 dark:text-white">
 					We can't seem to find the page that you were looking for.
 				</div>
 				<Button

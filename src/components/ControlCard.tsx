@@ -46,7 +46,7 @@ export function ControlCard({
 	const [processing, setProcessing] = useState(false);
 
 	return (
-		<div className="flex flex-col justify-between items-start rounded-md p-8 w-80 h-80 bg-light-500 dark:bg-dark-400">
+		<div className="flex flex-col justify-between items-start rounded-md p-8 w-80 h-80 bg-light-500 dark:bg-dark-500">
 			<div className="flex flex-col space-y-4">
 				<div className="flex justify-between items-center space-x-4">
 					<div
@@ -57,7 +57,7 @@ export function ControlCard({
 					>
 						<span className="material-icons">{icon}</span>
 					</div>
-					<div className="font-bold font-montserrat text-xl text-dark-400 dark:text-white">
+					<div className="font-bold font-montserrat text-xl text-dark-500 dark:text-white">
 						{label}
 					</div>
 				</div>
@@ -80,10 +80,10 @@ export function ControlCard({
 							content={
 								<div className="flex items-center justify-between w-full p-2">
 									<div className="flex items-center space-x-2">
-										<span className="material-icons text-dark-400 dark:text-gray-500">
+										<span className="material-icons text-dark-500 dark:text-gray-500">
 											{dropdown.icon}
 										</span>
-										<div className="text-dark-400 dark:text-gray-500">
+										<div className="text-dark-500 dark:text-gray-500">
 											{dropdown.options.find(
 												(o) => o.value === dropdownData
 											)?.text || dropdown.initial}
