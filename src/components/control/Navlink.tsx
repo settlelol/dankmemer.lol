@@ -22,7 +22,7 @@ export default function Navlink({ icon, size = 22, text, href }: Props) {
 			</div>
 			<p
 				className={clsx(
-					window.location.pathname === href
+					router.route === href
 						? "text-dank-200"
 						: "text-gray-800 dark:text-white group-hover:text-dank-100"
 				)}
