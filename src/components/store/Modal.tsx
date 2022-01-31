@@ -43,7 +43,12 @@ export default function Modal({
 		// TODO: API request to get benefits for the product that is being shown.
 		axios(`/api/store/product/details?id=${product.id}`)
 			.then(({ data }) => {
-				console.log(data);
+				setIncludedTitle(data.primaryTitle);
+				setIncluded(data.primaryBody);
+				if (data.secondaryTitle && data.secondaryBody) {
+					setAdditionallyIncluded(data.secondaryBody);
+					setAdditionallyIncludedTitle(data.secondaryTitle);
+				}
 			})
 			.catch((e) => {
 				console.error(e);
@@ -109,7 +114,7 @@ export default function Modal({
 						</Button>
 					</div>
 				</div>
-				<div className="mt-6">
+				<div className="mt-6 max-h-[22rem] overflow-y-auto">
 					{included.length > 1 && (
 						<>
 							<h1 className="text-xl font-bold">
@@ -121,6 +126,7 @@ export default function Modal({
 										mdParser.render(included)
 									),
 								}}
+								className="text-sm"
 							></p>
 						</>
 					)}
