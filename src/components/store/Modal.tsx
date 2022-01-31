@@ -63,7 +63,7 @@ export default function Modal({
 			onClick={closeModal}
 		>
 			<div
-				className="relative w-3/12 max-w-[480px] h-4/6 px-8 py-7 rounded-md text-black bg-light-200 dark:bg-dank-500 motion-safe:animate-slide-in"
+				className="relative w-3/12 max-w-[480px] h-4/6 px-8 py-7 rounded-md text-black dark:text-white bg-light-200 dark:bg-dank-500 motion-safe:animate-slide-in"
 				onClick={(e) => e.stopPropagation()}
 			>
 				<div className="flex">
@@ -75,7 +75,7 @@ export default function Modal({
 					></div>
 					<div>
 						<h1 className="text-2xl font-bold">{product.name}</h1>
-						<p className="text-[#A0A8A1]">
+						<p className="text-black/40 dark:text-white/50">
 							{product.metadata.type &&
 								toTitleCase(product.metadata?.type)}
 						</p>
@@ -126,7 +126,7 @@ export default function Modal({
 										mdParser.render(included)
 									),
 								}}
-								className="text-sm"
+								className="text-sm text-gray-800 dark:text-zinc-300"
 							></p>
 						</>
 					)}
@@ -141,6 +141,7 @@ export default function Modal({
 										mdParser.render(additionallyIncluded)
 									),
 								}}
+								className="text-sm text-gray-800 dark:text-zinc-300"
 							></p>
 						</>
 					)}
