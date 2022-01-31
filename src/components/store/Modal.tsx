@@ -100,8 +100,11 @@ export default function Modal({
 									id: product.id,
 									name: product.name,
 									price: {
-										type: "recurring",
-										interval: "",
+										type:
+											product.metadata.type ===
+											"membership"
+												? "recurring"
+												: "one_time",
 									},
 									unit_cost: price,
 									quantity: 1,
