@@ -5,6 +5,8 @@ import LinkGroup from "./LinkGroup";
 import Navlink from "./Navlink";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface Props {
 	children: ReactNode;
@@ -22,6 +24,7 @@ export default function ControlPanelContainer({
 
 	return (
 		<>
+			<ToastContainer position="top-center" theme="colored" />
 			<div className="fixed top-0 left-0 bg-[#ECEFF0] dark:bg-dark-100 h-full w-72 px-9 py-5">
 				<div
 					className="flex justify-start items-center mb-5 cursor-pointer"
