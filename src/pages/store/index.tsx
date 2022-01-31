@@ -1,7 +1,6 @@
 import axios from "axios";
 import router from "next/router";
-import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Title } from "src/components/Title";
 import Button from "src/components/ui/Button";
 import Container from "src/components/ui/Container";
@@ -69,7 +68,6 @@ export type ModalProps = {
 
 export default function StoreHome({ user }: PageProps) {
 	const [openModal, setOpenModal] = useState(false);
-	const [selectedItem, setSelectedItem] = useState<Product | Subscription>();
 
 	const [cartItems, setCartItems] = useState<CartItem[] | []>([]);
 	const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -106,8 +104,6 @@ export default function StoreHome({ user }: PageProps) {
 	};
 
 	const showProduct = (product: Product | Subscription) => {
-		setSelectedItem(product);
-
 		if (product.metadata.type === "membership") {
 			setModalProps({
 				product,
