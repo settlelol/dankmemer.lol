@@ -68,6 +68,7 @@ export default function SubscriptionProduct({
 							unit_cost: formattedPrice,
 							quantity: 1,
 							metadata: product.metadata,
+							image: product.images[0],
 						});
 					}}
 				>
