@@ -8,6 +8,12 @@ interface Product extends Stripe.Product {
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
+	const user = req.session.get("user");
+
+	if (!user) {
+		return res.status(401).json({ error: "You are not logged in." });
+	}
+
 	let result: Product[] = [];
 	const stripe: Stripe = stripeConnect();
 	const { data: products } = await stripe.products.list({
