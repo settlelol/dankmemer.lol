@@ -46,13 +46,13 @@ type CartItem = {
 	metadata?: Metadata;
 };
 
-interface ModalProduct extends Stripe.Product {
+export interface AnyProduct extends Stripe.Product {
 	price?: number;
 	prices?: SubscriptionPrice[];
 }
 
 export type ModalProps = {
-	product: ModalProduct;
+	product: AnyProduct;
 	annualPricing?: Boolean;
 	addToCart: any;
 	closeModal: any;
@@ -88,6 +88,11 @@ export default function StoreHome({ user }: PageProps) {
 			"/api/store/products/subscriptions/list"
 		);
 		setSubscriptions(subscriptions);
+	};
+
+	const getCartContents = async () => {
+		let { data: cartContents } = await axios("/api/store/cart/get");
+		setCartItems(cartContents.cart);
 	};
 
 	const addToCart = async (item: CartItem) => {
@@ -137,7 +142,17 @@ export default function StoreHome({ user }: PageProps) {
 	useEffect(() => {
 		getProducts();
 		getSubscriptions();
+		getCartContents();
 	}, []);
+
+	useEffect(() => {
+		if (cartItems.length === 0) return;
+		axios({
+			url: "/api/store/cart/set",
+			method: "PUT",
+			data: { cartData: cartItems },
+		});
+	}, [cartItems]);
 
 	return (
 		<>
