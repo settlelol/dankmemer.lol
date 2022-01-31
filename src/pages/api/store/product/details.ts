@@ -4,6 +4,12 @@ import { dbConnect } from "src/util/mongodb";
 import { Db } from "mongodb";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
+	const user = req.session.get("user");
+
+	if (!user) {
+		return res.status(401).json({ error: "You are not logged in." });
+	}
+
 	const db: Db = await dbConnect();
 	const productId: string = req.query?.id.toString();
 	if (!productId)
