@@ -63,12 +63,12 @@ export default function Modal({
 			onClick={closeModal}
 		>
 			<div
-				className="relative w-3/12 max-w-[480px] h-4/6 px-8 py-7 rounded-md dark:bg-[#1C2F1E] motion-safe:animate-slide-in"
+				className="relative w-3/12 max-w-[480px] h-4/6 px-8 py-7 rounded-md text-black bg-light-200 dark:bg-dank-500 motion-safe:animate-slide-in"
 				onClick={(e) => e.stopPropagation()}
 			>
 				<div className="flex">
 					<div
-						className="w-32 h-32 mr-4 rounded-md bg-black bg-opacity-40 bg-center bg-[length:100px_100px] bg-no-repeat"
+						className="w-32 h-32 mr-4 rounded-md bg-black/20 dark:bg-black/40 bg-center bg-[length:100px_100px] bg-no-repeat"
 						style={{
 							backgroundImage: `url('${product.images[0]}')`,
 						}}
