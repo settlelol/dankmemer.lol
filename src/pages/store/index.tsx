@@ -37,13 +37,14 @@ interface Metadata {
 	type?: "membership" | "lootbox";
 }
 
-type CartItem = {
+export type CartItem = {
 	id: string;
 	name: string;
 	price: PriceInformation;
 	unit_cost: number;
 	quantity: number;
 	metadata?: Metadata;
+	image?: string;
 };
 
 export interface AnyProduct extends Stripe.Product {
@@ -152,7 +153,7 @@ export default function StoreHome({ user }: PageProps) {
 	}, []);
 
 	useEffect(() => {
-		if (cartItems.length === 0) return;
+		if (products.length < 1) return;
 		axios({
 			url: "/api/store/cart/set",
 			method: "PUT",
