@@ -177,8 +177,8 @@ export default function ManageProducts({ user }: PageProps) {
 												: "Unknown"}
 										</td>
 										<td>
-											{product.metadata.purchaseCount ??
-												0}
+											{product.metadata.purchaseCount?.toLocaleString() ??
+												(0).toLocaleString()}
 										</td>
 										<td>
 											<Iconify
