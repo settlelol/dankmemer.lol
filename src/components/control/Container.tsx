@@ -8,8 +8,8 @@ import { useTheme } from "next-themes";
 
 interface Props {
 	children: ReactNode;
-	title?: string;
-	user?: User;
+	title: string;
+	user: User | undefined;
 }
 
 export default function ControlPanelContainer({
@@ -22,7 +22,7 @@ export default function ControlPanelContainer({
 
 	return (
 		<>
-			<div className="fixed top-0 left-0 bg-[#ECEFF0] dark:bg-dark-300 h-full w-72 px-9 py-5">
+			<div className="fixed top-0 left-0 bg-[#ECEFF0] dark:bg-dark-100 h-full w-72 px-9 py-5">
 				<div
 					className="flex justify-start items-center mb-5 cursor-pointer"
 					onClick={() => router.push("/")}
@@ -97,7 +97,7 @@ export default function ControlPanelContainer({
 					/>
 				</LinkGroup>
 				<div className="absolute bottom-0 left-0 w-full h-16 px-9 mb-2">
-					<div className="flex justify-between items-center bg-[#D8DCDE] dark:bg-[#131A14] w-full box-border h-14 rounded-md">
+					<div className="flex justify-between items-center bg-[#D8DCDE] dark:bg-dank-500 w-full box-border h-14 rounded-md">
 						<div className="flex justify-start items-center pl-4">
 							<img
 								src={user?.avatar}
@@ -133,7 +133,7 @@ export default function ControlPanelContainer({
 				</div>
 			</div>
 			<div className="flex justify-start ml-80">
-				<div className="max-w-7xl relative w-full">{children}</div>
+				<div className="relative w-full">{children}</div>
 			</div>
 		</>
 	);
