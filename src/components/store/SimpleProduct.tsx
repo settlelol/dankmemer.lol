@@ -44,9 +44,12 @@ export default function SimpleProduct({
 							price: {
 								type: "one_time",
 							},
-							unit_cost: (product.price / 100).toFixed(2),
+							unit_cost: parseFloat(
+								(product.price / 100).toFixed(2)
+							),
 							quantity: 1,
 							metadata: product.metadata,
+							image: product.images[0],
 						})
 					}
 				>

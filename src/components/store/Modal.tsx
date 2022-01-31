@@ -106,9 +106,10 @@ export default function Modal({
 												? "recurring"
 												: "one_time",
 									},
-									unit_cost: price,
+									unit_cost: parseFloat(price),
 									quantity: 1,
 									metadata: product.metadata,
+									image: product.images[0],
 								});
 								closeModal();
 							}}
