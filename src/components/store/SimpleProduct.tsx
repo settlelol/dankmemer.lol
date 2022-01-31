@@ -42,8 +42,7 @@ export default function SimpleProduct({
 							id: product.id,
 							name: product.name,
 							price: {
-								type: "recurring",
-								interval: "",
+								type: "one_time",
 							},
 							unit_cost: (product.price / 100).toFixed(2),
 							quantity: 1,

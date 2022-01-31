@@ -105,6 +105,12 @@ export default function StoreHome({ user }: PageProps) {
 			return alert(
 				"Only one membership should be added to the cart. Remove the current membership item to add this one."
 			);
+
+		if (
+			item.metadata?.type === "membership" &&
+			item.price.interval!.length < 1
+		)
+			item.price.interval = annualPricing ? "year" : "month";
 		setCartItems((_items) => [..._items, item]);
 	};
 

@@ -63,7 +63,7 @@ export default function SubscriptionProduct({
 							name: product.name,
 							price: {
 								type: "recurring",
-								interval: "",
+								interval: annualPricing ? "year" : "month",
 							},
 							unit_cost: formattedPrice,
 							quantity: 1,
