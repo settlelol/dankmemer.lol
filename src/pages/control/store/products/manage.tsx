@@ -6,22 +6,11 @@ import ControlPanelContainer from "src/components/control/Container";
 import { PageProps } from "src/types";
 import { developerRoute } from "src/util/redirects";
 import { withSession } from "src/util/session";
-import Stripe from "stripe";
 import { Icon as Iconify } from "@iconify/react";
 import Button from "src/components/ui/Button";
 import Tooltip from "src/components/ui/Tooltip";
 import { toast } from "react-toastify";
-
-interface SubscriptionPrice {
-	id: string;
-	price: number;
-	interval: string;
-}
-
-interface AnyProduct extends Stripe.Product {
-	price?: number;
-	prices?: SubscriptionPrice[];
-}
+import { AnyProduct } from "src/pages/store";
 
 export default function ManageProducts({ user }: PageProps) {
 	const [products, setProducts] = useState<AnyProduct[]>([]);
