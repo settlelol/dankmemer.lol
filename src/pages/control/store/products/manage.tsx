@@ -110,7 +110,7 @@ export default function ManageProducts({ user }: PageProps) {
 								<th className="w-[60px]"></th>
 								<th className="w-2/12 py-3">Name</th>
 								<th className="w-48 py-3">Prices</th>
-								<th className="w-1/12 py-3">Last updated</th>
+								<th className="w-44 py-3">Last updated</th>
 								<th className="w-2/12">Total purchases</th>
 								<th>Actions</th>
 							</tr>
