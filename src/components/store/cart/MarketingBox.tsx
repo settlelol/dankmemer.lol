@@ -23,7 +23,7 @@ export default function MarketingBox({
 	return (
 		<div
 			className={clsx(
-				"relative px-8 py-7 w-80 h-56 shadow-[0px_0px_12px] rounded-lg",
+				"relative px-8 py-7 w-full h-56 shadow-[0px_0px_12px] rounded-lg",
 				boxColors[color]
 			)}
 			style={{

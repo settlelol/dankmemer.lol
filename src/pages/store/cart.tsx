@@ -10,6 +10,7 @@ import { withSession } from "src/util/session";
 import { CartItem as CartItems } from ".";
 import CartItem from "src/components/store/cart/CartItem";
 import MarketingBox from "src/components/store/cart/MarketingBox";
+import Button from "src/components/ui/Button";
 
 export default function Cart({ user }: PageProps) {
 	const [cart, setCart] = useState<CartItems[]>([]);
@@ -48,7 +49,7 @@ export default function Cart({ user }: PageProps) {
 				<Title size="big">Shopping cart</Title>
 			</div>
 			<div className="flex justify-between">
-				<div className="px-4 py-3 w-[73%] dark:bg-dark-200 rounded-lg">
+				<div className="px-4 py-3 w-[73%] h-max dark:bg-dark-200 rounded-lg">
 					<Title size="small">Your items</Title>
 					<div className="mt-2">
 						{cart.map((item, i) => (
@@ -61,12 +62,70 @@ export default function Cart({ user }: PageProps) {
 						))}
 					</div>
 				</div>
-				<MarketingBox
-					color="blue"
-					title="Extra Savings"
-					topText="Unlock more savings by purchasing an annual subscription!"
-					bottomText="When purchasing a subscription you are able to save up to 10% by switching to annual subscription rather than a monthly subscription."
-				/>
+				<div className="flex flex-col w-80">
+					<MarketingBox
+						color="blue"
+						title="Extra Savings"
+						topText="Unlock more savings by purchasing an annual subscription!"
+						bottomText="When purchasing a subscription you are able to save up to 10% by switching to annual subscription rather than a monthly subscription."
+					/>
+					<div className="my-5 px-8 py-7 w-full h-max dark:bg-dark-200 rounded-lg">
+						<Title size="small">Details</Title>
+						<p className="mt-2 font-inter text-light-600 leading-tight text-sm">
+							Prices are converted to your chosen currency at the
+							current exchange rates. Checkout is completed in
+							USD, bank or card fees may apply to international
+							payments.
+						</p>
+						<div className="flex justify-between mt-3 px-4 py-3 dark:bg-dank-500 w-full rounded-lg">
+							<Title size="small">Total:</Title>
+							<Title size="small">
+								{cart.length >= 1
+									? cart.length === 1
+										? `$${cart
+												.map(
+													(item: CartItems) =>
+														(item.price.type ===
+														"recurring"
+															? item.price
+																	.interval ===
+															  "year"
+																? item.unit_cost *
+																  10.8
+																: item.unit_cost
+															: item.unit_cost) *
+														item.quantity
+												)
+												.reduce((a, b) => a + b)
+												.toFixed(2)}`
+										: `$${cart
+												.map(
+													(item: CartItems) =>
+														(item.price.type ===
+														"recurring"
+															? item.price
+																	.interval ===
+															  "year"
+																? item.unit_cost *
+																  10.8
+																: item.unit_cost
+															: item.unit_cost) *
+														item.quantity
+												)
+												.reduce((a, b) => a + b)
+												.toFixed(2)}`
+									: "..."}
+							</Title>
+						</div>
+						<Button
+							size="medium"
+							className="mt-3 w-full"
+							onClick={() => console.log("a")}
+						>
+							Continue to Checkout
+						</Button>
+					</div>
+				</div>
 			</div>
 		</Container>
 	);
