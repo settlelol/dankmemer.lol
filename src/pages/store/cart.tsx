@@ -14,20 +14,37 @@ import Button from "src/components/ui/Button";
 import OtherProduct from "src/components/store/cart/OtherProduct";
 
 export default function Cart({ user }: PageProps) {
+	const [loaded, setLoaded] = useState(false);
 	const [cart, setCart] = useState<CartItems[]>([]);
+	const [totalCost, setTotalCost] = useState<string | number>(0);
 
 	useEffect(() => {
 		axios("/api/store/cart/get").then(({ data }) => {
+			setLoaded(true);
 			setCart(data.cart);
 		});
 	}, []);
 
 	useEffect(() => {
+		if (!loaded) return;
 		axios({
 			url: "/api/store/cart/set",
 			method: "PUT",
 			data: { cartData: cart },
 		});
+		setTotalCost(
+			cart
+				.map(
+					(item: CartItems) =>
+						(item.price.type === "recurring"
+							? item.price.interval === "year"
+								? item.unit_cost * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
+								: item.unit_cost
+							: item.unit_cost) * item.quantity
+				)
+				.reduce((a, b) => a + b)
+				.toFixed(2)
+		);
 	}, [cart]);
 
 	const updateQuantity = (index: number, quantity: number) => {
@@ -119,43 +136,7 @@ export default function Cart({ user }: PageProps) {
 						</p>
 						<div className="flex justify-between mt-3 px-4 py-3 dark:bg-dank-500 w-full rounded-lg">
 							<Title size="small">Total:</Title>
-							<Title size="small">
-								{cart.length >= 1
-									? cart.length === 1
-										? `$${cart
-												.map(
-													(item: CartItems) =>
-														(item.price.type ===
-														"recurring"
-															? item.price
-																	.interval ===
-															  "year"
-																? item.unit_cost *
-																  10.8
-																: item.unit_cost
-															: item.unit_cost) *
-														item.quantity
-												)
-												.reduce((a, b) => a + b)
-												.toFixed(2)}`
-										: `$${cart
-												.map(
-													(item: CartItems) =>
-														(item.price.type ===
-														"recurring"
-															? item.price
-																	.interval ===
-															  "year"
-																? item.unit_cost *
-																  10.8
-																: item.unit_cost
-															: item.unit_cost) *
-														item.quantity
-												)
-												.reduce((a, b) => a + b)
-												.toFixed(2)}`
-									: "..."}
-							</Title>
+							<Title size="small">${totalCost}</Title>
 						</div>
 						<Button
 							size="medium"
