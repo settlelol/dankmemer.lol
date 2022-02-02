@@ -1,5 +1,5 @@
-import Money from "/public/img/other/Money.svg";
-import Grid from "/public/img/other/Grid.png";
+import Money from "/public/img/store/Money.svg";
+import Grid from "/public/img/store/Grid.png";
 import clsx from "clsx";
 
 interface Props {
