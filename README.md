@@ -40,6 +40,7 @@ JOBS_WEBHOOK=webhook_url
 STRIPE_STORE_WEBHOOK=webhook_url
 STRIPE_SECRET_TEST_KEY=key
 STRIPE_SECRET_LIVE_KEY=key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=key
 ```
 
 -   You can generate CRYPT_KEYS by running: <br/>
