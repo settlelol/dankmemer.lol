@@ -53,9 +53,16 @@ export default function CartItem({
 					{metadata?.type === "membership" ? (
 						<Dropdown
 							content={
-								price.interval! === "year"
-									? "Annual subscription"
-									: "Monthly subscription"
+								<div className="flex justify-center items-center bg-[#0C120D] px-3 py-[6px] rounded-md border-[1px] border-[#3C3C3C] text-sm dark:text-[#707070] hover:dark:text-[#cccccc] transition-colors">
+									<p>
+										{price.interval! === "year"
+											? "Annual subscription"
+											: "Monthly subscription"}
+									</p>
+									<span className="material-icons ml-1">
+										expand_more
+									</span>
+								</div>
 							}
 							options={
 								price.interval === "month"
@@ -67,7 +74,7 @@ export default function CartItem({
 														"year"
 													);
 												},
-												label: "Annual",
+												label: "Annual subscription",
 											},
 									  ]
 									: [
@@ -78,7 +85,7 @@ export default function CartItem({
 														"month"
 													);
 												},
-												label: "Monthly",
+												label: "Monthly subscription",
 											},
 									  ]
 							}
