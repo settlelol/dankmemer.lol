@@ -9,6 +9,7 @@ import { authenticatedRoute } from "src/util/redirects";
 import { withSession } from "src/util/session";
 import { CartItem as CartItems } from ".";
 import CartItem from "src/components/store/cart/CartItem";
+import MarketingBox from "src/components/store/cart/MarketingBox";
 
 export default function Cart({ user }: PageProps) {
 	const [cart, setCart] = useState<CartItems[]>([]);
@@ -43,21 +44,29 @@ export default function Cart({ user }: PageProps) {
 	return (
 		<Container title="Shopping Cart" user={user}>
 			<GoBack />
-			<div className="flex flex-col sm:flex-row justify-between items-center mt-12 space-y-2 sm:space-y-0">
+			<div className="flex flex-col sm:flex-row justify-between items-center mt-12 mb-5 space-y-2 sm:space-y-0">
 				<Title size="big">Shopping cart</Title>
 			</div>
-			<div className="mt-5 px-4 py-3 w-9/12 dark:bg-dark-200 rounded-lg">
-				<Title size="small">Your items</Title>
-				<div className="mt-2">
-					{cart.map((item, i) => (
-						<CartItem
-							index={i}
-							{...item}
-							updateQuantity={updateQuantity}
-							changeInterval={changeInterval}
-						/>
-					))}
+			<div className="flex justify-between">
+				<div className="px-4 py-3 w-[73%] dark:bg-dark-200 rounded-lg">
+					<Title size="small">Your items</Title>
+					<div className="mt-2">
+						{cart.map((item, i) => (
+							<CartItem
+								index={i}
+								{...item}
+								updateQuantity={updateQuantity}
+								changeInterval={changeInterval}
+							/>
+						))}
+					</div>
 				</div>
+				<MarketingBox
+					color="blue"
+					title="Extra Savings"
+					topText="Unlock more savings by purchasing an annual subscription!"
+					bottomText="When purchasing a subscription you are able to save up to 10% by switching to annual subscription rather than a monthly subscription."
+				/>
 			</div>
 		</Container>
 	);
