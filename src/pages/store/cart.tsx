@@ -12,8 +12,11 @@ import CartItem from "src/components/store/cart/CartItem";
 import MarketingBox from "src/components/store/cart/MarketingBox";
 import Button from "src/components/ui/Button";
 import OtherProduct from "src/components/store/cart/OtherProduct";
+import { useRouter } from "next/router";
 
 export default function Cart({ user }: PageProps) {
+	const router = useRouter();
+
 	const [loaded, setLoaded] = useState(false);
 	const [cart, setCart] = useState<CartItems[]>([]);
 	const [totalCost, setTotalCost] = useState<string | number>(0);
@@ -75,7 +78,6 @@ export default function Cart({ user }: PageProps) {
 
 	return (
 		<Container title="Shopping Cart" user={user}>
-			<GoBack />
 			<div className="flex flex-col sm:flex-row justify-between items-center mt-12 mb-5 space-y-2 sm:space-y-0">
 				<Title size="big">Shopping cart</Title>
 			</div>
@@ -141,7 +143,7 @@ export default function Cart({ user }: PageProps) {
 						<Button
 							size="medium"
 							className="mt-3 w-full"
-							onClick={() => console.log("a")}
+							onClick={() => router.push("/store/checkout")}
 						>
 							Continue to Checkout
 						</Button>
