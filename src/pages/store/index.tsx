@@ -70,6 +70,7 @@ export type ModalProps = {
 export default function StoreHome({ user }: PageProps) {
 	const [openModal, setOpenModal] = useState(false);
 
+	const [totalCost, setTotalCost] = useState<string>("...");
 	const [cartItems, setCartItems] = useState<CartItem[] | []>([]);
 	const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
 	const [products, setProducts] = useState<Product[]>([]);
@@ -94,6 +95,19 @@ export default function StoreHome({ user }: PageProps) {
 	const getCartContents = async () => {
 		let { data: cartContents } = await axios("/api/store/cart/get");
 		setCartItems(cartContents.cart);
+		setTotalCost(
+			cartContents.cart
+				.map(
+					(item: CartItem) =>
+						(item.price.type === "recurring"
+							? item.price.interval === "year"
+								? item.unit_cost * 10.8
+								: item.unit_cost
+							: item.unit_cost) * item.quantity
+				)
+				.reduce((a: number, b: number) => a + b)
+				.toFixed(2)
+		);
 	};
 
 	const addToCart = async (item: CartItem) => {
@@ -159,6 +173,19 @@ export default function StoreHome({ user }: PageProps) {
 			method: "PUT",
 			data: { cartData: cartItems },
 		});
+		setTotalCost(
+			cartItems
+				.map(
+					(item: CartItem) =>
+						(item.price.type === "recurring"
+							? item.price.interval === "year"
+								? item.unit_cost * 10.8
+								: item.unit_cost
+							: item.unit_cost) * item.quantity
+				)
+				.reduce((a, b) => a + b)
+				.toFixed(2)
+		);
 	}, [cartItems]);
 
 	return (
@@ -195,41 +222,9 @@ export default function StoreHome({ user }: PageProps) {
 							</div>
 							<p>
 								{cartItems.length >= 1
-									? cartItems.length === 1
-										? `1 Item for $${cartItems
-												.map(
-													(item: CartItem) =>
-														(item.price.type ===
-														"recurring"
-															? item.price
-																	.interval ===
-															  "year"
-																? item.unit_cost *
-																  10.8
-																: item.unit_cost
-															: item.unit_cost) *
-														item.quantity
-												)
-												.reduce((a, b) => a + b)
-												.toFixed(2)}`
-										: `${
-												cartItems.length
-										  } items for $${cartItems
-												.map(
-													(item: CartItem) =>
-														(item.price.type ===
-														"recurring"
-															? item.price
-																	.interval ===
-															  "year"
-																? item.unit_cost *
-																  10.8
-																: item.unit_cost
-															: item.unit_cost) *
-														item.quantity
-												)
-												.reduce((a, b) => a + b)
-												.toFixed(2)}`
+									? `${cartItems.length} item${
+											cartItems.length === 1 ? "" : "s"
+									  } for $${totalCost}`
 									: "Shopping cart"}
 							</p>
 						</div>
