@@ -199,7 +199,15 @@ export default function StoreHome({ user }: PageProps) {
 										? `1 Item for $${cartItems
 												.map(
 													(item: CartItem) =>
-														item.unit_cost *
+														(item.price.type ===
+														"recurring"
+															? item.price
+																	.interval ===
+															  "year"
+																? item.unit_cost *
+																  10.8
+																: item.unit_cost
+															: item.unit_cost) *
 														item.quantity
 												)
 												.reduce((a, b) => a + b)
@@ -209,7 +217,15 @@ export default function StoreHome({ user }: PageProps) {
 										  } items for $${cartItems
 												.map(
 													(item: CartItem) =>
-														item.unit_cost *
+														(item.price.type ===
+														"recurring"
+															? item.price
+																	.interval ===
+															  "year"
+																? item.unit_cost *
+																  10.8
+																: item.unit_cost
+															: item.unit_cost) *
 														item.quantity
 												)
 												.reduce((a, b) => a + b)
