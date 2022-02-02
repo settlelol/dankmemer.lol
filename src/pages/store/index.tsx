@@ -95,6 +95,7 @@ export default function StoreHome({ user }: PageProps) {
 	const getCartContents = async () => {
 		let { data: cartContents } = await axios("/api/store/cart/get");
 		setCartItems(cartContents.cart);
+		if (cartContents.cart.length < 1) return;
 		setTotalCost(
 			cartContents.cart
 				.map(
@@ -126,7 +127,15 @@ export default function StoreHome({ user }: PageProps) {
 			item.price.interval!.length < 1
 		)
 			item.price.interval = annualPricing ? "year" : "month";
-		setCartItems((_items) => [..._items, item]);
+
+		const alreadyExists = cartItems.findIndex(
+			(_item) => _item.id === item.id
+		);
+		if (alreadyExists !== -1) {
+			let _cartItems = cartItems.slice();
+			_cartItems[alreadyExists].quantity += 1;
+			setCartItems(_cartItems);
+		} else setCartItems((_items) => [..._items, item]);
 	};
 
 	const showProduct = (product: Product | Subscription) => {
