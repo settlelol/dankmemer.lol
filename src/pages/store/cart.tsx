@@ -113,10 +113,9 @@ export default function Cart({ user }: PageProps) {
 					<div className="my-5 px-8 py-7 w-full h-max dark:bg-dark-200 rounded-lg">
 						<Title size="small">Details</Title>
 						<p className="mt-2 font-inter text-light-600 leading-tight text-sm">
-							Prices are converted to your chosen currency at the
-							current exchange rates. Checkout is completed in
-							USD, bank or card fees may apply to international
-							payments.
+							Checkout is completed in USD, bank or card fees may
+							apply to international payments. The total below is
+							what is required to be paid upon checkout.
 						</p>
 						<div className="flex justify-between mt-3 px-4 py-3 dark:bg-dank-500 w-full rounded-lg">
 							<Title size="small">Total:</Title>
