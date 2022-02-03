@@ -71,6 +71,8 @@ export default function StoreHome({ user }: PageProps) {
 	const [openModal, setOpenModal] = useState(false);
 
 	const [totalCost, setTotalCost] = useState<string>("...");
+	const [cartQuantities, setCartQuantities] = useState(0);
+
 	const [cartItems, setCartItems] = useState<CartItem[] | []>([]);
 	const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
 	const [products, setProducts] = useState<Product[]>([]);
@@ -108,6 +110,11 @@ export default function StoreHome({ user }: PageProps) {
 				)
 				.reduce((a: number, b: number) => a + b)
 				.toFixed(2)
+		);
+		setCartQuantities(
+			cartContents.cart
+				.map((item: CartItem) => item.quantity)
+				.reduce((a: number, b: number) => a + b)
 		);
 	};
 
@@ -192,8 +199,13 @@ export default function StoreHome({ user }: PageProps) {
 								: item.unit_cost
 							: item.unit_cost) * item.quantity
 				)
-				.reduce((a, b) => a + b)
+				.reduce((a: number, b: number) => a + b)
 				.toFixed(2)
+		);
+		setCartQuantities(
+			cartItems
+				.map((item: CartItem) => item.quantity)
+				.reduce((a: number, b: number) => a + b)
 		);
 	}, [cartItems]);
 
@@ -230,9 +242,9 @@ export default function StoreHome({ user }: PageProps) {
 								</svg>
 							</div>
 							<p>
-								{cartItems.length >= 1
-									? `${cartItems.length} item${
-											cartItems.length === 1 ? "" : "s"
+								{cartQuantities >= 1
+									? `${cartQuantities} item${
+											cartQuantities === 1 ? "" : "s"
 									  } for $${totalCost}`
 									: "Shopping cart"}
 							</p>
