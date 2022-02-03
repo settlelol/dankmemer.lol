@@ -57,7 +57,7 @@ const postsData = [
 
 export default function Recap({ user }: PageProps) {
 	return (
-		<div className="h-screen relative">
+		<div className="relative h-screen">
 			<style
 				dangerouslySetInnerHTML={{
 					__html: `
@@ -96,13 +96,13 @@ export default function Recap({ user }: PageProps) {
 			<div className="flex flex-col items-center">
 				<img
 					src="/img/recap/2021/blurs/one.png"
-					className="absolute w-full h-full z-[-10]"
+					className="absolute z-[-10] h-full w-full"
 				/>
-				<div className="flex space-x-0 lg:space-x-12 mt-80">
+				<div className="mt-80 flex space-x-0 lg:space-x-12">
 					{Array.from({ length: 5 }, (_, i: number) => 2017 + i).map(
 						(year) => (
 							<div className="relative hidden lg:inline-block">
-								<div className="font-semibold font-montserrat text-light-600 text-3xl">
+								<div className="font-montserrat text-3xl font-semibold text-light-600">
 									{year}
 								</div>
 								<img
@@ -113,7 +113,7 @@ export default function Recap({ user }: PageProps) {
 						)
 					)}
 					<div className="relative">
-						<div className="font-semibold font-montserrat text-white text-3xl">
+						<div className="font-montserrat text-3xl font-semibold text-white">
 							2022
 						</div>
 						<img
@@ -123,42 +123,42 @@ export default function Recap({ user }: PageProps) {
 					</div>
 				</div>
 
-				<div className="flex flex-col space-y-4 mt-14 relative w-full">
+				<div className="relative mt-14 flex w-full flex-col space-y-4">
 					<div className="flex flex-col items-center text-center">
-						<div className="text-5xl lg:text-6xl text-white font-bold font-montserrat">
+						<div className="font-montserrat text-5xl font-bold text-white lg:text-6xl">
 							DANK MEMER
 						</div>
-						<div className="text-2xl lg:text-4xl font-bold font-montserrat text-neutral-400">
+						<div className="font-montserrat text-2xl font-bold text-neutral-400 lg:text-4xl">
 							Community Recap
 						</div>
 					</div>
-					<div className="text-neutral-300 leading-5 text-center mx-4">
+					<div className="mx-4 text-center leading-5 text-neutral-300">
 						2021 was both an insane and intense year for Dank Memer.
 						<br />
 						Join us as we look back over what we achieved this year!
 					</div>
 					<div className="hidden xl:inline-block">
 						<img
-							className="absolute scale-[0.6] left-80 -rotate-45"
+							className="absolute left-80 -rotate-45 scale-[0.6]"
 							src="/img/recap/2021/emojis/pepeDS.gif"
 						/>
 						<img
-							className="absolute scale-[0.4] right-80 top-10 rotate-[30deg]"
+							className="absolute right-80 top-10 rotate-[30deg] scale-[0.4]"
 							src="/img/recap/2021/emojis/peepoClap.gif"
 						/>
 						<img
-							className="absolute scale-[0.6] right-80 -top-52 -rotate-[30deg]"
+							className="absolute right-80 -top-52 -rotate-[30deg] scale-[0.6]"
 							src="/img/recap/2021/emojis/pepoCheer.gif"
 						/>
 					</div>
 				</div>
 
-				<div className="mt-72 text-neutral-400 text-sm font-montserrat font-bold">
+				<div className="mt-72 font-montserrat text-sm font-bold text-neutral-400">
 					SCROLL FOR THE RECAP
 				</div>
 
-				<div className="mt-52 w-8/12 flex flex-col space-y-4">
-					<div className="flex justify-between font-bold text-3xl font-montserrat">
+				<div className="mt-52 flex w-8/12 flex-col space-y-4">
+					<div className="flex justify-between font-montserrat text-3xl font-bold">
 						{"EXPANSION".split("").map((letter) => (
 							<div>{letter}</div>
 						))}
@@ -182,14 +182,14 @@ export default function Recap({ user }: PageProps) {
 				<div className="w-full">
 					<img
 						src="/img/recap/2021/blurs/two.png"
-						className="absolute w-full h-full z-[-10]"
+						className="absolute z-[-10] h-full w-full"
 					/>
-					<div className="mt-52 flex flex-col text-center relative items-center space-y-8">
+					<div className="relative mt-52 flex flex-col items-center space-y-8 text-center">
 						<div>
-							<div className="font-bold text-3xl font-montserrat">
+							<div className="font-montserrat text-3xl font-bold">
 								IT IS ALL ABOUT YOU
 							</div>
-							<div className="text-neutral-300 text-lg leading-6 mx-8">
+							<div className="mx-8 text-lg leading-6 text-neutral-300">
 								<div>
 									2021 was the year we introduced a massive
 									community feature on our website.
@@ -205,18 +205,18 @@ export default function Recap({ user }: PageProps) {
 								</div>
 							</div>
 						</div>
-						<div className="flex flex-col xl:flex-row space-x-0 xl:space-x-12 space-y-6 xl:space-y-0">
+						<div className="flex flex-col space-x-0 space-y-6 xl:flex-row xl:space-x-12 xl:space-y-0">
 							{[
 								[1000, "COMMENTS POSTED"],
 								[1700, "POSTS CREATED"],
 								[10000, "UPVOTES MADE"],
 							].map(([amount, name]) => (
-								<div className="bg-dark-100 px-12 py-8 rounded-md w-72">
+								<div className="w-72 rounded-md bg-dark-100 px-12 py-8">
 									<div className="flex flex-col">
-										<div className="text-dank-100 font-bold font-montserrat text-2xl">
+										<div className="font-montserrat text-2xl font-bold text-dank-100">
 											{amount.toLocaleString()}+
 										</div>
-										<div className="font-bold font-montserrat">
+										<div className="font-montserrat font-bold">
 											{name}
 										</div>
 									</div>
@@ -225,7 +225,7 @@ export default function Recap({ user }: PageProps) {
 						</div>
 						<div className="hidden 2xl:inline-block">
 							<img
-								className="absolute scale-[0.6] right-24 -top-10 -rotate-[60deg]"
+								className="absolute right-24 -top-10 -rotate-[60deg] scale-[0.6]"
 								src="/img/recap/2021/shapes/blue-square.png"
 							/>
 							<img
@@ -255,7 +255,7 @@ export default function Recap({ user }: PageProps) {
 						</div>
 					</div>
 				</div>
-				<div className="mt-96 flex flex-col space-y-4 w-full">
+				<div className="mt-96 flex w-full flex-col space-y-4">
 					<div>
 						<img
 							className="absolute w-full"
@@ -263,11 +263,11 @@ export default function Recap({ user }: PageProps) {
 						/>
 						<img
 							src="/img/recap/2021/blurs/three.png"
-							className="absolute w-full h-full z-[-10]"
+							className="absolute z-[-10] h-full w-full"
 						/>
 					</div>
-					<div className="text-center mx-8">
-						<div className="text-3xl font-bold font-montserrat">
+					<div className="mx-8 text-center">
+						<div className="font-montserrat text-3xl font-bold">
 							SEEMS LIKE YOU HAVE SOME FAVOURITES
 						</div>
 						<div className="text-neutral-300">
@@ -279,11 +279,11 @@ export default function Recap({ user }: PageProps) {
 						</div>
 					</div>
 					<div className="flex justify-center">
-						<div className="flex flex-col space-y-4 w-full mx-4 lg:w-6/12">
+						<div className="mx-4 flex w-full flex-col space-y-4 lg:w-6/12">
 							{postsData
 								.sort((a, z) => z.posts - a.posts)
 								.map((data) => (
-									<div className="flex space-x-4 items-center w-full">
+									<div className="flex w-full items-center space-x-4">
 										<div
 											style={{
 												width: `${Math.max(
@@ -291,7 +291,7 @@ export default function Recap({ user }: PageProps) {
 													25
 												)}%`,
 											}}
-											className="h-8 rounded-full bg-dank-200 relative inline-block md:hidden"
+											className="relative inline-block h-8 rounded-full bg-dank-200 md:hidden"
 										>
 											<div className="absolute top-1 right-3">
 												{data.posts.toLocaleString()}{" "}
@@ -305,7 +305,7 @@ export default function Recap({ user }: PageProps) {
 													15
 												)}%`,
 											}}
-											className="h-8 rounded-full bg-dank-200 relative hidden md:inline-block xl:hidden"
+											className="relative hidden h-8 rounded-full bg-dank-200 md:inline-block xl:hidden"
 										>
 											<div className="absolute top-1 right-3">
 												{data.posts.toLocaleString()}{" "}
@@ -319,7 +319,7 @@ export default function Recap({ user }: PageProps) {
 													12
 												)}%`,
 											}}
-											className="h-8 rounded-full bg-dank-200 relative hidden xl:inline-block"
+											className="relative hidden h-8 rounded-full bg-dank-200 xl:inline-block"
 										>
 											<div className="absolute top-1 right-3">
 												{data.posts.toLocaleString()}{" "}
@@ -335,9 +335,9 @@ export default function Recap({ user }: PageProps) {
 					</div>
 				</div>
 
-				<div className="mt-96 flex flex-col space-y-8 w-full items-center">
+				<div className="mt-96 flex w-full flex-col items-center space-y-8">
 					<div className="text-center">
-						<div className="text-3xl font-bold font-montserrat">
+						<div className="font-montserrat text-3xl font-bold">
 							NOT JUST A DISCUSSION
 						</div>
 						<div className="text-neutral-300">
@@ -363,14 +363,14 @@ export default function Recap({ user }: PageProps) {
 				<div className="w-full">
 					<img
 						src="/img/recap/2021/blurs/two.png"
-						className="absolute w-full h-full z-[-10]"
+						className="absolute z-[-10] h-full w-full"
 					/>
-					<div className="mt-52 flex flex-col text-center relative items-center space-y-8">
+					<div className="relative mt-52 flex flex-col items-center space-y-8 text-center">
 						<div>
-							<div className="mt-20 font-bold text-3xl font-montserrat">
+							<div className="mt-20 font-montserrat text-3xl font-bold">
 								DON'T SEND IT ALL AT ONCE
 							</div>
-							<div className="text-neutral-300 text-lg leading-6 px-8">
+							<div className="px-8 text-lg leading-6 text-neutral-300">
 								<div>
 									Along with the increased number of servers
 									that are using Dank Memer,
@@ -390,14 +390,14 @@ export default function Recap({ user }: PageProps) {
 								["+69%", "PATREON REVENUE"],
 								["40 THOUSAND", "NEW LINES OF CODE"],
 							].map(([amount, name]) => (
-								<div className="bg-dark-100 px-12 py-8 rounded-md w-72 flex justify-center">
+								<div className="flex w-72 justify-center rounded-md bg-dark-100 px-12 py-8">
 									<div className="flex flex-col justify-center">
-										<div className="text-dank-100 font-bold font-montserrat text-2xl">
+										<div className="font-montserrat text-2xl font-bold text-dank-100">
 											{amount}
 										</div>
 										<div
 											className={clsx(
-												"font-bold font-montserrat",
+												"font-montserrat font-bold",
 												name.length > 18
 													? "text-sm"
 													: "text-md"
@@ -411,23 +411,23 @@ export default function Recap({ user }: PageProps) {
 						</div>
 
 						<img
-							className="absolute -right-72 -top-40 opacity-25 hidden 2xl:inline-block"
+							className="absolute -right-72 -top-40 hidden opacity-25 2xl:inline-block"
 							src="/img/recap/2021/shapes/smaller-dotted-circle.png"
 						/>
 						<img
-							className="absolute -left-72 -top-24 opacity-25 scale-[0.9] hidden 2xl:inline-block"
+							className="absolute -left-72 -top-24 hidden scale-[0.9] opacity-25 2xl:inline-block"
 							src="/img/recap/2021/shapes/larger-dotted-circle.png"
 						/>
 					</div>
 				</div>
 
-				<div className="text-center mt-96 mb-64 ">
-					<div className="text-dank-100 text-3xl font-montserrat font-bold">
+				<div className="mt-96 mb-64 text-center ">
+					<div className="font-montserrat text-3xl font-bold text-dank-100">
 						SEE YOU IN 2022!
 					</div>
 					<div
 						style={{ fontFamily: "Handlee" }}
-						className="text-xl max-w-lg"
+						className="max-w-lg text-xl"
 					>
 						- Melmsie, Aetheryx, Yeng, InBlue, Bunny, Badosz,
 						Amathine, Kable, Dauntless, Aiphey and TheLazyTownie

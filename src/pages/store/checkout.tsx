@@ -72,15 +72,15 @@ export default function Checkout({ user }: PageProps) {
 	return (
 		<Elements stripe={stripePromise} options={stripeElementsOptions}>
 			<Container title="Checkout" user={user}>
-				<div className="flex flex-col sm:flex-row justify-between items-center mt-12 mb-5 space-y-2 sm:space-y-0">
+				<div className="mt-12 mb-5 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 					<Title size="big">Checkout</Title>
 				</div>
 				<div className="flex justify-between">
-					<div className="flex flex-col w-7/12 h-max">
-						<div className="px-4 py-3 w-full h-max bg-light-500 dark:bg-dark-200 rounded-lg">
+					<div className="flex h-max w-7/12 flex-col">
+						<div className="h-max w-full rounded-lg bg-light-500 px-4 py-3 dark:bg-dark-200">
 							<div className="mb-4">
 								<Title size="small">Payment Method</Title>
-								<div className="flex justify-start mt-3">
+								<div className="mt-3 flex justify-start">
 									<PaymentOption
 										icons={[
 											<Visa
@@ -121,7 +121,7 @@ export default function Checkout({ user }: PageProps) {
 									/>
 								</div>
 							</div>
-							<div className="flex justify-start items-center">
+							<div className="flex items-center justify-start">
 								<div>
 									<div className="flex flex-col text-black dark:text-white">
 										<label htmlFor="noc" className="mb-2">
@@ -130,13 +130,13 @@ export default function Checkout({ user }: PageProps) {
 										<input
 											name="noc"
 											type="text"
-											className="max-w-[200px] px-3 py-2 font-inter text-sm border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus-visible:border-dank-300 focus-visible:outline-none"
+											className="max-w-[200px] rounded-md border-[1px] border-[#3C3C3C] px-3 py-2 font-inter text-sm focus-visible:border-dank-300 focus-visible:outline-none dark:bg-black/30"
 											defaultValue={nameOnCard}
 											placeholder="John doe"
 										/>
 									</div>
-									<div className="flex justify-start items-center mt-3">
-										<div className="w-48 mr-5">
+									<div className="mt-3 flex items-center justify-start">
+										<div className="mr-5 w-48">
 											<label>Card number</label>
 											<CardNumberElement
 												options={{
@@ -162,7 +162,7 @@ export default function Checkout({ user }: PageProps) {
 												}}
 											/>
 										</div>
-										<div className="w-max mr-5">
+										<div className="mr-5 w-max">
 											<label>Expiry</label>
 											<div className="w-20">
 												<CardExpiryElement

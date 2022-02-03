@@ -45,8 +45,8 @@ export default function NewPostPage({ user }: PageProps) {
 
 	return (
 		<Container title="New Post" user={user}>
-			<div className="my-8 p-4 bg-light-500 dark:bg-dark-100 rounded-md flex flex-col space-y-4">
-				<div className="text-2xl font-bold font-montserrat text-black dark:text-white">
+			<div className="my-8 flex flex-col space-y-4 rounded-md bg-light-500 p-4 dark:bg-dark-100">
+				<div className="font-montserrat text-2xl font-bold text-black dark:text-white">
 					New Post
 				</div>
 				<div>
@@ -59,7 +59,7 @@ export default function NewPostPage({ user }: PageProps) {
 						>
 							<span
 								className={clsx(
-									"absolute rounded-full h-4 w-4",
+									"absolute h-4 w-4 rounded-full",
 									category === fcategory
 										? "bg-dank-300"
 										: "bg-gray-400 dark:bg-dank-400"

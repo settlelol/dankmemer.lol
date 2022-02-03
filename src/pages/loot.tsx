@@ -104,10 +104,10 @@ export default function ItemsPage({ user }: PageProps) {
 				) : (
 					<>
 						<div className="flex flex-col space-y-2">
-							<div className="text-6xl font-bold font-montserrat text-dank-200 dark:text-white">
+							<div className="font-montserrat text-6xl font-bold text-dank-200 dark:text-white">
 								Dank Memer Store
 							</div>
-							<div className="text-gray-400 max-w-4xl">
+							<div className="max-w-4xl text-gray-400">
 								Dank Memer Store Welcome to the lootbox shop!
 								Here you can find a variety of different
 								purchasable items that grant you a chance of
@@ -122,7 +122,7 @@ export default function ItemsPage({ user }: PageProps) {
 							/>
 						)}
 
-						<div className="flex flex-col xl:flex-row justify-start xl:justify-between space-y-8 xl:space-y-0">
+						<div className="flex flex-col justify-start space-y-8 xl:flex-row xl:justify-between xl:space-y-0">
 							{boxes.map((box, i) => (
 								<Peepos key={i}>
 									<BoxOption
@@ -136,7 +136,7 @@ export default function ItemsPage({ user }: PageProps) {
 							))}
 						</div>
 
-						<div className="flex flex-col xl:flex-row space-y-8 xl:space-y-0">
+						<div className="flex flex-col space-y-8 xl:flex-row xl:space-y-0">
 							<div className="w-full xl:w-1/2">
 								<PossibleItems activeBox={activeBox} />
 							</div>

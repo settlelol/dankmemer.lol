@@ -6,9 +6,9 @@ export default function Error({}: PageProps) {
 	const router = useRouter();
 
 	return (
-		<div className="w-full h-screen flex justify-center items-center text-center">
+		<div className="flex h-screen w-full items-center justify-center text-center">
 			<div className="flex flex-col space-y-2">
-				<div className="text-dank-300 text-6xl font-bold font-montserrat">
+				<div className="font-montserrat text-6xl font-bold text-dank-300">
 					Uh Oh
 				</div>
 				<div className="font-montserrat font-bold text-dark-500 dark:text-white">

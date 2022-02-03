@@ -59,20 +59,20 @@ export default function Reports({ user }: PageProps) {
 	return (
 		<Container title="Reports" user={user}>
 			<div className="relative my-16 flex justify-center">
-				<div className="max-w-3xl bg-gray-200 dark:bg-dark-200 flex flex-col rounded-md">
-					<div className="p-8 text-center border-b-8 border-gray-300 dark:border-dark-100">
-						<div className="text-3xl font-bold font-montserrat text-dark-500 dark:text-white">
+				<div className="flex max-w-3xl flex-col rounded-md bg-gray-200 dark:bg-dark-200">
+					<div className="border-b-8 border-gray-300 p-8 text-center dark:border-dark-100">
+						<div className="font-montserrat text-3xl font-bold text-dark-500 dark:text-white">
 							Report a {type}
 						</div>
-						<div className="text-gray-500 dark:text-gray-400 max-w-2xl">
+						<div className="max-w-2xl text-gray-500 dark:text-gray-400">
 							Please provide as much detail as possible when
 							submitting your report. We are unable to provide
 							details on the punishment from this report.
 						</div>
 					</div>
-					<div className="flex flex-col p-4 space-y-2">
+					<div className="flex flex-col space-y-2 p-4">
 						<div className="flex flex-col space-y-2">
-							<div className="text-lg font-bold font-montserrat text-dark-500 dark:text-white">
+							<div className="font-montserrat text-lg font-bold text-dark-500 dark:text-white">
 								What type of report is this?
 							</div>
 							<div>
@@ -88,11 +88,11 @@ export default function Reports({ user }: PageProps) {
 														: "server"
 												)
 											}
-											className="flex items-center space-x-6 select-none text-dark-500 dark:text-white"
+											className="flex select-none items-center space-x-6 text-dark-500 dark:text-white"
 										>
 											<span
 												className={clsx(
-													"absolute rounded-full h-4 w-4",
+													"absolute h-4 w-4 rounded-full",
 													stype
 														.toLowerCase()
 														.includes(type)
@@ -105,9 +105,9 @@ export default function Reports({ user }: PageProps) {
 									)
 								)}
 							</div>
-							<div className="flex items-start sm:items-center space-x-0 sm:space-x-2 flex-col-reverse sm:flex-row">
+							<div className="flex flex-col-reverse items-start space-x-0 sm:flex-row sm:items-center sm:space-x-2">
 								<textarea
-									className="w-48 bg-gray-100 dark:bg-dank-500 px-2 py-1 outline-none text-black dark:text-light-300 text-sm h-8 overflow-hidden rounded-md placeholder-gray-500 resize-none"
+									className="h-8 w-48 resize-none overflow-hidden rounded-md bg-gray-100 px-2 py-1 text-sm text-black placeholder-gray-500 outline-none dark:bg-dank-500 dark:text-light-300"
 									maxLength={22}
 									onChange={(e) => setId(e.target.value)}
 									value={id}
@@ -120,9 +120,9 @@ export default function Reports({ user }: PageProps) {
 						</div>
 					</div>
 
-					<div className="flex flex-col p-4 space-y-2">
+					<div className="flex flex-col space-y-2 p-4">
 						<div className="flex flex-col space-y-2">
-							<div className="text-lg font-bold font-montserrat text-dark-500 dark:text-white">
+							<div className="font-montserrat text-lg font-bold text-dark-500 dark:text-white">
 								Which rules did they break?
 							</div>
 							<div className="flex flex-col space-y-1">
@@ -131,11 +131,11 @@ export default function Reports({ user }: PageProps) {
 										key={i}
 										htmlFor={"rule-" + i}
 										onClick={(e) => updateBrokenRules(i)}
-										className="flex items-center space-x-6 select-none text-dark-500 dark:text-white"
+										className="flex select-none items-center space-x-6 text-dark-500 dark:text-white"
 									>
 										<span
 											className={clsx(
-												"absolute text-sm rounded-md h-5 w-5 flex items-center justify-center text-white",
+												"absolute flex h-5 w-5 items-center justify-center rounded-md text-sm text-white",
 												brokenRules.includes(i)
 													? "bg-dank-300"
 													: "bg-gray-500 dark:bg-dank-400"
@@ -150,13 +150,13 @@ export default function Reports({ user }: PageProps) {
 						</div>
 					</div>
 
-					<div className="flex flex-col p-4 space-y-2">
+					<div className="flex flex-col space-y-2 p-4">
 						<div className="flex flex-col space-y-2">
-							<div className="text-lg font-bold font-montserrat text-dark-500 dark:text-white">
+							<div className="font-montserrat text-lg font-bold text-dark-500 dark:text-white">
 								Please write your report below.
 							</div>
 							<textarea
-								className="w-full bg-light-500 dark:bg-dank-500 px-2 py-1 outline-none text-black dark:text-light-300 text-sm h-48 overflow-hidden rounded-md placeholder-gray-500"
+								className="h-48 w-full overflow-hidden rounded-md bg-light-500 px-2 py-1 text-sm text-black placeholder-gray-500 outline-none dark:bg-dank-500 dark:text-light-300"
 								maxLength={2000}
 								onChange={(e) => setReport(e.target.value)}
 								value={report}

@@ -5,17 +5,17 @@ export function BlogPostPlaceholder() {
 	return (
 		<div
 			className={clsx(
-				"p-4 bg-light-500 dark:bg-dark-100 rounded-md w-full",
+				"w-full rounded-md bg-light-500 p-4 dark:bg-dark-100",
 				"sm:h-52 lg:h-72"
 			)}
 		>
-			<div className="flex flex-col justify-between space-y-4 h-full">
+			<div className="flex h-full flex-col justify-between space-y-4">
 				<div className="flex flex-col space-y-4">
 					<div className="flex flex-col space-y-1">
 						{[...Array(3)].map(() => (
 							<div
 								className={clsx(
-									"animate-pulse h-3 bg-gray-500 dark:bg-gray-400 rounded w-full"
+									"h-3 w-full animate-pulse rounded bg-gray-500 dark:bg-gray-400"
 								)}
 							/>
 						))}
@@ -24,7 +24,7 @@ export function BlogPostPlaceholder() {
 						{[...Array(4)].map(() => (
 							<div
 								className={clsx(
-									"animate-pulse h-3 bg-gray-400 dark:bg-gray-300 rounded w-full"
+									"h-3 w-full animate-pulse rounded bg-gray-400 dark:bg-gray-300"
 								)}
 							/>
 						))}

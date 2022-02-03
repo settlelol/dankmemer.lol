@@ -11,16 +11,16 @@ export default function ControlAnalyticsPage({ user }: PageProps) {
 	return (
 		<Container title="Control" user={user}>
 			<div className="mx-8 xl:mx-0">
-				<div className="flex flex-col my-20 space-y-8">
+				<div className="my-20 flex flex-col space-y-8">
 					<div className="flex flex-col space-y-4">
 						<div
-							className="flex space-x-2 cursor-pointer text-sm items-center text-dark-400 dark:text-light-100"
+							className="flex cursor-pointer items-center space-x-2 text-sm text-dark-400 dark:text-light-100"
 							onClick={() => router.back()}
 						>
 							<span className="material-icons">arrow_back</span>
 							<div>Go Back</div>
 						</div>
-						<div className="font-bold font-montserrat text-3xl text-dank-300 dark:text-light-100">
+						<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">
 							Support channel analytics
 						</div>
 						<iframe

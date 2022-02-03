@@ -14,7 +14,7 @@ function Socials({ member }: SocialProps) {
 		<div className={clsx(member.developer && "2xl:w-52")}>
 			{member.developer ||
 			Object.entries(member.socials || []).length <= 3 ? (
-				<div className="grid grid-cols-8 gap-1 items-center">
+				<div className="grid grid-cols-8 items-center gap-1">
 					{Object.entries(member?.socials || []).map(
 						([socialName, link]) => (
 							<a key={socialName} href={link} target="_blank">
@@ -37,7 +37,7 @@ function Socials({ member }: SocialProps) {
 						overflowY: "hidden",
 					}}
 				>
-					<div className="flex items-center relative">
+					<div className="relative flex items-center">
 						{Object.entries(member.socials || []).map(
 							([socialName, link]) => (
 								<a
@@ -72,8 +72,8 @@ export function StaffCard({ member }: StaffCardProps) {
 		<div
 			className={clsx(
 				member.developer ? "h-80" : "h-52",
-				"rounded-lg p-6 cursor-pointer border",
-				"bg-light-500 dark:bg-dark-200 border-light-500 dark:border-dark-200 hover:border-dank-300 dark:hover:border-dank-300"
+				"cursor-pointer rounded-lg border p-6",
+				"border-light-500 bg-light-500 hover:border-dank-300 dark:border-dark-200 dark:bg-dark-200 dark:hover:border-dank-300"
 			)}
 			onClick={() => router.push(`/@${member.vanity || member._id}`)}
 		>
@@ -88,7 +88,7 @@ export function StaffCard({ member }: StaffCardProps) {
 						}}
 						src={member.avatar || randomAvatar(member._id)}
 						width="100px"
-						className="bg-light-600 rounded-md"
+						className="rounded-md bg-light-600"
 						onError={(e) => {
 							(e.target as any).onerror = null;
 							(e.target as any).src = randomAvatar(member._id);
@@ -96,7 +96,7 @@ export function StaffCard({ member }: StaffCardProps) {
 					/>
 					<div className="flex flex-col space-y-1">
 						<div>
-							<div className="font-bold text-2xl font-montserrat">
+							<div className="font-montserrat text-2xl font-bold">
 								{member.name || "???"}
 							</div>
 							{member.position && (
@@ -113,7 +113,7 @@ export function StaffCard({ member }: StaffCardProps) {
 				<div>
 					<p
 						className={clsx(
-							"whitespace-pre-wrap leading-5 overflow-y-auto no-scrollbar",
+							"no-scrollbar overflow-y-auto whitespace-pre-wrap leading-5",
 							member.developer ? "h-[150px]" : "h-[50px]"
 						)}
 						dangerouslySetInnerHTML={{

@@ -12,16 +12,16 @@ export default function LinkGroup({ title, children }: Props) {
 	return (
 		<div className="mb-4">
 			<div
-				className="flex items-center cursor-pointer select-none"
+				className="flex cursor-pointer select-none items-center"
 				onClick={() => setCollapsed(!collapsed)}
 			>
 				<p className="font-inter font-semibold text-dark-300 dark:text-white">
 					{title}
 				</p>
-				<div className="flex-none order-1 grow mx-2 ml-3 bg-[#c0c0c0] dark:bg-[#6E756F] h-[2px]"></div>
+				<div className="order-1 mx-2 ml-3 h-[2px] flex-none grow bg-[#c0c0c0] dark:bg-[#6E756F]"></div>
 				<span
 					className={clsx(
-						"order-2 material-icons text-[#c0c0c0] dark:text-[#6E756F] transition-transform",
+						"material-icons order-2 text-[#c0c0c0] transition-transform dark:text-[#6E756F]",
 						collapsed ? "" : "rotate-180"
 					)}
 				>
@@ -30,7 +30,7 @@ export default function LinkGroup({ title, children }: Props) {
 			</div>
 			<div
 				className={clsx(
-					"flex justify-start flex-col mt-3 overflow-hidden transition-all duration-300",
+					"mt-3 flex flex-col justify-start overflow-hidden transition-all duration-300",
 					collapsed ? "max-h-0" : "max-h-[100vh]"
 				)}
 			>

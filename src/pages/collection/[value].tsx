@@ -59,7 +59,7 @@ function PepeCard({ index, has }: PepeCardProps) {
 
 	return (
 		<div
-			className="flex flex-col items-center rounded-md relative origin-center cursor-pointer bg-gray-200 dark:bg-dank-500"
+			className="relative flex origin-center cursor-pointer flex-col items-center rounded-md bg-gray-200 dark:bg-dank-500"
 			style={{
 				transform: cardTransform,
 				filter: cardFilter,
@@ -88,7 +88,7 @@ function PepeCard({ index, has }: PepeCardProps) {
 						<>
 							<img
 								src={`/img/collection/missing-light.png`}
-								className="dark:hidden visible"
+								className="visible dark:hidden"
 							/>
 							<img
 								src={`/img/collection/missing-dark.png`}
@@ -98,8 +98,8 @@ function PepeCard({ index, has }: PepeCardProps) {
 					)}
 				</div>
 			</div>
-			<div className="flex items-center w-full justify-center rounded-b-md py-2 bg-gray-300 dark:bg-dank-400 ">
-				<div className="text-sm px-3 rounded-xl bg-gray-200 dark:bg-dank-500 text-gray-800 dark:text-white">
+			<div className="flex w-full items-center justify-center rounded-b-md bg-gray-300 py-2 dark:bg-dank-400 ">
+				<div className="rounded-xl bg-gray-200 px-3 text-sm text-gray-800 dark:bg-dank-500 dark:text-white">
 					#{index}
 				</div>
 			</div>
@@ -130,23 +130,23 @@ export default function CollectionPage({ user }: PageProps) {
 
 	return (
 		<Container title="Collection" user={user}>
-			<div className="flex justify-center w-full">
+			<div className="flex w-full justify-center">
 				<Link href="https://frog.family/">
-					<a className="text-dank-300 underline my-8" target="_blank">
+					<a className="my-8 text-dank-300 underline" target="_blank">
 						Adopt your own pepe!
 					</a>
 				</Link>
 			</div>
-			<div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-6 gap-6">
+			<div className="grid grid-cols-2 gap-6 sm:grid-cols-4 xl:grid-cols-6">
 				{collection.map((has, i) => (
 					<div key={i}>
 						<PepeCard index={i + 1} has={has} />
 					</div>
 				))}
 			</div>
-			<div className="flex justify-center w-full">
+			<div className="flex w-full justify-center">
 				<Link href="https://frog.family/">
-					<a className="text-dank-300 underline my-8" target="_blank">
+					<a className="my-8 text-dank-300 underline" target="_blank">
 						Adopt your own pepe!
 					</a>
 				</Link>
