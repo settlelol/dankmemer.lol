@@ -102,13 +102,13 @@ export default function ItemsPage({ user }: PageProps) {
 			<div className="my-20 flex flex-col space-y-4">
 				<div className="flex flex-col space-y-2">
 					<Title size="big">Item directory</Title>
-					<div className="flex xl:space-x-2 items-center">
-						<div className="text-md hidden xl:flex space-x-2 text-light-600 dark:text-light-300 ">
+					<div className="flex items-center xl:space-x-2">
+						<div className="text-md hidden space-x-2 text-light-600 dark:text-light-300 xl:flex ">
 							{categories.map((ccategory) => (
 								<div
 									key={ccategory}
 									className={clsx(
-										"bg-light-500 dark:bg-dark-100 px-4 py-1 rounded-md border-2 cursor-pointer text-dark-500 dark:text-white",
+										"cursor-pointer rounded-md border-2 bg-light-500 px-4 py-1 text-dark-500 dark:bg-dark-100 dark:text-white",
 										ccategory === category
 											? "border-dank-300"
 											: "border-light-500 dark:border-dark-100"
@@ -128,7 +128,7 @@ export default function ItemsPage({ user }: PageProps) {
 						<div className="inline-block xl:hidden">
 							<Dropdown
 								content={
-									<div className="flex justify-between w-full px-4 text-dark-100 dark:text-white p-2 w-40">
+									<div className="flex w-full w-40 justify-between p-2 px-4 text-dark-100 dark:text-white">
 										<span>
 											{category == "" ? "All" : category}
 										</span>
@@ -159,13 +159,13 @@ export default function ItemsPage({ user }: PageProps) {
 						</div>
 					</div>
 				</div>
-				<div className="flex justify-between space-x-0 lg:space-x-8 relative flex-col-reverse lg:flex-row">
-					<div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-7 gap-4 content-start mt-4 lg:mt-0">
+				<div className="relative flex flex-col-reverse justify-between space-x-0 lg:flex-row lg:space-x-8">
+					<div className="mt-4 grid grid-cols-2 content-start gap-4 sm:grid-cols-4 md:grid-cols-6 lg:mt-0 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-7">
 						{items.map((citem) => (
 							<div
 								key={citem.id}
 								className={clsx(
-									"max-h-24 w-24 h-24 flex items-center justify-center rounded-md cursor-pointer bg-light-500  dark:bg-dark-100 border-4",
+									"flex h-24 max-h-24 w-24 cursor-pointer items-center justify-center rounded-md border-4  bg-light-500 dark:bg-dark-100",
 									item == citem.id
 										? "border-dank-300"
 										: "border-light-500 dark:border-dark-100"
@@ -176,11 +176,11 @@ export default function ItemsPage({ user }: PageProps) {
 							</div>
 						))}
 					</div>
-					<div className="flex-1 h-full rounded-md p-8 lg:max-w-xl align-top sticky top-0 lg:top-4 bg-light-500 dark:bg-dark-100">
+					<div className="sticky top-0 h-full flex-1 rounded-md bg-light-500 p-8 align-top dark:bg-dark-100 lg:top-4 lg:max-w-xl">
 						<div className="flex flex-col items-center space-y-20">
 							<div className="flex flex-col items-center space-y-2">
 								<img src={itemData.image} className="w-20" />
-								<div className="text-3xl text-center font-bold font-montserrat text-dark-500 dark:text-white">
+								<div className="text-center font-montserrat text-3xl font-bold text-dark-500 dark:text-white">
 									{itemData.name}
 								</div>
 								<div className="flex flex-col items-center">
@@ -220,10 +220,10 @@ export default function ItemsPage({ user }: PageProps) {
 									<div className="text-lg font-bold text-dark-500 dark:text-white">
 										Items Inside
 									</div>
-									<div className="grid gap-2 grid-cols-6">
+									<div className="grid grid-cols-6 gap-2">
 										{itemData.items.map((i) => (
 											<div
-												className="flex items-center justify-center p-2 bg-gray-300 dark:bg-dank-400 rounded-md cursor-pointer"
+												className="flex cursor-pointer items-center justify-center rounded-md bg-gray-300 p-2 dark:bg-dank-400"
 												onClick={() => setItem(i)}
 											>
 												<img
@@ -240,12 +240,12 @@ export default function ItemsPage({ user }: PageProps) {
 									<div className="text-lg font-bold text-dark-500 dark:text-white">
 										Possible Items
 									</div>
-									<div className="grid gap-2 grid-cols-6">
+									<div className="grid grid-cols-6 gap-2">
 										{itemData.reward.items
 											.map((a) => Object.keys(a)[0])
 											.map((i) => (
 												<div
-													className="flex items-center justify-center p-2 bg-gray-300 dark:bg-dank-400 rounded-md cursor-pointer"
+													className="flex cursor-pointer items-center justify-center rounded-md bg-gray-300 p-2 dark:bg-dank-400"
 													onClick={() => setItem(i)}
 												>
 													<img
@@ -262,12 +262,12 @@ export default function ItemsPage({ user }: PageProps) {
 									<div className="text-lg font-bold text-dark-500 dark:text-white">
 										Craftable From
 									</div>
-									<div className="grid gap-2 grid-cols-6">
+									<div className="grid grid-cols-6 gap-2">
 										{Object.entries(
 											itemData.components
 										).map(([id, amount]) => (
 											<div
-												className="flex items-center justify-center p-2 bg-gray-300 dark:bg-dank-400 rounded-md cursor-pointer relative"
+												className="relative flex cursor-pointer items-center justify-center rounded-md bg-gray-300 p-2 dark:bg-dank-400"
 												onClick={() => setItem(id)}
 											>
 												<img
@@ -282,9 +282,9 @@ export default function ItemsPage({ user }: PageProps) {
 									</div>
 								</div>
 							)}
-							<div className="flex justify-between w-2/3 flex-col sm:flex-row">
+							<div className="flex w-2/3 flex-col justify-between sm:flex-row">
 								<div className="flex flex-col items-center">
-									<div className="text-lg font-bold font-montserrat text-dark-500 dark:text-white">
+									<div className="font-montserrat text-lg font-bold text-dark-500 dark:text-white">
 										Buy Price
 									</div>
 									<div className="text-sm text-dank-300">
@@ -292,7 +292,7 @@ export default function ItemsPage({ user }: PageProps) {
 									</div>
 								</div>
 								<div className="flex flex-col items-center">
-									<div className="text-lg font-bold font-montserrat text-dark-500 dark:text-white">
+									<div className="font-montserrat text-lg font-bold text-dark-500 dark:text-white">
 										Sell Price
 									</div>
 									<div className="text-sm text-dank-300">

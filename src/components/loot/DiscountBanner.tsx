@@ -24,14 +24,14 @@ export function DiscountBanner({ discount, expire }: Props) {
 
 	return (
 		<div
-			className="relative w-full h-full grid place-items-center bg-yellow-300 rounded-md p-2"
+			className="relative grid h-full w-full place-items-center rounded-md bg-yellow-300 p-2"
 			style={{
 				boxShadow: " 0px 0px 20px #ffe61c, inset 0px 0px 20px #ffe100",
 			}}
 		>
-			<div className="text-center z-20">
+			<div className="z-20 text-center">
 				<div
-					className="text-3xl filter font-bold font-montserrat"
+					className="font-montserrat text-3xl font-bold filter"
 					style={{
 						textShadow:
 							"0px 3px 5px rgba(56, 20, 20, 0.42), 0px 0px 10px rgba(0, 0, 0, 0.3)",
@@ -39,10 +39,10 @@ export function DiscountBanner({ discount, expire }: Props) {
 				>
 					FLASH SALE!
 				</div>
-				<div className="font-bold text-black font-montserrat text-lg">
+				<div className="font-montserrat text-lg font-bold text-black">
 					Sale ends in: {countdown}
 				</div>
-				<div className="font-bold text-black font-montserrat text-l">
+				<div className="text-l font-montserrat font-bold text-black">
 					Pick up your boxes with a <b>{discount}% discount</b> during
 					this limited time event!
 				</div>
@@ -51,7 +51,7 @@ export function DiscountBanner({ discount, expire }: Props) {
 				id="store-discount-svg"
 				height="100%"
 				width="100%"
-				className="z-[1] top-0 left-0 absolute"
+				className="absolute top-0 left-0 z-[1]"
 			>
 				<circle
 					cx="523"

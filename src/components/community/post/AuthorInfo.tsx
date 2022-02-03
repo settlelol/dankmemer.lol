@@ -11,7 +11,7 @@ interface AuthorProps {
 
 export default function AuthorInfo({ post }: AuthorProps) {
 	return (
-		<div className="text-light-600 cursor-pointer flex flex-col md:flex-row space-x-0 md:space-x-1 md:items-center">
+		<div className="flex cursor-pointer flex-col space-x-0 text-light-600 md:flex-row md:items-center md:space-x-1">
 			<div className="flex space-x-1">
 				<span>by</span>
 				<Link
@@ -20,13 +20,13 @@ export default function AuthorInfo({ post }: AuthorProps) {
 						(post.author as UserData).id
 					}`}
 				>
-					<a className="flex space-x-1 items-center">
+					<a className="flex items-center space-x-1">
 						<Avatar
 							id={(post.author as UserData).id}
 							link={(post.author as UserData).avatar}
 							size="16px"
 						/>
-						<a className="hover:underline hover:text-dark-100 dark:hover:text-light-400">
+						<a className="hover:text-dark-100 hover:underline dark:hover:text-light-400">
 							{(post.author as UserData).name}#
 							{(post.author as UserData).discriminator}
 						</a>
@@ -36,7 +36,7 @@ export default function AuthorInfo({ post }: AuthorProps) {
 			<div className="flex space-x-1">
 				<span>in</span>
 				<Link href={`/community/posts?category=${post.category}`}>
-					<a className="hover:underline hover:text-dark-100 dark:hover:text-light-400">
+					<a className="hover:text-dark-100 hover:underline dark:hover:text-light-400">
 						{sanitizeCategory(post.category)}
 					</a>
 				</Link>

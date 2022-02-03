@@ -16,25 +16,25 @@ export default function OtherProduct({
 	addToCart,
 }: Props) {
 	return (
-		<div className="flex justify-between items-center mt-3">
+		<div className="mt-3 flex items-center justify-between">
 			<div className="flex">
 				<div
-					className="dark:bg-black/30 w-12 h-12 rounded-md bg-center bg-[length:33px_33px] bg-no-repeat"
+					className="h-12 w-12 rounded-md bg-[length:33px_33px] bg-center bg-no-repeat dark:bg-black/30"
 					style={{
 						backgroundImage: `url('${image}')`,
 					}}
 				></div>
-				<div className="flex flex-col ml-5 justify-center">
+				<div className="ml-5 flex flex-col justify-center">
 					<h4 className="font-bold leading-none text-gray-800 dark:text-white">
 						{name}
 					</h4>
-					<p className="text-sm text-light-600 leading-none">
+					<p className="text-sm leading-none text-light-600">
 						{metadata?.type && toTitleCase(metadata?.type)}
 					</p>
 				</div>
 			</div>
-			<div className="flex justify-center items-center">
-				<p className="mr-7 w-[70px] font-montserrat font-bold text-gray-800 dark:text-white text-right">
+			<div className="flex items-center justify-center">
+				<p className="mr-7 w-[70px] text-right font-montserrat font-bold text-gray-800 dark:text-white">
 					$
 					{price.interval
 						? price.interval === "year"
@@ -43,7 +43,7 @@ export default function OtherProduct({
 						: unit_cost.toFixed(2)}
 				</p>
 				<div
-					className="p-2 bg-dank-300 hover:bg-dank-300/90 rounded-md transition-colors"
+					className="rounded-md bg-dank-300 p-2 transition-colors hover:bg-dank-300/90"
 					onClick={() =>
 						addToCart({
 							id,
@@ -59,7 +59,7 @@ export default function OtherProduct({
 					<Iconify
 						icon="akar-icons:cart"
 						height="20"
-						className="text-gray-800 dark:text-gray-200 cursor-pointer transition-colors"
+						className="cursor-pointer text-gray-800 transition-colors dark:text-gray-200"
 					/>
 				</div>
 			</div>

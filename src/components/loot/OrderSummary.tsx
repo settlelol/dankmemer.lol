@@ -71,7 +71,7 @@ export function OrderSummary({
 					<div>Added sales tax</div>
 					<div>${getSalesTax(boxCount, activeBox, discount)}</div>
 				</div>
-				<div className="flex justify-between mt-12 border-b-2 border-gray-800">
+				<div className="mt-12 flex justify-between border-b-2 border-gray-800">
 					<div>Discount</div>
 					<div>
 						{getDiscountPercent(boxCount, activeBox, discount)
@@ -80,17 +80,17 @@ export function OrderSummary({
 						{getDiscount(boxCount, activeBox, discount)})
 					</div>
 				</div>
-				<div className="flex justify-end font-bold text-xl font-montserrat">
+				<div className="flex justify-end font-montserrat text-xl font-bold">
 					Total: ${getTotal(boxCount, activeBox, discount)}
 				</div>
 				<div className="mt-2 flex flex-col space-y-2">
 					<div
-						className="flex space-x-2 text-sm items-center"
+						className="flex items-center space-x-2 text-sm"
 						onClick={() => setAgreedTOS(!agreedTOS)}
 					>
 						<div
 							className={clsx(
-								"w-6 h-6 flex items-center justify-center rounded-md cursor-pointer",
+								"flex h-6 w-6 cursor-pointer items-center justify-center rounded-md",
 								agreedTOS
 									? "bg-dank-300"
 									: "bg-gray-300 dark:bg-dank-500"
@@ -113,12 +113,12 @@ export function OrderSummary({
 						</label>
 					</div>
 					<div
-						className="flex space-x-2 text-sm items-center"
+						className="flex items-center space-x-2 text-sm"
 						onClick={() => setIsGift(!isGift)}
 					>
 						<div
 							className={clsx(
-								"w-6 h-6 flex items-center justify-center rounded-md cursor-pointer",
+								"flex h-6 w-6 cursor-pointer items-center justify-center rounded-md",
 								isGift
 									? "bg-dank-300"
 									: "bg-gray-300 dark:bg-dank-500"
@@ -138,9 +138,9 @@ export function OrderSummary({
 						<br />
 					</div>
 					{isGift && (
-						<div className="flex space-x-2 items-center">
+						<div className="flex items-center space-x-2">
 							<textarea
-								className="w-48 bg-gray-100 dark:bg-dank-500 px-2 py-1 outline-none text-black dark:text-light-300 text-sm h-8 overflow-hidden rounded-md placeholder-gray-500 resize-none"
+								className="h-8 w-48 resize-none overflow-hidden rounded-md bg-gray-100 px-2 py-1 text-sm text-black placeholder-gray-500 outline-none dark:bg-dank-500 dark:text-light-300"
 								maxLength={26}
 								onChange={(e) =>
 									setGiftRecipient(e.target.value)

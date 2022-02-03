@@ -65,9 +65,9 @@ export default function FaqPage({ user }: PageProps) {
 					]}
 				/>
 			</div>
-			<div className="my-20 flex flex-col space-y-8 relative">
+			<div className="relative my-20 flex flex-col space-y-8">
 				<div>
-					<div className="text-4xl font-bold font-montserrat text-dank-200 dark:text-white">
+					<div className="font-montserrat text-4xl font-bold text-dank-200 dark:text-white">
 						FREQUENTLY ASKED QUESTIONS
 					</div>
 					<svg
@@ -95,11 +95,11 @@ export default function FaqPage({ user }: PageProps) {
 					</div>
 				</div>
 				<div className="flex items-center space-x-0 lg:space-x-4">
-					<div className="hidden lg:flex space-x-6">
+					<div className="hidden space-x-6 lg:flex">
 						{categories.map((category) => (
 							<div
 								className={clsx(
-									"text-lg cursor-pointer",
+									"cursor-pointer text-lg",
 									currentCategory == category
 										? "text-dank-300"
 										: "text-light-600 dark:text-light-300"
@@ -113,7 +113,7 @@ export default function FaqPage({ user }: PageProps) {
 					<div className="visible lg:hidden">
 						<Dropdown
 							content={
-								<div className="flex justify-between px-4 text-dark-100 dark:text-white p-2 w-40">
+								<div className="flex w-40 justify-between p-2 px-4 text-dark-100 dark:text-white">
 									<span>
 										{currentCategory.startsWith("all")
 											? "Search Results"

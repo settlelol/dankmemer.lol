@@ -22,7 +22,7 @@ export function BoxOption({
 	return (
 		<div
 			className={clsx(
-				"relative px-20 pt-14 pb-3 flex flex-col items-center cursor-pointer border-2 shadow-2xl h-full bg-light-500 dark:bg-dark-500",
+				"relative flex h-full cursor-pointer flex-col items-center border-2 bg-light-500 px-20 pt-14 pb-3 shadow-2xl dark:bg-dark-500",
 				active
 					? BOX_COLORS[data.id]
 					: "border-light-500 dark:border-dark-500"
@@ -31,16 +31,16 @@ export function BoxOption({
 				setActiveBox(data);
 			}}
 		>
-			<div className="text-3xl font-bold font-montserrat text-dark-500 dark:text-white">
+			<div className="font-montserrat text-3xl font-bold text-dark-500 dark:text-white">
 				{data.name.toUpperCase()}
 			</div>
-			<div className="text-2xl font-bold font-montserrat text-dank-300">
+			<div className="font-montserrat text-2xl font-bold text-dank-300">
 				${data.price}
 			</div>
 			{active && (
 				<div className="flex items-center justify-center text-dark-500 dark:text-white">
 					<div
-						className="font-bold select-none p-1"
+						className="select-none p-1 font-bold"
 						onClick={(e) => {
 							setBoxCount(boxCount - 1);
 							e.stopPropagation();
@@ -49,7 +49,7 @@ export function BoxOption({
 						-
 					</div>
 					<input
-						className="bg-transparent w-12 border-none text-center resize-none outline-none overflow-hidden"
+						className="w-12 resize-none overflow-hidden border-none bg-transparent text-center outline-none"
 						placeholder="Boxes"
 						onChange={(e) =>
 							setBoxCount(parseFloat(e.target.value))
@@ -57,7 +57,7 @@ export function BoxOption({
 						value={boxCount}
 					/>
 					<div
-						className="font-bold select-none p-1"
+						className="select-none p-1 font-bold"
 						onClick={(e) => {
 							setBoxCount(boxCount + 1);
 							e.stopPropagation();

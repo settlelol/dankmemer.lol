@@ -55,9 +55,9 @@ export default function Community({ user }: PageProps) {
 
 	return (
 		<Container title="Community" user={user}>
-			<div className="flex flex-col my-16 space-y-12">
+			<div className="my-16 flex flex-col space-y-12">
 				<div className="flex flex-col space-y-4">
-					<div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+					<div className="flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 						<Title size="big">Community</Title>
 						{user && (
 							<div className="flex space-x-2">
@@ -123,7 +123,7 @@ export default function Community({ user }: PageProps) {
 						)
 					}
 				>
-					<div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
 						{blogs.length > 0
 							? blogs
 									.slice(0, 4)
@@ -139,17 +139,17 @@ export default function Community({ user }: PageProps) {
 				</Section>
 				<Section title="Community Posts">
 					<div className="flex space-x-0 md:space-x-4">
-						<div className="hidden md:flex flex-col space-y-3 ">
+						<div className="hidden flex-col space-y-3 md:flex ">
 							<div className="text-lg text-black dark:text-white">
 								Categories
 							</div>
-							<div className="flex flex-col space-y-2 w-52">
+							<div className="flex w-52 flex-col space-y-2">
 								{["all"]
 									.concat(POST_CATEGORIES)
 									.map((category) => (
 										<div
 											className={clsx(
-												"py-2 px-4 bg-light-500 dark:bg-dark-100 rounded-md cursor-pointer select-none",
+												"cursor-pointer select-none rounded-md bg-light-500 py-2 px-4 dark:bg-dark-100",
 												category == postCategory
 													? "text-dank-300"
 													: "text-black dark:text-white"
@@ -165,18 +165,18 @@ export default function Community({ user }: PageProps) {
 									))}
 							</div>
 						</div>
-						<div className="flex flex-col space-y-2 w-full">
-							<div className="flex flex-col md:flex-row items-start justify-between">
+						<div className="flex w-full flex-col space-y-2">
+							<div className="flex flex-col items-start justify-between md:flex-row">
 								<div className="text-lg text-black dark:text-white">
 									Trending posts
 								</div>
-								<div className="flex justify-between space-x-4 w-full md:w-auto">
+								<div className="flex w-full justify-between space-x-4 md:w-auto">
 									<Button
 										size="small"
 										variant="dark"
 										href="/community/post/"
 									>
-										<div className="flex items-center space-x-2 w-20 sm:w-32 md:w-auto">
+										<div className="flex w-20 items-center space-x-2 sm:w-32 md:w-auto">
 											<div className="material-icons">
 												post_add
 											</div>
@@ -188,7 +188,7 @@ export default function Community({ user }: PageProps) {
 											</div>
 										</div>
 									</Button>
-									<div className="inline-block md:hidden w-full">
+									<div className="inline-block w-full md:hidden">
 										<Dropdown
 											content={
 												<Button variant="dark" block>
@@ -213,7 +213,7 @@ export default function Community({ user }: PageProps) {
 								</div>
 							</div>
 
-							<div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
 								{loadingPosts
 									? [...Array(10)].map((i) => (
 											<PostCard key={i} />

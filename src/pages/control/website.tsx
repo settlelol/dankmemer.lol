@@ -11,14 +11,14 @@ export default function ControlWebsitePage({ user }: PageProps) {
 	return (
 		<Container title="Control" user={user}>
 			<div className="mx-8 xl:mx-0">
-				<div className="flex flex-col my-20 space-y-8">
+				<div className="my-20 flex flex-col space-y-8">
 					<div className="flex flex-col space-y-4">
 						<GoBack />
 					</div>
-					<div className="font-bold font-montserrat text-3xl text-dank-300 dark:text-light-100">
+					<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">
 						Website management
 					</div>
-					<div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 space-x-0 lg:space-x-4">
+					<div className="flex flex-col space-y-4 space-x-0 lg:flex-row lg:space-y-0 lg:space-x-4">
 						<ControlCard
 							endpoint="/api/discount/add?percent={{input}}&expiry={{dropdown}}"
 							label="Start a lootbox sale"

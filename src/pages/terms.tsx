@@ -15,10 +15,10 @@ interface LegalProps {
 function Legal({ title, children }: LegalProps) {
 	return (
 		<div className="flex flex-col space-y-2">
-			<div className="text-2xl font-bold font-montserrat text-dark-500 dark:text-white">
+			<div className="font-montserrat text-2xl font-bold text-dark-500 dark:text-white">
 				{title}
 			</div>
-			<div className="flex flex-col space-y-2 text-gray-500 dark:text-gray-400 leading-5">
+			<div className="flex flex-col space-y-2 leading-5 text-gray-500 dark:text-gray-400">
 				{children}
 			</div>
 		</div>
@@ -28,9 +28,9 @@ function Legal({ title, children }: LegalProps) {
 export default function Terms({ user }: PageProps) {
 	return (
 		<Container title="Terms" user={user}>
-			<div className="max-w-6xl relative my-16">
+			<div className="relative my-16 max-w-6xl">
 				<div className="flex flex-col space-y-2">
-					<div className="text-dank-300 text-6xl font-bold font-montserrat">
+					<div className="font-montserrat text-6xl font-bold text-dank-300">
 						TERMS OF SERVICE
 					</div>
 					<div className="font-montserrat font-bold text-dark-500 dark:text-white">

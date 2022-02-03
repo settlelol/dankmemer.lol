@@ -10,7 +10,7 @@ interface Props {
 export default function Section({ title, children, button }: Props) {
 	return (
 		<section className="flex flex-col space-y-2">
-			<div className="flex justify-between item-center">
+			<div className="item-center flex justify-between">
 				<Title size="medium">{title}</Title>
 				{button}
 			</div>

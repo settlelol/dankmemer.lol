@@ -24,7 +24,7 @@ export default function Blogs({ user }: PageProps) {
 
 	return (
 		<Container title="Blog Posts" user={user}>
-			<div className="flex flex-col my-16 space-y-4 mx-8 xl:mx-0">
+			<div className="my-16 mx-8 flex flex-col space-y-4 xl:mx-0">
 				<Ad
 					id="blogs-top-desktop"
 					platform="desktop"
@@ -43,7 +43,7 @@ export default function Blogs({ user }: PageProps) {
 						[300, 250],
 					]}
 				/>
-				<div className="flex justify-between items-center">
+				<div className="flex items-center justify-between">
 					<Title size="big">Blog Posts</Title>
 					{user?.developer && (
 						<Button
@@ -63,7 +63,7 @@ export default function Blogs({ user }: PageProps) {
 					)}
 				</div>
 
-				<div className="grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
 					{blogs.length > 0
 						? blogs.map((blog) => (
 								<div className="m-2">

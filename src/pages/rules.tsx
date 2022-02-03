@@ -13,14 +13,14 @@ interface RuleProps {
 
 function Rule({ title, description, children }: RuleProps) {
 	return (
-		<div className="flex flex-col space-y-1 p-6 bg-gray-200 dark:bg-dark-200">
-			<div className="text-2xl font-bold font-montserrat text-dark-500 dark:text-white">
+		<div className="flex flex-col space-y-1 bg-gray-200 p-6 dark:bg-dark-200">
+			<div className="font-montserrat text-2xl font-bold text-dark-500 dark:text-white">
 				{title}
 			</div>
 			<div className="text-md font-montserrat text-dark-500 dark:text-white">
 				{description}
 			</div>
-			<div className="flex flex-col space-y-2 text-gray-500 dark:text-gray-400 leading-5">
+			<div className="flex flex-col space-y-2 leading-5 text-gray-500 dark:text-gray-400">
 				{children}
 			</div>
 		</div>
@@ -32,7 +32,7 @@ export default function Rules({ user }: PageProps) {
 		<Container title="Rules" user={user}>
 			<div className="relative my-16">
 				<div className="flex flex-col space-y-2">
-					<div className="text-dark-500 dark:text-white text-6xl font-bold font-montserrat">
+					<div className="font-montserrat text-6xl font-bold text-dark-500 dark:text-white">
 						Dank Memer Rules
 					</div>
 					<div className="font-montserrat text-gray-400">

@@ -9,7 +9,7 @@ export default function Footer({}: Props) {
 
 	return (
 		<footer>
-			<div className="bg-light-200  dark:bg-dark-500 font-inter">
+			<div className="bg-light-200  font-inter dark:bg-dark-500">
 				<div className="flex justify-center">
 					<div className="flex flex-col items-center space-x-0 space-y-4 p-14 lg:flex-row lg:space-x-72 lg:space-y-0">
 						<div className="flex items-center space-x-4">

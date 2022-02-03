@@ -78,12 +78,12 @@ export default function Cart({ user }: PageProps) {
 
 	return (
 		<Container title="Shopping Cart" user={user}>
-			<div className="flex flex-col sm:flex-row justify-between items-center mt-12 mb-5 space-y-2 sm:space-y-0">
+			<div className="mt-12 mb-5 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 				<Title size="big">Shopping cart</Title>
 			</div>
 			<div className="flex justify-between">
-				<div className="flex flex-col w-[73%]">
-					<div className="px-4 py-3 w-full h-max dark:bg-dark-200 rounded-lg">
+				<div className="flex w-[73%] flex-col">
+					<div className="h-max w-full rounded-lg px-4 py-3 dark:bg-dark-200">
 						<Title size="small">Your items</Title>
 						<div className="mt-2">
 							{cart.map((item, i) => (
@@ -96,7 +96,7 @@ export default function Cart({ user }: PageProps) {
 							))}
 						</div>
 					</div>
-					<div className="mt-5 px-4 py-3 w-full h-max dark:bg-dark-200 rounded-lg">
+					<div className="mt-5 h-max w-full rounded-lg px-4 py-3 dark:bg-dark-200">
 						<Title size="small">Other users have also bought</Title>
 						<div className="mt-2">
 							{/* 
@@ -122,21 +122,21 @@ export default function Cart({ user }: PageProps) {
 						</div>
 					</div>
 				</div>
-				<div className="flex flex-col w-80">
+				<div className="flex w-80 flex-col">
 					<MarketingBox
 						color="blue"
 						title="Extra Savings"
 						topText="Unlock more savings by purchasing an annual subscription!"
 						bottomText="When purchasing a subscription you are able to save up to 10% by switching to annual subscription rather than a monthly subscription."
 					/>
-					<div className="my-5 px-8 py-7 w-full h-max dark:bg-dark-200 rounded-lg">
+					<div className="my-5 h-max w-full rounded-lg px-8 py-7 dark:bg-dark-200">
 						<Title size="small">Details</Title>
-						<p className="mt-2 font-inter text-light-600 leading-tight text-sm">
+						<p className="mt-2 font-inter text-sm leading-tight text-light-600">
 							Checkout is completed in USD, bank or card fees may
 							apply to international payments. The total below is
 							what is required to be paid upon checkout.
 						</p>
-						<div className="flex justify-between mt-3 px-4 py-3 dark:bg-dank-500 w-full rounded-lg">
+						<div className="mt-3 flex w-full justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
 							<Title size="small">Total:</Title>
 							<Title size="small">${totalCost}</Title>
 						</div>

@@ -39,10 +39,10 @@ export default function BannerEditPage({ user }: PageProps) {
 
 	return (
 		<Container title="Blog Editor" user={user}>
-			<div className="flex flex-col my-16 space-y-8">
+			<div className="my-16 flex flex-col space-y-8">
 				{banner ? (
 					<div className="flex flex-col space-y-8">
-						<div className="flex flex-col space-y-4 bg-light-500 dark:bg-dark-100 p-4 rounded-md">
+						<div className="flex flex-col space-y-4 rounded-md bg-light-500 p-4 dark:bg-dark-100">
 							<div className="flex flex-col space-y-2">
 								<Input
 									onChange={(e) => {

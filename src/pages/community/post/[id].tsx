@@ -198,13 +198,13 @@ export default function PostPage({ user }: PageProps) {
 
 	return (
 		<Container title="Post" user={user}>
-			<div className="my-8 p-4 bg-light-500 dark:bg-dark-100 rounded-md text">
+			<div className="text my-8 rounded-md bg-light-500 p-4 dark:bg-dark-100">
 				{post && (
-					<div className="flex flex-col space-y-8 w-full">
-						<div className="flex flex-col lg:flex-row justify-between items-start space-y-2 lg:space-y-0">
+					<div className="flex w-full flex-col space-y-8">
+						<div className="flex flex-col items-start justify-between space-y-2 lg:flex-row lg:space-y-0">
 							<div className="flex flex-col space-y-2">
 								<div>
-									<div className="text-2xl font-bold font-montserrat text-black dark:text-white break-all mr-2">
+									<div className="mr-2 break-all font-montserrat text-2xl font-bold text-black dark:text-white">
 										{post.title}
 									</div>
 									<AuthorInfo post={post} />
@@ -217,7 +217,7 @@ export default function PostPage({ user }: PageProps) {
 									</div>
 								)}
 							</div>
-							<div className="flex flex-col lg:flex-row space-x-0 lg:space-x-2 space-y-2 lg:space-y-0 items-center w-full lg:w-auto">
+							<div className="flex w-full flex-col items-center space-x-0 space-y-2 lg:w-auto lg:flex-row lg:space-x-2 lg:space-y-0">
 								{user?.moderator && (
 									<>
 										{" "}
@@ -303,9 +303,9 @@ export default function PostPage({ user }: PageProps) {
 						<div className="whitespace-pre-line text-black dark:text-white">
 							{urlify(post.content)}
 						</div>
-						<div className="flex flex-col space-y-2 border-t-4 pt-4 border-light-400 dark:border-dark-200">
+						<div className="flex flex-col space-y-2 border-t-4 border-light-400 pt-4 dark:border-dark-200">
 							<div>
-								<div className="text-lg font-bold font-montserrat text-black dark:text-white">
+								<div className="font-montserrat text-lg font-bold text-black dark:text-white">
 									Comments ({post.comments})
 								</div>
 								<div className="text-sm text-light-600">
@@ -341,7 +341,7 @@ export default function PostPage({ user }: PageProps) {
 							</div>
 						</div>
 						{comments.length > 0 && (
-							<div className="flex flex-col space-y-6 border-t-4 pt-4 border-light-400 dark:border-dark-200">
+							<div className="flex flex-col space-y-6 border-t-4 border-light-400 pt-4 dark:border-dark-200">
 								{comments.map((comment) => (
 									<div>
 										<CommentCard
@@ -350,7 +350,7 @@ export default function PostPage({ user }: PageProps) {
 											user={user}
 										/>
 										{comment.replies.length > 0 && (
-											<div className="border-l-4 border-light-400 dark:border-dark-200 mt-3 flex flex-col space-y-3">
+											<div className="mt-3 flex flex-col space-y-3 border-l-4 border-light-400 dark:border-dark-200">
 												{comment.replies.map(
 													(reply) => (
 														<CommentCard
@@ -363,7 +363,7 @@ export default function PostPage({ user }: PageProps) {
 											</div>
 										)}
 										{replyingTo === comment._id && (
-											<div className="p-4 flex space-x-2 rounded-md">
+											<div className="flex space-x-2 rounded-md p-4">
 												<Input
 													block
 													variant="short"

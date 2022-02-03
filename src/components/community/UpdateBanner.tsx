@@ -44,10 +44,10 @@ export default function UpdateBanner({
 				</filter>
 			</svg>
 
-			<div className="relative flex flex-col justify-center h-auto py-4 md:py-0 md:h-52 rounded-lg px-10 md:px-24 bg-opacity-50 text-center md:text-left">
+			<div className="relative flex h-auto flex-col justify-center rounded-lg bg-opacity-50 py-4 px-10 text-center md:h-52 md:py-0 md:px-24 md:text-left">
 				<div
 					className={clsx(
-						"absolute left-0 top-0 z-[-1] w-full min-h-full rounded-lg bg-blend-multiply bg-cover bg-center bg-no-repeat",
+						"absolute left-0 top-0 z-[-1] min-h-full w-full rounded-lg bg-cover bg-center bg-no-repeat bg-blend-multiply",
 						(!image || image.length == 0) &&
 							"bg-light-500 dark:bg-dark-100"
 					)}
@@ -56,10 +56,10 @@ export default function UpdateBanner({
 						filter: "url(#sharpBlur)",
 					}}
 				></div>
-				<h1 className="font-bold font-montserrat text-3xl text-light-100">
+				<h1 className="font-montserrat text-3xl font-bold text-light-100">
 					{title}
 				</h1>
-				<p className="text-light-300 mb-3 drop-shadow">{description}</p>
+				<p className="mb-3 text-light-300 drop-shadow">{description}</p>
 				<div>
 					<Button variant="primary" onClick={() => router.push(url)}>
 						<div className="flex items-center space-x-2">

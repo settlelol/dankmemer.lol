@@ -30,7 +30,7 @@ export default function StaffPage({ user }: PageProps) {
 		<Container title="Staff" user={user}>
 			<div>
 				{staff && (
-					<div className="flex flex-col space-y-16 my-16">
+					<div className="my-16 flex flex-col space-y-16">
 						{Object.entries(staff).map(([category, members]) => (
 							<div className="flex flex-col space-y-4">
 								<Title size="big">{names[category]}</Title>

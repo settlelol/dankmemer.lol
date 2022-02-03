@@ -30,8 +30,8 @@ export function AgeCheck({ checkAge }: Props) {
 	};
 
 	return (
-		<div className="mb-40 flex flex-col space-y-2 items-center text-center text-dark-500 dark:text-white">
-			<div className="bg-light-500 dark:bg-dark-500 rounded-md p-20">
+		<div className="mb-40 flex flex-col items-center space-y-2 text-center text-dark-500 dark:text-white">
+			<div className="rounded-md bg-light-500 p-20 dark:bg-dark-500">
 				<div className="text-5xl font-bold">Hold on!</div>
 				<div className="flex flex-col items-center space-y-4">
 					<div>
@@ -40,14 +40,14 @@ export function AgeCheck({ checkAge }: Props) {
 					</div>
 					<div>
 						<textarea
-							className="w-48 bg-gray-100 dark:bg-dank-500 px-2 py-1 outline-none text-black dark:text-light-300 text-sm h-7 overflow-hidden rounded-md placeholder-gray-500 resize-none"
+							className="h-7 w-48 resize-none overflow-hidden rounded-md bg-gray-100 px-2 py-1 text-sm text-black placeholder-gray-500 outline-none dark:bg-dank-500 dark:text-light-300"
 							maxLength={10}
 							onChange={(e) => setDate(e.target.value)}
 							value={date}
 							placeholder={"YYYY-MM-DD"}
 						/>
 					</div>
-					<div className="flex space-x-2 items-center">
+					<div className="flex items-center space-x-2">
 						<Button
 							size="medium"
 							variant="primary"

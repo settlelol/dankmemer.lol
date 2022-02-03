@@ -17,20 +17,20 @@ export default function SimpleProduct({
 	openModal: any;
 }) {
 	return (
-		<div className="w-52 h-64 bg-light-500 dark:bg-[#060A07] flex flex-col justify-center items-center rounded-lg">
+		<div className="flex h-64 w-52 flex-col items-center justify-center rounded-lg bg-light-500 dark:bg-[#060A07]">
 			<div
-				className="w-[90px] h-[90px]"
+				className="h-[90px] w-[90px]"
 				style={{
 					backgroundImage: `url('${product.images[0]}')`,
 					backgroundSize: "contain",
 					backgroundPosition: "center",
 				}}
 			></div>
-			<div className="text-center mt-4">
-				<h3 className="text-xl font-bold text-dark-200 dark:text-light-100 leading-tight">
+			<div className="mt-4 text-center">
+				<h3 className="text-xl font-bold leading-tight text-dark-200 dark:text-light-100">
 					{product.name}
 				</h3>
-				<p className="text-base text-light-600 leading-tight">
+				<p className="text-base leading-tight text-light-600">
 					${(product.price / 100).toFixed(2)}
 				</p>
 			</div>
@@ -56,7 +56,7 @@ export default function SimpleProduct({
 					Add to cart
 				</Button>
 				<p
-					className="underline text-dank-300 dark:text-[#6A6C6A] text-xs cursor-pointer mt-1"
+					className="mt-1 cursor-pointer text-xs text-dank-300 underline dark:text-[#6A6C6A]"
 					onClick={openModal}
 				>
 					{contentsString}

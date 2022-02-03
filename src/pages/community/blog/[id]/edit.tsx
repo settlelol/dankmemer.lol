@@ -95,12 +95,12 @@ export default function BlogEditPage({ user }: PageProps) {
 
 	return (
 		<Container title="Blog Editor" user={user}>
-			<div className="flex flex-col my-16 space-y-8">
+			<div className="my-16 flex flex-col space-y-8">
 				{blog ? (
-					<div className="flex flex-col space-y-4 bg-light-500 dark:bg-dark-100 p-4 rounded-md">
+					<div className="flex flex-col space-y-4 rounded-md bg-light-500 p-4 dark:bg-dark-100">
 						<div className="flex flex-col space-y-2">
 							{blog.draft && (
-								<div className="text-dank-100 font-bold">
+								<div className="font-bold text-dank-100">
 									DRAFT
 								</div>
 							)}
@@ -127,7 +127,7 @@ export default function BlogEditPage({ user }: PageProps) {
 								placeholder="..."
 								value={blog.description}
 							/>
-							<div className="flex items-end space-x-4 w-full">
+							<div className="flex w-full items-end space-x-4">
 								<div className="w-full">
 									<Input
 										onChange={(e) => {
@@ -161,7 +161,7 @@ export default function BlogEditPage({ user }: PageProps) {
 
 						{preview ? (
 							<div
-								className="text-dark-500 dark:text-white bg-dank-600 rounded-md p-4"
+								className="rounded-md bg-dank-600 p-4 text-dark-500 dark:text-white"
 								dangerouslySetInnerHTML={{
 									__html: tailwindHtml(
 										mdParser.render(blog.content)

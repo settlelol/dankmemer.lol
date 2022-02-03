@@ -53,7 +53,7 @@ export function Peepos({ children }: Props) {
 				<div className="absolute left-1/2 top-1/2">
 					{[...Array(5)].map((_, i) => (
 						<div
-							className="absolute w-16 h-16"
+							className="absolute h-16 w-16"
 							style={{
 								...getPeepoPositioning(),
 								backgroundImage: `url(/img/peepos/${randomPeepo()})`,

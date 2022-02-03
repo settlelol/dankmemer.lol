@@ -61,7 +61,7 @@ export default function Dropdown({
 
 	return (
 		<div
-			className={clsx("select-none cursor-pointer relative", className)}
+			className={clsx("relative cursor-pointer select-none", className)}
 			ref={dropdown}
 		>
 			<div
@@ -76,7 +76,7 @@ export default function Dropdown({
 				{content}
 			</div>
 			{open && (
-				<div className="absolute w-full min-h-full z-50 mt-2">
+				<div className="absolute z-50 mt-2 min-h-full w-full">
 					<div
 						className={clsx(
 							"bg-[#18191c] flex flex-col rounded-md space-y-1 p-2",
@@ -95,7 +95,7 @@ export default function Dropdown({
 												: null
 										}
 										className={clsx(
-											"text-sm hover:bg-[#131417] rounded-sm px-2 py-1",
+											"rounded-sm px-2 py-1 text-sm hover:bg-[#131417]",
 											optionVariants[
 												option?.variant || "normal"
 											]

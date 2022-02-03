@@ -138,7 +138,7 @@ export default function Checkout({ user }: PageProps) {
 	return (
 		<Elements stripe={stripePromise} options={stripeElementsOptions}>
 			<Container title="Checkout" user={user}>
-				<div className="flex flex-col sm:flex-row justify-between items-center mt-12 mb-5 space-y-2 sm:space-y-0">
+				<div className="mt-12 mb-5 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 					<Title size="big">Checkout</Title>
 				</div>
 				<div className="flex justify-between">
@@ -146,7 +146,7 @@ export default function Checkout({ user }: PageProps) {
 						<div className="px-8 py-7 w-full h-max bg-light-500 dark:bg-dark-200 rounded-lg">
 							<div className="mb-4">
 								<Title size="small">Payment Method</Title>
-								<div className="flex justify-start mt-3">
+								<div className="mt-3 flex justify-start">
 									<PaymentOption
 										icons={[
 											<Visa
@@ -187,29 +187,54 @@ export default function Checkout({ user }: PageProps) {
 									/>
 								</div>
 							</div>
-							{selectedPaymentOption === "Card" ? (
-								<div className="flex justify-start items-center mt-9 overflow-hidden">
-									{/* <div className="mr-5">
-									<Card brand={cardNumberInput.brand} />
-								</div> */}
-									<div>
-										<Input
-											width="large"
+							<div className="flex items-center justify-start">
+								<div>
+									<div className="flex flex-col text-black dark:text-white">
+										<label htmlFor="noc" className="mb-2">
+											Name on card
+										</label>
+										<input
+											name="noc"
 											type="text"
-											label="Name on card"
+											className="max-w-[200px] rounded-md border-[1px] border-[#3C3C3C] px-3 py-2 font-inter text-sm focus-visible:border-dank-300 focus-visible:outline-none dark:bg-black/30"
 											defaultValue={nameOnCard}
 											onChange={(e: any) =>
 												setNameOnCard(e.target.value)
 											}
 											placeholder="John doe"
 										/>
-										<div className="flex justify-start items-center mt-2">
-											<div className="w-48 mr-7">
-												<label>Card number</label>
-												<CardNumberElement
-													onChange={(data) =>
-														setCardNumberInput(data)
-													}
+									</div>
+									<div className="mt-3 flex items-center justify-start">
+										<div className="mr-5 w-48">
+											<label>Card number</label>
+											<CardNumberElement
+												options={{
+													placeholder:
+														"4024 0071 1411 4951",
+													style: {
+														base: {
+															color: "#ffffff",
+															fontFamily:
+																"Inter, sans-serif",
+															fontWeight: "400",
+															fontSize: "14px",
+															lineHeight: "20px",
+															"::placeholder": {
+																color: "#9ca3af",
+															},
+														},
+													},
+													classes: {
+														base: "mt-2 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
+														focus: "border-[#199532]",
+													},
+												}}
+											/>
+										</div>
+										<div className="mr-5 w-max">
+											<label>Expiry</label>
+											<div className="w-20">
+												<CardExpiryElement
 													options={{
 														placeholder:
 															"4024 0071 1411 4951",

@@ -59,16 +59,16 @@ export default function Modal({
 	return (
 		<div
 			id="modal-background"
-			className="grid place-items-center top-0 left-0 absolute w-[100vw] h-[100vh] bg-black bg-opacity-70 z-[999999999999]"
+			className="absolute top-0 left-0 z-[999999999999] grid h-[100vh] w-[100vw] place-items-center bg-black bg-opacity-70"
 			onClick={closeModal}
 		>
 			<div
-				className="relative w-3/12 max-w-[480px] h-4/6 px-8 py-7 rounded-md text-black dark:text-white bg-light-200 dark:bg-dank-500 motion-safe:animate-slide-in"
+				className="relative h-4/6 w-3/12 max-w-[480px] rounded-md bg-light-200 px-8 py-7 text-black motion-safe:animate-slide-in dark:bg-dank-500 dark:text-white"
 				onClick={(e) => e.stopPropagation()}
 			>
 				<div className="flex">
 					<div
-						className="w-32 h-32 mr-4 rounded-md bg-black/20 dark:bg-black/40 bg-center bg-[length:100px_100px] bg-no-repeat"
+						className="mr-4 h-32 w-32 rounded-md bg-black/20 bg-[length:100px_100px] bg-center bg-no-repeat dark:bg-black/40"
 						style={{
 							backgroundImage: `url('${product.images[0]}')`,
 						}}
@@ -83,7 +83,7 @@ export default function Modal({
 							{annualPricing === undefined && (
 								<span className="text-sm">One for </span>
 							)}
-							<span className="text-dank-300 text-lg font-bold">
+							<span className="text-lg font-bold text-dank-300">
 								${price}
 							</span>{" "}
 							{annualPricing !== undefined && (
@@ -151,7 +151,7 @@ export default function Modal({
 					)}
 				</div>
 				{cta && (
-					<div className="absolute left-0 bottom-7 grid place-items-center w-full box-border">
+					<div className="absolute left-0 bottom-7 box-border grid w-full place-items-center">
 						<Button size="medium-large" onClick={cta.callback}>
 							{cta.text}
 						</Button>

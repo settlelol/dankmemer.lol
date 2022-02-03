@@ -214,7 +214,7 @@ export default function StoreHome({ user }: PageProps) {
 			{/* @ts-ignore */}
 			{openModal && <Modal {...modalProps} />}
 			<Container title="Store" user={user}>
-				<div className="flex flex-col sm:flex-row justify-between items-center mt-12 space-y-2 sm:space-y-0">
+				<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 					<Title size="big">Store</Title>
 					<Button
 						size="small"
@@ -252,18 +252,18 @@ export default function StoreHome({ user }: PageProps) {
 					</Button>
 				</div>
 				<div className="mt-4">
-					<div className="flex flex-col sm:flex-row justify-between items-center mt-12 space-y-2 sm:space-y-0">
+					<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 						<Title size="small">Subscriptions</Title>
-						<div className="flex justify-center items-center">
-							<p className="text-sm mr-2">Annual pricing</p>
+						<div className="flex items-center justify-center">
+							<p className="mr-2 text-sm">Annual pricing</p>
 							<label
 								htmlFor="annualPricing"
 								onClick={() => setAnnualPricing(!annualPricing)}
-								className="flex items-center space-x-6 select-none text-dark-500 dark:text-white"
+								className="flex select-none items-center space-x-6 text-dark-500 dark:text-white"
 							>
 								<span
 									className={clsx(
-										"absolute rounded-full h-4 w-4",
+										"absolute h-4 w-4 rounded-full",
 										annualPricing
 											? "bg-dank-300"
 											: "bg-gray-400 dark:bg-dank-400"
@@ -273,7 +273,7 @@ export default function StoreHome({ user }: PageProps) {
 							</label>
 						</div>
 					</div>
-					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-y-7 gap-x-7 mt-4 place-content-stretch">
+					<div className="mt-4 grid grid-cols-1 place-content-stretch gap-y-7 gap-x-7 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5">
 						{subscriptions.map((product) => (
 							<>
 								<SubscriptionProduct
@@ -288,7 +288,7 @@ export default function StoreHome({ user }: PageProps) {
 				</div>
 				<div className="mt-8 mb-12">
 					<Title size="small">In-game items</Title>
-					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-y-7 gap-x-7 mt-4 place-content-stretch">
+					<div className="mt-4 grid grid-cols-1 place-content-stretch gap-y-7 gap-x-7 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5">
 						{products.map((product) => (
 							<>
 								<SimpleProduct

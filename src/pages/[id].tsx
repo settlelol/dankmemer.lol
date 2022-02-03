@@ -177,9 +177,9 @@ function ActivityCard({ activity }: { activity: Activity }) {
 
 	return (
 		<Link href={link}>
-			<a className="bg-light-500 dark:bg-dark-100 rounded-md text-sm p-4">
-				<div className="flex space-x-4 items-center">
-					<div className="h-10 w-10 bg-light-400 dark:bg-dank-400 rounded-full flex items-center justify-center text-black dark:text-white">
+			<a className="rounded-md bg-light-500 p-4 text-sm dark:bg-dark-100">
+				<div className="flex items-center space-x-4">
+					<div className="flex h-10 w-10 items-center justify-center rounded-full bg-light-400 text-black dark:bg-dank-400 dark:text-white">
 						<div
 							className="material-icons"
 							style={{ fontSize: "20px" }}
@@ -187,8 +187,8 @@ function ActivityCard({ activity }: { activity: Activity }) {
 							{icon}
 						</div>
 					</div>
-					<div className="text-sm flex-1">
-						<div className="text-black dark:text-white break-all">
+					<div className="flex-1 text-sm">
+						<div className="break-all text-black dark:text-white">
 							{text}
 						</div>
 						<div className="text-light-600">
@@ -272,13 +272,13 @@ export default function ProfilePage({ user }: PageProps) {
 
 	return (
 		<Container title="Profile" user={user}>
-			<div className="flex flex-col my-8 space-y-4">
+			<div className="my-8 flex flex-col space-y-4">
 				{profile && (
 					<div className="flex flex-col space-y-2">
-						<div className="relative flex flex-col justify-end h-auto">
+						<div className="relative flex h-auto flex-col justify-end">
 							<div
 								className={clsx(
-									"z-[-1] w-full rounded-lg bg-blend-multiply bg-cover bg-center bg-no-repeat",
+									"z-[-1] w-full rounded-lg bg-cover bg-center bg-no-repeat bg-blend-multiply",
 									profile.user.banner ? "h-56" : "h-32"
 								)}
 								style={{
@@ -291,7 +291,7 @@ export default function ProfilePage({ user }: PageProps) {
 
 						<div className="flex flex-col space-y-8 px-8">
 							<div className="flex justify-between">
-								<div className="flex space-x-2 items-center relative">
+								<div className="relative flex items-center space-x-2">
 									<div className="w-[120px]">
 										<div className="absolute -top-16 hidden md:inline-block">
 											<Avatar
@@ -301,7 +301,7 @@ export default function ProfilePage({ user }: PageProps) {
 													"?size=512"
 												}
 												size="120px"
-												className="border-4 border-light-500 dark:border-dark-400 rounded-full"
+												className="rounded-full border-4 border-light-500 dark:border-dark-400"
 											/>
 										</div>
 										<div className="inline-block md:hidden">
@@ -312,7 +312,7 @@ export default function ProfilePage({ user }: PageProps) {
 													"?size=512"
 												}
 												size="96px"
-												className="border-4 border-light-500 dark:border-dark-400 rounded-full"
+												className="rounded-full border-4 border-light-500 dark:border-dark-400"
 											/>
 										</div>
 									</div>
@@ -321,14 +321,14 @@ export default function ProfilePage({ user }: PageProps) {
 											<div className="text-2xl font-bold text-black dark:text-white">
 												{profile.user.name}
 											</div>
-											<div className="text-sm text-light-600 font-bold">
+											<div className="text-sm font-bold text-light-600">
 												#{profile.user.discriminator}
 											</div>
 										</div>
-										<div className="flex flex-col md:flex-row space-x-1 md:items-center space-y-1">
+										<div className="flex flex-col space-x-1 space-y-1 md:flex-row md:items-center">
 											{rank != -1 && (
 												<div className="flex md:inline-block">
-													<div className="text-xs bg-light-500 dark:bg-dank-500 text-dank-200 dark:text-dank-100 px-2 py-0.5 rounded-md">
+													<div className="rounded-md bg-light-500 px-2 py-0.5 text-xs text-dank-200 dark:bg-dank-500 dark:text-dank-100">
 														Rank #
 														{rank.toLocaleString()}
 													</div>
@@ -354,7 +354,7 @@ export default function ProfilePage({ user }: PageProps) {
 										</div>
 									</div>
 								</div>
-								<div className="space-x-4 items-center hidden md:flex">
+								<div className="hidden items-center space-x-4 md:flex">
 									{(user?.moderator ||
 										user?.honorable ||
 										user?.perks) &&
@@ -392,7 +392,7 @@ export default function ProfilePage({ user }: PageProps) {
 							</div>
 
 							{editing && (
-								<div className="bg-light-500 dark:bg-dark-100 rounded-md flex flex-col space-y-2 p-4">
+								<div className="flex flex-col space-y-2 rounded-md bg-light-500 p-4 dark:bg-dark-100">
 									<Input
 										onChange={(e) => {
 											const copy = { ...profile };
@@ -506,7 +506,7 @@ export default function ProfilePage({ user }: PageProps) {
 								</div>
 							)}
 
-							<div className="bg-light-500 dark:bg-dark-100 rounded-md flex flex-col md:flex-row justify-between py-4 px-8 space-y-2 md:space-y-0">
+							<div className="flex flex-col justify-between space-y-2 rounded-md bg-light-500 py-4 px-8 dark:bg-dark-100 md:flex-row md:space-y-0">
 								{[
 									[profile.posts.length, `Post?s made`],
 									[profile.comments, "Comment?s made"],
@@ -524,7 +524,7 @@ export default function ProfilePage({ user }: PageProps) {
 										<div className="text-lg font-bold text-black dark:text-white">
 											{count}
 										</div>
-										<div className="text-sm text-light-600 text-center">
+										<div className="text-center text-sm text-light-600">
 											{(title as string).replace(
 												/\?s/g,
 												count == 1 ? "" : "s"
@@ -537,7 +537,7 @@ export default function ProfilePage({ user }: PageProps) {
 							{profile.blogs.length > 0 && (
 								<div className="relative flex flex-col space-y-2">
 									<div>Recent Blogs</div>
-									<div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+									<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
 										{profile.blogs.map((blog) => (
 											<BlogPost data={blog} user={user} />
 										))}
@@ -546,8 +546,8 @@ export default function ProfilePage({ user }: PageProps) {
 								</div>
 							)}
 
-							<div className="flex flex-col md:flex-row justify-between space-x-0 md:space-x-4 space-y-4 md:space-y-0">
-								<div className="relative flex flex-col space-y-2 flex-1 md:w-3/5 break-all">
+							<div className="flex flex-col justify-between space-x-0 space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+								<div className="relative flex flex-1 flex-col space-y-2 break-all md:w-3/5">
 									{profile.posts.length > 0 && (
 										<>
 											<div>Recent Posts</div>
@@ -559,7 +559,7 @@ export default function ProfilePage({ user }: PageProps) {
 										</>
 									)}
 								</div>
-								<div className="flex flex-col space-y-2 w-full md:w-4/12">
+								<div className="flex w-full flex-col space-y-2 md:w-4/12">
 									{profile.activities.length > 0 && (
 										<>
 											<div>Recent Activity</div>

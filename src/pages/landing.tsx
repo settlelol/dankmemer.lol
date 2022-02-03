@@ -20,19 +20,19 @@ function Block({ title, children, icon, customIcon, onClick }: BlockProps) {
 	return (
 		<div
 			className={clsx(
-				"flex justify-between space-x-4 items-center bg-light-500 dark:bg-dark-500 rounded-md p-8",
+				"flex items-center justify-between space-x-4 rounded-md bg-light-500 p-8 dark:bg-dark-500",
 				onClick && "cursor-pointer"
 			)}
 			onClick={onClick}
 		>
-			<div className="bg-gray-300 dark:bg-dank-500 rounded-full flex items-center justify-center p-4 text-dank-300">
+			<div className="flex items-center justify-center rounded-full bg-gray-300 p-4 text-dank-300 dark:bg-dank-500">
 				{customIcon || <span className="material-icons">{icon}</span>}
 			</div>
 			<div className="flex flex-col ">
-				<div className="text-2xl font-bold font-montserrat text-dark-500 dark:text-white">
+				<div className="font-montserrat text-2xl font-bold text-dark-500 dark:text-white">
 					{title}
 				</div>
-				<div className="flex flex-col space-y-2 text-gray-500 dark:text-gray-400 leading-5">
+				<div className="flex flex-col space-y-2 leading-5 text-gray-500 dark:text-gray-400">
 					{children}
 				</div>
 			</div>
@@ -59,18 +59,18 @@ export default function LandingPage({ user }: PageProps) {
 			</div>
 			<div className="relative my-16">
 				<div className="flex flex-col items-center space-y-8">
-					<div className="text-dark-500 dark:text-white font-montserrat flex flex-col items-center -space-y-4">
+					<div className="flex flex-col items-center -space-y-4 font-montserrat text-dark-500 dark:text-white">
 						<div className="text-4xl font-bold">
 							THANKS FOR ADDING
 						</div>
 						<div className="text-[80px] font-bold">DANK MEMER</div>
-						<div className="text-lg text-center max-w-3xl">
+						<div className="max-w-3xl text-center text-lg">
 							To help you get started using our bot you can take a
 							look around this website where most aspects of the
 							bot are documented.
 						</div>
 					</div>
-					<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+					<div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
 						<Block title="Commands" icon="article">
 							See all of the commands Dank Memer has to offer your
 							server!
@@ -224,7 +224,7 @@ export default function LandingPage({ user }: PageProps) {
 						>
 							<p className="group">
 								Join and meet other users in our public server.{" "}
-								<span className="opacity-0 group-hover:opacity-100 transition">
+								<span className="opacity-0 transition group-hover:opacity-100">
 									<b>Just please don't ping the devs</b>!
 								</span>
 							</p>

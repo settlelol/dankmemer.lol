@@ -43,7 +43,7 @@ function Shard({ id, state, fullscreen }: ShardProps) {
 	return (
 		<div
 			className={clsx(
-				"flex justify-center items-center",
+				"flex items-center justify-center",
 				"rounded-md",
 				"transition-colors",
 				States[state],
@@ -69,7 +69,7 @@ function Legend({ color, children, setFilter, filter, states }: LegendProps) {
 	return (
 		<div
 			className={clsx(
-				"flex space-x-2 items-center cursor-pointer select-none",
+				"flex cursor-pointer select-none items-center space-x-2",
 				current && "underline"
 			)}
 			onClick={() => setFilter(current ? [] : states)}
@@ -159,7 +159,7 @@ export default function Status({ user }: PageProps) {
 			<div className="relative my-16">
 				<div className="flex flex-col space-y-6">
 					<div>
-						<div className="text-3xl font-bold font-montserrat text-dark-500 dark:text-white">
+						<div className="font-montserrat text-3xl font-bold text-dark-500 dark:text-white">
 							Status
 						</div>
 						<div>

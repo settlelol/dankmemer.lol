@@ -62,15 +62,15 @@ export default function HomePage({ user }: PageProps) {
 	return (
 		<Container title="Home" user={user}>
 			<div
-				className="flex flex-col justify-center items-center mt-32 lg:mt-72"
+				className="mt-32 flex flex-col items-center justify-center lg:mt-72"
 				onMouseMove={(e) => setPerspective([e.pageX, e.pageY])}
 			>
 				<div className="flex flex-col items-center space-y-8">
-					<div className="flex flex-col items-center max-w-3xl text-center">
-						<h1 className="text-6xl sm:text-7xl md:text-8xl font-bold text-dank-300 dark:text-white">
+					<div className="flex max-w-3xl flex-col items-center text-center">
+						<h1 className="text-6xl font-bold text-dank-300 dark:text-white sm:text-7xl md:text-8xl">
 							DANK MEMER
 						</h1>
-						<p className="text-lg md:text-2xl max-w-lg md:max-w-xl text-center text-light-600 dark:text-gray-400">
+						<p className="max-w-lg text-center text-lg text-light-600 dark:text-gray-400 md:max-w-xl md:text-2xl">
 							Join millions of users around the world in Discord's
 							largest fun economic bot.
 						</p>
@@ -81,7 +81,7 @@ export default function HomePage({ user }: PageProps) {
 					/>
 				</div>
 				<div
-					className="absolute hidden lg:block z-[-99]"
+					className="absolute z-[-99] hidden lg:block"
 					style={{
 						transform: `translate(${
 							(perspective[0] * -1) / 100
@@ -129,9 +129,9 @@ export default function HomePage({ user }: PageProps) {
 				/>
 				</div>
 			</div>
-			<div className="flex flex-col items-center mt-80 space-y-4 font-inter">
+			<div className="mt-80 flex flex-col items-center space-y-4 font-inter">
 				<div className="text-center">
-					<div className="text-3xl font-bold font-montserrat text-dank-300 dark:text-white">
+					<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-white">
 						What is it all about?
 					</div>
 					<div className="text-light-600 dark:text-light-300">
@@ -141,30 +141,30 @@ export default function HomePage({ user }: PageProps) {
 				</div>
 				<div
 					className={clsx(
-						"grid grid-cols-1 lg:grid-cols-2 gap-8",
-						"max-w-sm lg:max-w-3xl md:rounded-lg p-8",
-						"bg-light-500 lg:bg-light-500 dark:bg-dark-400 lg:dark:bg-dark-500",
+						"grid grid-cols-1 gap-8 lg:grid-cols-2",
+						"max-w-sm p-8 md:rounded-lg lg:max-w-3xl",
+						"bg-light-500 dark:bg-dark-400 lg:bg-light-500 lg:dark:bg-dark-500",
 						"text-dark-100 dark:text-light-300"
 					)}
 				>
 					{QUICK_INFO.map((info) => (
 						<div
-							className="flex items-center align-middle rounded-lg"
+							className="flex items-center rounded-lg align-middle"
 							key={info.icon}
 						>
 							<div
 								className={clsx(
-									"flex flex-col lg:flex-row items-center",
-									"space-x-0 space-y-4 lg:space-x-8 lg:space-y-0 p-8 lg:p-0"
+									"flex flex-col items-center lg:flex-row",
+									"space-x-0 space-y-4 p-8 lg:space-x-8 lg:space-y-0 lg:p-0"
 								)}
 							>
-								<div className="grid place-items-center min-w-[45px] min-h-[45px] rounded-full w-10 h-10 bg-gray-50 dark:bg-dark-400">
+								<div className="grid h-10 min-h-[45px] w-10 min-w-[45px] place-items-center rounded-full bg-gray-50 dark:bg-dark-400">
 									<span className="material-icons text-dank-300">
 										{info.icon}
 									</span>
 								</div>
 								<div className="flex flex-col text-center lg:text-left">
-									<h4 className="font-bold font-montserrat">
+									<h4 className="font-montserrat font-bold">
 										{info.title}
 									</h4>
 									<p className="text-md lg:text-sm">

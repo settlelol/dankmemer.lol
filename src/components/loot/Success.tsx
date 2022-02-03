@@ -1,7 +1,7 @@
 export function Success({ id }: { id?: string }) {
 	return (
 		<div className="mb-40 flex flex-col items-center text-center text-dark-500 dark:text-white">
-			<div className="bg-light-500 dark:bg-dark-500 rounded-md p-20 flex flex-col space-y-2">
+			<div className="flex flex-col space-y-2 rounded-md bg-light-500 p-20 dark:bg-dark-500">
 				<div className="text-2xl font-bold text-dank-300">Success!</div>
 
 				<div className="flex flex-col space-y-4">
@@ -30,7 +30,7 @@ export function Success({ id }: { id?: string }) {
 					<div>
 						<div></div>
 						Payment ID:{" "}
-						<span className="bg-light-300 dark:bg-dark-200 p-1 rounded-md">
+						<span className="rounded-md bg-light-300 p-1 dark:bg-dark-200">
 							{id}
 						</span>
 					</div>
