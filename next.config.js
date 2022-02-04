@@ -1,4 +1,7 @@
 module.exports = {
+	env: {
+		DOMAIN: process.env.DOMAIN,
+	},
 	async headers() {
 		return [
 			{
