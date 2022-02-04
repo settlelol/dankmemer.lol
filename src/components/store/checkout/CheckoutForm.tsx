@@ -58,6 +58,7 @@ export default function CheckoutForm({
 	const [cardCvcInput, setCardCvcInput] =
 		useState<StripeCardCvcElementChangeEvent>();
 
+	const [discountError, setDiscountError] = useState("");
 	const [discountInput, setDiscountInput] = useState("");
 	const [discountedItems, setDiscountedItems] = useState<DiscountItem[]>([]);
 	const [appliedSavings, setAppliedSavings] = useState(0);
@@ -93,6 +94,10 @@ export default function CheckoutForm({
 		acceptedTerms,
 	]);
 
+	useEffect(() => {
+		if (discountError.length > 1) return setDiscountError("");
+	}, [discountInput]);
+
 	const submitDiscountCode = () => {
 		if (discountInput.length < 1) return;
 		axios(`/api/store/discounts/get?code=${discountInput}`)
@@ -103,6 +108,19 @@ export default function CheckoutForm({
 			})
 			.catch((e) => {
 				console.error(e);
+				switch (e.response.status) {
+					case 404:
+						setDiscountError("Invalid discount code provided.");
+						break;
+					case 410:
+						setDiscountError("Discount code has expired.");
+					case 403:
+						setDiscountError("Minimum cart value not met.");
+					default:
+						console.log(
+							`Unhandled discount error code: ${e.response.status}`
+						);
+				}
 			});
 	};
 
@@ -269,29 +287,38 @@ export default function CheckoutForm({
 						<div className="group mt-2">
 							<div className="flex min-h-[216px] flex-col justify-between text-black dark:text-white">
 								<div>
-									<div className="mb-4 flex flex-row">
-										<Input
-											width="medium"
-											type="text"
-											placeholder="NEWSTORE5"
-											defaultValue={discountInput}
-											className="mr-3"
-											onChange={(e: any) =>
-												setDiscountInput(e.target.value)
-											}
-										/>
-										<Button
-											size="medium"
-											className={clsx(
-												"rounded-md",
-												discountInput.length < 1
-													? "bg-[#7F847F] text-[#333533]"
-													: ""
-											)}
-											onClick={submitDiscountCode}
-										>
-											Submit
-										</Button>
+									<div className="mb-4">
+										<div className="flex flex-row">
+											<Input
+												width="medium"
+												type="text"
+												placeholder="NEWSTORE5"
+												defaultValue={discountInput}
+												className="mr-3"
+												onChange={(e: any) =>
+													setDiscountInput(
+														e.target.value
+													)
+												}
+											/>
+											<Button
+												size="medium"
+												className={clsx(
+													"rounded-md",
+													discountInput.length < 1
+														? "bg-[#7F847F] text-[#333533]"
+														: ""
+												)}
+												onClick={submitDiscountCode}
+											>
+												Submit
+											</Button>
+										</div>
+										{discountError.length > 1 && (
+											<p className="text-right text-sm text-red-500">
+												{discountError}
+											</p>
+										)}
 									</div>
 									{appliedDiscount && (
 										<div>

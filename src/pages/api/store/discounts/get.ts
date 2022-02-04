@@ -35,6 +35,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		});
 	}
 
+	if (promotionalCodes.length < 1)
+		return res.status(404).json({
+			error: "No discount code that matched the input was found.",
+		});
 	const promotionalCode = promotionalCodes[0];
 
 	if (!promotionalCode.id)
@@ -68,7 +72,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		)
 		.reduce((a, b) => a + b);
 
-	if ((promotionalCode.restrictions.minimum_amount ?? 0) > cartTotal)
+	if ((promotionalCode.restrictions.minimum_amount ?? 0) / 100 > cartTotal)
 		return res.status(403).json({
 			error: `The code can only be used when the cart contents are above $${promotionalCode.restrictions.minimum_amount}`,
 		});
