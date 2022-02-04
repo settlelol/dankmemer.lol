@@ -16,7 +16,7 @@ export function Title({ size, children }: Props) {
 	return (
 		<h1
 			className={clsx(
-				"font-bold font-montserrat text-dank-300 dark:text-light-100",
+				"text- font-bold font-montserrat text-dank-300 dark:text-light-100",
 				sizes[size]
 			)}
 		>
