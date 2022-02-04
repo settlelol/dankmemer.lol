@@ -2,7 +2,7 @@ import axios from "axios";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Title } from "src/components/Title";
 import Container from "src/components/ui/Container";
 import { PageProps } from "src/types";
@@ -42,20 +42,26 @@ const stripePromise = loadStripe(
 	process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
 
-interface DiscountItem {
+export interface DiscountItem {
 	id: string;
+	type: "one_time" | "recurring";
 	originalCost: number;
 	discountedCost: number;
+	savings: number;
 }
 
 export default function Checkout({ user }: PageProps) {
 	const router = useRouter();
+	const paymentIntentId = useRef<string>("");
 
 	const [stripeElementsOptions, setStripeElementsOptions] =
 		useState<StripeElementsOptions>();
 	const [loaded, setLoaded] = useState(false);
 	const [cart, setCart] = useState<CartItems[]>([]);
-	const [totalCost, setTotalCost] = useState<string | number>(0);
+
+	const [subtotalCost, setSubtotalCost] = useState<number>(0);
+	const [totalCost, setTotalCost] = useState<number>(0);
+
 	const [selectedPaymentOption, setSelectedPaymentOption] = useState("Card");
 
 	const [nameOnCard, setNameOnCard] = useState("");
@@ -71,7 +77,7 @@ export default function Checkout({ user }: PageProps) {
 
 	const [discountInput, setDiscountInput] = useState("");
 	const [discountedItems, setDiscountedItems] = useState<DiscountItem[]>([]);
-	const [discountedCost, setDiscountedCost] = useState(0);
+	const [appliedSavings, setAppliedSavings] = useState(0);
 	const [appliedDiscount, setAppliedDiscount] = useState(false);
 
 	const [purchaseIsGift, setPurchaseIsGift] = useState(false);
@@ -87,6 +93,7 @@ export default function Checkout({ user }: PageProps) {
 					..._stripeElementsOptions,
 					clientSecret: data.client_secret,
 				});
+				paymentIntentId.current = data.payment_intent;
 			})
 			.catch((e) => {
 				console.error(e);
@@ -95,21 +102,25 @@ export default function Checkout({ user }: PageProps) {
 		axios("/api/store/cart/get").then(({ data }) => {
 			setLoaded(true);
 			setCart(data.cart);
+			setSubtotalCost(
+				data.cart
+					.map(
+						(item: CartItems) =>
+							(item.price.type === "recurring"
+								? item.price.interval === "year"
+									? item.unit_cost * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
+									: item.unit_cost
+								: item.unit_cost) * item.quantity
+					)
+					.reduce((a: number, b: number) => a + b)
+					.toFixed(2)
+			);
 		});
 	}, []);
 
 	useEffect(() => {
-		if (discountedItems.length < 1) return setDiscountedCost(0);
-		else
-			setDiscountedCost(
-				parseFloat(
-					discountedItems
-						.map((item) => item.originalCost - item.discountedCost)
-						.reduce((a: number, b: number) => a + b)
-						.toFixed(2)
-				)
-			);
-	}, [discountedItems]);
+		setTotalCost(subtotalCost - appliedSavings);
+	}, [subtotalCost, appliedSavings]);
 
 	useEffect(() => {
 		if (
@@ -133,120 +144,103 @@ export default function Checkout({ user }: PageProps) {
 
 	const submitDiscountCode = () => {
 		if (discountInput.length < 1) return;
+		axios(`/api/store/discounts/get?code=${discountInput}`)
+			.then(({ data }) => {
+				setAppliedDiscount(true);
+				setDiscountedItems(data.discountedItems);
+				setAppliedSavings(data.totalSavings);
+			})
+			.catch((e) => {
+				console.error(e);
+			});
 	};
 
 	return (
 		<Elements stripe={stripePromise} options={stripeElementsOptions}>
 			<Container title="Checkout" user={user}>
-				<div className="mt-12 mb-5 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
-					<Title size="big">Checkout</Title>
-				</div>
-				<div className="flex justify-between">
-					<div className="flex h-max w-7/12 flex-col">
-						<div className="h-max w-full rounded-lg bg-light-500 px-4 py-3 dark:bg-dark-200">
-							<div className="mb-4">
-								<Title size="small">Payment Method</Title>
-								<div className="mt-3 flex justify-start">
-									<PaymentOption
-										icons={[
-											<Visa
-												key="visa"
-												className="mr-1"
-											/>,
-											<Mastercard
-												key="mastercard"
-												className="mr-1"
-											/>,
-											<Amex
-												key="amex"
-												className="mr-1"
-											/>,
-											<Discover key="discover" />,
-										]}
-										selected={
-											selectedPaymentOption === "Card"
-										}
-										select={() =>
-											setSelectedPaymentOption("Card")
-										}
-									/>
-									<PaymentOption
-										icons={[
-											<img
-												key="paypal"
-												src="/img/store/PayPal.png"
-												width={70}
-											/>,
-										]}
-										selected={
-											selectedPaymentOption === "PayPal"
-										}
-										select={() =>
-											setSelectedPaymentOption("PayPal")
-										}
-									/>
+				<div className="mb-16">
+					<div className="mt-12 mb-5 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
+						<Title size="big">Checkout</Title>
+					</div>
+					<div className="flex justify-between">
+						<div className="h-max w-7/12">
+							<div className="h-max w-full rounded-lg bg-light-500 px-8 py-7 dark:bg-dark-200">
+								<div className="mb-4">
+									<Title size="small">Payment Method</Title>
+									<div className="mt-3 flex justify-start">
+										<PaymentOption
+											icons={[
+												<Visa
+													key="visa"
+													className="mr-1"
+												/>,
+												<Mastercard
+													key="mastercard"
+													className="mr-1"
+												/>,
+												<Amex
+													key="amex"
+													className="mr-1"
+												/>,
+												<Discover key="discover" />,
+											]}
+											selected={
+												selectedPaymentOption === "Card"
+											}
+											select={() =>
+												setSelectedPaymentOption("Card")
+											}
+										/>
+										<PaymentOption
+											icons={[
+												<img
+													key="paypal"
+													src="/img/store/PayPal.png"
+													width={70}
+												/>,
+											]}
+											selected={
+												selectedPaymentOption ===
+												"PayPal"
+											}
+											select={() =>
+												setSelectedPaymentOption(
+													"PayPal"
+												)
+											}
+										/>
+									</div>
 								</div>
-							</div>
-							{selectedPaymentOption === "Card" ? (
-								<div className="flex justify-start items-center mt-9 overflow-hidden">
-									{/* <div className="mr-5">
+								{selectedPaymentOption === "Card" ? (
+									<div className="mt-9 flex items-center justify-start overflow-hidden">
+										{/* <div className="mr-5">
 									<Card brand={cardNumberInput.brand} />
 								</div> */}
-									<div>
-										<Input
-											width="large"
-											type="text"
-											label="Name on card"
-											defaultValue={nameOnCard}
-											onChange={(e: any) =>
-												setNameOnCard(e.target.value)
-											}
-											placeholder="John doe"
-										/>
-										<div className="flex justify-start items-center mt-2">
-											<div className="w-48 mr-7">
-												<label>Card number</label>
-												<CardNumberElement
-													onChange={(data) =>
-														setCardNumberInput(data)
-													}
-													options={{
-														placeholder:
-															"4024 0071 1411 4951",
-														style: {
-															base: {
-																color: "#ffffff",
-																fontFamily:
-																	"Inter, sans-serif",
-																fontWeight:
-																	"400",
-																fontSize:
-																	"14px",
-																"::placeholder":
-																	{
-																		color: "#9ca3af",
-																	},
-															},
-														},
-														classes: {
-															base: "mt-1 w-[200px] px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
-															focus: "border-[#199532] outline-none",
-														},
-													}}
-												/>
-											</div>
-											<div className="w-max mr-5">
-												<label>Expiry</label>
-												<div className="w-20">
-													<CardExpiryElement
+										<div>
+											<Input
+												width="large"
+												type="text"
+												label="Name on card"
+												defaultValue={nameOnCard}
+												onChange={(e: any) =>
+													setNameOnCard(
+														e.target.value
+													)
+												}
+												placeholder="John doe"
+											/>
+											<div className="mt-2 flex items-center justify-start">
+												<div className="mr-7 w-48">
+													<label>Card number</label>
+													<CardNumberElement
 														onChange={(data) =>
-															setCardExpiryInput(
+															setCardNumberInput(
 																data
 															)
 														}
 														options={{
 															placeholder:
-																"04 / 25",
+																"4024 0071 1411 4951",
 															style: {
 																base: {
 																	color: "#ffffff",
@@ -263,225 +257,315 @@ export default function Checkout({ user }: PageProps) {
 																},
 															},
 															classes: {
-																base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
-																focus: "border-[#199532]",
+																base: "mt-1 w-[200px] px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
+																focus: "border-[#199532] outline-none",
 															},
 														}}
 													/>
 												</div>
-											</div>
-											<div className="w-max">
-												<label>CVC</label>
-												<div className="w-14">
-													<CardCvcElement
-														onChange={(data) =>
-															setCardCvcInput(
-																data
-															)
-														}
-														options={{
-															placeholder: "964",
-															style: {
-																base: {
-																	color: "#ffffff",
-																	fontFamily:
-																		"Inter, sans-serif",
-																	fontWeight:
-																		"400",
-																	fontSize:
-																		"14px",
-																	"::placeholder":
-																		{
-																			color: "#9ca3af",
-																		},
+												<div className="mr-5 w-max">
+													<label>Expiry</label>
+													<div className="w-20">
+														<CardExpiryElement
+															onChange={(data) =>
+																setCardExpiryInput(
+																	data
+																)
+															}
+															options={{
+																placeholder:
+																	"04 / 25",
+																style: {
+																	base: {
+																		color: "#ffffff",
+																		fontFamily:
+																			"Inter, sans-serif",
+																		fontWeight:
+																			"400",
+																		fontSize:
+																			"14px",
+																		"::placeholder":
+																			{
+																				color: "#9ca3af",
+																			},
+																	},
 																},
-															},
-															classes: {
-																base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
-																focus: "border-[#199532]",
-															},
-														}}
-													/>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							) : (
-								""
-							)}
-							<div className="flex justify-items-start items-start mt-9">
-								<div className="min-h-[200px] mr-9">
-									<h3 className="text-base font-bold font-montserrat">
-										Apply a discount code
-									</h3>
-									<div className="group mt-2">
-										<div className="flex flex-col text-black dark:text-white">
-											<div className="flex flex-row mb-4">
-												<Input
-													width="medium"
-													type="text"
-													placeholder="NEWSTORE5"
-													className="mr-3"
-													onChange={(e: any) =>
-														setDiscountInput(
-															e.target.value
-														)
-													}
-												/>
-												<Button
-													size="medium"
-													className={clsx(
-														"rounded-md",
-														discountInput.length < 1
-															? "bg-[#7F847F] text-[#333533]"
-															: ""
-													)}
-												>
-													Submit
-												</Button>
-											</div>
-											{appliedDiscount && (
-												<div>
-													<div className="flex justify-between">
-														<h3 className="text-base font-bold font-montserrat">
-															Discount
-														</h3>
-														<h3 className="text-base font-bold font-montserrat text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
-															-$
-															{}
-														</h3>
-														<div className="flex justify-between mt-3 px-4 py-3 dark:bg-dank-500 w-full rounded-lg">
-															<Title size="small">
-																Total:
-															</Title>
-															<Title size="small">
-																${totalCost}
-															</Title>
-														</div>
+																classes: {
+																	base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
+																	focus: "border-[#199532]",
+																},
+															}}
+														/>
 													</div>
 												</div>
-											)}
-										</div>
-									</div>
-								</div>
-								<div className="min-h-[200px]">
-									<h3 className="text-base font-bold font-montserrat">
-										Account information
-									</h3>
-									<div className="">
-										<p className="text-sm dark:text-[#DADADA]">
-											This purchase is being made for
-										</p>
-										<div className="flex flex-row justify-start items-center mt-2">
-											<div className="flex text-sm cursor-pointer select-none mr-4">
-												<p
-													className={clsx(
-														!purchaseIsGift
-															? "bg-dank-300 text-white"
-															: "dark:bg-black/30 text-[#818181]",
-														"px-3 py-1 rounded-l-md border-[1px] border-transparent"
-													)}
-													onClick={() =>
-														setPurchaseIsGift(false)
-													}
-												>
-													Myself
-												</p>
-												<p
-													className={clsx(
-														purchaseIsGift
-															? "bg-dank-300 text-white"
-															: "dark:bg-black/30 text-[#818181]",
-														"px-3 py-1 rounded-r-md border-[1px] border-transparent"
-													)}
-													onClick={() =>
-														setPurchaseIsGift(true)
-													}
-												>
-													Someone else
-												</p>
+												<div className="w-max">
+													<label>CVC</label>
+													<div className="w-14">
+														<CardCvcElement
+															onChange={(data) =>
+																setCardCvcInput(
+																	data
+																)
+															}
+															options={{
+																placeholder:
+																	"964",
+																style: {
+																	base: {
+																		color: "#ffffff",
+																		fontFamily:
+																			"Inter, sans-serif",
+																		fontWeight:
+																			"400",
+																		fontSize:
+																			"14px",
+																		"::placeholder":
+																			{
+																				color: "#9ca3af",
+																			},
+																	},
+																},
+																classes: {
+																	base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
+																	focus: "border-[#199532]",
+																},
+															}}
+														/>
+													</div>
+												</div>
 											</div>
-											{purchaseIsGift && (
-												<Input
-													width="large"
-													type="text"
-													placeholder="270904126974590976"
-													className="!py-1"
-												/>
-											)}
 										</div>
 									</div>
-									<div className="mt-3">
-										<p className="text-sm dark:text-[#7F847F]">
-											The following email will receive the
-											purchase receipt once the payment
-											has been processed.
-										</p>
-										<Input
-											width="w-60"
-											type="text"
-											placeholder="admin@dankmemer.gg"
-											defaultValue={receiptEmail}
-											onChange={(e: any) =>
-												setReceiptEmail(e.target.value)
-											}
-											className="mt-2 !py-1"
-										/>
-										<div
-											className="flex flex-row justify-start items-center mt-2"
-											onClick={() =>
-												setAcceptedTerms(!acceptedTerms)
-											}
-										>
-											<div
-												className={clsx(
-													!acceptedTerms
-														? "border-[#3C3C3C]"
-														: "border-dank-300",
-													"relative w-4 h-4 border-[1px] dark:bg-black/30 mr-2 rounded transition-colors"
-												)}
-											>
-												{acceptedTerms && (
-													<Iconify
-														icon="bx:bx-check"
-														height="16"
-														className="absolute top-[-1.5px] left-[-0.5px] text-dank-300"
+								) : (
+									""
+								)}
+								<div className="mt-9 flex items-start justify-items-start">
+									<div className="mr-9 min-h-[200px]">
+										<h3 className="font-montserrat text-base font-bold">
+											Apply a discount code
+										</h3>
+										<div className="group mt-2">
+											<div className="flex min-h-[216px] flex-col justify-between text-black dark:text-white">
+												<div>
+													<div className="mb-4 flex flex-row">
+														<Input
+															width="medium"
+															type="text"
+															placeholder="NEWSTORE5"
+															defaultValue={
+																discountInput
+															}
+															className="mr-3"
+															onChange={(
+																e: any
+															) =>
+																setDiscountInput(
+																	e.target
+																		.value
+																)
+															}
+														/>
+														<Button
+															size="medium"
+															className={clsx(
+																"rounded-md",
+																discountInput.length <
+																	1
+																	? "bg-[#7F847F] text-[#333533]"
+																	: ""
+															)}
+															onClick={
+																submitDiscountCode
+															}
+														>
+															Submit
+														</Button>
+													</div>
+													{appliedDiscount && (
+														<div>
+															<div className="flex justify-between">
+																<h3 className="font-montserrat text-base font-bold">
+																	Discount
+																</h3>
+																<h3 className="font-montserrat text-base font-bold text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+																	-$
+																	{appliedSavings.toFixed(
+																		2
+																	)}
+																</h3>
+															</div>
+															<div>
+																<ul className="pl-3">
+																	{discountedItems.map(
+																		(
+																			item
+																		) => (
+																			<li className="flex list-decimal justify-between text-sm">
+																				<p className="dark:text-[#b4b4b4]">
+																					•{" "}
+																					{
+																						cart.filter(
+																							(
+																								_item
+																							) =>
+																								_item.id ===
+																								item.id
+																						)[0]
+																							.name
+																					}
+																				</p>
+																				<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+																					-$
+																					{item.savings.toFixed(
+																						2
+																					)}
+																				</p>
+																			</li>
+																		)
+																	)}
+																</ul>
+															</div>
+														</div>
+													)}
+												</div>
+												<div className="mt-3 flex w-full justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
+													<Title size="small">
+														Total:
+													</Title>
+													<Title size="small">
+														${totalCost.toFixed(2)}
+													</Title>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div className="min-h-[200px]">
+										<h3 className="font-montserrat text-base font-bold">
+											Account information
+										</h3>
+										<div className="">
+											<p className="text-sm dark:text-[#DADADA]">
+												This purchase is being made for
+											</p>
+											<div className="mt-2 flex flex-row items-center justify-start">
+												<div className="mr-4 flex cursor-pointer select-none text-sm">
+													<p
+														className={clsx(
+															!purchaseIsGift
+																? "bg-dank-300 text-white"
+																: "text-[#818181] dark:bg-black/30",
+															"rounded-l-md border-[1px] border-transparent px-3 py-1"
+														)}
+														onClick={() =>
+															setPurchaseIsGift(
+																false
+															)
+														}
+													>
+														Myself
+													</p>
+													<p
+														className={clsx(
+															purchaseIsGift
+																? "bg-dank-300 text-white"
+																: "text-[#818181] dark:bg-black/30",
+															"rounded-r-md border-[1px] border-transparent px-3 py-1"
+														)}
+														onClick={() =>
+															setPurchaseIsGift(
+																true
+															)
+														}
+													>
+														Someone else
+													</p>
+												</div>
+												{purchaseIsGift && (
+													<Input
+														width="large"
+														type="text"
+														placeholder="270904126974590976"
+														className="!py-1"
 													/>
 												)}
 											</div>
-											<p className="text-xs">
-												I agree to Dank Memer's{" "}
-												<Link href="/terms">
-													<a className="text-dank-300 underline">
-														Terms of Serivce
-													</a>
-												</Link>{" "}
-												and{" "}
-												<Link href="/refunds">
-													<a className="text-dank-300 underline">
-														Refund Policy
-													</a>
-												</Link>
-												.
-											</p>
 										</div>
-										<Button
-											size="medium-large"
-											className={clsx(
-												"mt-3 w-full",
-												!canCheckout
-													? "bg-[#7F847F] text-[#333533]"
-													: ""
-											)}
-											disabled={!canCheckout}
-										>
-											Pay with {selectedPaymentOption}
-										</Button>
+										<div className="mt-3">
+											<p className="text-sm dark:text-[#7F847F]">
+												The following email will receive
+												the purchase receipt once the
+												payment has been processed.
+											</p>
+											<Input
+												width="w-60"
+												type="text"
+												placeholder="admin@dankmemer.gg"
+												defaultValue={receiptEmail}
+												onChange={(e: any) =>
+													setReceiptEmail(
+														e.target.value
+													)
+												}
+												className="mt-2 !py-1"
+											/>
+											<div
+												className="mt-2 flex flex-row items-center justify-start"
+												onClick={() =>
+													setAcceptedTerms(
+														!acceptedTerms
+													)
+												}
+											>
+												<div
+													className={clsx(
+														!acceptedTerms
+															? "border-[#3C3C3C]"
+															: "border-dank-300",
+														"relative mr-2 h-4 w-4 rounded border-[1px] transition-colors dark:bg-black/30"
+													)}
+												>
+													{acceptedTerms && (
+														<Iconify
+															icon="bx:bx-check"
+															height="16"
+															className="absolute top-[-1.5px] left-[-0.5px] text-dank-300"
+														/>
+													)}
+												</div>
+												<p className="text-xs">
+													I agree to Dank Memer's{" "}
+													<Link href="/terms">
+														<a className="text-dank-300 underline">
+															Terms of Serivce
+														</a>
+													</Link>{" "}
+													and{" "}
+													<Link href="/refunds">
+														<a className="text-dank-300 underline">
+															Refund Policy
+														</a>
+													</Link>
+													.
+												</p>
+											</div>
+											<Button
+												size="medium-large"
+												className={clsx(
+													"mt-3 w-full",
+													!canCheckout
+														? "bg-[#7F847F] text-[#333533]"
+														: ""
+												)}
+												disabled={!canCheckout}
+											>
+												Pay with {selectedPaymentOption}
+											</Button>
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
+						<div className=""></div>
 					</div>
 				</div>
 			</Container>
