@@ -63,7 +63,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			customer: customer?.id,
 			automatic_payment_methods: { enabled: true },
 		});
-		return res.status(200).json({ client_secret: pi.client_secret });
+		return res.status(200).json({ client_secret: pi.client_secret, payment_intent: pi.id });
 	} catch (e: any) {
 		console.error(e.message.replace(/"/g, ""));
 		return res
