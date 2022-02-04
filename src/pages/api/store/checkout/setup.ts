@@ -55,14 +55,21 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		.reduce((a: number, b: number) => a + b)
 		.toFixed(2);
 
-	const pi = await stripe.paymentIntents.create({
-		amount: parseFloat(totalValue) * 100,
-		currency: "usd",
-		receipt_email: user.email,
-		customer: customer?.id,
-		automatic_payment_methods: { enabled: true },
-	});
-	return res.status(200).json({ client_secret: pi.client_secret });
+	try {
+		const pi = await stripe.paymentIntents.create({
+			amount: Math.ceil(parseFloat(totalValue) * 100),
+			currency: "usd",
+			receipt_email: user.email,
+			customer: customer?.id,
+			automatic_payment_methods: { enabled: true },
+		});
+		return res.status(200).json({ client_secret: pi.client_secret });
+	} catch (e: any) {
+		console.error(e.message.replace(/"/g, ""));
+		return res
+			.status(500)
+			.json({ error: "Error while creating Stripe PaymentIntent." });
+	}
 };
 
 export default withSession(handler);
