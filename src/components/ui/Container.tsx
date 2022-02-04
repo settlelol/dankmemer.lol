@@ -45,24 +45,24 @@ export default function Container({ children, title, user }: Props) {
 			{title && <NextSeo title={`Dank Memer | ${title}`} />}
 			<ToastContainer />
 			{announcement && !announcementHidden && (
-				<div className="w-full text-center bg-dank-300 relative">
+				<div className="relative w-full bg-dank-300 text-center">
 					<p
 						dangerouslySetInnerHTML={{
 							__html: announcement.content,
 						}}
 					/>
 					<div
-						className="absolute right-0 top-0 text-dank-200 cursor-pointer"
+						className="absolute right-0 top-0 cursor-pointer text-dank-200"
 						onClick={() => hide()}
 					>
 						<span className="material-icons">close</span>
 					</div>
 				</div>
 			)}
-			<div className="flex flex-col h-screen justify-between">
+			<div className="flex h-screen flex-col justify-between">
 				<Navbar user={user} />
-				<div className="flex justify-center mx-8">
-					<div className="max-w-7xl relative w-full">{children}</div>
+				<div className="mx-8 flex justify-center">
+					<div className="relative w-full max-w-7xl">{children}</div>
 				</div>
 				<Footer />
 			</div>

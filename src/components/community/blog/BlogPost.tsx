@@ -28,15 +28,15 @@ export function BlogPost({ data, user }: Props) {
 	return (
 		<div
 			className={clsx(
-				"p-4 bg-light-500 dark:bg-dark-100 rounded-md w-full",
+				"w-full rounded-md bg-light-500 p-4 dark:bg-dark-100",
 				user?.developer ? " sm:h-64 lg:h-80" : "sm:h-52 lg:h-72"
 			)}
 		>
-			<div className="flex flex-col justify-between space-y-4 h-full">
+			<div className="flex h-full flex-col justify-between space-y-4">
 				<div className="flex flex-col space-y-4">
 					<div className="flex flex-col">
 						{data.draft && (
-							<div className="text-dank-100 font-bold text-xs">
+							<div className="text-xs font-bold text-dank-100">
 								DRAFT
 							</div>
 						)}
@@ -47,18 +47,18 @@ export function BlogPost({ data, user }: Props) {
 									? "text-md leading-1"
 									: data.title.length > 15
 									? "text-xl"
-									: "text-2xl leading-2"
+									: "leading-2 text-2xl"
 							)}
 						>
 							<div>{data.title}</div>
 							{Date.now() - data.date < TIME.week * 2 &&
 								!read && (
-									<div className="bg-red-500 ml-2 px-2 py-0.5 text-xs rounded-full text-white">
+									<div className="ml-2 rounded-full bg-red-500 px-2 py-0.5 text-xs text-white">
 										NEW
 									</div>
 								)}
 						</div>
-						<div className="text-light-600 text-sm">
+						<div className="text-sm text-light-600">
 							Written by{" "}
 							<Link
 								href={`/@${

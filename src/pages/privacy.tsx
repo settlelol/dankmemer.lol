@@ -15,10 +15,10 @@ interface LegalProps {
 function Legal({ title, children }: LegalProps) {
 	return (
 		<div className="flex flex-col space-y-2">
-			<div className="text-2xl font-bold font-montserrat text-dark-500 dark:text-white">
+			<div className="font-montserrat text-2xl font-bold text-dark-500 dark:text-white">
 				{title}
 			</div>
-			<div className="flex flex-col space-y-2 text-gray-500 dark:text-gray-400 leading-5">
+			<div className="flex flex-col space-y-2 leading-5 text-gray-500 dark:text-gray-400">
 				{children}
 			</div>
 		</div>
@@ -28,9 +28,9 @@ function Legal({ title, children }: LegalProps) {
 export default function Privacy({ user }: PageProps) {
 	return (
 		<Container title="Privacy" user={user}>
-			<div className="max-w-6xl relative my-16">
+			<div className="relative my-16 max-w-6xl">
 				<div className="flex flex-col space-y-2">
-					<div className="text-dank-300 text-6xl font-bold font-montserrat">
+					<div className="font-montserrat text-6xl font-bold text-dank-300">
 						PRIVACY POLICY
 					</div>
 					<div className="font-montserrat font-bold text-dark-500 dark:text-white">
@@ -59,7 +59,7 @@ export default function Privacy({ user }: PageProps) {
 						</div>
 					</Legal>
 					<Legal title="Definitions">
-						<ul className="list-disc ml-4 space-y-2">
+						<ul className="ml-4 list-disc space-y-2">
 							{[
 								[
 									"Service",
@@ -105,10 +105,10 @@ export default function Privacy({ user }: PageProps) {
 							for various purposes to provide and improve our
 							Service to you.
 						</div>
-						<div className="text-lg text-dark-500 dark:text-white font-bold">
+						<div className="text-lg font-bold text-dark-500 dark:text-white">
 							Types of Data Collected
 						</div>
-						<div className="text-md text-dark-500 dark:text-white font-bold">
+						<div className="text-md font-bold text-dark-500 dark:text-white">
 							Personal Data
 						</div>
 						<div>
@@ -118,7 +118,7 @@ export default function Privacy({ user }: PageProps) {
 							("Personal Data"). Personally identifiable
 							information may include, but is not limited to:
 						</div>
-						<ul className="list-disc ml-4 space-y-2">
+						<ul className="ml-4 list-disc space-y-2">
 							<li>Email address</li>
 							<li>Your IP Address</li>
 							<li>Cookies and Usage Data</li>
@@ -130,7 +130,7 @@ export default function Privacy({ user }: PageProps) {
 							You may opt out of receiving any, or all, of these
 							communications from us by contacting us.
 						</div>
-						<div className="text-md text-dark-500 dark:text-white font-bold">
+						<div className="text-md font-bold text-dark-500 dark:text-white">
 							Usage Data
 						</div>
 						<div>
@@ -146,7 +146,7 @@ export default function Privacy({ user }: PageProps) {
 							future, only to send registered users emails about
 							our service.
 						</div>
-						<div className="text-md text-dark-500 dark:text-white font-bold">
+						<div className="text-md font-bold text-dark-500 dark:text-white">
 							Tracking & Cookies Data
 						</div>
 						<div>
@@ -170,7 +170,7 @@ export default function Privacy({ user }: PageProps) {
 							use some portions of our Service.
 						</div>
 						<div>Examples of Cookies we use: </div>
-						<ul className="list-disc ml-4 space-y-2">
+						<ul className="ml-4 list-disc space-y-2">
 							<li>
 								<span className="font-bold text-dark-500 dark:text-white">
 									Session Cookies.{" "}
@@ -188,7 +188,7 @@ export default function Privacy({ user }: PageProps) {
 							Melms Media LLC uses the collected data for various
 							purposes:
 						</div>
-						<ul className="list-disc ml-4 space-y-2">
+						<ul className="ml-4 list-disc space-y-2">
 							<li>To provide and maintain our Service</li>
 							<li>To notify you about changes to our Service</li>
 							<li>
@@ -226,7 +226,7 @@ export default function Privacy({ user }: PageProps) {
 							Melms Media LLC may process your Personal Data
 							because:
 						</div>
-						<ul className="list-disc ml-4 space-y-2">
+						<ul className="ml-4 list-disc space-y-2">
 							<li>We need to perform a contract with you</li>
 							<li>You have given us permission to do so</li>
 							<li>
@@ -291,7 +291,7 @@ export default function Privacy({ user }: PageProps) {
 						</div>
 					</Legal>
 					<Legal title="Disclosure of Data">
-						<div className="text-md text-dark-500 dark:text-white font-bold">
+						<div className="text-md font-bold text-dark-500 dark:text-white">
 							Legal Requirements
 						</div>
 						<div>
@@ -299,7 +299,7 @@ export default function Privacy({ user }: PageProps) {
 							the good faith belief that such action is necessary
 							to:
 						</div>
-						<ul className="list-disc ml-4 space-y-2">
+						<ul className="ml-4 list-disc space-y-2">
 							<li>To comply with a legal obligation</li>
 							<li>
 								To protect and defend the rights or property of
@@ -341,7 +341,7 @@ export default function Privacy({ user }: PageProps) {
 							In certain circumstances, you have the following
 							data protection rights:
 						</div>
-						<ul className="list-disc ml-4 space-y-2">
+						<ul className="ml-4 list-disc space-y-2">
 							<li>
 								<span className="font-bold text-dark-500 dark:text-white">
 									The right to access, update or delete the
@@ -419,14 +419,14 @@ export default function Privacy({ user }: PageProps) {
 							other purpose.
 						</div>
 
-						<div className="text-md text-dark-500 dark:text-white font-bold">
+						<div className="text-md font-bold text-dark-500 dark:text-white">
 							Analytics
 						</div>
 						<div>
 							We may use third-party Service Providers to monitor
 							and analyse the use of our Service.
 						</div>
-						<ul className="list-disc ml-4 space-y-2">
+						<ul className="ml-4 list-disc space-y-2">
 							<li>
 								<div className="font-bold text-dark-500 dark:text-white">
 									Google Analytics
@@ -468,7 +468,7 @@ export default function Privacy({ user }: PageProps) {
 								</div>
 							</li>
 						</ul>
-						<div className="text-md text-dark-500 dark:text-white font-bold">
+						<div className="text-md font-bold text-dark-500 dark:text-white">
 							Advertising
 						</div>
 						<div>
@@ -476,7 +476,7 @@ export default function Privacy({ user }: PageProps) {
 							advertisements to you to help support and maintain
 							our Service.
 						</div>
-						<ul className="list-disc ml-4 space-y-2">
+						<ul className="ml-4 list-disc space-y-2">
 							<li>
 								<div className="font-bold text-dark-500 dark:text-white">
 									Google AdSense & DoubleClick Cookie{" "}
@@ -508,7 +508,7 @@ export default function Privacy({ user }: PageProps) {
 								</div>
 							</li>
 						</ul>
-						<div className="text-md text-dark-500 dark:text-white font-bold">
+						<div className="text-md font-bold text-dark-500 dark:text-white">
 							Payments
 						</div>
 						<div>
@@ -530,7 +530,7 @@ export default function Privacy({ user }: PageProps) {
 							secure handling of payment information.
 						</div>
 						<div>The payment processors we work with are:</div>
-						<ul className="list-disc ml-4 space-y-2">
+						<ul className="ml-4 list-disc space-y-2">
 							<li>
 								<div className="font-bold text-dark-500 dark:text-white">
 									PayPal / Braintree{" "}

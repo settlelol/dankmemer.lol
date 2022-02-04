@@ -33,11 +33,11 @@ export function PossibleItems({ activeBox }: Props) {
 					<span className="text-dank-300">⏣ {activeBox.yield}</span>.
 				</div>
 			</div>
-			<table className="border border-gray-400 dark:border-dark-500 text-dark-500 dark:text-white">
+			<table className="border border-gray-400 text-dark-500 dark:border-dark-500 dark:text-white">
 				<thead className="text-left">
 					<tr
 						className={clsx(
-							"border border-gray-200 dark:border-dark-500 text-dark-500 dark:text-white",
+							"border border-gray-200 text-dark-500 dark:border-dark-500 dark:text-white",
 							theme === "dark" ? "bg-dark-500" : "bg-gray-100"
 						)}
 					>
@@ -50,13 +50,13 @@ export function PossibleItems({ activeBox }: Props) {
 						<tr
 							key={i}
 							className={clsx(
-								"border border-gray-200 dark:border-dark-500 text-dark-500 dark:text-white",
+								"border border-gray-200 text-dark-500 dark:border-dark-500 dark:text-white",
 								theme === "dark"
 									? "even:bg-dark-500"
 									: "even:bg-gray-100"
 							)}
 						>
-							<td className="p-1 flex items-center space-x-2">
+							<td className="flex items-center space-x-2 p-1">
 								<img
 									src={itemsData[name].image}
 									className="w-6"

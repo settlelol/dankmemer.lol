@@ -25,13 +25,13 @@ export default function ControlPanelContainer({
 	return (
 		<>
 			<ToastContainer position="top-center" theme="colored" />
-			<div className="fixed top-0 left-0 bg-[#ECEFF0] dark:bg-dark-100 h-full w-72 px-9 py-5">
+			<div className="fixed top-0 left-0 h-full w-72 bg-[#ECEFF0] px-9 py-5 dark:bg-dark-100">
 				<div
-					className="flex justify-start items-center mb-5 cursor-pointer"
+					className="mb-5 flex cursor-pointer items-center justify-start"
 					onClick={() => router.push("/")}
 				>
 					<img src={"/img/memer.png"} width={41} height={41} />
-					<h1 className="font-montserrat font-bold text-2xl ml-3 select-none text-dank-200 dark:text-white">
+					<h1 className="ml-3 select-none font-montserrat text-2xl font-bold text-dank-200 dark:text-white">
 						Dank Memer
 					</h1>
 				</div>
@@ -99,9 +99,9 @@ export default function ControlPanelContainer({
 						href="/control/data-upload"
 					/>
 				</LinkGroup>
-				<div className="absolute bottom-0 left-0 w-full h-16 px-9 mb-2">
-					<div className="flex justify-between items-center bg-[#D8DCDE] dark:bg-dank-500 w-full box-border h-14 rounded-md">
-						<div className="flex justify-start items-center pl-4">
+				<div className="absolute bottom-0 left-0 mb-2 h-16 w-full px-9">
+					<div className="box-border flex h-14 w-full items-center justify-between rounded-md bg-[#D8DCDE] dark:bg-dank-500">
+						<div className="flex items-center justify-start pl-4">
 							<img
 								src={user?.avatar}
 								width={32}
@@ -116,7 +116,7 @@ export default function ControlPanelContainer({
 								</p>
 							</div>
 						</div>
-						<div className="flex justify-end items-center pr-4">
+						<div className="flex items-center justify-end pr-4">
 							<Iconify
 								icon={
 									theme === "light"
@@ -124,7 +124,7 @@ export default function ControlPanelContainer({
 										: "akar-icons:sun-fill"
 								}
 								height="20"
-								className="transition-all text-gray-500 dark:text-light-600 hover:!text-black dark:hover:!text-white cursor-pointer"
+								className="cursor-pointer text-gray-500 transition-all hover:!text-black dark:text-light-600 dark:hover:!text-white"
 								onClick={() =>
 									setTheme(
 										theme === "dark" ? "light" : "dark"
@@ -135,7 +135,7 @@ export default function ControlPanelContainer({
 					</div>
 				</div>
 			</div>
-			<div className="flex justify-start ml-80">
+			<div className="ml-80 flex justify-start">
 				<div className="relative w-full">{children}</div>
 			</div>
 		</>

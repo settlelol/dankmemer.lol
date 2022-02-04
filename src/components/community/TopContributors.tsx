@@ -14,10 +14,10 @@ export function TopContributors() {
 	}, []);
 
 	return (
-		<div className="bg-light-500 dark:bg-dark-100 rounded-md p-4 gap-4 grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 justify-items-start xl:justify-items-center">
+		<div className="grid justify-items-start gap-4 rounded-md bg-light-500 p-4 dark:bg-dark-100 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 xl:justify-items-center">
 			{contributors.map((contributor, i) => (
 				<Link href={`/@${contributor.vanity || contributor.id}`}>
-					<a className="flex space-x-2 items-center cursor-pointer">
+					<a className="flex cursor-pointer items-center space-x-2">
 						<Avatar
 							size="48px"
 							id={contributor.id}
@@ -25,13 +25,13 @@ export function TopContributors() {
 						/>
 						<div className="flex flex-col -space-y-1">
 							<div className="flex items-end">
-								<div className="font-bold text-sm sm:text-md text-black dark:text-white">
+								<div className="sm:text-md text-sm font-bold text-black dark:text-white">
 									{contributor.name.replace(
 										/[^\x00-\x7F]/g,
 										""
 									)}
 								</div>
-								<div className="italic text-light-600 text-sm">
+								<div className="text-sm italic text-light-600">
 									#{contributor.discriminator}
 								</div>
 							</div>

@@ -53,22 +53,22 @@ export default function Dropdown({ content, options, className = "" }: Props) {
 
 	return (
 		<div
-			className={clsx("select-none cursor-pointer relative", className)}
+			className={clsx("relative cursor-pointer select-none", className)}
 			ref={dropdown}
 		>
 			<div
 				className={clsx(
-					"bg-light-500 dark:bg-dank-500 flex items-center rounded-md"
+					"flex items-center rounded-md bg-light-500 dark:bg-dank-500"
 				)}
 				onClick={() => setOpen(!open)}
 			>
 				{content}
 			</div>
 			{open && (
-				<div className="absolute w-full min-h-full z-50 mt-2">
+				<div className="absolute z-50 mt-2 min-h-full w-full">
 					<div
 						className={clsx(
-							"bg-[#18191c] flex flex-col rounded-md space-y-1 p-2"
+							"flex flex-col space-y-1 rounded-md bg-[#18191c] p-2"
 						)}
 						onClick={() => setOpen(false)}
 					>
@@ -83,7 +83,7 @@ export default function Dropdown({ content, options, className = "" }: Props) {
 												: null
 										}
 										className={clsx(
-											"text-sm hover:bg-[#131417] rounded-sm px-2 py-1",
+											"rounded-sm px-2 py-1 text-sm hover:bg-[#131417]",
 											optionVariants[
 												option?.variant || "normal"
 											]

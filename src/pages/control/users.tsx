@@ -16,13 +16,13 @@ export default function ControlUserPage({ user }: PageProps) {
 	return (
 		<Container title="Control" user={user}>
 			<div className="mx-8 xl:mx-0">
-				<div className="flex flex-col my-20 space-y-8">
-					<div className="flex flex-col space-y-4 mb-24">
+				<div className="my-20 flex flex-col space-y-8">
+					<div className="mb-24 flex flex-col space-y-4">
 						<GoBack />
-						<div className="font-bold font-montserrat text-3xl text-dank-300 dark:text-light-100">
+						<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">
 							Control bot users
 						</div>
-						<div className="flex justify-between flex-col xl:flex-row space-y-4 xl:space-y-0">
+						<div className="flex flex-col justify-between space-y-4 xl:flex-row xl:space-y-0">
 							<ControlCard
 								endpoint="/api/user/ban?id={{input}}&type={{dropdown}}"
 								label="Restrict a user's access"

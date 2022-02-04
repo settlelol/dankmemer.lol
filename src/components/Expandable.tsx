@@ -37,7 +37,7 @@ export default function Expandable({
 	return (
 		<div
 			className={clsx(
-				"bg-light-400 dark:bg-dark-500 rounded-md p-4 border select-none",
+				"select-none rounded-md border bg-light-400 p-4 dark:bg-dark-500",
 				expanded
 					? "border-dank-300"
 					: "bg-light-400 dark:border-dark-500"
@@ -49,13 +49,13 @@ export default function Expandable({
 					{name}
 				</div>
 				{description && (
-					<div className="text-light-600 dark:text-gray-400 text-sm">
+					<div className="text-sm text-light-600 dark:text-gray-400">
 						{description}
 					</div>
 				)}
 				<div
 					className={clsx(
-						"border-t-2 dark:border-dark-200 mt-2 pt-2 flex flex-col space-y-3",
+						"mt-2 flex flex-col space-y-3 border-t-2 pt-2 dark:border-dark-200",
 						expanded ? "visible opacity-100" : "hidden opacity-0"
 					)}
 				>

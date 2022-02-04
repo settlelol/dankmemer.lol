@@ -23,18 +23,18 @@ function ItemBox({ item, side, trade, update }: ItemBoxProps) {
 	return (
 		<div
 			className={clsx(
-				"bg-light-500 dark:bg-dark-100 w-32 h-24 flex items-center justify-center mb-4 p-2 rounded-md",
+				"mb-4 flex h-24 w-32 items-center justify-center rounded-md bg-light-500 p-2 dark:bg-dark-100",
 				trade[side].items[item.id] >= 1 && "border-2 border-dank-300"
 			)}
 		>
 			<div className="flex flex-col items-center space-y-1">
-				<img src={item.image} className="w-6 h-6" />
-				<div className="text-xs text-center text-dark-500 dark:text-white">
+				<img src={item.image} className="h-6 w-6" />
+				<div className="text-center text-xs text-dark-500 dark:text-white">
 					{item.name}
 				</div>
-				<div className="flex items-center justify-center text-dark-500 dark:text-white bg-gray-300 dark:bg-dark-400 text-sm">
+				<div className="flex items-center justify-center bg-gray-300 text-sm text-dark-500 dark:bg-dark-400 dark:text-white">
 					<div
-						className="font-bold select-none px-1"
+						className="select-none px-1 font-bold"
 						onClick={(e) => {
 							update(
 								side,
@@ -47,7 +47,7 @@ function ItemBox({ item, side, trade, update }: ItemBoxProps) {
 						-
 					</div>
 					<input
-						className="bg-transparent w-12 border-none text-center resize-none outline-none overflow-hidden"
+						className="w-12 resize-none overflow-hidden border-none bg-transparent text-center outline-none"
 						placeholder="Boxes"
 						onChange={(e) =>
 							update(side, item.id, parseFloat(e.target.value))
@@ -55,7 +55,7 @@ function ItemBox({ item, side, trade, update }: ItemBoxProps) {
 						value={trade[side].items[item.id] || 0}
 					/>
 					<div
-						className="font-bold select-none px-1"
+						className="select-none px-1 font-bold"
 						onClick={(e) => {
 							update(
 								side,
@@ -206,8 +206,8 @@ export default function TradePage({ user }: PageProps) {
 					<Title size="big">Trade Generator</Title>
 					<div className="flex flex-col space-y-8">
 						<div>
-							<div className="flex flex-col md:flex-row space-y-2 md:space-y-0 space-x-0 md:space-x-2 items-center">
-								<div className="flex-1 w-full md:w-auto flex items-center pl-2 text-gray-900 dark:text-white bg-light-500 dark:bg-dark-100 h-9 rounded-md overflow-hidden whitespace-nowrap">
+							<div className="flex flex-col items-center space-y-2 space-x-0 md:flex-row md:space-y-0 md:space-x-2">
+								<div className="flex h-9 w-full flex-1 items-center overflow-hidden whitespace-nowrap rounded-md bg-light-500 pl-2 text-gray-900 dark:bg-dark-100 dark:text-white md:w-auto">
 									{command}
 								</div>
 								<Button
@@ -242,12 +242,12 @@ export default function TradePage({ user }: PageProps) {
 						<div className="flex space-x-12">
 							{Object.keys(trade).map((side) => (
 								<div className="flex flex-col space-y-4">
-									<div className="-mb-4 text-lg font-bold font-montserrat text-dark-500 dark:text-white">
+									<div className="-mb-4 font-montserrat text-lg font-bold text-dark-500 dark:text-white">
 										{side == "left" ? "You" : "Someone"}
 									</div>
 									<textarea
 										className={clsx(
-											"w-full text-right bg-light-500 dark:bg-dark-100 px-2 py-1.5 outline-none text-black dark:text-light-300 text-sm h-8 overflow-hidden rounded-md placeholder-gray-500 resize-none",
+											"h-8 w-full resize-none overflow-hidden rounded-md bg-light-500 px-2 py-1.5 text-right text-sm text-black placeholder-gray-500 outline-none dark:bg-dark-100 dark:text-light-300",
 											trade[side].coins > 0
 												? "border-2 border-dank-300"
 												: "border-2 border-white dark:border-dark-100 "

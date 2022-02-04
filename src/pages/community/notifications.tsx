@@ -27,15 +27,15 @@ export default function Notifications({ user }: PageProps) {
 	}, []);
 	return (
 		<Container title="Notifications" user={user}>
-			<div className="flex flex-col my-16 space-y-4 mx-8 xl:mx-0">
+			<div className="my-16 mx-8 flex flex-col space-y-4 xl:mx-0">
 				<Title size="big">Your Notifications</Title>
 				<div className="flex flex-col space-y-4">
 					{notifications.map((notification, i) => (
 						<>
 							<Link href={notification.link}>
-								<a className="bg-light-500 dark:bg-dark-100 rounded-md p-4">
-									<div className="flex space-x-4 items-center">
-										<div className="h-10 w-10 bg-light-400 dark:bg-dank-400 rounded-full flex items-center justify-center text-black dark:text-white">
+								<a className="rounded-md bg-light-500 p-4 dark:bg-dark-100">
+									<div className="flex items-center space-x-4">
+										<div className="flex h-10 w-10 items-center justify-center rounded-full bg-light-400 text-black dark:bg-dank-400 dark:text-white">
 											<div
 												className="material-icons"
 												style={{ fontSize: "20px" }}
@@ -43,15 +43,15 @@ export default function Notifications({ user }: PageProps) {
 												{notification.icon}
 											</div>
 										</div>
-										<div className="text-sm flex-1">
-											<div className="flex justify-between items-center">
+										<div className="flex-1 text-sm">
+											<div className="flex items-center justify-between">
 												<div className="flex items-center space-x-2">
-													<div className="text-black dark:text-white break-all">
+													<div className="break-all text-black dark:text-white">
 														{notification.title}
 													</div>
 													{notification.createdAt >
 														lastNotification && (
-														<div className="bg-rose-500 px-1 rounded-md text-xs">
+														<div className="rounded-md bg-rose-500 px-1 text-xs">
 															NEW
 														</div>
 													)}

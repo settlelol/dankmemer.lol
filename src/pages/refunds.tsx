@@ -15,10 +15,10 @@ interface SectionProps {
 function Section({ title, children }: SectionProps) {
 	return (
 		<div className="flex flex-col space-y-2">
-			<div className="text-2xl font-bold font-montserrat text-dark-500 dark:text-white">
+			<div className="font-montserrat text-2xl font-bold text-dark-500 dark:text-white">
 				{title}
 			</div>
-			<div className="flex flex-col space-y-2 text-gray-500 dark:text-gray-400 leading-5">
+			<div className="flex flex-col space-y-2 leading-5 text-gray-500 dark:text-gray-400">
 				{children}
 			</div>
 		</div>
@@ -28,9 +28,9 @@ function Section({ title, children }: SectionProps) {
 export default function Refunds({ user }: PageProps) {
 	return (
 		<Container title="Refunds" user={user}>
-			<div className="max-w-6xl relative my-16">
+			<div className="relative my-16 max-w-6xl">
 				<div className="flex flex-col space-y-2">
-					<div className="text-dank-300 text-6xl font-bold font-montserrat">
+					<div className="font-montserrat text-6xl font-bold text-dank-300">
 						Refund Policy
 					</div>
 					<div className="font-montserrat font-bold text-dark-500 dark:text-white">
@@ -48,10 +48,10 @@ export default function Refunds({ user }: PageProps) {
 							refund, we reserve the right to ban you and anyone
 							associated with you from the bot.
 						</div>
-						<div className="text-lg text-dark-500 dark:text-white font-bold">
+						<div className="text-lg font-bold text-dark-500 dark:text-white">
 							Reasons for potential refunds:
 						</div>
-						<ul className="list-disc ml-4 space-y-2">
+						<ul className="ml-4 list-disc space-y-2">
 							<li>
 								Fraud/Unauthorized Payments (requires proof, as
 								this is the most common "bs" chargeback)
@@ -70,10 +70,10 @@ export default function Refunds({ user }: PageProps) {
 							you are, the more likely we are to give you a refund
 							for up to a month worth of donor perks.
 						</div>
-						<div className="text-lg text-dark-500 dark:text-white font-bold">
+						<div className="text-lg font-bold text-dark-500 dark:text-white">
 							Reasons for potential refunds:
 						</div>
-						<ul className="list-disc ml-4 space-y-2">
+						<ul className="ml-4 list-disc space-y-2">
 							<li>Issues with getting donor perks</li>
 							<li>
 								Patreon API removes your perks before the end of

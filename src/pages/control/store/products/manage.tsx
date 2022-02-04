@@ -89,11 +89,11 @@ export default function ManageProducts({ user }: PageProps) {
 	return (
 		<ControlPanelContainer title={"Manage Products"} user={user}>
 			<div className="mx-8">
-				<div className="flex flex-col my-10 min-h-screen">
-					<div className="font-bold font-montserrat text-3xl text-dank-300 dark:text-light-100">
+				<div className="my-10 flex min-h-screen flex-col">
+					<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">
 						Store Products
 					</div>
-					<table className="mt-8 p-4 text-left bg-light-500 text-dark-400 dark:text-light-200 dark:bg-dark-100 border-none border-collapse rounded-lg overflow-hidden">
+					<table className="mt-8 border-collapse overflow-hidden rounded-lg border-none bg-light-500 p-4 text-left text-dark-400 dark:bg-dark-100 dark:text-light-200">
 						<thead>
 							<tr className="border-b-2 border-white/20">
 								<th className="w-[60px]"></th>
@@ -195,13 +195,13 @@ export default function ManageProducts({ user }: PageProps) {
 														<Tooltip content="Markdown is supported for this field">
 															<Iconify
 																icon="akar-icons:info"
-																className="inline-flex mb-1 ml-2 opacity-30"
+																className="mb-1 ml-2 inline-flex opacity-30"
 															/>
 														</Tooltip>
 													</label>
 													<textarea
 														id="includes"
-														className="px-2 py-1 bg-light-200 dark:bg-dank-600 resize-none h-40 rounded-md text-sm focus-visible:outline focus-visible:outline-[1px] focus-visible:outline-dank-200"
+														className="h-40 resize-none rounded-md bg-light-200 px-2 py-1 text-sm focus-visible:outline focus-visible:outline-[1px] focus-visible:outline-dank-200 dark:bg-dank-600"
 														defaultValue={
 															selectedPrimaryBody
 														}
@@ -223,13 +223,13 @@ export default function ManageProducts({ user }: PageProps) {
 														<Tooltip content="Markdown is supported for this field">
 															<Iconify
 																icon="akar-icons:info"
-																className="inline-flex mb-1 ml-1 opacity-30"
+																className="mb-1 ml-1 inline-flex opacity-30"
 															/>
 														</Tooltip>
 													</label>
 													<textarea
 														id="also-includes"
-														className="px-2 py-1 bg-light-200 dark:bg-dank-600 resize-none h-40 rounded-md text-sm focus-visible:outline focus-visible:outline-[1px] focus-visible:outline-dank-200"
+														className="h-40 resize-none rounded-md bg-light-200 px-2 py-1 text-sm focus-visible:outline focus-visible:outline-[1px] focus-visible:outline-dank-200 dark:bg-dank-600"
 														defaultValue={
 															selectedSecondaryBody
 														}
@@ -259,7 +259,7 @@ export default function ManageProducts({ user }: PageProps) {
 														<input
 															id="primary-title"
 															type="text"
-															className="bg-light-200 dark:bg-dank-600 rounded-md px-2 py-1 focus-visible:outline focus-visible:outline-[1px] focus-visible:outline-dank-200"
+															className="rounded-md bg-light-200 px-2 py-1 focus-visible:outline focus-visible:outline-[1px] focus-visible:outline-dank-200 dark:bg-dank-600"
 															placeholder="Exclusive benefits"
 															defaultValue={
 																selectedPrimaryTitle
@@ -282,7 +282,7 @@ export default function ManageProducts({ user }: PageProps) {
 														<input
 															id="secondary-title"
 															type="text"
-															className="bg-light-200 dark:bg-dank-600 rounded-md px-2 py-1 focus-visible:outline focus-visible:outline-[1px] focus-visible:outline-dank-200"
+															className="rounded-md bg-light-200 px-2 py-1 focus-visible:outline focus-visible:outline-[1px] focus-visible:outline-dank-200 dark:bg-dank-600"
 															placeholder="Also included"
 															defaultValue={
 																selectedSecondaryTitle

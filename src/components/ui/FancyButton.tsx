@@ -15,12 +15,12 @@ interface Props {
 export default function FancyButton({ text, link, variant = "big" }: Props) {
 	return (
 		<Link href={link}>
-			<div className="relative group block cursor-pointer">
+			<div className="group relative block cursor-pointer">
 				<a
 					className={clsx(
 						variants[variant],
 						"relative block",
-						"border-[3px] border-dank-200 bg-light-200 dark:bg-dark-400 text-black dark:text-white"
+						"border-[3px] border-dank-200 bg-light-200 text-black dark:bg-dark-400 dark:text-white"
 					)}
 					rel="noreferrer noopener"
 				>
@@ -28,7 +28,7 @@ export default function FancyButton({ text, link, variant = "big" }: Props) {
 				</a>
 				<div
 					className={clsx(
-						"absolute top-[7px] left-[7px] h-full w-full z-[-1]",
+						"absolute top-[7px] left-[7px] z-[-1] h-full w-full",
 						"border-[3px] border-dank-200",
 						"group-hover:top-0 group-hover:left-0",
 						"transition-all duration-200 ease-in-out"

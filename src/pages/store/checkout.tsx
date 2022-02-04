@@ -138,15 +138,15 @@ export default function Checkout({ user }: PageProps) {
 	return (
 		<Elements stripe={stripePromise} options={stripeElementsOptions}>
 			<Container title="Checkout" user={user}>
-				<div className="flex flex-col sm:flex-row justify-between items-center mt-12 mb-5 space-y-2 sm:space-y-0">
+				<div className="mt-12 mb-5 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 					<Title size="big">Checkout</Title>
 				</div>
 				<div className="flex justify-between">
-					<div className="flex flex-col w-3/5 h-max">
-						<div className="px-8 py-7 w-full h-max bg-light-500 dark:bg-dark-200 rounded-lg">
+					<div className="flex h-max w-7/12 flex-col">
+						<div className="h-max w-full rounded-lg bg-light-500 px-4 py-3 dark:bg-dark-200">
 							<div className="mb-4">
 								<Title size="small">Payment Method</Title>
-								<div className="flex justify-start mt-3">
+								<div className="mt-3 flex justify-start">
 									<PaymentOption
 										icons={[
 											<Visa

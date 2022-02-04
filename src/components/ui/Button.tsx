@@ -47,7 +47,7 @@ export default function Button({
 		<button
 			disabled={disabled}
 			className={clsx(
-				"inline-flex items-center focus:outline-none font-medium",
+				"inline-flex items-center font-medium focus:outline-none",
 				sizeClasses[size],
 				alignClasses[align],
 				variantClasses[variant],

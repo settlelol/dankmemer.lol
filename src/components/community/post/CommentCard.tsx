@@ -55,12 +55,12 @@ export default function CommentCard({
 	return (
 		<div
 			className={clsx(
-				"flex flex-col md:flex-row items-start md:items-center justify-between group",
+				"group flex flex-col items-start justify-between md:flex-row md:items-center",
 				reply && "ml-4"
 			)}
 		>
 			<div>
-				<div className="flex space-x-2 items-center">
+				<div className="flex items-center space-x-2">
 					<div>
 						<Link
 							href={
@@ -69,13 +69,13 @@ export default function CommentCard({
 									: `/@${(comment.author as UserData).id}`
 							}
 						>
-							<a className="flex space-x-1 items-center">
+							<a className="flex items-center space-x-1">
 								<Avatar
 									id={(comment.author as UserData).id}
 									link={(comment.author as UserData).avatar}
 									size="16px"
 								/>
-								<a className="hover:underline text-black dark:text-white">
+								<a className="text-black hover:underline dark:text-white">
 									{(comment.author as UserData).name}#
 									{(comment.author as UserData).discriminator}
 								</a>
@@ -125,7 +125,7 @@ export default function CommentCard({
 				</div>
 				<div className="text-light-600">{urlify(comment.content)}</div>
 			</div>
-			<div className="hidden space-x-2 items-center group-hover:flex">
+			<div className="hidden items-center space-x-2 group-hover:flex">
 				{!reply && (
 					<>
 						{user?.developer && (

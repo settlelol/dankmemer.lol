@@ -13,7 +13,7 @@ export function Avatar({ link, id, size, className = "" }: Props) {
 		<img
 			src={link}
 			width={size}
-			className={clsx("bg-light-600 rounded-full", className)}
+			className={clsx("rounded-full bg-light-600", className)}
 			onError={(e) => {
 				(e.target as any).onerror = null;
 				(e.target as any).src = randomAvatar(id);

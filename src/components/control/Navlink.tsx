@@ -14,17 +14,17 @@ export default function Navlink({ icon, size = 22, text, href }: Props) {
 
 	return (
 		<div
-			className="group flex items-center mb-3 cursor-pointer transition-colors rounded-md"
+			className="group mb-3 flex cursor-pointer items-center rounded-md transition-colors"
 			onClick={() => router.push(href)}
 		>
-			<div className="grid place-items-center bg-dank-200 dark:bg-[#175a34] w-10 h-10 rounded-md mr-4 fill-white">
+			<div className="mr-4 grid h-10 w-10 place-items-center rounded-md bg-dank-200 fill-white dark:bg-[#175a34]">
 				<Iconify icon={icon} color="white" height={size} />
 			</div>
 			<p
 				className={clsx(
 					router.route === href
 						? "text-dank-200"
-						: "text-gray-800 dark:text-white group-hover:text-dank-100"
+						: "text-gray-800 group-hover:text-dank-100 dark:text-white"
 				)}
 			>
 				{text}

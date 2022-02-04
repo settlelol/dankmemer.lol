@@ -23,7 +23,7 @@ export default function MarketingBox({
 	return (
 		<div
 			className={clsx(
-				"relative px-8 py-7 w-full h-56 shadow-[0px_0px_12px] rounded-lg",
+				"relative h-56 w-full rounded-lg px-8 py-7 shadow-[0px_0px_12px]",
 				boxColors[color]
 			)}
 			style={{
@@ -31,11 +31,11 @@ export default function MarketingBox({
 			}}
 		>
 			<Money className="absolute top-[-45px] right-[-40px]" />
-			<div className="grid place-items-center bg-white/40 w-40 h-9 rounded-md">
-				<h4 className="font-medium uppercase text-sm">{title}</h4>
+			<div className="grid h-9 w-40 place-items-center rounded-md bg-white/40">
+				<h4 className="text-sm font-medium uppercase">{title}</h4>
 			</div>
 			<div className="mt-2">
-				<p className="font-medium font-montserrat text-sm mb-2">
+				<p className="mb-2 font-montserrat text-sm font-medium">
 					{topText}
 				</p>
 				<p className="font-inter text-sm text-white/80">{bottomText}</p>

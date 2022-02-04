@@ -2,7 +2,7 @@ import FancyButton from "./ui/FancyButton";
 
 export default function BottomCTA() {
 	return (
-		<div className="flex flex-col items-center font-montserrat space-y-2 text-center">
+		<div className="flex flex-col items-center space-y-2 text-center font-montserrat">
 			<h1 className="text-3xl font-bold text-dark-500 dark:text-white">
 				Join the family!
 			</h1>

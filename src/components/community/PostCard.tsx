@@ -32,12 +32,12 @@ export function PostCard({ data }: Props) {
 	return (
 		<Link href={data ? `/community/post/${data?._id}` : "#"}>
 			<a
-				className="bg-light-500 dark:bg-dark-100 rounded-md w-full p-4 flex space-x-4 cursor-pointer"
+				className="flex w-full cursor-pointer space-x-4 rounded-md bg-light-500 p-4 dark:bg-dark-100"
 				key={data?._id}
 			>
 				<div
 					className={clsx(
-						"flex flex-col items-center w-8 text-sm cursor-pointer select-none",
+						"flex w-8 cursor-pointer select-none flex-col items-center text-sm",
 						upvoted ? "text-dank-300" : "text-light-600 "
 					)}
 					onClick={(e) => {
@@ -49,13 +49,13 @@ export function PostCard({ data }: Props) {
 					<span className="material-icons">arrow_upward</span>
 					<div>{upvotes.toLocaleString()}</div>
 				</div>
-				<div className="flex flex-col justify-between space-y-4 relative w-full">
+				<div className="relative flex w-full flex-col justify-between space-y-4">
 					<div className="flex flex-col space-y-1">
-						<div className="font-bold font-montserrat text-black dark:text-white">
+						<div className="font-montserrat font-bold text-black dark:text-white">
 							{data?.title ?? (
 								<div
 									className={clsx(
-										"animate-pulse h-5 bg-gray-400 dark:bg-gray-300 rounded w-72"
+										"h-5 w-72 animate-pulse rounded bg-gray-400 dark:bg-gray-300"
 									)}
 								/>
 							)}
@@ -67,7 +67,7 @@ export function PostCard({ data }: Props) {
 								))}
 							</div>
 						)}
-						<div className="text-light-600 leading-5 break-all  md:break-words">
+						<div className="break-all leading-5 text-light-600  md:break-words">
 							{data ? (
 								truncate(data.content, 250)
 							) : (
@@ -75,7 +75,7 @@ export function PostCard({ data }: Props) {
 									{[...Array(3)].map((_) => (
 										<div
 											className={clsx(
-												"animate-pulse h-5 bg-gray-300 dark:bg-gray-600 rounded mt-2 max-w-full"
+												"mt-2 h-5 max-w-full animate-pulse rounded bg-gray-300 dark:bg-gray-600"
 											)}
 										/>
 									))}
@@ -92,9 +92,9 @@ export function PostCard({ data }: Props) {
 									id={(data.author as UserData).id}
 								/>
 							) : (
-								<div className="animate-pulse bg-gray-600 rounded-full w-[20px] h-[20px]" />
+								<div className="h-[20px] w-[20px] animate-pulse rounded-full bg-gray-600" />
 							)}
-							<div className="text-sm flex space-x-0 md:space-x-1">
+							<div className="flex space-x-0 text-sm md:space-x-1">
 								<span className="hidden md:inline-block">
 									Posted by{" "}
 								</span>
@@ -114,7 +114,7 @@ export function PostCard({ data }: Props) {
 								</TextLink>
 							</div>
 						</div>
-						<div className="flex space-x-2 items-center">
+						<div className="flex items-center space-x-2">
 							<span
 								className="material-icons-outlined"
 								style={{ fontSize: "14px" }}

@@ -96,9 +96,9 @@ export default function Posts({ user }: PageProps) {
 
 	return (
 		<Container title="Posts" user={user}>
-			<div className="flex flex-col space-y-4 my-16">
+			<div className="my-16 flex flex-col space-y-4">
 				<div
-					className="flex flex-col md:flex-row space-y-2 md:space-y-0 justify-between md:items-center p-2 rounded-md bg-light-500 dark:bg-dark-100"
+					className="flex flex-col justify-between space-y-2 rounded-md bg-light-500 p-2 dark:bg-dark-100 md:flex-row md:items-center md:space-y-0"
 					ref={top}
 				>
 					<div className="flex space-x-4">
@@ -109,7 +109,7 @@ export default function Posts({ user }: PageProps) {
 									variant="dark"
 									className="w-full md:w-auto"
 								>
-									<div className="flex space-x-2 items-center">
+									<div className="flex items-center space-x-2">
 										<div
 											className="material-icons"
 											style={{ fontSize: "18px" }}
@@ -138,7 +138,7 @@ export default function Posts({ user }: PageProps) {
 									variant="dark"
 									className="w-full md:w-auto"
 								>
-									<div className="flex space-x-2 items-center w-28">
+									<div className="flex w-28 items-center space-x-2">
 										<div
 											className="material-icons"
 											style={{ fontSize: "18px" }}
@@ -206,7 +206,7 @@ export default function Posts({ user }: PageProps) {
 						/>
 					</div>
 				</div>
-				<div className="flex flex-col md:flex-row space-y-2 md:space-y-0 space-x-0 md:space-x-4 md:items-center p-2 rounded-md bg-light-500 dark:bg-dark-100">
+				<div className="flex flex-col space-y-2 space-x-0 rounded-md bg-light-500 p-2 dark:bg-dark-100 md:flex-row md:items-center md:space-y-0 md:space-x-4">
 					<Input
 						onChange={(e) => {
 							setSearch(e.target.value);
@@ -243,7 +243,7 @@ export default function Posts({ user }: PageProps) {
 					</Button>
 				</div>
 				{(loadingPosts || posts.length > 0) && (
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 						{loadingPosts
 							? [...Array(10)].map((i) => <PostCard key={i} />)
 							: posts.map((data) => (
@@ -252,7 +252,7 @@ export default function Posts({ user }: PageProps) {
 					</div>
 				)}
 				{posts.length == 0 && (
-					<div className="flex flex-col items-center space-y-2 bg-light-500 dark:bg-dark-100 p-4 rounded-md">
+					<div className="flex flex-col items-center space-y-2 rounded-md bg-light-500 p-4 dark:bg-dark-100">
 						<img
 							src="/img/memer.png"
 							width={160}
@@ -261,7 +261,7 @@ export default function Posts({ user }: PageProps) {
 						<div className="italic">Woah... so empty</div>
 					</div>
 				)}
-				<div className="flex justify-between items-center p-2 space-x-4 rounded-md bg-light-500 dark:bg-dark-100">
+				<div className="flex items-center justify-between space-x-4 rounded-md bg-light-500 p-2 dark:bg-dark-100">
 					<Button
 						block
 						variant="dark"

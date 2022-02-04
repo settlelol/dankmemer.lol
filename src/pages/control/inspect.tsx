@@ -11,10 +11,10 @@ export default function ControlInspectPage({ user }: PageProps) {
 	return (
 		<Container title="Control" user={user}>
 			<div className="mx-8 xl:mx-0">
-				<div className="flex flex-col my-20 space-y-8">
+				<div className="my-20 flex flex-col space-y-8">
 					<div className="flex flex-col space-y-4">
 						<GoBack />
-						<div className="font-bold font-montserrat text-3xl text-dank-300 dark:text-light-100">
+						<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">
 							Inspect users
 						</div>
 						<div>

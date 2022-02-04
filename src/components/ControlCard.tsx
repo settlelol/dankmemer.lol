@@ -46,29 +46,29 @@ export function ControlCard({
 	const [processing, setProcessing] = useState(false);
 
 	return (
-		<div className="flex flex-col justify-between items-start rounded-md p-8 w-80 h-80 bg-light-500 dark:bg-dark-500">
+		<div className="flex h-80 w-80 flex-col items-start justify-between rounded-md bg-light-500 p-8 dark:bg-dark-500">
 			<div className="flex flex-col space-y-4">
-				<div className="flex justify-between items-center space-x-4">
+				<div className="flex items-center justify-between space-x-4">
 					<div
 						className={clsx(
-							"flex items-center justify-center p-4 rounded-full",
+							"flex items-center justify-center rounded-full p-4",
 							types[type]
 						)}
 					>
 						<span className="material-icons">{icon}</span>
 					</div>
-					<div className="font-bold font-montserrat text-xl text-dark-500 dark:text-white">
+					<div className="font-montserrat text-xl font-bold text-dark-500 dark:text-white">
 						{label}
 					</div>
 				</div>
 				<div className="space-y-4">
 					{input && (
-						<div className="flex items-center space-x-2 dark:bg-dank-500 px-3 py-3 h-10 w-full text-sm rounded-md text-black dark:text-light-300 bg-gray-100 placeholder-gray-500">
+						<div className="flex h-10 w-full items-center space-x-2 rounded-md bg-gray-100 px-3 py-3 text-sm text-black placeholder-gray-500 dark:bg-dank-500 dark:text-light-300">
 							<span className="material-icons text-gray-500">
 								{input.icon}
 							</span>
 							<textarea
-								className="outline-none overflow-hidden resize-none bg-transparent h-full"
+								className="h-full resize-none overflow-hidden bg-transparent outline-none"
 								onChange={(e) => setInputData(e.target.value)}
 								value={inputData}
 								placeholder={input.placeholder}
@@ -78,7 +78,7 @@ export function ControlCard({
 					{dropdown && (
 						<Dropdown
 							content={
-								<div className="flex items-center justify-between w-full p-2">
+								<div className="flex w-full items-center justify-between p-2">
 									<div className="flex items-center space-x-2">
 										<span className="material-icons text-dark-500 dark:text-gray-500">
 											{dropdown.icon}

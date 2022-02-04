@@ -31,29 +31,29 @@ export default function CartItem({
 	};
 
 	return (
-		<div className="flex justify-between items-center mt-3">
+		<div className="mt-3 flex items-center justify-between">
 			<div className="flex">
 				<div
-					className="dark:bg-black/30 w-12 h-12 rounded-md bg-center bg-[length:33px_33px] bg-no-repeat"
+					className="h-12 w-12 rounded-md bg-[length:33px_33px] bg-center bg-no-repeat dark:bg-black/30"
 					style={{
 						backgroundImage: `url('${image}')`,
 					}}
 				></div>
-				<div className="flex flex-col ml-5 justify-center">
+				<div className="ml-5 flex flex-col justify-center">
 					<h4 className="font-bold leading-none text-gray-800 dark:text-white">
 						{name}
 					</h4>
-					<p className="text-sm text-light-600 leading-none">
+					<p className="text-sm leading-none text-light-600">
 						{metadata?.type && toTitleCase(metadata?.type)}
 					</p>
 				</div>
 			</div>
-			<div className="flex justify-center items-center">
+			<div className="flex items-center justify-center">
 				<div className="mr-16">
 					{metadata?.type === "membership" ? (
 						<Dropdown
 							content={
-								<div className="flex justify-center items-center bg-[#0C120D] px-3 py-[6px] rounded-md border-[1px] border-[#3C3C3C] text-sm dark:text-[#707070] hover:dark:text-[#cccccc] transition-colors">
+								<div className="flex items-center justify-center rounded-md border-[1px] border-[#3C3C3C] bg-[#0C120D] px-3 py-[6px] text-sm transition-colors dark:text-[#707070] hover:dark:text-[#cccccc]">
 									<p>
 										{price.interval! === "year"
 											? "Annual subscription"
@@ -91,29 +91,29 @@ export default function CartItem({
 							}
 						></Dropdown>
 					) : (
-						<div className="flex justify-center items-center">
+						<div className="flex items-center justify-center">
 							<Iconify
 								icon="ant-design:minus-outlined"
 								height="15"
-								className="mr-2 text-gray-800 dark:text-gray-400 hover:!text-white cursor-pointer transition-colors"
+								className="mr-2 cursor-pointer text-gray-800 transition-colors hover:!text-white dark:text-gray-400"
 								onClick={() => setQuantity(quantity - 1)}
 							/>
 							<input
 								type="text"
-								className="w-8 text-center bg-transparent focus-visible:outline-none"
+								className="w-8 bg-transparent text-center focus-visible:outline-none"
 								value={quantity}
 								onChange={(e) => setQuantity(e.target.value)}
 							/>
 							<Iconify
 								icon="ant-design:plus-outlined"
 								height="15"
-								className="ml-2 text-gray-800 dark:text-gray-400 hover:!text-white cursor-pointer transition-colors"
+								className="ml-2 cursor-pointer text-gray-800 transition-colors hover:!text-white dark:text-gray-400"
 								onClick={() => setQuantity(quantity + 1)}
 							/>
 						</div>
 					)}
 				</div>
-				<p className="mr-7 w-[70px] font-montserrat font-bold text-gray-800 dark:text-white text-right">
+				<p className="mr-7 w-[70px] text-right font-montserrat font-bold text-gray-800 dark:text-white">
 					$
 					{price.interval
 						? price.interval === "year"
@@ -124,7 +124,7 @@ export default function CartItem({
 				<Iconify
 					icon="bx:bx-trash"
 					height="20"
-					className="text-gray-800 dark:text-gray-200 hover:!text-red-400 cursor-pointer transition-colors"
+					className="cursor-pointer text-gray-800 transition-colors hover:!text-red-400 dark:text-gray-200"
 				/>
 			</div>
 		</div>
