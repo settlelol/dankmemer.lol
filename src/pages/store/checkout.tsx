@@ -35,6 +35,8 @@ import Button from "src/components/ui/Button";
 import Input from "src/components/store/Input";
 import clsx from "clsx";
 import { Icon as Iconify } from "@iconify/react";
+import CartItem from "src/components/store/cart/CartItem";
+import CartItemImmutable from "src/components/store/checkout/CartItemImmutable";
 
 const _stripeElementsOptions: StripeElementsOptions = {};
 
@@ -163,7 +165,7 @@ export default function Checkout({ user }: PageProps) {
 						<Title size="big">Checkout</Title>
 					</div>
 					<div className="flex justify-between">
-						<div className="h-max w-7/12">
+						<div className="relative h-[587px] min-w-[58.33%]">
 							<div className="h-max w-full rounded-lg bg-light-500 px-8 py-7 dark:bg-dark-200">
 								<div className="mb-4">
 									<Title size="small">Payment Method</Title>
@@ -565,7 +567,27 @@ export default function Checkout({ user }: PageProps) {
 								</div>
 							</div>
 						</div>
-						<div className=""></div>
+						<div className="relative ml-5 h-[587px] w-full">
+							<div className="relative h-full w-full rounded-lg bg-light-500 px-8 py-7 dark:bg-dark-200">
+								<Title size="small">Shopping cart</Title>
+								<div className="flex h-full flex-col items-end justify-between pb-7">
+									<div className="w-full">
+										{cart.map((item, i) => (
+											<CartItemImmutable
+												index={i}
+												{...item}
+											/>
+										))}
+									</div>
+									<div className="mt-3 flex w-full max-w-[260px] justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
+										<Title size="small">Subtotal:</Title>
+										<Title size="small">
+											${subtotalCost}
+										</Title>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</Container>
