@@ -28,6 +28,7 @@ import Link from "next/link";
 import { Icon as Iconify } from "@iconify/react";
 
 interface Props {
+	clientSecret: string;
 	paymentIntentId: string;
 	userEmail: string;
 	subtotalCost: number;
@@ -35,6 +36,7 @@ interface Props {
 }
 
 export default function CheckoutForm({
+	clientSecret,
 	paymentIntentId,
 	userEmail,
 	subtotalCost,
@@ -104,14 +106,19 @@ export default function CheckoutForm({
 			});
 	};
 
-	const confirmPayment = () => {
-		if (!stripe || !stripeElements) return;
-		stripe.confirmPayment({
-			elements: stripeElements,
-			confirmParams: {
-				return_url: `${process.env.DOMAIN}/store/checkout/success?id=${paymentIntentId}`,
+	const confirmPayment = async () => {
+		if (!stripe || !stripeElements || !canCheckout) return;
+		const result = await stripe.confirmCardPayment(clientSecret, {
+			payment_method: {
+				card: stripeElements.getElement("cardNumber")!,
 			},
 		});
+		if (result.error) {
+			alert("SOMETHING WENT WRONG OH NO!!!!!!!!!");
+			console.error(result.error);
+		} else {
+			alert("Payment was a success, pogchamp");
+		}
 	};
 
 	return (
@@ -438,6 +445,7 @@ export default function CheckoutForm({
 										: ""
 								)}
 								disabled={!canCheckout}
+								onClick={confirmPayment}
 							>
 								Pay with {selectedPaymentOption}
 							</Button>

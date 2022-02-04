@@ -31,7 +31,8 @@ export interface DiscountItem {
 
 export default function Checkout({ user }: PageProps) {
 	const router = useRouter();
-	const paymentIntentId = useRef<string>("");
+	const [clientSecret, setClientSecret] = useState("");
+	const [paymentIntentId, setPaymentIntentId] = useState("");
 
 	const [stripeElementsOptions, setStripeElementsOptions] =
 		useState<StripeElementsOptions>();
@@ -46,7 +47,8 @@ export default function Checkout({ user }: PageProps) {
 					..._stripeElementsOptions,
 					clientSecret: data.client_secret,
 				});
-				paymentIntentId.current = data.payment_intent;
+				setClientSecret(data.client_secret);
+				setPaymentIntentId(data.payment_intent);
 			})
 			.catch((e) => {
 				console.error(e);
@@ -79,7 +81,8 @@ export default function Checkout({ user }: PageProps) {
 					</div>
 					<div className="flex justify-between">
 						<CheckoutForm
-							paymentIntentId={paymentIntentId.current}
+							clientSecret={clientSecret}
+							paymentIntentId={paymentIntentId}
 							userEmail={user!.email}
 							subtotalCost={subtotalCost}
 							cart={cart}
