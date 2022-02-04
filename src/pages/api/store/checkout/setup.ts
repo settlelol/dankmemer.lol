@@ -10,7 +10,14 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const db: Db = await dbConnect();
 
 	const user = await req.session.get("user");
+	if (!user) return res.status(401).json({ error: "You are not logged in." });
+
 	const cart = await req.session.get("cart");
+	if (!cart)
+		return res
+			.status(400)
+			.json({ error: "You must have items in your cart." });
+
 	const _customer = await db
 		.collection("customers")
 		.findOne({ discordId: user.id });
@@ -63,7 +70,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			customer: customer?.id,
 			automatic_payment_methods: { enabled: true },
 		});
-		return res.status(200).json({ client_secret: pi.client_secret, payment_intent: pi.id });
+		return res
+			.status(200)
+			.json({ client_secret: pi.client_secret, payment_intent: pi.id });
 	} catch (e: any) {
 		console.error(e.message.replace(/"/g, ""));
 		return res
