@@ -190,6 +190,7 @@ export default function CheckoutForm({
 											classes: {
 												base: "mt-1 w-[200px] px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
 												focus: "border-[#199532] outline-none",
+												invalid: "border-[#F84A4A]",
 											},
 										}}
 									/>
@@ -218,6 +219,7 @@ export default function CheckoutForm({
 												classes: {
 													base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
 													focus: "border-[#199532]",
+													invalid: "border-[#F84A4A]",
 												},
 											}}
 										/>
@@ -247,6 +249,7 @@ export default function CheckoutForm({
 												classes: {
 													base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
 													focus: "border-[#199532]",
+													invalid: "border-[#F84A4A]",
 												},
 											}}
 										/>
