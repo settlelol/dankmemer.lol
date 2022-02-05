@@ -7,7 +7,7 @@ import Container from "src/components/ui/Container";
 import { PageProps } from "src/types";
 import { authenticatedRoute } from "src/util/redirects";
 import { withSession } from "src/util/session";
-import { CartItem as CartItems } from ".";
+import { CartItem as CartItems } from "..";
 import { useRouter } from "next/router";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
