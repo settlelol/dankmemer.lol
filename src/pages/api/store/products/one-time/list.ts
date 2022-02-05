@@ -27,6 +27,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	for (const i in products) {
 		const { data: price } = await stripe.prices.list({
+			active: true,
 			product: products[i].id,
 			type: "one_time",
 		});
