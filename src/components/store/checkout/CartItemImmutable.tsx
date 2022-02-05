@@ -13,7 +13,8 @@ export default function CartItemImmutable({
 	index,
 	id,
 	name,
-	price,
+	selectedPrice,
+	prices,
 	unit_cost,
 	quantity,
 	metadata,
@@ -41,15 +42,16 @@ export default function CartItemImmutable({
 				<div className="flex flex-col">
 					<p className="min-w-[60px] text-right font-montserrat font-bold leading-none text-gray-800 dark:text-white">
 						$
-						{price.interval
-							? price.interval === "year"
+						{selectedPrice.interval
+							? selectedPrice.interval === "year"
 								? (unit_cost * 10.8).toFixed(2)
 								: unit_cost.toFixed(2)
 							: (unit_cost * quantity).toFixed(2)}
 					</p>
 					{metadata?.type === "membership" ? (
 						<p className="text-sm leading-none dark:text-light-600">
-							Billing period: {toTitleCase(price.interval!)}ly
+							Billing period:{" "}
+							{toTitleCase(selectedPrice.interval!)}ly
 						</p>
 					) : (
 						<p className="text-sm leading-none dark:text-light-600">

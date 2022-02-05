@@ -37,7 +37,8 @@ interface Metadata {
 export type CartItem = {
 	id: string;
 	name: string;
-	price: PriceInformation;
+	selectedPrice: PriceInformation;
+	prices: PriceInformation[];
 	unit_cost: number;
 	quantity: number;
 	metadata?: Metadata;
@@ -98,8 +99,8 @@ export default function StoreHome({ user }: PageProps) {
 			cartContents.cart
 				.map(
 					(item: CartItem) =>
-						(item.price.type === "recurring"
-							? item.price.interval === "year"
+						(item.selectedPrice.type === "recurring"
+							? item.selectedPrice.interval === "year"
 								? item.unit_cost * 10.8
 								: item.unit_cost
 							: item.unit_cost) * item.quantity
@@ -127,9 +128,29 @@ export default function StoreHome({ user }: PageProps) {
 
 		if (
 			item.metadata?.type === "membership" &&
-			item.price.interval!.length < 1
+			cartItems.filter(
+				(_item: CartItem) => _item.metadata?.type === "membership"
+			).length >= 1
 		)
-			item.price.interval = annualPricing ? "year" : "month";
+			return alert(
+				"Only one membership should be added to the cart. Remove the current membership item to add this one."
+			);
+
+		if (
+			item.metadata?.type !== "membership" &&
+			cartItems.filter(
+				(_item: CartItem) => _item.metadata?.type === "membership"
+			).length >= 1
+		)
+			return alert(
+				"If you are purchasing a subscription-modal based item, you may not also checkout with any other item during the same checkout session."
+			);
+
+		if (
+			item.metadata?.type === "membership" &&
+			item.selectedPrice.interval!.length < 1
+		)
+			item.selectedPrice.interval = annualPricing ? "year" : "month";
 
 		const alreadyExists = cartItems.findIndex(
 			(_item) => _item.id === item.id
@@ -189,8 +210,8 @@ export default function StoreHome({ user }: PageProps) {
 			cartItems
 				.map(
 					(item: CartItem) =>
-						(item.price.type === "recurring"
-							? item.price.interval === "year"
+						(item.selectedPrice.type === "recurring"
+							? item.selectedPrice.interval === "year"
 								? item.unit_cost * 10.8
 								: item.unit_cost
 							: item.unit_cost) * item.quantity

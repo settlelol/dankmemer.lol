@@ -61,15 +61,15 @@ export default function SubscriptionProduct({
 						addToCart({
 							id: product.id,
 							name: product.name,
-							price: {
-								id: product.prices.filter(
+							selectedPrice: {
+								...product.prices.filter(
 									(price) =>
 										price.interval ===
 										(annualPricing ? "year" : "month")
-								)[0].id,
+								)[0],
 								type: "recurring",
-								interval: annualPricing ? "year" : "month",
 							},
+							prices: product.prices,
 							unit_cost: formattedPrice,
 							quantity: 1,
 							metadata: product.metadata,

@@ -60,10 +60,8 @@ export default function Checkout({ user }: PageProps) {
 				data.cart
 					.map(
 						(item: CartItems) =>
-							(item.price.type === "recurring"
-								? item.price.interval === "year"
-									? item.unit_cost * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
-									: item.unit_cost
+							(item.selectedPrice.interval === "year"
+								? item.unit_cost * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
 								: item.unit_cost) * item.quantity
 					)
 					.reduce((a: number, b: number) => a + b)

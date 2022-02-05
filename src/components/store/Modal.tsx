@@ -100,23 +100,17 @@ export default function Modal({
 								addToCart({
 									id: product.id,
 									name: product.name,
-									price: {
-										id:
-											product.prices.length > 1
-												? product.prices.filter(
-														(price) =>
-															price.interval ===
-															(annualPricing
-																? "year"
-																: "month")
-												  )[0].id
-												: product.prices[0].id,
-										type:
-											product.metadata.type ===
-											"membership"
-												? "recurring"
-												: "one_time",
-									},
+									selectedPrice:
+										product.metadata.type === "membership"
+											? product.prices.filter(
+													(price) =>
+														price.interval ===
+														(annualPricing
+															? "year"
+															: "month")
+											  )[0]
+											: product.prices[0],
+									prices: product.prices,
 									unit_cost: parseFloat(price),
 									quantity: 1,
 									metadata: product.metadata,
