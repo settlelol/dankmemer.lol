@@ -4,6 +4,11 @@ import { NextIronRequest, withSession } from "../../../../../util/session";
 import Stripe from "stripe";
 
 interface Product extends Stripe.Product {
+	prices: Price[];
+}
+
+interface Price {
+	id: string;
 	price: number;
 }
 
@@ -26,7 +31,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			type: "one_time",
 		});
 		if (price[0])
-			result.push({ ...products[i], price: price[0].unit_amount! });
+			result.push({
+				...products[i],
+				prices: [{ id: price[0].id, price: price[0].unit_amount! }],
+			});
 	}
 
 	return res.status(200).json(result);

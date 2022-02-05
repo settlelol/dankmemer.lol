@@ -18,20 +18,17 @@ export interface Product extends Stripe.Product {
 	price: number;
 }
 
-type SubscriptionPrice = {
+type Price = {
 	id: string;
 	price: number;
 	interval: string;
 };
 
 type PriceInformation = {
+	id: string;
 	type: Stripe.Price.Type;
 	interval?: Stripe.Price.Recurring.Interval;
 };
-
-export interface Subscription extends Stripe.Product {
-	prices: SubscriptionPrice[];
-}
 
 interface Metadata {
 	type?: "membership" | "lootbox";
@@ -48,8 +45,7 @@ export type CartItem = {
 };
 
 export interface AnyProduct extends Stripe.Product {
-	price?: number;
-	prices?: SubscriptionPrice[];
+	prices: Price[];
 }
 
 export type ModalProps = {
@@ -74,8 +70,8 @@ export default function StoreHome({ user }: PageProps) {
 	const [cartQuantities, setCartQuantities] = useState(0);
 
 	const [cartItems, setCartItems] = useState<CartItem[] | []>([]);
-	const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-	const [products, setProducts] = useState<Product[]>([]);
+	const [subscriptions, setSubscriptions] = useState<AnyProduct[]>([]);
+	const [products, setProducts] = useState<AnyProduct[]>([]);
 	const [annualPricing, setAnnualPricing] = useState<Boolean>(false);
 
 	const [modalProps, setModalProps] = useState<ModalProps>();
@@ -145,7 +141,7 @@ export default function StoreHome({ user }: PageProps) {
 		} else setCartItems((_items) => [..._items, item]);
 	};
 
-	const showProduct = (product: Product | Subscription) => {
+	const showProduct = (product: AnyProduct) => {
 		if (product.metadata.type === "membership") {
 			setModalProps({
 				product,
@@ -291,18 +287,6 @@ export default function StoreHome({ user }: PageProps) {
 					<div className="mt-4 grid grid-cols-1 place-content-stretch gap-y-7 gap-x-7 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5">
 						{products.map((product) => (
 							<>
-								<SimpleProduct
-									product={product}
-									contentsString={"View possible drops"}
-									addToCart={addToCart}
-									openModal={() => showProduct(product)}
-								/>
-								<SimpleProduct
-									product={product}
-									contentsString={"View possible drops"}
-									addToCart={addToCart}
-									openModal={() => showProduct(product)}
-								/>
 								<SimpleProduct
 									product={product}
 									contentsString={"View possible drops"}

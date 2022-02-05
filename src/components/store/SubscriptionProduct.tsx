@@ -62,6 +62,11 @@ export default function SubscriptionProduct({
 							id: product.id,
 							name: product.name,
 							price: {
+								id: product.prices.filter(
+									(price) =>
+										price.interval ===
+										(annualPricing ? "year" : "month")
+								)[0].id,
 								type: "recurring",
 								interval: annualPricing ? "year" : "month",
 							},
