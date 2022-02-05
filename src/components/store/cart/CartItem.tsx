@@ -9,6 +9,7 @@ interface Props extends CartItems {
 	index: number;
 	updateQuantity: any;
 	changeInterval: any;
+	deleteItem: any;
 }
 
 export default function CartItem({
@@ -23,6 +24,7 @@ export default function CartItem({
 	image,
 	updateQuantity,
 	changeInterval,
+	deleteItem,
 }: Props) {
 	const setQuantity = (value: any) => {
 		const quantity = parseInt(value);
@@ -126,6 +128,7 @@ export default function CartItem({
 					icon="bx:bx-trash"
 					height="20"
 					className="cursor-pointer text-gray-800 transition-colors hover:!text-red-400 dark:text-gray-200"
+					onClick={deleteItem}
 				/>
 			</div>
 		</div>

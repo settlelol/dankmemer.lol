@@ -58,8 +58,7 @@ export default function CheckoutForm({
 	const [cardCvcInput, setCardCvcInput] =
 		useState<StripeCardCvcElementChangeEvent>();
 
-	const [discountError, setDiscountError] = useState("");
-	const [discountInput, setDiscountInput] = useState("");
+	const [appliedDiscountCode, setAppliedDiscountCode] = useState("");
 	const [discountedItems, setDiscountedItems] = useState<DiscountItem[]>([]);
 	const [appliedSavings, setAppliedSavings] = useState(0);
 	const [appliedDiscount, setAppliedDiscount] = useState(false);
@@ -69,6 +68,16 @@ export default function CheckoutForm({
 	const [acceptedTerms, setAcceptedTerms] = useState(false);
 
 	const [canCheckout, setCanCheckout] = useState(false);
+
+	useEffect(() => {
+		axios("/api/store/discount/get").then(({ data }) => {
+			if (!data) setAppliedDiscount(false);
+			else setAppliedDiscountCode(data.code);
+			setDiscountedItems(data.discountedItems);
+			setAppliedSavings(data.totalSavings);
+			setAppliedDiscount(true);
+		});
+	}, []);
 
 	useEffect(() => {
 		setTotalCost(subtotalCost - appliedSavings);
@@ -93,36 +102,6 @@ export default function CheckoutForm({
 		receiptEmail,
 		acceptedTerms,
 	]);
-
-	useEffect(() => {
-		if (discountError.length > 1) return setDiscountError("");
-	}, [discountInput]);
-
-	const submitDiscountCode = () => {
-		if (discountInput.length < 1) return;
-		axios(`/api/store/discounts/get?code=${discountInput}`)
-			.then(({ data }) => {
-				setAppliedDiscount(true);
-				setDiscountedItems(data.discountedItems);
-				setAppliedSavings(data.totalSavings);
-			})
-			.catch((e) => {
-				console.error(e);
-				switch (e.response.status) {
-					case 404:
-						setDiscountError("Invalid discount code provided.");
-						break;
-					case 410:
-						setDiscountError("Discount code has expired.");
-					case 403:
-						setDiscountError("Minimum cart value not met.");
-					default:
-						console.log(
-							`Unhandled discount error code: ${e.response.status}`
-						);
-				}
-			});
-	};
 
 	const confirmPayment = async () => {
 		if (!stripe || !stripeElements || !canCheckout) return;
@@ -287,88 +266,54 @@ export default function CheckoutForm({
 					""
 				)}
 				<div className="mt-9 flex items-start justify-items-start">
-					<div className="mr-9 min-h-[200px]">
-						<h3 className="font-montserrat text-base font-bold">
-							Apply a discount code
-						</h3>
-						<div className="group mt-2">
-							<div className="flex min-h-[216px] flex-col justify-between text-black dark:text-white">
-								<div>
-									<div className="mb-4">
-										<div className="flex flex-row">
-											<Input
-												width="medium"
-												type="text"
-												placeholder="NEWSTORE5"
-												defaultValue={discountInput}
-												className="mr-3"
-												onChange={(e: any) =>
-													setDiscountInput(
-														e.target.value
-													)
-												}
-											/>
-											<Button
-												size="medium"
-												className={clsx(
-													"rounded-md",
-													discountInput.length < 1
-														? "bg-[#7F847F] text-[#333533]"
-														: ""
-												)}
-												onClick={submitDiscountCode}
-											>
-												Submit
-											</Button>
-										</div>
-										{discountError.length > 1 && (
-											<p className="text-right text-sm text-red-500">
-												{discountError}
-											</p>
-										)}
-									</div>
-									{appliedDiscount && (
-										<div>
-											<div className="flex justify-between">
-												<h3 className="font-montserrat text-base font-bold">
-													Discount
-												</h3>
-												<h3 className="font-montserrat text-base font-bold text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
-													-$
-													{appliedSavings.toFixed(2)}
-												</h3>
-											</div>
+					{appliedDiscount && (
+						<div className="mr-9 min-h-[200px] w-80">
+							<h3 className="font-montserrat text-base font-bold">
+								Applied discount code
+							</h3>
+							<div className="group mt-2">
+								<div className="flex min-h-[152px] flex-col justify-between text-black dark:text-white">
+									<div>
+										<div className="mb-4">
 											<div>
-												<ul className="pl-3">
-													{discountedItems.map(
-														(item) => (
-															<li className="flex list-decimal justify-between text-sm">
-																<p className="dark:text-[#b4b4b4]">
-																	•{" "}
-																	{
-																		cart.filter(
-																			(
-																				_item
-																			) =>
-																				_item.id ===
-																				item.id
-																		)[0]
-																			.name
-																	}
-																</p>
-																<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
-																	-$
-																	{item.savings.toFixed(
-																		2
-																	)}
-																</p>
-															</li>
-														)
-													)}
-												</ul>
+												<div className="flex justify-between">
+													<h3 className="font-montserrat text-base font-bold">
+														{appliedDiscountCode}
+													</h3>
+												</div>
+												<div>
+													<ul className="pl-3">
+														{discountedItems &&
+															discountedItems.map(
+																(item) => (
+																	<li className="flex list-decimal justify-between text-sm">
+																		<p className="dark:text-[#b4b4b4]">
+																			•{" "}
+																			{
+																				cart.filter(
+																					(
+																						_item
+																					) =>
+																						_item.id ===
+																						item.id
+																				)[0]
+																					.name
+																			}
+																		</p>
+																		<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+																			-$
+																			{item.savings.toFixed(
+																				2
+																			)}
+																		</p>
+																	</li>
+																)
+															)}
+													</ul>
+												</div>
 											</div>
 										</div>
-									)}
+									</div>
 								</div>
 								<div className="mt-3 flex w-full justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
 									<Title size="small">Total:</Title>
@@ -378,7 +323,7 @@ export default function CheckoutForm({
 								</div>
 							</div>
 						</div>
-					</div>
+					)}
 					<div className="min-h-[200px]">
 						<h3 className="font-montserrat text-base font-bold">
 							Account information

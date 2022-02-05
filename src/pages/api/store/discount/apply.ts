@@ -130,6 +130,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		}
 	}
 
+	req.session.set("discountCode", { code, discountedItems, totalSavings });
+	await req.session.save();
+
 	return res.status(200).json({ code, discountedItems, totalSavings });
 };
 

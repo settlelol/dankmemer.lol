@@ -4,6 +4,7 @@ import { dbConnect } from "src/util/mongodb";
 import { Db, ObjectId } from "mongodb";
 import { CartItem } from "src/pages/store";
 import { stripeConnect } from "src/util/stripe";
+import Stripe from "stripe";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const stripe = stripeConnect();
@@ -50,7 +51,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		}
 	}
 
-	// Add discounts to shopping cart page so that they can be added to the invoice here.
+	const { discountCode } = await req.session.get("discountCode");
 
 	try {
 		if (cart.length === 1 && cart[0].metadata?.type === "membership") {
@@ -58,6 +59,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				customer: customer?.id!,
 				payment_behavior: "default_incomplete",
 				expand: ["latest_invoice.payment_intent"],
+				coupon: discountCode ?? "",
 				items: [{ price: cart[0].selectedPrice.id }],
 			});
 
@@ -84,6 +86,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			customer: customer?.id!,
 			auto_advance: true,
 			collection_method: "charge_automatically",
+			discounts: [{ coupon: discountCode ?? "" }],
 		});
 
 		const finalizedInvoice = await stripe.invoices.finalizeInvoice(

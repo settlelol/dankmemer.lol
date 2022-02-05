@@ -13,13 +13,22 @@ import MarketingBox from "src/components/store/cart/MarketingBox";
 import Button from "src/components/ui/Button";
 import OtherProduct from "src/components/store/cart/OtherProduct";
 import { useRouter } from "next/router";
+import Input from "src/components/store/Input";
+import { DiscountItem } from "./checkout";
+import clsx from "clsx";
 
 export default function Cart({ user }: PageProps) {
 	const router = useRouter();
 
 	const [loaded, setLoaded] = useState(false);
 	const [cart, setCart] = useState<CartItems[]>([]);
-	const [totalCost, setTotalCost] = useState<string | number>(0);
+	const [totalCost, setTotalCost] = useState<number>(0);
+
+	const [discountError, setDiscountError] = useState("");
+	const [discountInput, setDiscountInput] = useState("");
+	const [discountedItems, setDiscountedItems] = useState<DiscountItem[]>([]);
+	const [appliedSavings, setAppliedSavings] = useState(0);
+	const [appliedDiscount, setAppliedDiscount] = useState(false);
 
 	useEffect(() => {
 		axios("/api/store/cart/get").then(({ data }) => {
@@ -44,9 +53,18 @@ export default function Cart({ user }: PageProps) {
 							: item.unit_cost) * item.quantity
 				)
 				.reduce((a, b) => a + b)
-				.toFixed(2)
 		);
 	}, [cart]);
+
+	useEffect(() => {
+		if (discountError.length > 1) return setDiscountError("");
+	}, [discountInput]);
+
+	const deleteItem = (index: number) => {
+		const _cart = [...cart];
+		_cart.splice(index, 1);
+		setCart(_cart);
+	};
 
 	const updateQuantity = (index: number, quantity: number) => {
 		const _cart = [...cart];
@@ -60,6 +78,33 @@ export default function Cart({ user }: PageProps) {
 			(price) => price.interval === interval
 		)[0];
 		setCart(_cart);
+	};
+
+	const submitDiscountCode = () => {
+		if (discountInput.length < 1) return;
+		if (discountError.length > 1) return setDiscountError("");
+		axios(`/api/store/discount/apply?code=${discountInput}`)
+			.then(({ data }) => {
+				setAppliedDiscount(true);
+				setDiscountedItems(data.discountedItems);
+				setAppliedSavings(data.totalSavings);
+			})
+			.catch((e) => {
+				console.error(e);
+				switch (e.response.status) {
+					case 404:
+						setDiscountError("Invalid discount code provided.");
+						break;
+					case 410:
+						setDiscountError("Discount code has expired.");
+					case 403:
+						setDiscountError("Minimum cart value not met.");
+					default:
+						console.log(
+							`Unhandled discount error code: ${e.response.status}`
+						);
+				}
+			});
 	};
 
 	const addToCart = async (item: CartItems) => {
@@ -92,6 +137,7 @@ export default function Cart({ user }: PageProps) {
 									{...item}
 									updateQuantity={updateQuantity}
 									changeInterval={changeInterval}
+									deleteItem={deleteItem}
 								/>
 							))}
 						</div>
@@ -136,9 +182,99 @@ export default function Cart({ user }: PageProps) {
 							apply to international payments. The total below is
 							what is required to be paid upon checkout.
 						</p>
+						<div className="mt-3 mr-9 w-full">
+							<h3 className="font-montserrat text-base font-bold">
+								Apply a discount code
+							</h3>
+							<div className="group mt-2">
+								<div className="flex flex-col justify-between text-black dark:text-white">
+									<div>
+										<div className="mb-4">
+											<div className="flex flex-row">
+												<Input
+													width="medium"
+													type="text"
+													placeholder="NEWSTORE5"
+													defaultValue={discountInput}
+													className="mr-3"
+													onChange={(e: any) =>
+														setDiscountInput(
+															e.target.value
+														)
+													}
+												/>
+												<Button
+													size="medium"
+													className={clsx(
+														"rounded-md",
+														discountInput.length < 1
+															? "bg-[#7F847F] text-[#333533]"
+															: ""
+													)}
+													onClick={submitDiscountCode}
+												>
+													Submit
+												</Button>
+											</div>
+											{discountError.length > 1 && (
+												<p className="text-right text-sm text-red-500">
+													{discountError}
+												</p>
+											)}
+										</div>
+										{appliedDiscount && (
+											<div>
+												<div className="flex justify-between">
+													<h3 className="font-montserrat text-base font-bold">
+														Discount
+													</h3>
+													<h3 className="font-montserrat text-base font-bold text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+														-$
+														{appliedSavings.toFixed(
+															2
+														)}
+													</h3>
+												</div>
+												<div>
+													<ul className="pl-3">
+														{discountedItems.map(
+															(item) => (
+																<li className="flex list-decimal justify-between text-sm">
+																	<p className="dark:text-[#b4b4b4]">
+																		•{" "}
+																		{
+																			cart.filter(
+																				(
+																					_item
+																				) =>
+																					_item.id ===
+																					item.id
+																			)[0]
+																				.name
+																		}
+																	</p>
+																	<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+																		-$
+																		{item.savings.toFixed(
+																			2
+																		)}
+																	</p>
+																</li>
+															)
+														)}
+													</ul>
+												</div>
+											</div>
+										)}
+									</div>
+								</div>
+							</div>
+						</div>
 						<div className="mt-3 flex w-full justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
 							<Title size="small">Total:</Title>
-							<Title size="small">${totalCost}</Title>
+							<Title size="small">
+								${(totalCost - appliedSavings).toFixed(2)}
+							</Title>
 						</div>
 						<Button
 							size="medium"
