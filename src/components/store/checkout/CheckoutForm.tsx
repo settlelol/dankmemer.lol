@@ -43,7 +43,7 @@ export default function CheckoutForm({
 	cart,
 }: Props) {
 	const [totalCost, setTotalCost] = useState<number>(0);
-
+	const [processingPayment, setProcessingPayment] = useState(false);
 	const [selectedPaymentOption, setSelectedPaymentOption] = useState("Card");
 
 	const [nameOnCard, setNameOnCard] = useState("");
@@ -126,6 +126,7 @@ export default function CheckoutForm({
 
 	const confirmPayment = async () => {
 		if (!stripe || !stripeElements || !canCheckout) return;
+		setProcessingPayment(true);
 		const result = await stripe.confirmCardPayment(clientSecret, {
 			payment_method: {
 				card: stripeElements.getElement("cardNumber")!,
@@ -134,8 +135,10 @@ export default function CheckoutForm({
 		if (result.error) {
 			alert("SOMETHING WENT WRONG OH NO!!!!!!!!!");
 			console.error(result.error);
+			setProcessingPayment(false);
 		} else {
 			alert("Payment was a success, pogchamp");
+			setProcessingPayment(false);
 		}
 	};
 
@@ -179,6 +182,7 @@ export default function CheckoutForm({
 								type="text"
 								label="Name on card"
 								defaultValue={nameOnCard}
+								disabled={processingPayment}
 								onChange={(e: any) =>
 									setNameOnCard(e.target.value)
 								}
@@ -192,6 +196,7 @@ export default function CheckoutForm({
 											setCardNumberInput(data)
 										}
 										options={{
+											disabled: processingPayment,
 											placeholder: "4024 0071 1411 4951",
 											style: {
 												base: {
@@ -221,6 +226,7 @@ export default function CheckoutForm({
 												setCardExpiryInput(data)
 											}
 											options={{
+												disabled: processingPayment,
 												placeholder: "04 / 25",
 												style: {
 													base: {
@@ -251,6 +257,7 @@ export default function CheckoutForm({
 												setCardCvcInput(data)
 											}
 											options={{
+												disabled: processingPayment,
 												placeholder: "964",
 												style: {
 													base: {
@@ -471,13 +478,89 @@ export default function CheckoutForm({
 								className={clsx(
 									"mt-3 w-full",
 									!canCheckout
-										? "bg-[#7F847F] text-[#333533]"
+										? "bg-neutral-500 text-neutral-800"
 										: ""
 								)}
 								disabled={!canCheckout}
 								onClick={confirmPayment}
 							>
-								Pay with {selectedPaymentOption}
+								{processingPayment ? (
+									<p className="flex">
+										<span className="mr-3">
+											<svg
+												width="23"
+												height="23"
+												viewBox="0 0 38 38"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<defs>
+													<linearGradient
+														x1="8.042%"
+														y1="0%"
+														x2="65.682%"
+														y2="23.865%"
+														id="a"
+													>
+														<stop
+															stopColor="#fff"
+															stopOpacity="0"
+															offset="0%"
+														/>
+														<stop
+															stopColor="#fff"
+															stopOpacity=".631"
+															offset="63.146%"
+														/>
+														<stop
+															stopColor="#fff"
+															offset="100%"
+														/>
+													</linearGradient>
+												</defs>
+												<g
+													fill="none"
+													fill-rule="evenodd"
+												>
+													<g transform="translate(1 1)">
+														<path
+															d="M36 18c0-9.94-8.06-18-18-18"
+															id="Oval-2"
+															stroke="url(#a)"
+															strokeWidth="2"
+														>
+															<animateTransform
+																attributeName="transform"
+																type="rotate"
+																from="0 18 18"
+																to="360 18 18"
+																dur="0.9s"
+																repeatCount="indefinite"
+															/>
+														</path>
+														<circle
+															fill="#fff"
+															cx="36"
+															cy="18"
+															r="1"
+														>
+															<animateTransform
+																attributeName="transform"
+																type="rotate"
+																from="0 18 18"
+																to="360 18 18"
+																dur="0.9s"
+																repeatCount="indefinite"
+															/>
+														</circle>
+													</g>
+												</g>
+											</svg>
+										</span>
+										Processing payment...
+									</p>
+								) : (
+									<p>Pay with {selectedPaymentOption}</p>
+								)}
 							</Button>
 						</div>
 					</div>
