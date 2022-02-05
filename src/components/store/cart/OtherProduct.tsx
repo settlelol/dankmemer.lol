@@ -9,7 +9,8 @@ interface Props extends CartItems {
 export default function OtherProduct({
 	id,
 	name,
-	price,
+	selectedPrice,
+	prices,
 	unit_cost,
 	metadata,
 	image,
@@ -36,8 +37,8 @@ export default function OtherProduct({
 			<div className="flex items-center justify-center">
 				<p className="mr-7 w-[70px] text-right font-montserrat font-bold text-gray-800 dark:text-white">
 					$
-					{price.interval
-						? price.interval === "year"
+					{selectedPrice.interval
+						? selectedPrice.interval === "year"
 							? (unit_cost * 10.8).toFixed(2)
 							: unit_cost.toFixed(2)
 						: unit_cost.toFixed(2)}
@@ -48,7 +49,8 @@ export default function OtherProduct({
 						addToCart({
 							id,
 							name,
-							price,
+							selectedPrice,
+							prices,
 							unit_cost,
 							quantity: 1,
 							metadata,

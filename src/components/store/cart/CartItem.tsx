@@ -15,7 +15,8 @@ export default function CartItem({
 	index,
 	id,
 	name,
-	price,
+	selectedPrice,
+	prices,
 	unit_cost,
 	quantity,
 	metadata,
@@ -55,7 +56,7 @@ export default function CartItem({
 							content={
 								<div className="flex items-center justify-center rounded-md border-[1px] border-[#3C3C3C] bg-[#0C120D] px-3 py-[6px] text-sm transition-colors dark:text-[#707070] hover:dark:text-[#cccccc]">
 									<p>
-										{price.interval! === "year"
+										{selectedPrice.interval! === "year"
 											? "Annual subscription"
 											: "Monthly subscription"}
 									</p>
@@ -65,7 +66,7 @@ export default function CartItem({
 								</div>
 							}
 							options={
-								price.interval === "month"
+								selectedPrice.interval === "month"
 									? [
 											{
 												onClick: () => {
@@ -115,8 +116,8 @@ export default function CartItem({
 				</div>
 				<p className="mr-7 w-[70px] text-right font-montserrat font-bold text-gray-800 dark:text-white">
 					$
-					{price.interval
-						? price.interval === "year"
+					{selectedPrice.interval
+						? selectedPrice.interval === "year"
 							? (unit_cost * 10.8).toFixed(2)
 							: unit_cost.toFixed(2)
 						: unit_cost.toFixed(2)}

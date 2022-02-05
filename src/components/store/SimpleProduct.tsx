@@ -37,10 +37,11 @@ export default function SimpleProduct({
 						addToCart({
 							id: product.id,
 							name: product.name,
-							price: {
-								id: product.prices[0].id,
+							selectedPrice: {
+								...product.prices[0],
 								type: "one_time",
 							},
+							prices: product.prices,
 							unit_cost: parseFloat(
 								(product.prices[0].price / 100).toFixed(2)
 							),

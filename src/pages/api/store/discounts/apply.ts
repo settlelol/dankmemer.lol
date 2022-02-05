@@ -64,10 +64,8 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const cartTotal = cart
 		.map(
 			(item: CartItem) =>
-				(item.price.type === "recurring"
-					? item.price.interval === "year"
-						? item.unit_cost * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
-						: item.unit_cost
+				(item.selectedPrice.interval === "year"
+					? item.unit_cost * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
 					: item.unit_cost) * item.quantity
 		)
 		.reduce((a, b) => a + b);
@@ -94,10 +92,8 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			if (!itemInCart) return;
 
 			const itemCost =
-				(itemInCart.price.type === "recurring"
-					? itemInCart.price.interval === "year"
-						? itemInCart.unit_cost * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
-						: itemInCart.unit_cost
+				(itemInCart.selectedPrice.interval === "year"
+					? itemInCart.unit_cost * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
 					: itemInCart.unit_cost) * itemInCart.quantity;
 			const result: DiscountItem = {
 				id: appliesTo[i],
@@ -117,10 +113,8 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				product: cart[i].id,
 			});
 			const itemCost =
-				(cart[i].price.type === "recurring"
-					? cart[i].price.interval === "year"
-						? cart[i].unit_cost * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
-						: cart[i].unit_cost
+				(cart[i].selectedPrice.interval === "year"
+					? cart[i].unit_cost * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
 					: cart[i].unit_cost) * cart[i].quantity;
 			const result: DiscountItem = {
 				id: cart[i].id,

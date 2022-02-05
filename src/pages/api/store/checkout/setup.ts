@@ -12,7 +12,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const user = await req.session.get("user");
 	if (!user) return res.status(401).json({ error: "You are not logged in." });
 
-	const cart = await req.session.get("cart");
+	const cart: CartItem[] | undefined = await req.session.get("cart");
 	if (!cart)
 		return res
 			.status(400)
@@ -50,34 +50,59 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		}
 	}
 
-	const totalValue = cart
-		.map(
-			(item: CartItem) =>
-				(item.price.type === "recurring"
-					? item.price.interval === "year"
-						? item.unit_cost * 10.8
-						: item.unit_cost
-					: item.unit_cost) * item.quantity
-		)
-		.reduce((a: number, b: number) => a + b)
-		.toFixed(2);
+	// Add discounts to shopping cart page so that they can be added to the invoice here.
 
 	try {
-		const pi = await stripe.paymentIntents.create({
-			amount: Math.ceil(parseFloat(totalValue) * 100),
-			currency: "usd",
-			receipt_email: user.email,
-			customer: customer?.id,
-			automatic_payment_methods: { enabled: true },
+		if (cart.length === 1 && cart[0].metadata?.type === "membership") {
+			const subscription = await stripe.subscriptions.create({
+				customer: customer?.id!,
+				payment_behavior: "default_incomplete",
+				expand: ["latest_invoice.payment_intent"],
+				items: [{ price: cart[0].selectedPrice.id }],
+			});
+
+			return res.status(200).json({
+				client_secret:
+					// @ts-ignore
+					subscription.latest_invoice?.payment_intent?.client_secret,
+				// @ts-ignore
+				payment_intent: subscription.latest_invoice?.payment_intent?.id,
+				subscription: subscription.id,
+			});
+		}
+
+		for (let i = 0; i < cart.length; i++) {
+			await stripe.invoiceItems.create({
+				customer: customer?.id!,
+				currency: "usd",
+				price: cart[i].selectedPrice.id,
+				quantity: cart[i].quantity,
+			});
+		}
+
+		const pendingInvoice = await stripe.invoices.create({
+			customer: customer?.id!,
+			auto_advance: true,
+			collection_method: "charge_automatically",
 		});
-		return res
-			.status(200)
-			.json({ client_secret: pi.client_secret, payment_intent: pi.id });
+
+		const finalizedInvoice = await stripe.invoices.finalizeInvoice(
+			pendingInvoice.id
+		);
+		const paymentIntent = await stripe.paymentIntents.retrieve(
+			// @ts-ignore
+			finalizedInvoice.payment_intent?.toString()
+		);
+
+		return res.status(200).json({
+			client_secret: paymentIntent.client_secret,
+			payment_intent: paymentIntent.id,
+		});
 	} catch (e: any) {
 		console.error(e.message.replace(/"/g, ""));
 		return res
 			.status(500)
-			.json({ error: "Error while creating Stripe PaymentIntent." });
+			.json({ error: "Error while creating Stripe Invoice." });
 	}
 };
 
