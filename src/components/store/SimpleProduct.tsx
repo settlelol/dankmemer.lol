@@ -1,9 +1,5 @@
-import Stripe from "stripe";
+import { AnyProduct } from "src/pages/store";
 import Button from "../ui/Button";
-
-interface Product extends Stripe.Product {
-	price: number;
-}
 
 export default function SimpleProduct({
 	product,
@@ -11,7 +7,7 @@ export default function SimpleProduct({
 	addToCart,
 	openModal,
 }: {
-	product: Product;
+	product: AnyProduct;
 	contentsString: string;
 	addToCart: any;
 	openModal: any;
@@ -31,7 +27,7 @@ export default function SimpleProduct({
 					{product.name}
 				</h3>
 				<p className="text-base leading-tight text-light-600">
-					${(product.price / 100).toFixed(2)}
+					${(product.prices[0].price / 100).toFixed(2)}
 				</p>
 			</div>
 			<div className="mt-6 flex flex-col">
@@ -42,10 +38,11 @@ export default function SimpleProduct({
 							id: product.id,
 							name: product.name,
 							price: {
+								id: product.prices[0].id,
 								type: "one_time",
 							},
 							unit_cost: parseFloat(
-								(product.price / 100).toFixed(2)
+								(product.prices[0].price / 100).toFixed(2)
 							),
 							quantity: 1,
 							metadata: product.metadata,

@@ -29,7 +29,7 @@ export default function Modal({
 	const [additionallyIncluded, setAdditionallyIncluded] = useState("");
 
 	useEffect(() => {
-		if (product.prices) {
+		if (product.prices.length > 1) {
 			setPrice(
 				(
 					product.prices.filter(
@@ -39,8 +39,9 @@ export default function Modal({
 					)[0].price / 100
 				).toFixed(2)
 			);
-		} else if (product.price) setPrice((product.price! / 100).toFixed(2));
-		// TODO: API request to get benefits for the product that is being shown.
+		} else if (product.prices[0].price)
+			setPrice((product.prices[0].price! / 100).toFixed(2));
+
 		axios(`/api/store/product/details?id=${product.id}`)
 			.then(({ data }) => {
 				setIncludedTitle(data.primaryTitle);
@@ -100,6 +101,16 @@ export default function Modal({
 									id: product.id,
 									name: product.name,
 									price: {
+										id:
+											product.prices.length > 1
+												? product.prices.filter(
+														(price) =>
+															price.interval ===
+															(annualPricing
+																? "year"
+																: "month")
+												  )[0].id
+												: product.prices[0].id,
 										type:
 											product.metadata.type ===
 											"membership"
