@@ -51,7 +51,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		}
 	}
 
-	const { discountCode } = await req.session.get("discountCode");
+	let discountCode: string = "";
+	const discount = await req.session.get("discountCode");
+	discount ? (discountCode = discount.discountCode) : null;
 
 	try {
 		if (cart.length === 1 && cart[0].metadata?.type === "membership") {
@@ -88,15 +90,25 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			customer: customer?.id!,
 			auto_advance: true,
 			collection_method: "charge_automatically",
-			discounts: [{ coupon: discountCode ?? "" }],
 		});
+
+		if (discountCode) {
+			await stripe.invoices.update(pendingInvoice.id, {
+				discounts: [{ coupon: discountCode }],
+			});
+		}
 
 		const finalizedInvoice = await stripe.invoices.finalizeInvoice(
 			pendingInvoice.id
 		);
-		const paymentIntent = await stripe.paymentIntents.retrieve(
+		const paymentIntent = await stripe.paymentIntents.update(
 			// @ts-ignore
-			finalizedInvoice.payment_intent?.toString()
+			finalizedInvoice.payment_intent?.toString(),
+			{
+				description: `Payment for ${cart
+					.map((item) => `${item.quantity}x ${item.name}`)
+					.join(", ")}`,
+			}
 		);
 
 		return res.status(200).json({

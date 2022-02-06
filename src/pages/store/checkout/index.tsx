@@ -57,6 +57,7 @@ export default function Checkout({ user }: PageProps) {
 			});
 
 		axios("/api/store/cart/get").then(({ data }) => {
+			if (!data.cart) return router.push("/store");
 			setCart(data.cart);
 			setSubtotalCost(
 				data.cart
