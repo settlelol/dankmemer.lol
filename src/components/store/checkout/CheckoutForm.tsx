@@ -27,6 +27,7 @@ import Link from "next/link";
 
 import { Icon as Iconify } from "@iconify/react";
 import router from "next/router";
+import Checkbox from "src/components/ui/Checkbox";
 
 interface Props {
 	clientSecret: string;
@@ -61,11 +62,14 @@ export default function CheckoutForm({
 	const [cardCvcInput, setCardCvcInput] =
 		useState<StripeCardCvcElementChangeEvent>();
 
+	const [saveCardAsDefault, setSaveCardAsDefault] = useState(false);
+
 	const [appliedDiscountCode, setAppliedDiscountCode] = useState("");
 	const [discountedItems, setDiscountedItems] = useState<DiscountItem[]>([]);
 	const [appliedSavings, setAppliedSavings] = useState(0);
 	const [appliedDiscount, setAppliedDiscount] = useState(false);
 
+	const [giftReceipient, setGiftRecipient] = useState("");
 	const [purchaseIsGift, setPurchaseIsGift] = useState(false);
 	const [receiptEmail, setReceiptEmail] = useState(userEmail);
 	const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -76,8 +80,8 @@ export default function CheckoutForm({
 		axios("/api/store/discount/get").then(({ data }) => {
 			if (!data) setAppliedDiscount(false);
 			else setAppliedDiscountCode(data.code);
-			setDiscountedItems(data.discountedItems);
-			setAppliedSavings(data.totalSavings);
+			setDiscountedItems(data.discountedItems || []);
+			setAppliedSavings(data.totalSavings || 0);
 			setAppliedDiscount(true);
 		});
 	}, []);
@@ -110,6 +114,7 @@ export default function CheckoutForm({
 		if (!stripe || !stripeElements || !canCheckout) return;
 		setProcessingPayment(true);
 		const result = await stripe.confirmCardPayment(clientSecret, {
+			setup_future_usage: saveCardAsDefault ? "off_session" : null,
 			payment_method: {
 				card: stripeElements.getElement("cardNumber")!,
 			},
@@ -120,8 +125,21 @@ export default function CheckoutForm({
 			setProcessingPayment(false);
 		} else {
 			alert("Payment was a success, pogchamp");
-			router.push(`/store/checkout/success?id=${invoiceId}`);
-			setProcessingPayment(false);
+			axios({
+				method: "PATCH",
+				url: `/api/store/checkout/finalize?invoice=${invoiceId}`,
+				data: {
+					customerName: nameOnCard,
+					isGift: purchaseIsGift,
+					giftFor: giftReceipient,
+				},
+			})
+				.then(() => {
+					setProcessingPayment(false);
+				})
+				.finally(() => {
+					router.push(`/store/checkout/success?id=${invoiceId}`);
+				});
 		}
 	};
 
@@ -264,6 +282,15 @@ export default function CheckoutForm({
 									</div>
 								</div>
 							</div>
+							<Checkbox
+								className="!mt-4"
+								state={saveCardAsDefault}
+								callback={() =>
+									setSaveCardAsDefault(!saveCardAsDefault)
+								}
+							>
+								Save payment method as default.
+							</Checkbox>
 						</div>
 					</div>
 				) : (
@@ -292,8 +319,9 @@ export default function CheckoutForm({
 												</div>
 												<div>
 													<ul className="pl-3">
-														{discountedItems.length >=
-															1 &&
+														{discountedItems &&
+															discountedItems.length >=
+																1 &&
 															cart.length >= 1 &&
 															discountedItems.map(
 																(item) => (
@@ -374,6 +402,9 @@ export default function CheckoutForm({
 										type="text"
 										placeholder="270904126974590976"
 										className="!py-1"
+										onChange={(e: any) =>
+											setGiftRecipient(e.target.value)
+										}
 									/>
 								)}
 							</div>
@@ -393,42 +424,26 @@ export default function CheckoutForm({
 								}
 								className="mt-2 !py-1"
 							/>
-							<div
-								className="mt-2 flex flex-row items-center justify-start"
-								onClick={() => setAcceptedTerms(!acceptedTerms)}
+							<Checkbox
+								state={acceptedTerms}
+								callback={() =>
+									setAcceptedTerms(!acceptedTerms)
+								}
 							>
-								<div
-									className={clsx(
-										!acceptedTerms
-											? "border-[#3C3C3C]"
-											: "border-dank-300",
-										"relative mr-2 h-4 w-4 rounded border-[1px] transition-colors dark:bg-black/30"
-									)}
-								>
-									{acceptedTerms && (
-										<Iconify
-											icon="bx:bx-check"
-											height="16"
-											className="absolute top-[-1.5px] left-[-0.5px] text-dank-300"
-										/>
-									)}
-								</div>
-								<p className="text-xs">
-									I agree to Dank Memer's{" "}
-									<Link href="/terms">
-										<a className="text-dank-300 underline">
-											Terms of Serivce
-										</a>
-									</Link>{" "}
-									and{" "}
-									<Link href="/refunds">
-										<a className="text-dank-300 underline">
-											Refund Policy
-										</a>
-									</Link>
-									.
-								</p>
-							</div>
+								I agree to Dank Memer's{" "}
+								<Link href="/terms">
+									<a className="text-dank-300 underline">
+										Terms of Serivce
+									</a>
+								</Link>{" "}
+								and{" "}
+								<Link href="/refunds">
+									<a className="text-dank-300 underline">
+										Refund Policy
+									</a>
+								</Link>
+								.
+							</Checkbox>
 							<Button
 								size="medium-large"
 								className={clsx(

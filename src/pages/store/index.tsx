@@ -94,6 +94,7 @@ export default function StoreHome({ user }: PageProps) {
 
 	const getCartContents = async () => {
 		let { data: cartContents } = await axios("/api/store/cart/get");
+		if (!cartContents.cart) return;
 		setCartItems(cartContents.cart);
 		if (cartContents.cart.length < 1) return;
 		setTotalCost(
@@ -204,6 +205,7 @@ export default function StoreHome({ user }: PageProps) {
 			method: "PUT",
 			data: { cartData: cartItems },
 		});
+		if (!cartItems) return;
 		setTotalCost(
 			cartItems
 				.map((item: CartItem) => item.unit_cost * item.quantity)
