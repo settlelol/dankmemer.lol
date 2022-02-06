@@ -62,7 +62,8 @@ export default function Checkout({ user }: PageProps) {
 				data.cart
 					.reduce(
 						(acc: number, item: CartItems) =>
-							acc + item.selectedPrice.price * item.quantity,
+							acc +
+							(item.selectedPrice.price / 100) * item.quantity,
 						0
 					)
 					.toFixed(2)
