@@ -26,10 +26,12 @@ import PaymentOption from "./PaymentOption";
 import Link from "next/link";
 
 import { Icon as Iconify } from "@iconify/react";
+import router from "next/router";
 
 interface Props {
 	clientSecret: string;
 	paymentIntentId: string;
+	invoiceId: string;
 	userEmail: string;
 	subtotalCost: number;
 	cart: CartItem[];
@@ -38,6 +40,7 @@ interface Props {
 export default function CheckoutForm({
 	clientSecret,
 	paymentIntentId,
+	invoiceId,
 	userEmail,
 	subtotalCost,
 	cart,
@@ -76,6 +79,8 @@ export default function CheckoutForm({
 			setDiscountedItems(data.discountedItems);
 			setAppliedSavings(data.totalSavings);
 			setAppliedDiscount(true);
+
+			console.log(cart, discountedItems);
 		});
 	}, []);
 
@@ -117,6 +122,7 @@ export default function CheckoutForm({
 			setProcessingPayment(false);
 		} else {
 			alert("Payment was a success, pogchamp");
+			router.push(`/store/checkout/success?id=${invoiceId}`);
 			setProcessingPayment(false);
 		}
 	};
@@ -283,7 +289,9 @@ export default function CheckoutForm({
 												</div>
 												<div>
 													<ul className="pl-3">
-														{discountedItems &&
+														{discountedItems.length >=
+															1 &&
+															cart.length >= 1 &&
 															discountedItems.map(
 																(item) => (
 																	<li className="flex list-decimal justify-between text-sm">

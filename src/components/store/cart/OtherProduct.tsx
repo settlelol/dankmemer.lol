@@ -36,12 +36,7 @@ export default function OtherProduct({
 			</div>
 			<div className="flex items-center justify-center">
 				<p className="mr-7 w-[70px] text-right font-montserrat font-bold text-gray-800 dark:text-white">
-					$
-					{selectedPrice.interval
-						? selectedPrice.interval === "year"
-							? (unit_cost * 10.8).toFixed(2)
-							: unit_cost.toFixed(2)
-						: unit_cost.toFixed(2)}
+					${(selectedPrice.price / 100).toFixed(2)}
 				</p>
 				<div
 					className="rounded-md bg-dank-300 p-2 transition-colors hover:bg-dank-300/90"

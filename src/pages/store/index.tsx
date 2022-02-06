@@ -28,6 +28,7 @@ type PriceInformation = {
 	id: string;
 	type: Stripe.Price.Type;
 	interval?: Stripe.Price.Recurring.Interval;
+	price: number;
 };
 
 interface Metadata {
@@ -97,14 +98,7 @@ export default function StoreHome({ user }: PageProps) {
 		if (cartContents.cart.length < 1) return;
 		setTotalCost(
 			cartContents.cart
-				.map(
-					(item: CartItem) =>
-						(item.selectedPrice.type === "recurring"
-							? item.selectedPrice.interval === "year"
-								? item.unit_cost * 10.8
-								: item.unit_cost
-							: item.unit_cost) * item.quantity
-				)
+				.map((item: CartItem) => item.unit_cost * item.quantity)
 				.reduce((a: number, b: number) => a + b)
 				.toFixed(2)
 		);
@@ -208,14 +202,7 @@ export default function StoreHome({ user }: PageProps) {
 		});
 		setTotalCost(
 			cartItems
-				.map(
-					(item: CartItem) =>
-						(item.selectedPrice.type === "recurring"
-							? item.selectedPrice.interval === "year"
-								? item.unit_cost * 10.8
-								: item.unit_cost
-							: item.unit_cost) * item.quantity
-				)
+				.map((item: CartItem) => item.unit_cost * item.quantity)
 				.reduce((a: number, b: number) => a + b)
 				.toFixed(2)
 		);

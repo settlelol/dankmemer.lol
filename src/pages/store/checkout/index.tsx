@@ -33,6 +33,7 @@ export default function Checkout({ user }: PageProps) {
 	const router = useRouter();
 	const [clientSecret, setClientSecret] = useState("");
 	const [paymentIntentId, setPaymentIntentId] = useState("");
+	const [invoiceId, setInvoiceId] = useState("");
 
 	const [stripeElementsOptions, setStripeElementsOptions] =
 		useState<StripeElementsOptions>();
@@ -47,6 +48,7 @@ export default function Checkout({ user }: PageProps) {
 					..._stripeElementsOptions,
 					clientSecret: data.client_secret,
 				});
+				setInvoiceId(data.invoice);
 				setClientSecret(data.client_secret);
 				setPaymentIntentId(data.payment_intent);
 			})
@@ -60,9 +62,7 @@ export default function Checkout({ user }: PageProps) {
 				data.cart
 					.map(
 						(item: CartItems) =>
-							(item.selectedPrice.interval === "year"
-								? item.unit_cost * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
-								: item.unit_cost) * item.quantity
+							(item.selectedPrice.price / 100) * item.quantity
 					)
 					.reduce((a: number, b: number) => a + b)
 					.toFixed(2)
@@ -81,6 +81,7 @@ export default function Checkout({ user }: PageProps) {
 						<CheckoutForm
 							clientSecret={clientSecret}
 							paymentIntentId={paymentIntentId}
+							invoiceId={invoiceId}
 							userEmail={user!.email}
 							subtotalCost={subtotalCost}
 							cart={cart}

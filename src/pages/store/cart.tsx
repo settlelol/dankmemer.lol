@@ -44,16 +44,18 @@ export default function Cart({ user }: PageProps) {
 			method: "PUT",
 			data: { cartData: cart },
 		});
-		setTotalCost(
-			cart
-				.map(
-					(item: CartItems) =>
-						(item.selectedPrice.interval === "year"
-							? item.unit_cost * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
-							: item.unit_cost) * item.quantity
-				)
-				.reduce((a, b) => a + b)
-		);
+		if (cart.length < 1) {
+			router.push("/store");
+		} else {
+			setTotalCost(
+				cart
+					.map(
+						(item: CartItems) =>
+							(item.selectedPrice.price / 100) * item.quantity
+					)
+					.reduce((a, b) => a + b)
+			);
+		}
 	}, [cart]);
 
 	useEffect(() => {
