@@ -60,11 +60,11 @@ export default function Checkout({ user }: PageProps) {
 			setCart(data.cart);
 			setSubtotalCost(
 				data.cart
-					.map(
-						(item: CartItems) =>
-							(item.selectedPrice.price / 100) * item.quantity
+					.reduce(
+						(acc: number, item: CartItems) =>
+							acc + item.selectedPrice.price * item.quantity,
+						0
 					)
-					.reduce((a: number, b: number) => a + b)
 					.toFixed(2)
 			);
 		});

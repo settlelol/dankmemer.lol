@@ -98,14 +98,18 @@ export default function StoreHome({ user }: PageProps) {
 		if (cartContents.cart.length < 1) return;
 		setTotalCost(
 			cartContents.cart
-				.map((item: CartItem) => item.unit_cost * item.quantity)
-				.reduce((a: number, b: number) => a + b)
+				.reduce(
+					(acc: number, item: CartItem) =>
+						acc + (item.selectedPrice.price / 100) * item.quantity,
+					0
+				)
 				.toFixed(2)
 		);
 		setCartQuantities(
-			cartContents.cart
-				.map((item: CartItem) => item.quantity)
-				.reduce((a: number, b: number) => a + b)
+			cartContents.cart.reduce(
+				(acc: number, item: CartItem) => acc + item.quantity,
+				0
+			)
 		);
 	};
 

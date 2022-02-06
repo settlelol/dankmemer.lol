@@ -48,12 +48,11 @@ export default function Cart({ user }: PageProps) {
 			router.push("/store");
 		} else {
 			setTotalCost(
-				cart
-					.map(
-						(item: CartItems) =>
-							(item.selectedPrice.price / 100) * item.quantity
-					)
-					.reduce((a, b) => a + b)
+				cart.reduce(
+					(acc: number, item: CartItems) =>
+						acc + (item.selectedPrice.price / 100) * item.quantity,
+					0
+				)
 			);
 		}
 	}, [cart]);
