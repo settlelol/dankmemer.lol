@@ -117,12 +117,7 @@ export default function CartItem({
 					)}
 				</div>
 				<p className="mr-7 w-[70px] text-right font-montserrat font-bold text-gray-800 dark:text-white">
-					$
-					{selectedPrice.interval
-						? selectedPrice.interval === "year"
-							? (unit_cost * 10.8).toFixed(2)
-							: unit_cost.toFixed(2)
-						: unit_cost.toFixed(2)}
+					${(selectedPrice.price / 100).toFixed(2)}
 				</p>
 				<Iconify
 					icon="bx:bx-trash"
