@@ -79,8 +79,6 @@ export default function CheckoutForm({
 			setDiscountedItems(data.discountedItems);
 			setAppliedSavings(data.totalSavings);
 			setAppliedDiscount(true);
-
-			console.log(cart, discountedItems);
 		});
 	}, []);
 
@@ -275,16 +273,21 @@ export default function CheckoutForm({
 					{appliedDiscount && (
 						<div className="mr-9 min-h-[200px] w-80">
 							<h3 className="font-montserrat text-base font-bold">
-								Applied discount code
+								Applied discounts
 							</h3>
-							<div className="group mt-2">
+							<div className="group">
 								<div className="flex min-h-[152px] flex-col justify-between text-black dark:text-white">
 									<div>
 										<div className="mb-4">
 											<div>
 												<div className="flex justify-between">
-													<h3 className="font-montserrat text-base font-bold">
-														{appliedDiscountCode}
+													<h3 className="flex items-center justify-start text-base font-semibold text-neutral-300">
+														Code:{" "}
+														<code className="ml-2 text-lg text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+															{
+																appliedDiscountCode
+															}
+														</code>
 													</h3>
 												</div>
 												<div>
