@@ -61,14 +61,11 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	const coupon: Stripe.Coupon = promotionalCode.coupon;
 	const cart: CartItem[] = await req.session.get("cart")!;
-	const cartTotal = cart
-		.map(
-			(item: CartItem) =>
-				(item.selectedPrice.interval === "year"
-					? item.unit_cost * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
-					: item.unit_cost) * item.quantity
-		)
-		.reduce((a, b) => a + b);
+	const cartTotal = cart.reduce(
+		(acc, item: CartItem) =>
+			acc + (item.selectedPrice.price / 100) * item.quantity,
+		0
+	);
 
 	if ((promotionalCode.restrictions.minimum_amount ?? 0) / 100 > cartTotal)
 		return res.status(403).json({
