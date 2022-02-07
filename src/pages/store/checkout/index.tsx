@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GetServerSideProps } from "next";
+import { GetServerSideProps, GetServerSidePropsContext } from "next";
 
 import { useEffect, useRef, useState } from "react";
 import { Title } from "src/components/Title";
@@ -15,6 +15,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import CartItemImmutable from "src/components/store/checkout/CartItemImmutable";
 import CheckoutForm from "src/components/store/checkout/CheckoutForm";
 import StoreBreadcrumb from "src/components/store/StoreBreadcrumb";
+import { Session } from "next-iron-session";
 
 const _stripeElementsOptions: StripeElementsOptions = {};
 
@@ -30,7 +31,11 @@ export interface DiscountItem {
 	savings: number;
 }
 
-export default function Checkout({ user }: PageProps) {
+interface Props extends PageProps {
+	cartData: CartItems[];
+}
+
+export default function Checkout({ cartData, user }: Props) {
 	const router = useRouter();
 	const [clientSecret, setClientSecret] = useState("");
 	const [paymentIntentId, setPaymentIntentId] = useState("");
@@ -38,11 +43,20 @@ export default function Checkout({ user }: PageProps) {
 
 	const [stripeElementsOptions, setStripeElementsOptions] =
 		useState<StripeElementsOptions>();
-	const [cart, setCart] = useState<CartItems[]>([]);
 
-	const [subtotalCost, setSubtotalCost] = useState<number>(0);
+	const [subtotalCost, setSubtotalCost] = useState<string>("");
 
 	useEffect(() => {
+		setSubtotalCost(
+			cartData
+				.reduce(
+					(acc: number, item: CartItems) =>
+						acc + (item.selectedPrice.price / 100) * item.quantity,
+					0
+				)
+				.toFixed(2)
+		);
+
 		axios("/api/store/checkout/setup")
 			.then(({ data }) => {
 				setStripeElementsOptions({
@@ -56,21 +70,6 @@ export default function Checkout({ user }: PageProps) {
 			.catch((e) => {
 				console.error(e);
 			});
-
-		axios("/api/store/cart/get").then(({ data }) => {
-			if (!data.cart) return router.push("/store");
-			setCart(data.cart);
-			setSubtotalCost(
-				data.cart
-					.reduce(
-						(acc: number, item: CartItems) =>
-							acc +
-							(item.selectedPrice.price / 100) * item.quantity,
-						0
-					)
-					.toFixed(2)
-			);
-		});
 	}, []);
 
 	return (
@@ -88,14 +87,14 @@ export default function Checkout({ user }: PageProps) {
 							invoiceId={invoiceId}
 							userEmail={user!.email}
 							subtotalCost={subtotalCost}
-							cart={cart}
+							cart={cartData}
 						/>
 						<div className="relative ml-5 h-[620px] w-full">
 							<div className="relative h-full w-full rounded-lg bg-light-500 px-8 py-7 dark:bg-dark-200">
 								<Title size="small">Shopping cart</Title>
 								<div className="flex h-full flex-col items-end justify-between pb-7">
 									<div className="w-full">
-										{cart.map((item, i) => (
+										{cartData.map((item, i) => (
 											<CartItemImmutable
 												index={i}
 												{...item}
@@ -118,5 +117,32 @@ export default function Checkout({ user }: PageProps) {
 	);
 }
 
-export const getServerSideProps: GetServerSideProps =
-	withSession(authenticatedRoute);
+export const getServerSideProps: GetServerSideProps = withSession(
+	async (ctx: GetServerSidePropsContext & { req: { session: Session } }) => {
+		const user = await ctx.req.session.get("user");
+
+		if (!user) {
+			return {
+				redirect: {
+					destination: `/api/auth/login?redirect=${encodeURIComponent(
+						ctx.resolvedUrl
+					)}`,
+					permanent: false,
+				},
+			};
+		}
+
+		const cart = await ctx.req.session.get("cart");
+		if (!cart)
+			return {
+				redirect: {
+					destination: `/store`,
+					permanent: false,
+				},
+			};
+
+		return {
+			props: { cartData: cart, user },
+		};
+	}
+);
