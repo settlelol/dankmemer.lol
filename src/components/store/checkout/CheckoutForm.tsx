@@ -193,8 +193,8 @@ export default function CheckoutForm({
 								}
 								placeholder="John doe"
 							/>
-							<div className="mt-2 flex items-center justify-start">
-								<div className="mr-7 w-48">
+							<div className="mt-2 flex flex-col justify-start phone:flex-row phone:items-center">
+								<div className="mr-0 w-48 phone:mr-7">
 									<label>Card number</label>
 									<CardNumberElement
 										onChange={(data) =>
@@ -223,66 +223,70 @@ export default function CheckoutForm({
 										}}
 									/>
 								</div>
-								<div className="mr-5 w-max">
-									<label>Expiry</label>
-									<div className="w-20">
-										<CardExpiryElement
-											onChange={(data) =>
-												setCardExpiryInput(data)
-											}
-											options={{
-												disabled: processingPayment,
-												placeholder: "04 / 25",
-												style: {
-													base: {
-														color: "#ffffff",
-														fontFamily:
-															"Inter, sans-serif",
-														fontWeight: "400",
-														fontSize: "14px",
-														"::placeholder": {
-															color: "#9ca3af",
+								<div className="mt-2 flex items-center justify-start phone:mt-0">
+									<div className="mr-5 w-max">
+										<label>Expiry</label>
+										<div className="w-20">
+											<CardExpiryElement
+												onChange={(data) =>
+													setCardExpiryInput(data)
+												}
+												options={{
+													disabled: processingPayment,
+													placeholder: "04 / 25",
+													style: {
+														base: {
+															color: "#ffffff",
+															fontFamily:
+																"Inter, sans-serif",
+															fontWeight: "400",
+															fontSize: "14px",
+															"::placeholder": {
+																color: "#9ca3af",
+															},
 														},
 													},
-												},
-												classes: {
-													base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
-													focus: "border-[#199532]",
-													invalid: "border-[#F84A4A]",
-												},
-											}}
-										/>
+													classes: {
+														base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
+														focus: "border-[#199532]",
+														invalid:
+															"border-[#F84A4A]",
+													},
+												}}
+											/>
+										</div>
 									</div>
-								</div>
-								<div className="w-max">
-									<label>CVC</label>
-									<div className="w-14">
-										<CardCvcElement
-											onChange={(data) =>
-												setCardCvcInput(data)
-											}
-											options={{
-												disabled: processingPayment,
-												placeholder: "964",
-												style: {
-													base: {
-														color: "#ffffff",
-														fontFamily:
-															"Inter, sans-serif",
-														fontWeight: "400",
-														fontSize: "14px",
-														"::placeholder": {
-															color: "#9ca3af",
+									<div className="w-max">
+										<label>CVC</label>
+										<div className="w-14">
+											<CardCvcElement
+												onChange={(data) =>
+													setCardCvcInput(data)
+												}
+												options={{
+													disabled: processingPayment,
+													placeholder: "964",
+													style: {
+														base: {
+															color: "#ffffff",
+															fontFamily:
+																"Inter, sans-serif",
+															fontWeight: "400",
+															fontSize: "14px",
+															"::placeholder": {
+																color: "#9ca3af",
+															},
 														},
 													},
-												},
-												classes: {
-													base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
-													focus: "border-[#199532]",
-													invalid: "border-[#F84A4A]",
-												},
-											}}
-										/>
+													classes: {
+														base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
+														focus: "border-[#199532]",
+														invalid:
+															"border-[#F84A4A]",
+													},
+												}}
+											/>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -300,63 +304,63 @@ export default function CheckoutForm({
 				) : (
 					""
 				)}
-				<div className="mt-9 flex items-start justify-items-start">
-					<div className="mr-9 min-h-[248px] w-80">
-						<h3 className="font-montserrat text-base font-bold">
-							Applied discounts
-						</h3>
-						<div className="flex min-h-[225px] flex-col justify-between">
-							<div className="text-black dark:text-white">
-								<div className="mb-2">
-									<div className="flex justify-between">
-										<h3 className="flex items-center justify-start text-base font-semibold text-neutral-300">
-											{appliedDiscount ? (
-												<>
-													Code:{" "}
-													<code className="ml-2 text-lg text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
-														{appliedDiscountCode}
-													</code>
-												</>
-											) : (
-												<>None</>
-											)}
-										</h3>
-									</div>
-									<div className="max-h-[8rem] overflow-y-scroll">
-										<ul className="pl-3">
-											{discountedItems.length >= 1 &&
-												cart.length >= 1 &&
-												discountedItems.map((item) => (
-													<li className="flex list-decimal justify-between text-sm">
-														<p className="dark:text-[#b4b4b4]">
-															•{" "}
-															{
-																cart.filter(
-																	(_item) =>
-																		_item.id ===
-																		item.id
-																)[0].name
-															}
-														</p>
-														<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
-															-$
-															{item.savings.toFixed(
-																2
-															)}
-														</p>
-													</li>
-												))}
-										</ul>
+				<div className="mt-9 flex flex-col items-start justify-items-start lg:flex-row">
+					{appliedDiscount && (
+						<div className="mr-9 mb-5 min-h-[248px] w-full border-b-[1px] pb-5 dark:border-neutral-600 lg:w-80">
+							<h3 className="font-montserrat text-base font-bold">
+								Applied discounts
+							</h3>
+							<div className="flex min-h-[225px] flex-col justify-between">
+								<div className="text-black dark:text-white">
+									<div className="mb-2">
+										<div className="flex justify-between">
+											<h3 className="flex items-center justify-start text-base font-semibold text-neutral-300">
+												Code:{" "}
+												<code className="ml-2 text-lg text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+													{appliedDiscountCode}
+												</code>
+											</h3>
+										</div>
+										<div className="max-h-[8rem] overflow-y-scroll">
+											<ul className="pl-3">
+												{discountedItems.length >= 1 &&
+													cart.length >= 1 &&
+													discountedItems.map(
+														(item) => (
+															<li className="flex list-decimal justify-between text-sm">
+																<p className="dark:text-[#b4b4b4]">
+																	•{" "}
+																	{
+																		cart.filter(
+																			(
+																				_item
+																			) =>
+																				_item.id ===
+																				item.id
+																		)[0]
+																			.name
+																	}
+																</p>
+																<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+																	-$
+																	{item.savings.toFixed(
+																		2
+																	)}
+																</p>
+															</li>
+														)
+													)}
+											</ul>
+										</div>
 									</div>
 								</div>
-							</div>
-							<div className="flex w-full justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
-								<Title size="small">Total:</Title>
-								<Title size="small">${totalCost}</Title>
+								<div className="flex w-full justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
+									<Title size="small">Total:</Title>
+									<Title size="small">${totalCost}</Title>
+								</div>
 							</div>
 						</div>
-					</div>
-
+					)}
 					<div className="min-h-[200px]">
 						<h3 className="font-montserrat text-base font-bold">
 							Account information
@@ -365,7 +369,7 @@ export default function CheckoutForm({
 							<p className="text-sm dark:text-[#DADADA]">
 								This purchase is being made for
 							</p>
-							<div className="mt-2 flex flex-row items-center justify-start">
+							<div className="mt-2 flex flex-col justify-start phone:flex-row phone:items-center">
 								<div className="mr-4 flex cursor-pointer select-none text-sm">
 									<p
 										className={clsx(
@@ -391,15 +395,17 @@ export default function CheckoutForm({
 									</p>
 								</div>
 								{purchaseIsGift && (
-									<Input
-										width="large"
-										type="text"
-										placeholder="270904126974590976"
-										className="!py-1"
-										onChange={(e: any) =>
-											setGiftRecipient(e.target.value)
-										}
-									/>
+									<div className="mt-2 phone:mt-0">
+										<Input
+											width="large"
+											type="text"
+											placeholder="270904126974590976"
+											className="!py-1 "
+											onChange={(e: any) =>
+												setGiftRecipient(e.target.value)
+											}
+										/>
+									</div>
 								)}
 							</div>
 						</div>

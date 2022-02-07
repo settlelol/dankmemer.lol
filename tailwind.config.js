@@ -7,6 +7,9 @@ module.exports = {
 	],
 	theme: {
 		extend: {
+			screens: {
+				phone: "540px",
+			},
 			fontFamily: {
 				montserrat: ["Montserrat"],
 				inter: ["Inter"],
