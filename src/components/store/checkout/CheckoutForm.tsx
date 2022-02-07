@@ -34,7 +34,7 @@ interface Props {
 	paymentIntentId: string;
 	invoiceId: string;
 	userEmail: string;
-	subtotalCost: number;
+	subtotalCost: string;
 	cart: CartItem[];
 }
 
@@ -46,7 +46,7 @@ export default function CheckoutForm({
 	subtotalCost,
 	cart,
 }: Props) {
-	const [totalCost, setTotalCost] = useState<number>(0);
+	const [totalCost, setTotalCost] = useState<string>("0.00");
 	const [processingPayment, setProcessingPayment] = useState(false);
 	const [selectedPaymentOption, setSelectedPaymentOption] = useState("Card");
 
@@ -81,7 +81,6 @@ export default function CheckoutForm({
 			if (!data) return setAppliedDiscount(false);
 
 			const { code, discountedItems, totalSavings } = data;
-			console.log(code);
 			if (!code || !discountedItems || !totalSavings) return;
 
 			setAppliedDiscountCode(code);
@@ -92,7 +91,7 @@ export default function CheckoutForm({
 	}, []);
 
 	useEffect(() => {
-		setTotalCost(subtotalCost - appliedSavings);
+		setTotalCost((parseFloat(subtotalCost) - appliedSavings).toFixed(2));
 	}, [subtotalCost, appliedSavings]);
 
 	useEffect(() => {
@@ -353,9 +352,7 @@ export default function CheckoutForm({
 							</div>
 							<div className="flex w-full justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
 								<Title size="small">Total:</Title>
-								<Title size="small">
-									${totalCost.toFixed(2)}
-								</Title>
+								<Title size="small">${totalCost}</Title>
 							</div>
 						</div>
 					</div>

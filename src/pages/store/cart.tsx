@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GetServerSideProps } from "next";
+import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { useEffect, useState } from "react";
 import { Title } from "src/components/Title";
 import Container from "src/components/ui/Container";
@@ -17,12 +17,16 @@ import Input from "src/components/store/Input";
 import { DiscountItem } from "./checkout";
 import clsx from "clsx";
 import StoreBreadcrumb from "src/components/store/StoreBreadcrumb";
+import { Session } from "next-iron-session";
 
-export default function Cart({ user }: PageProps) {
+interface Props extends PageProps {
+	cartData: CartItems[];
+}
+
+export default function Cart({ cartData, user }: Props) {
 	const router = useRouter();
 
-	const [loaded, setLoaded] = useState(false);
-	const [cart, setCart] = useState<CartItems[]>([]);
+	const [cart, setCart] = useState<CartItems[]>(cartData);
 	const [totalCost, setTotalCost] = useState<number>(0);
 
 	const [discountError, setDiscountError] = useState("");
@@ -32,14 +36,6 @@ export default function Cart({ user }: PageProps) {
 	const [appliedDiscount, setAppliedDiscount] = useState(false);
 
 	useEffect(() => {
-		axios("/api/store/cart/get").then(({ data }) => {
-			setLoaded(true);
-			setCart(data.cart);
-		});
-	}, []);
-
-	useEffect(() => {
-		if (!loaded) return;
 		axios({
 			url: "/api/store/cart/set",
 			method: "PUT",
@@ -295,5 +291,32 @@ export default function Cart({ user }: PageProps) {
 	);
 }
 
-export const getServerSideProps: GetServerSideProps =
-	withSession(authenticatedRoute);
+export const getServerSideProps: GetServerSideProps = withSession(
+	async (ctx: GetServerSidePropsContext & { req: { session: Session } }) => {
+		const user = await ctx.req.session.get("user");
+
+		if (!user) {
+			return {
+				redirect: {
+					destination: `/api/auth/login?redirect=${encodeURIComponent(
+						ctx.resolvedUrl
+					)}`,
+					permanent: false,
+				},
+			};
+		}
+
+		const cart = await ctx.req.session.get("cart");
+		if (!cart)
+			return {
+				redirect: {
+					destination: `/store`,
+					permanent: false,
+				},
+			};
+
+		return {
+			props: { cartData: cart, user },
+		};
+	}
+);
