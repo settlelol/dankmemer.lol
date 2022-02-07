@@ -13,7 +13,7 @@ export default function SimpleProduct({
 	openModal: any;
 }) {
 	return (
-		<div className="flex h-64 w-52 flex-col items-center justify-center rounded-lg bg-light-500 dark:bg-[#060A07]">
+		<div className="flex h-64 w-52 flex-col items-center justify-center rounded-lg border-[1px] border-neutral-300 bg-light-500 dark:border-neutral-800 dark:bg-[#060A07]">
 			<div
 				className="h-[90px] w-[90px]"
 				style={{
