@@ -26,3 +26,5 @@ yarn-error.log*
 .env.production.local
 
 .vercel
+
+/src/pages/.well-known/
