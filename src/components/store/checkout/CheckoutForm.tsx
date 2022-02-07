@@ -323,7 +323,7 @@ export default function CheckoutForm({
 											)}
 										</h3>
 									</div>
-									<div className="min-h-[8rem] overflow-y-scroll">
+									<div className="max-h-[8rem] overflow-y-scroll">
 										<ul className="pl-3">
 											{discountedItems.length >= 1 &&
 												cart.length >= 1 &&
