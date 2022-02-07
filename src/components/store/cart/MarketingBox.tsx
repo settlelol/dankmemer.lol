@@ -10,7 +10,7 @@ interface Props {
 }
 
 const boxColors = {
-	blue: "bg-[#32c3e4] shadow-[#32c3e4]",
+	blue: "bg-[#2c7acc] shadow-[#2c7acc]",
 	green: "bg-[#0FA958] shadow-[#0FA958]",
 };
 
