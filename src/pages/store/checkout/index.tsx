@@ -75,12 +75,12 @@ export default function Checkout({ cartData, user }: Props) {
 	return (
 		<Elements stripe={stripePromise} options={stripeElementsOptions}>
 			<Container title="Checkout" user={user}>
-				<div className="mb-16">
+				<div className="mb-36 lg:mb-16">
 					<div className="mt-12 mb-5 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 						<Title size="big">Checkout</Title>
 					</div>
 					<StoreBreadcrumb currentPage="checkout" />
-					<div className="flex justify-between">
+					<div className="flex flex-col justify-between lg:flex-row">
 						<CheckoutForm
 							clientSecret={clientSecret}
 							paymentIntentId={paymentIntentId}
@@ -89,7 +89,7 @@ export default function Checkout({ cartData, user }: Props) {
 							subtotalCost={subtotalCost}
 							cart={cartData}
 						/>
-						<div className="relative ml-5 h-[620px] w-full">
+						<div className="relative hidden h-[620px] w-full lg:ml-5 lg:block">
 							<div className="relative h-full w-full rounded-lg bg-light-500 px-8 py-7 dark:bg-dark-200">
 								<Title size="small">Shopping cart</Title>
 								<div className="flex h-full flex-col items-end justify-between pb-7">

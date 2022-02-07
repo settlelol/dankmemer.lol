@@ -26,14 +26,14 @@ export default function Checkbox({
 			<div
 				className={clsx(
 					!state ? "border-[#3C3C3C]" : "border-dank-300",
-					"relative mr-2 h-4 w-4 rounded border-[1px] transition-colors dark:bg-black/30"
+					"relative mr-2 h-4 min-w-[1rem] rounded border-[1px] transition-colors dark:bg-black/30"
 				)}
 			>
 				{state && (
 					<Iconify
 						icon="bx:bx-check"
 						height="16"
-						className="absolute top-[-1.5px] left-[-0.5px] text-dank-300"
+						className="absolute top-[-1.5px] left-[-1.5px] text-dank-300"
 					/>
 				)}
 			</div>

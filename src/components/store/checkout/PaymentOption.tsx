@@ -18,7 +18,7 @@ export default function PaymentOption({ icons, selected, select }: Props) {
 		>
 			<div
 				className={clsx(
-					"relative mr-2 grid h-3 w-3 place-items-center rounded-full border-2",
+					"relative mr-2 grid h-3 min-w-[0.75rem] place-items-center rounded-full border-2",
 					selected ? "border-dank-300" : "border-white/30"
 				)}
 			>
