@@ -80,7 +80,7 @@ export default function Checkout({ cartData, user }: Props) {
 						<Title size="big">Checkout</Title>
 					</div>
 					<StoreBreadcrumb currentPage="checkout" />
-					<div className="flex flex-col justify-between lg:flex-row">
+					<div className="flex flex-1 flex-col justify-between lg:flex-row">
 						<CheckoutForm
 							clientSecret={clientSecret}
 							paymentIntentId={paymentIntentId}
@@ -89,7 +89,7 @@ export default function Checkout({ cartData, user }: Props) {
 							subtotalCost={subtotalCost}
 							cart={cartData}
 						/>
-						<div className="relative hidden h-[620px] w-full lg:ml-5 lg:block">
+						<div className="relative hidden w-full lg:ml-5 lg:block">
 							<div className="relative h-full w-full rounded-lg bg-light-500 px-8 py-7 dark:bg-dark-200">
 								<Title size="small">Shopping cart</Title>
 								<div className="flex h-full flex-col items-end justify-between pb-7">
