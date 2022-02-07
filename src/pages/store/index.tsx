@@ -265,7 +265,9 @@ export default function StoreHome({ user }: PageProps) {
 					<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 						<Title size="small">Subscriptions</Title>
 						<div className="flex items-center justify-center">
-							<p className="mr-2 text-sm">Annual pricing</p>
+							<p className="mr-2 text-sm text-neutral-900 dark:text-neutral-100">
+								Annual pricing
+							</p>
 							<label
 								htmlFor="annualPricing"
 								onClick={() => setAnnualPricing(!annualPricing)}
