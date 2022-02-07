@@ -148,7 +148,7 @@ export default function CheckoutForm({
 	};
 
 	return (
-		<div className="relative h-[620px] min-w-[58.33%]">
+		<div className="relative min-w-[58.33%]">
 			<div className="h-max w-full rounded-lg bg-light-500 px-8 py-7 dark:bg-dark-200">
 				<div className="mb-4">
 					<Title size="small">Payment Method</Title>
