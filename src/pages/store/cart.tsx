@@ -16,6 +16,7 @@ import { useRouter } from "next/router";
 import Input from "src/components/store/Input";
 import { DiscountItem } from "./checkout";
 import clsx from "clsx";
+import StoreBreadcrumb from "src/components/store/StoreBreadcrumb";
 
 export default function Cart({ user }: PageProps) {
 	const router = useRouter();
@@ -127,6 +128,8 @@ export default function Cart({ user }: PageProps) {
 			<div className="mt-12 mb-5 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 				<Title size="big">Shopping cart</Title>
 			</div>
+			<StoreBreadcrumb currentPage="cart" />
+
 			<div className="flex justify-between">
 				<div className="flex w-[73%] flex-col">
 					<div className="h-max w-full rounded-lg px-4 py-3 dark:bg-dark-200">
