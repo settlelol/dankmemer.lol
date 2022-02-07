@@ -4,6 +4,7 @@ import { CartItem as CartItems } from "src/pages/store";
 import { Title } from "../Title";
 import Button from "../ui/Button";
 import CartItem from "./cart/CartItem";
+import { Icon as Iconify } from "@iconify/react";
 
 interface Props {
 	totalCost: string;
@@ -63,25 +64,8 @@ export default function ShoppingCart({
 				variant="dark"
 				onClick={() => router.push(`/store/cart`)}
 			>
-				<div className="flex items-center space-x-2">
-					<div>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="24"
-							height="24"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						>
-							<path d="M5 7h13.79a2 2 0 0 1 1.99 2.199l-.6 6A2 2 0 0 1 18.19 17H8.64a2 2 0 0 1-1.962-1.608L5 7z" />
-							<path d="M5 7l-.81-3.243A1 1 0 0 0 3.22 3H2" />
-							<path d="M8 21h2" />
-							<path d="M16 21h2" />
-						</svg>
-					</div>
+				<div className="flex items-center space-x-2 py-1">
+					<Iconify icon="akar-icons:cart" color="white" height={20} />
 					<p>{label}</p>
 				</div>
 			</Button>

@@ -14,6 +14,7 @@ import { Elements } from "@stripe/react-stripe-js";
 
 import CartItemImmutable from "src/components/store/checkout/CartItemImmutable";
 import CheckoutForm from "src/components/store/checkout/CheckoutForm";
+import StoreBreadcrumb from "src/components/store/StoreBreadcrumb";
 
 const _stripeElementsOptions: StripeElementsOptions = {};
 
@@ -79,6 +80,7 @@ export default function Checkout({ user }: PageProps) {
 					<div className="mt-12 mb-5 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 						<Title size="big">Checkout</Title>
 					</div>
+					<StoreBreadcrumb currentPage="checkout" />
 					<div className="flex justify-between">
 						<CheckoutForm
 							clientSecret={clientSecret}
