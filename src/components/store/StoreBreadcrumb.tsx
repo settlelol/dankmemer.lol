@@ -10,7 +10,7 @@ export default function StoreBreadcrumb({ currentPage }: Props) {
 	const router = useRouter();
 
 	return (
-		<div className="mb-3 flex select-none items-center justify-start overflow-x-scroll dark:text-neutral-300">
+		<div className="mb-3 flex select-none items-center justify-start overflow-x-auto dark:text-neutral-300">
 			<p
 				className="flex cursor-pointer items-center justify-start transition-colors hover:dark:text-white"
 				onClick={() => router.push("/store")}
