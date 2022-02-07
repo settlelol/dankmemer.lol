@@ -78,10 +78,15 @@ export default function CheckoutForm({
 
 	useEffect(() => {
 		axios("/api/store/discount/get").then(({ data }) => {
-			if (!data) setAppliedDiscount(false);
-			else setAppliedDiscountCode(data.code);
-			setDiscountedItems(data.discountedItems || []);
-			setAppliedSavings(data.totalSavings || 0);
+			if (!data) return setAppliedDiscount(false);
+
+			const { code, discountedItems, totalSavings } = data;
+			console.log(code);
+			if (!code || !discountedItems || !totalSavings) return;
+
+			setAppliedDiscountCode(code);
+			setDiscountedItems(discountedItems);
+			setAppliedSavings(totalSavings);
 			setAppliedDiscount(true);
 		});
 	}, []);
@@ -144,7 +149,7 @@ export default function CheckoutForm({
 	};
 
 	return (
-		<div className="relative h-[587px] min-w-[58.33%]">
+		<div className="relative h-[620px] min-w-[58.33%]">
 			<div className="h-max w-full rounded-lg bg-light-500 px-8 py-7 dark:bg-dark-200">
 				<div className="mb-4">
 					<Title size="small">Payment Method</Title>
@@ -297,72 +302,64 @@ export default function CheckoutForm({
 					""
 				)}
 				<div className="mt-9 flex items-start justify-items-start">
-					{appliedDiscount && (
-						<div className="mr-9 min-h-[200px] w-80">
-							<h3 className="font-montserrat text-base font-bold">
-								Applied discounts
-							</h3>
-							<div className="group">
-								<div className="flex min-h-[152px] flex-col justify-between text-black dark:text-white">
-									<div>
-										<div className="mb-4">
-											<div>
-												<div className="flex justify-between">
-													<h3 className="flex items-center justify-start text-base font-semibold text-neutral-300">
-														Code:{" "}
-														<code className="ml-2 text-lg text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+					<div className="mr-9 min-h-[248px] w-80">
+						<h3 className="font-montserrat text-base font-bold">
+							Applied discounts
+						</h3>
+						<div className="flex min-h-[225px] flex-col justify-between">
+							<div className="text-black dark:text-white">
+								<div className="mb-2">
+									<div className="flex justify-between">
+										<h3 className="flex items-center justify-start text-base font-semibold text-neutral-300">
+											{appliedDiscount ? (
+												<>
+													Code:{" "}
+													<code className="ml-2 text-lg text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+														{appliedDiscountCode}
+													</code>
+												</>
+											) : (
+												<>None</>
+											)}
+										</h3>
+									</div>
+									<div className="min-h-[8rem] overflow-y-scroll">
+										<ul className="pl-3">
+											{discountedItems.length >= 1 &&
+												cart.length >= 1 &&
+												discountedItems.map((item) => (
+													<li className="flex list-decimal justify-between text-sm">
+														<p className="dark:text-[#b4b4b4]">
+															•{" "}
 															{
-																appliedDiscountCode
+																cart.filter(
+																	(_item) =>
+																		_item.id ===
+																		item.id
+																)[0].name
 															}
-														</code>
-													</h3>
-												</div>
-												<div>
-													<ul className="pl-3">
-														{discountedItems &&
-															discountedItems.length >=
-																1 &&
-															cart.length >= 1 &&
-															discountedItems.map(
-																(item) => (
-																	<li className="flex list-decimal justify-between text-sm">
-																		<p className="dark:text-[#b4b4b4]">
-																			•{" "}
-																			{
-																				cart.filter(
-																					(
-																						_item
-																					) =>
-																						_item.id ===
-																						item.id
-																				)[0]
-																					.name
-																			}
-																		</p>
-																		<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
-																			-$
-																			{item.savings.toFixed(
-																				2
-																			)}
-																		</p>
-																	</li>
-																)
+														</p>
+														<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+															-$
+															{item.savings.toFixed(
+																2
 															)}
-													</ul>
-												</div>
-											</div>
-										</div>
+														</p>
+													</li>
+												))}
+										</ul>
 									</div>
 								</div>
-								<div className="mt-3 flex w-full justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
-									<Title size="small">Total:</Title>
-									<Title size="small">
-										${totalCost.toFixed(2)}
-									</Title>
-								</div>
+							</div>
+							<div className="flex w-full justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
+								<Title size="small">Total:</Title>
+								<Title size="small">
+									${totalCost.toFixed(2)}
+								</Title>
 							</div>
 						</div>
-					)}
+					</div>
+
 					<div className="min-h-[200px]">
 						<h3 className="font-montserrat text-base font-bold">
 							Account information

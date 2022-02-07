@@ -90,7 +90,7 @@ export default function Checkout({ user }: PageProps) {
 							subtotalCost={subtotalCost}
 							cart={cart}
 						/>
-						<div className="relative ml-5 h-[587px] w-full">
+						<div className="relative ml-5 h-[620px] w-full">
 							<div className="relative h-full w-full rounded-lg bg-light-500 px-8 py-7 dark:bg-dark-200">
 								<Title size="small">Shopping cart</Title>
 								<div className="flex h-full flex-col items-end justify-between pb-7">
