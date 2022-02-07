@@ -134,6 +134,7 @@ export default function Cart({ user }: PageProps) {
 						<div className="mt-2">
 							{cart.map((item, i) => (
 								<CartItem
+									size="large"
 									index={i}
 									{...item}
 									updateQuantity={updateQuantity}
