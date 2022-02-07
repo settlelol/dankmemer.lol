@@ -205,7 +205,7 @@ export default function StoreHome({ user }: PageProps) {
 			method: "PUT",
 			data: { cartData: cartItems },
 		});
-		if (!cartItems) return;
+		if (cartItems.length < 1) return;
 		setTotalCost(
 			cartItems
 				.map((item: CartItem) => item.unit_cost * item.quantity)
@@ -283,7 +283,13 @@ export default function StoreHome({ user }: PageProps) {
 							</label>
 						</div>
 					</div>
-					<div className="mt-4 grid grid-cols-1 place-content-stretch gap-y-7 gap-x-7 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5">
+					<div
+						className="mt-4 grid justify-between gap-x-8 gap-y-7"
+						style={{
+							gridTemplateColumns:
+								"repeat(auto-fit, minmax(208px, auto))", // 208px is the width of the product card
+						}}
+					>
 						{subscriptions.map((product) => (
 							<>
 								<SubscriptionProduct
@@ -298,7 +304,18 @@ export default function StoreHome({ user }: PageProps) {
 				</div>
 				<div className="mt-8 mb-12">
 					<Title size="small">In-game items</Title>
-					<div className="mt-4 grid grid-cols-1 place-content-stretch gap-y-7 gap-x-7 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5">
+					<div
+						className={clsx(
+							"mt-4 grid gap-x-8 gap-y-7",
+							products.length < 5
+								? "justify-start"
+								: "justify-between"
+						)}
+						style={{
+							gridTemplateColumns:
+								"repeat(auto-fit, minmax(208px, auto))", // 208px is the width of the product card
+						}}
+					>
 						{products.map((product) => (
 							<>
 								<SimpleProduct
