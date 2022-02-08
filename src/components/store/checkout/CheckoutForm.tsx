@@ -2,10 +2,13 @@ import {
 	CardCvcElement,
 	CardExpiryElement,
 	CardNumberElement,
+	PaymentRequestButtonElement,
 	useElements,
 	useStripe,
 } from "@stripe/react-stripe-js";
 import {
+	CanMakePaymentResult,
+	PaymentRequest,
 	StripeCardCvcElementChangeEvent,
 	StripeCardExpiryElementChangeEvent,
 	StripeCardNumberElementChangeEvent,
@@ -28,6 +31,8 @@ import Link from "next/link";
 import { Icon as Iconify } from "@iconify/react";
 import router from "next/router";
 import Checkbox from "src/components/ui/Checkbox";
+import ApplyPay from "public/img/store/ApplePay.svg";
+import { useTheme } from "next-themes";
 
 interface Props {
 	clientSecret: string;
@@ -46,9 +51,18 @@ export default function CheckoutForm({
 	subtotalCost,
 	cart,
 }: Props) {
+	const { theme } = useTheme();
+
 	const [totalCost, setTotalCost] = useState<string>("0.00");
 	const [processingPayment, setProcessingPayment] = useState(false);
 	const [selectedPaymentOption, setSelectedPaymentOption] = useState("Card");
+	const [acceptsIntegratedWallet, setAcceptsIntegratedWallet] =
+		useState(false);
+	const [integratedWalletType, setIntegratedWalletType] = useState<
+		"apple" | "google" | "microsoft" | null
+	>(null);
+	const [integratedWallet, setIntegratedWallet] =
+		useState<PaymentRequest | null>(null);
 
 	const [nameOnCard, setNameOnCard] = useState("");
 	const stripe = useStripe();
@@ -91,6 +105,10 @@ export default function CheckoutForm({
 	}, []);
 
 	useEffect(() => {
+		setupIntegratedWallet();
+	}, [stripe]);
+
+	useEffect(() => {
 		setTotalCost((parseFloat(subtotalCost) - appliedSavings).toFixed(2));
 	}, [subtotalCost, appliedSavings]);
 
@@ -114,6 +132,34 @@ export default function CheckoutForm({
 		acceptedTerms,
 	]);
 
+	const setupIntegratedWallet = async () => {
+		if (!stripe) return;
+		const paymentRequest = stripe.paymentRequest({
+			country: "US",
+			currency: "usd",
+			total: {
+				label: `Dank Memer store purchase`,
+				amount: parseFloat(totalCost) * 100,
+			},
+			displayItems: cart.map((item) => {
+				return {
+					label: `${item.quantity}x ${item.name}`,
+					amount: item.quantity * item.selectedPrice.price,
+				};
+			}),
+			requestPayerName: true,
+		});
+
+		const canMakePayment: CanMakePaymentResult | null =
+			await paymentRequest.canMakePayment();
+
+		if (!canMakePayment) return;
+		setAcceptsIntegratedWallet(true);
+		if (canMakePayment.applePay) setIntegratedWalletType("apple");
+		else if (canMakePayment.googlePay) setIntegratedWalletType("google");
+		setIntegratedWallet(paymentRequest);
+	};
+
 	const confirmPayment = async () => {
 		if (!stripe || !stripeElements || !canCheckout) return;
 		setProcessingPayment(true);
@@ -128,7 +174,6 @@ export default function CheckoutForm({
 			console.error(result.error);
 			setProcessingPayment(false);
 		} else {
-			alert("Payment was a success, pogchamp");
 			axios({
 				method: "PATCH",
 				url: `/api/store/checkout/finalize?invoice=${invoiceId}`,
@@ -152,7 +197,7 @@ export default function CheckoutForm({
 			<div className="h-max w-full rounded-lg bg-light-500 px-8 py-7 dark:bg-dark-200">
 				<div className="mb-4">
 					<Title size="small">Payment Method</Title>
-					<div className="mt-3 flex justify-start">
+					<div className="mt-3 flex flex-wrap justify-start gap-y-3">
 						<PaymentOption
 							icons={[
 								<Visa key="visa" className="mr-1" />,
@@ -177,6 +222,15 @@ export default function CheckoutForm({
 							selected={selectedPaymentOption === "PayPal"}
 							select={() => setSelectedPaymentOption("PayPal")}
 						/>
+						{integratedWalletType === "apple" && (
+							<PaymentOption
+								icons={[<ApplyPay />]}
+								selected={selectedPaymentOption === "ApplePay"}
+								select={() =>
+									setSelectedPaymentOption("ApplePay")
+								}
+							/>
+						)}
 					</div>
 				</div>
 				{selectedPaymentOption === "Card" ? (
@@ -444,95 +498,120 @@ export default function CheckoutForm({
 								</Link>
 								.
 							</Checkbox>
-							<Button
-								size="medium-large"
-								className={clsx(
-									"mt-3 w-full",
-									!canCheckout
-										? "bg-neutral-500 text-neutral-800"
-										: ""
-								)}
-								disabled={!canCheckout}
-								onClick={confirmPayment}
-							>
-								{processingPayment ? (
-									<p className="flex">
-										<span className="mr-3">
-											<svg
-												width="23"
-												height="23"
-												viewBox="0 0 38 38"
-												xmlns="http://www.w3.org/2000/svg"
-											>
-												<defs>
-													<linearGradient
-														x1="8.042%"
-														y1="0%"
-														x2="65.682%"
-														y2="23.865%"
-														id="a"
-													>
-														<stop
-															stopColor="#fff"
-															stopOpacity="0"
-															offset="0%"
-														/>
-														<stop
-															stopColor="#fff"
-															stopOpacity=".631"
-															offset="63.146%"
-														/>
-														<stop
-															stopColor="#fff"
-															offset="100%"
-														/>
-													</linearGradient>
-												</defs>
-												<g
-													fill="none"
-													fill-rule="evenodd"
+							{acceptsIntegratedWallet &&
+							integratedWallet !== null ? (
+								<div className="mt-3">
+									<PaymentRequestButtonElement
+										options={{
+											paymentRequest: integratedWallet,
+											style: {
+												paymentRequestButton: {
+													type:
+														cart[0].selectedPrice
+															.type ===
+														"recurring"
+															? "subscribe"
+															: "check-out",
+													theme:
+														theme === "dark"
+															? "dark"
+															: "light",
+												},
+											},
+										}}
+									/>
+								</div>
+							) : (
+								<Button
+									size="medium-large"
+									className={clsx(
+										"mt-3 w-full",
+										!canCheckout
+											? "bg-neutral-500 text-neutral-800"
+											: ""
+									)}
+									disabled={!canCheckout}
+									onClick={confirmPayment}
+								>
+									{processingPayment ? (
+										<p className="flex">
+											<span className="mr-3">
+												<svg
+													width="23"
+													height="23"
+													viewBox="0 0 38 38"
+													xmlns="http://www.w3.org/2000/svg"
 												>
-													<g transform="translate(1 1)">
-														<path
-															d="M36 18c0-9.94-8.06-18-18-18"
-															id="Oval-2"
-															stroke="url(#a)"
-															strokeWidth="2"
+													<defs>
+														<linearGradient
+															x1="8.042%"
+															y1="0%"
+															x2="65.682%"
+															y2="23.865%"
+															id="a"
 														>
-															<animateTransform
-																attributeName="transform"
-																type="rotate"
-																from="0 18 18"
-																to="360 18 18"
-																dur="0.9s"
-																repeatCount="indefinite"
+															<stop
+																stopColor="#fff"
+																stopOpacity="0"
+																offset="0%"
 															/>
-														</path>
-														<circle
-															fill="#fff"
-															cx="36"
-															cy="18"
-															r="1"
-														>
-															<animateTransform
-																attributeName="transform"
-																type="rotate"
-																from="0 18 18"
-																to="360 18 18"
-																dur="0.9s"
-																repeatCount="indefinite"
+															<stop
+																stopColor="#fff"
+																stopOpacity=".631"
+																offset="63.146%"
 															/>
-														</circle>
+															<stop
+																stopColor="#fff"
+																offset="100%"
+															/>
+														</linearGradient>
+													</defs>
+													<g
+														fill="none"
+														fill-rule="evenodd"
+													>
+														<g transform="translate(1 1)">
+															<path
+																d="M36 18c0-9.94-8.06-18-18-18"
+																id="Oval-2"
+																stroke="url(#a)"
+																strokeWidth="2"
+															>
+																<animateTransform
+																	attributeName="transform"
+																	type="rotate"
+																	from="0 18 18"
+																	to="360 18 18"
+																	dur="0.9s"
+																	repeatCount="indefinite"
+																/>
+															</path>
+															<circle
+																fill="#fff"
+																cx="36"
+																cy="18"
+																r="1"
+															>
+																<animateTransform
+																	attributeName="transform"
+																	type="rotate"
+																	from="0 18 18"
+																	to="360 18 18"
+																	dur="0.9s"
+																	repeatCount="indefinite"
+																/>
+															</circle>
+														</g>
 													</g>
-												</g>
-											</svg>
-										</span>
-										Processing payment...
-									</p>
-								) : (
-									<p>Pay with {selectedPaymentOption}</p>
-								)}
-							</Button>
+												</svg>
+											</span>
+											Processing payment...
+										</p>
+									) : (
+										<p>Pay with {selectedPaymentOption}</p>
+									)}
+								</Button>
+							)}
 						</div>
 					</div>
 				</div>
