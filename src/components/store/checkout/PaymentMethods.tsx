@@ -1,4 +1,7 @@
 import clsx from "clsx";
+import Amex from "public/img/store/cards/Amex.svg";
+import Discover from "public/img/store/cards/Discover.svg";
+import Mastercard from "public/img/store/cards/Mastercard.svg";
 import Visa from "public/img/store/cards/Visa.svg";
 import { toTitleCase } from "src/util/string";
 import { CardData } from "./CheckoutForm";
@@ -108,6 +111,15 @@ export default function PaymentMethods({
 								</div>
 								{card.brand === "visa" && (
 									<Visa width={30} height={30} />
+								)}
+								{card.brand === "mastercard" && (
+									<Mastercard width={30} height={30} />
+								)}
+								{card.brand === "discover" && (
+									<Discover width={30} height={30} />
+								)}
+								{card.brand === "amex" && (
+									<Amex width={30} height={30} />
 								)}
 								<p className="ml-3 text-sm">
 									{toTitleCase(card.brand)} {card.type} card{" "}
