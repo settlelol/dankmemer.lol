@@ -33,20 +33,39 @@ import router from "next/router";
 import Checkbox from "src/components/ui/Checkbox";
 import ApplyPay from "public/img/store/ApplePay.svg";
 import { useTheme } from "next-themes";
+import PaymentMethods from "./PaymentMethods";
 
 interface Props {
 	clientSecret: string;
 	paymentIntentId: string;
 	invoiceId: string;
+	userId: string;
 	userEmail: string;
 	subtotalCost: string;
 	cart: CartItem[];
+}
+
+interface Card {
+	brand: string;
+	type: string;
+	expiry: {
+		month: number;
+		year: number;
+	};
+	last4: number;
+	expired: boolean;
+}
+
+export interface CardData {
+	id: string;
+	card: Card;
 }
 
 export default function CheckoutForm({
 	clientSecret,
 	paymentIntentId,
 	invoiceId,
+	userId,
 	userEmail,
 	subtotalCost,
 	cart,
@@ -63,6 +82,12 @@ export default function CheckoutForm({
 	>(null);
 	const [integratedWallet, setIntegratedWallet] =
 		useState<PaymentRequest | null>(null);
+
+	const [defaultPaymentMethod, setDefaultPaymentMethod] =
+		useState<CardData>();
+	const [savedPaymentMethods, setSavedPaymentMethods] =
+		useState<CardData[]>();
+	const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(""); // Payment method ID
 
 	const [nameOnCard, setNameOnCard] = useState("");
 	const stripe = useStripe();
@@ -102,6 +127,16 @@ export default function CheckoutForm({
 			setAppliedSavings(totalSavings);
 			setAppliedDiscount(true);
 		});
+
+		axios(`/api/store/customers/retrieve?id=${userId}&sensitive=true`).then(
+			({ data }) => {
+				if (data.cards.default) {
+					setDefaultPaymentMethod(data.cards.default);
+					setSelectedPaymentMethod(data.cards.default);
+				}
+				if (data.cards.other) setSavedPaymentMethods(data.cards.other);
+			}
+		);
 	}, []);
 
 	useEffect(() => {
@@ -114,10 +149,11 @@ export default function CheckoutForm({
 
 	useEffect(() => {
 		if (
-			nameOnCard.length >= 1 &&
-			cardNumberInput?.complete &&
-			cardExpiryInput?.complete &&
-			cardCvcInput?.complete &&
+			((nameOnCard.length >= 1 &&
+				cardNumberInput?.complete &&
+				cardExpiryInput?.complete &&
+				cardCvcInput?.complete) ||
+				selectedPaymentMethod !== "") &&
 			receiptEmail.length >= 5 &&
 			acceptedTerms
 		)
@@ -131,6 +167,10 @@ export default function CheckoutForm({
 		receiptEmail,
 		acceptedTerms,
 	]);
+
+	useEffect(() => {
+		if (selectedPaymentMethod !== "") setSelectedPaymentMethod("");
+	}, [nameOnCard, cardNumberInput, cardExpiryInput, cardCvcInput]);
 
 	const setupIntegratedWallet = async () => {
 		if (!stripe) return;
@@ -165,9 +205,12 @@ export default function CheckoutForm({
 		setProcessingPayment(true);
 		const result = await stripe.confirmCardPayment(clientSecret, {
 			setup_future_usage: saveCardAsDefault ? "off_session" : null,
-			payment_method: {
-				card: stripeElements.getElement("cardNumber")!,
-			},
+			payment_method:
+				selectedPaymentMethod.length > 1
+					? selectedPaymentMethod
+					: {
+							card: stripeElements.getElement("cardNumber")!,
+					  },
 		});
 		if (result.error) {
 			alert("SOMETHING WENT WRONG OH NO!!!!!!!!!");
@@ -232,9 +275,22 @@ export default function CheckoutForm({
 							/>
 						)}
 					</div>
+					{(!defaultPaymentMethod || !savedPaymentMethods) && (
+						<PaymentMethods
+							savedPaymentMethods={savedPaymentMethods}
+							defaultPaymentMethod={defaultPaymentMethod}
+							select={setSelectedPaymentMethod}
+							selected={selectedPaymentMethod}
+						/>
+					)}
 				</div>
+				<h3 className="mt-7 font-montserrat text-base font-bold">
+					{!defaultPaymentMethod || !savedPaymentMethods
+						? "Enter other card details"
+						: "Enter card details"}
+				</h3>
 				{selectedPaymentOption === "Card" ? (
-					<div className="mt-9 flex items-center justify-start overflow-hidden">
+					<div className="flex items-center justify-start overflow-hidden">
 						<div>
 							<Input
 								width="large"
@@ -249,7 +305,9 @@ export default function CheckoutForm({
 							/>
 							<div className="mt-2 flex flex-col justify-start phone:flex-row phone:items-center">
 								<div className="mr-0 w-48 phone:mr-7">
-									<label>Card number</label>
+									<label className="text-neutral-300">
+										Card number
+									</label>
 									<CardNumberElement
 										onChange={(data) =>
 											setCardNumberInput(data)
@@ -279,7 +337,9 @@ export default function CheckoutForm({
 								</div>
 								<div className="mt-2 flex items-center justify-start phone:mt-0">
 									<div className="mr-5 w-max">
-										<label>Expiry</label>
+										<label className="text-neutral-300">
+											Expiry
+										</label>
 										<div className="w-20">
 											<CardExpiryElement
 												onChange={(data) =>
@@ -311,7 +371,9 @@ export default function CheckoutForm({
 										</div>
 									</div>
 									<div className="w-max">
-										<label>CVC</label>
+										<label className="text-neutral-300">
+											CVC
+										</label>
 										<div className="w-14">
 											<CardCvcElement
 												onChange={(data) =>
@@ -351,7 +413,9 @@ export default function CheckoutForm({
 									setSaveCardAsDefault(!saveCardAsDefault)
 								}
 							>
-								Save payment method as default.
+								{defaultPaymentMethod === null
+									? "Save payment method to use it again easily in the future."
+									: "Save payment method as default for future purchases."}
 							</Checkbox>
 						</div>
 					</div>
@@ -420,7 +484,7 @@ export default function CheckoutForm({
 							Account information
 						</h3>
 						<div className="">
-							<p className="text-sm dark:text-[#DADADA]">
+							<p className="text-sm dark:text-neutral-300">
 								This purchase is being made for
 							</p>
 							<div className="mt-2 flex flex-col justify-start phone:flex-row phone:items-center">
@@ -429,7 +493,7 @@ export default function CheckoutForm({
 										className={clsx(
 											!purchaseIsGift
 												? "bg-dank-300 text-white"
-												: "text-[#818181] dark:bg-black/30",
+												: "text-neutral-400 dark:bg-black/30",
 											"rounded-l-md border-[1px] border-transparent px-3 py-1"
 										)}
 										onClick={() => setPurchaseIsGift(false)}
@@ -440,7 +504,7 @@ export default function CheckoutForm({
 										className={clsx(
 											purchaseIsGift
 												? "bg-dank-300 text-white"
-												: "text-[#818181] dark:bg-black/30",
+												: "text-neutral-400 dark:bg-black/30",
 											"rounded-r-md border-[1px] border-transparent px-3 py-1"
 										)}
 										onClick={() => setPurchaseIsGift(true)}

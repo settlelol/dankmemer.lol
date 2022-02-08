@@ -85,6 +85,7 @@ export default function Checkout({ cartData, user }: Props) {
 							clientSecret={clientSecret}
 							paymentIntentId={paymentIntentId}
 							invoiceId={invoiceId}
+							userId={user!.id}
 							userEmail={user!.email}
 							subtotalCost={subtotalCost}
 							cart={cartData}
