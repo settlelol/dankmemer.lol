@@ -13,10 +13,11 @@ export const config = {
 };
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
-	if (req.method?.toLowerCase() !== "post")
+	if (req.method?.toLowerCase() !== "post") {
 		return res.status(405).json({
 			error: `Method '${req.method?.toUpperCase()}' cannot be used on this endpoint.`,
 		});
+	}
 
 	const stripe = stripeConnect();
 	let event: Stripe.Event;
@@ -27,12 +28,13 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const signature = req.headers["stripe-signature"];
 	const signingSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-	if (!signingSecret)
+	if (!signingSecret) {
 		throw `Missing environment variable 'STRIPE_WEBHOOK_SECRET'`;
-	if (!signature)
+	} else if (!signature) {
 		return console.error(
 			"No Stripe-Signature header was provided during webhook request."
 		);
+	}
 
 	try {
 		event = stripe.webhooks.constructEvent(

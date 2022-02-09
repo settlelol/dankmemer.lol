@@ -12,8 +12,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	const db: Db = await dbConnect();
 	const productId: string = req.query?.id.toString();
-	if (!productId)
+	if (!productId) {
 		return res.status(400).json({ error: "No product id given." });
+	}
 
 	const product = await db.collection("products").findOne({ _id: productId });
 	if (!product)

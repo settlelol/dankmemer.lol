@@ -6,19 +6,23 @@ import Stripe from "stripe";
 import { NextIronRequest, withSession } from "../../../../util/session";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
-	if (req.method?.toLowerCase() !== "get")
+	if (req.method?.toLowerCase() !== "get") {
 		return res.status(405).json({
 			error: `Method '${req.method?.toUpperCase()}' cannot be used on this endpoint.`,
 		});
+	}
 
 	const user = req.session.get("user");
-	if (!user) return res.status(401).json({ error: "You are not logged in." });
+	if (!user) {
+		return res.status(401).json({ error: "You are not logged in." });
+	}
 
 	const code = req.query.code.toString();
-	if (!code)
+	if (!code) {
 		return res
 			.status(401)
 			.json({ error: "No discount code was provided." });
+	}
 
 	const stripe = stripeConnect();
 	let promotionalCodes;
@@ -35,29 +39,36 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		});
 	}
 
-	if (promotionalCodes.length < 1)
+	if (promotionalCodes.length < 1) {
 		return res.status(404).json({
 			error: "No discount code that matched the input was found.",
 		});
+	}
+
 	const promotionalCode = promotionalCodes[0];
 
-	if (!promotionalCode.id)
+	if (!promotionalCode.id) {
 		return res.status(404).json({
 			error: "No discount code that matched the input was found.",
 		});
-	if (!promotionalCode.active)
+	}
+
+	if (!promotionalCode.active) {
 		return res.status(410).json({
 			message: "The code has been found, however it has already expired.",
 		});
+	}
+
 	if (
 		!(
 			promotionalCode.times_redeemed <=
 			(promotionalCode.max_redemptions ?? 0)
 		)
-	)
+	) {
 		return res.status(410).json({
 			message: "The code has reached its maximum redemptions.",
 		});
+	}
 
 	const coupon: Stripe.Coupon = promotionalCode.coupon;
 	const cart: CartItem[] = await req.session.get("cart")!;
@@ -67,10 +78,11 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		0
 	);
 
-	if ((promotionalCode.restrictions.minimum_amount ?? 0) / 100 > cartTotal)
+	if ((promotionalCode.restrictions.minimum_amount ?? 0) / 100 > cartTotal) {
 		return res.status(403).json({
 			error: `The code can only be used when the cart contents are above $${promotionalCode.restrictions.minimum_amount}`,
 		});
+	}
 
 	const discountAmount = coupon.percent_off! / 100;
 	const discountedItems: DiscountItem[] = [];

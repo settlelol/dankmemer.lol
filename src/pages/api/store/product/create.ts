@@ -10,10 +10,11 @@ interface ProductData {
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
-	if (req.method?.toLowerCase() !== "post")
+	if (req.method?.toLowerCase() !== "post") {
 		return res.status(405).json({
 			error: `Method '${req.method?.toUpperCase()}' cannot be used on this endpoint.`,
 		});
+	}
 
 	const user = req.session.get("user");
 
@@ -26,8 +27,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	const productData: ProductData = req.body;
-	if (!productData || productData._id || productData.included)
+	if (!productData || productData._id || productData.included) {
 		return res.status(400).json({ error: "Invalid body." });
+	}
 
 	const db: Db = await dbConnect();
 
