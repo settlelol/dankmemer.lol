@@ -143,14 +143,20 @@ export default function AccountInformation({
 						size="medium-large"
 						className={clsx(
 							"mt-3 w-full",
-							!canCheckout
+							!(
+								canCheckout &&
+								receiptEmail.length >= 5 &&
+								acceptedTerms
+							)
 								? "bg-neutral-500 text-neutral-800"
 								: ""
 						)}
 						disabled={
-							!canCheckout &&
-							receiptEmail.length >= 5 &&
-							acceptedTerms
+							!(
+								canCheckout &&
+								receiptEmail.length >= 5 &&
+								acceptedTerms
+							)
 						}
 						onClick={() =>
 							confirmPayment(isGift, giftRecipient, receiptEmail)

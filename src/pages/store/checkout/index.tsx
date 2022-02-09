@@ -35,7 +35,6 @@ interface Props extends PageProps {
 
 export default function Checkout({ cartData, user }: Props) {
 	const [clientSecret, setClientSecret] = useState("");
-	const [paymentIntentId, setPaymentIntentId] = useState("");
 	const [invoiceId, setInvoiceId] = useState("");
 
 	const [stripeElementsOptions, setStripeElementsOptions] =
@@ -62,7 +61,6 @@ export default function Checkout({ cartData, user }: Props) {
 				});
 				setInvoiceId(data.invoice);
 				setClientSecret(data.client_secret);
-				setPaymentIntentId(data.payment_intent);
 			})
 			.catch((e) => {
 				console.error(e);
@@ -80,7 +78,6 @@ export default function Checkout({ cartData, user }: Props) {
 					<div className="flex flex-1 flex-col justify-between lg:flex-row">
 						<CheckoutForm
 							clientSecret={clientSecret}
-							paymentIntentId={paymentIntentId}
 							invoiceId={invoiceId}
 							userId={user!.id}
 							userEmail={user!.email}

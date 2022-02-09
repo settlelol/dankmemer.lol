@@ -18,7 +18,7 @@ import Amex from "public/img/store/cards/Amex.svg";
 import Discover from "public/img/store/cards/Discover.svg";
 import Mastercard from "public/img/store/cards/Mastercard.svg";
 import Visa from "public/img/store/cards/Visa.svg";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Title } from "src/components/Title";
 import { CartItem } from "src/pages/store";
 import { DiscountItem } from "src/pages/store/checkout";
@@ -33,7 +33,6 @@ import AccountInformation from "./AccountInformation";
 
 interface Props {
 	clientSecret: string;
-	paymentIntentId: string;
 	invoiceId: string;
 	userId: string;
 	userEmail: string;
@@ -59,13 +58,15 @@ export interface CardData {
 
 export default function CheckoutForm({
 	clientSecret,
-	paymentIntentId,
 	invoiceId,
 	userId,
 	userEmail,
 	subtotalCost,
 	cart,
 }: Props) {
+	const _invoiceId = useRef(invoiceId);
+	const successfulCheckout = useRef(false);
+
 	const [totalCost, setTotalCost] = useState<string>("0.00");
 	const [processingPayment, setProcessingPayment] = useState(false);
 	const [selectedPaymentOption, setSelectedPaymentOption] = useState<
@@ -128,7 +129,20 @@ export default function CheckoutForm({
 				if (data.cards.other) setSavedPaymentMethods(data.cards.other);
 			}
 		);
+
+		window.addEventListener("beforeunload", (e) => {
+			e.preventDefault();
+			return cancelInvoiceAndPayment();
+		});
+
+		return () => {
+			cancelInvoiceAndPayment();
+		};
 	}, []);
+
+	useEffect(() => {
+		_invoiceId.current = invoiceId;
+	}, [invoiceId]);
 
 	useEffect(() => {
 		setupIntegratedWallet();
@@ -148,11 +162,29 @@ export default function CheckoutForm({
 		)
 			setCanCheckout(true);
 		else setCanCheckout(false);
-	}, [nameOnCard, cardNumberInput, cardExpiryInput, cardCvcInput]);
+	}, [
+		nameOnCard,
+		cardNumberInput,
+		cardExpiryInput,
+		cardCvcInput,
+		selectedPaymentMethod,
+	]);
 
 	useEffect(() => {
 		if (selectedPaymentMethod !== "") setSelectedPaymentMethod("");
 	}, [nameOnCard, cardNumberInput, cardExpiryInput, cardCvcInput]);
+
+	const cancelInvoiceAndPayment = () => {
+		if (!successfulCheckout.current) {
+			axios(
+				`/api/store/checkout/cancel?invoice=${_invoiceId.current}`
+			).catch(() => {
+				console.error(
+					"Failed to cancel payment. Continuing session uninterrupted."
+				);
+			});
+		}
+	};
 
 	const setupIntegratedWallet = async () => {
 		if (!stripe) return;
@@ -204,6 +236,7 @@ export default function CheckoutForm({
 			console.error(result.error);
 			setProcessingPayment(false);
 		} else {
+			successfulCheckout.current = true;
 			axios({
 				method: "PATCH",
 				url: `/api/store/checkout/finalize?invoice=${invoiceId}`,
