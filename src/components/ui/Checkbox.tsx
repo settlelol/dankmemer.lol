@@ -33,7 +33,7 @@ export default function Checkbox({
 					<Iconify
 						icon="bx:bx-check"
 						height="16"
-						className="absolute top-[-1.5px] left-[-1.5px] text-dank-300"
+						className="absolute top-[-1.5px] left-[-1px] text-dank-300"
 					/>
 				)}
 			</div>
