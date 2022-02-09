@@ -6,6 +6,7 @@ import Button from "src/components/ui/Button";
 import Link from "next/link";
 import { PaymentRequest } from "@stripe/stripe-js";
 import { PaymentRequestButtonElement } from "@stripe/react-stripe-js";
+import { useState } from "react";
 
 interface Props {
 	canCheckout: Boolean;
@@ -18,20 +19,10 @@ interface Props {
 		| "GooglePay"
 		| "MicrosoftPay";
 
-	acceptedTerms: Boolean;
-	setAcceptedTerms: any;
-
-	isGift: Boolean;
-	setIsGift: any;
-
-	giftRecipient: string;
-	setGiftRecipient: any;
-
-	receiptEmail: string;
-	setReceiptEmail: any;
-
+	userEmail: string;
 	processingPayment: Boolean;
 	confirmPayment: any;
+	totalCost: string;
 	integratedWalletButtonType: "check-out" | "subscribe";
 }
 
@@ -40,18 +31,19 @@ export default function AccountInformation({
 	acceptsIntegratedWallet,
 	integratedWallet,
 	selectedPaymentOption,
-	acceptedTerms,
-	setAcceptedTerms,
-	isGift,
-	setIsGift,
-	setGiftRecipient,
-	receiptEmail,
-	setReceiptEmail,
 	processingPayment,
 	confirmPayment,
-	integratedWalletButtonType = "check-out",
+	userEmail,
+	totalCost,
+	integratedWalletButtonType,
 }: Props) {
 	const { theme } = useTheme();
+
+	const [giftRecipient, setGiftRecipient] = useState("");
+	const [isGift, setIsGift] = useState(false);
+
+	const [receiptEmail, setReceiptEmail] = useState(userEmail);
+	const [acceptedTerms, setAcceptedTerms] = useState(false);
 
 	return (
 		<div className="min-h-[200px]">
@@ -155,8 +147,14 @@ export default function AccountInformation({
 								? "bg-neutral-500 text-neutral-800"
 								: ""
 						)}
-						disabled={!canCheckout}
-						onClick={confirmPayment}
+						disabled={
+							!canCheckout &&
+							receiptEmail.length >= 5 &&
+							acceptedTerms
+						}
+						onClick={() =>
+							confirmPayment(isGift, giftRecipient, receiptEmail)
+						}
 					>
 						{processingPayment ? (
 							<p className="flex">
@@ -230,7 +228,9 @@ export default function AccountInformation({
 								Processing payment...
 							</p>
 						) : (
-							<p>Pay with {selectedPaymentOption}</p>
+							<p>
+								Pay ${totalCost} with {selectedPaymentOption}
+							</p>
 						)}
 					</Button>
 				)}
