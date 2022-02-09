@@ -191,6 +191,7 @@ export default function CheckoutForm({
 		setProcessingPayment(true);
 		const result = await stripe.confirmCardPayment(clientSecret, {
 			setup_future_usage: saveCardAsDefault ? "off_session" : null,
+			receipt_email: receiptEmail,
 			payment_method:
 				selectedPaymentMethod.length > 1
 					? selectedPaymentMethod
@@ -210,7 +211,6 @@ export default function CheckoutForm({
 					customerName: nameOnCard,
 					isGift,
 					giftFor,
-					receiptEmail,
 				},
 			})
 				.then(() => {
