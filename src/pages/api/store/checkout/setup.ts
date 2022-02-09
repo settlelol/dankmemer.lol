@@ -70,8 +70,6 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					// @ts-ignore
 					subscription.latest_invoice?.payment_intent?.client_secret,
 				// @ts-ignore
-				payment_intent: subscription.latest_invoice?.payment_intent?.id,
-				// @ts-ignore
 				invoice: subscription.latest_invoice?.id,
 				subscription: subscription.id,
 			});
@@ -114,7 +112,6 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		return res.status(200).json({
 			client_secret: paymentIntent.client_secret,
 			invoice: finalizedInvoice.id,
-			payment_intent: paymentIntent.id,
 		});
 	} catch (e: any) {
 		console.error(e.message.replace(/"/g, ""));
