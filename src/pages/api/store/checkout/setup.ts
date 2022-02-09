@@ -92,6 +92,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			customer: customer?.id!,
 			auto_advance: true,
 			collection_method: "charge_automatically",
+			metadata: {
+				boughtByDiscordId: user.id,
+			},
 		});
 
 		if (discountCode) {
