@@ -104,11 +104,6 @@ export default function CheckoutForm({
 	const [appliedSavings, setAppliedSavings] = useState(0);
 	const [appliedDiscount, setAppliedDiscount] = useState(false);
 
-	const [giftRecipient, setGiftRecipient] = useState("");
-	const [purchaseIsGift, setPurchaseIsGift] = useState(false);
-	const [receiptEmail, setReceiptEmail] = useState(userEmail);
-	const [acceptedTerms, setAcceptedTerms] = useState(false);
-
 	const [canCheckout, setCanCheckout] = useState(false);
 
 	useEffect(() => {
@@ -145,24 +140,15 @@ export default function CheckoutForm({
 
 	useEffect(() => {
 		if (
-			((nameOnCard.length >= 1 &&
+			(nameOnCard.length >= 1 &&
 				cardNumberInput?.complete &&
 				cardExpiryInput?.complete &&
 				cardCvcInput?.complete) ||
-				selectedPaymentMethod !== "") &&
-			receiptEmail.length >= 5 &&
-			acceptedTerms
+			selectedPaymentMethod !== ""
 		)
 			setCanCheckout(true);
 		else setCanCheckout(false);
-	}, [
-		nameOnCard,
-		cardNumberInput,
-		cardExpiryInput,
-		cardCvcInput,
-		receiptEmail,
-		acceptedTerms,
-	]);
+	}, [nameOnCard, cardNumberInput, cardExpiryInput, cardCvcInput]);
 
 	useEffect(() => {
 		if (selectedPaymentMethod !== "") setSelectedPaymentMethod("");
@@ -196,7 +182,11 @@ export default function CheckoutForm({
 		setIntegratedWallet(paymentRequest);
 	};
 
-	const confirmPayment = async () => {
+	const confirmPayment = async (
+		isGift: Boolean,
+		giftFor: string,
+		receiptEmail: string
+	) => {
 		if (!stripe || !stripeElements || !canCheckout) return;
 		setProcessingPayment(true);
 		const result = await stripe.confirmCardPayment(clientSecret, {
@@ -218,8 +208,9 @@ export default function CheckoutForm({
 				url: `/api/store/checkout/finalize?invoice=${invoiceId}`,
 				data: {
 					customerName: nameOnCard,
-					isGift: purchaseIsGift,
-					giftFor: giftRecipient,
+					isGift,
+					giftFor,
+					receiptEmail,
 				},
 			})
 				.then(() => {
@@ -479,17 +470,11 @@ export default function CheckoutForm({
 						acceptsIntegratedWallet={acceptsIntegratedWallet}
 						integratedWallet={integratedWallet}
 						selectedPaymentOption={selectedPaymentOption}
-						acceptedTerms={acceptedTerms}
-						setAcceptedTerms={setAcceptedTerms}
-						isGift={purchaseIsGift}
-						setIsGift={setPurchaseIsGift}
-						giftRecipient={giftRecipient}
-						setGiftRecipient={setGiftRecipient}
-						receiptEmail={receiptEmail}
-						setReceiptEmail={setReceiptEmail}
+						userEmail={userEmail}
 						processingPayment={processingPayment}
 						confirmPayment={confirmPayment}
 						canCheckout={canCheckout}
+						totalCost={totalCost}
 						integratedWalletButtonType={
 							cart[0].selectedPrice.type === "recurring"
 								? "subscribe"
