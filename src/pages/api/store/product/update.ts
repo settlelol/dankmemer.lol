@@ -13,20 +13,25 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	const user = req.session.get("user");
 
-	if (!user) return res.status(401).json({ error: "You are not logged in." });
-	if (!user.developer)
+	if (!user) {
+		return res.status(401).json({ error: "You are not logged in." });
+	} else if (!user.developer) {
 		return res.status(401).json({ error: "You can't do this." });
+	}
 
-	if (!req.query.productId)
+	if (!req.query.productId) {
 		return res
 			.status(400)
 			.json({ error: "No product id was provided in the request." });
-	if (!req.body)
+	}
+
+	if (!req.body) {
 		return res.status(400).json({ error: "No body data was provided." });
-	if (!req.body.primaryTitle && !req.body.primaryBody)
+	} else if (!req.body.primaryTitle && !req.body.primaryBody) {
 		return res
 			.status(400)
 			.json({ error: "Missing required fields in body." });
+	}
 
 	const productId = req.query.productId.toString();
 	try {
@@ -46,7 +51,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			{ upsert: true }
 		);
 
-		const updatedProduct = await stripe.products.update(productId, {
+		await stripe.products.update(productId, {
 			metadata: {
 				lastUpdated: new Date().getTime(),
 			},

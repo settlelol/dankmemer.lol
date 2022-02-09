@@ -5,19 +5,23 @@ import Stripe from "stripe";
 import { NextIronRequest, withSession } from "../../../../util/session";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
-	if (req.method?.toLowerCase() !== "patch")
+	if (req.method?.toLowerCase() !== "patch") {
 		return res.status(405).json({
 			error: `Method '${req.method?.toUpperCase()}' cannot be used on this endpoint.`,
 		});
+	}
 
 	const invoiceId = req.query.invoice.toString();
-	if (!invoiceId)
+	if (!invoiceId) {
 		return res.status(400).json({
 			error: "No invoice id was provided to finalize this purchase.",
 		});
+	}
 
 	const user = req.session.get("user");
-	if (!user) return res.status(401).json({ error: "You are not logged in." });
+	if (!user) {
+		return res.status(401).json({ error: "You are not logged in." });
+	}
 
 	const { customerName, isGift, giftFor } = req.body;
 
@@ -32,11 +36,12 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	await req.session.save();
 
-	if (!_customer)
+	if (!_customer) {
 		return res.status(500).json({
 			error: "Unable to find customer. If you do not receive your purchased goods please contact support and reference the following invoice id",
 			invoiceId,
 		});
+	}
 
 	const invoice = await stripe.invoices.retrieve(invoiceId, {
 		expand: ["payment_intent.payment_method"],
@@ -45,15 +50,20 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	let metadata;
 	let paymentIntentData: Stripe.PaymentIntentUpdateParams = {};
 	let customerData: Stripe.CustomerUpdateParams = {};
-	if (isGift) metadata = { isGift, giftFor };
-	else if (!isGift) metadata = { isGift };
+	if (isGift) {
+		metadata = { isGift, giftFor };
+	} else if (!isGift) {
+		metadata = { isGift };
+	}
 
 	// @ts-ignore
 	const customer: Stripe.Customer = await stripe.customers.retrieve(
 		_customer._id
 	);
 
-	if (!customer.name) customerData.name = customerName;
+	if (!customer.name) {
+		customerData.name = customerName;
+	}
 
 	try {
 		paymentIntentData["metadata"] = metadata;

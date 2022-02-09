@@ -11,21 +11,25 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const db: Db = await dbConnect();
 
 	const user = await req.session.get("user");
-	if (!user) return res.status(401).json({ error: "You are not logged in." });
+	if (!user) {
+		return res.status(401).json({ error: "You are not logged in." });
+	}
 
 	const cart: CartItem[] | undefined = await req.session.get("cart");
-	if (!cart)
+	if (!cart) {
 		return res
 			.status(400)
 			.json({ error: "You must have items in your cart." });
+	}
 
 	const _customer = await db
 		.collection("customers")
 		.findOne({ discordId: user.id });
 
 	let customer;
-	if (_customer) customer = await stripe.customers.retrieve(_customer._id);
-	else if (!_customer) {
+	if (_customer) {
+		customer = await stripe.customers.retrieve(_customer._id);
+	} else if (!_customer) {
 		try {
 			customer = await stripe.customers.create({
 				email: user.email,
