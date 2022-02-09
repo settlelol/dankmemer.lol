@@ -1,14 +1,12 @@
 import axios from "axios";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Title } from "src/components/Title";
 import Container from "src/components/ui/Container";
 import { PageProps } from "src/types";
-import { authenticatedRoute } from "src/util/redirects";
 import { withSession } from "src/util/session";
 import { CartItem as CartItems } from "..";
-import { useRouter } from "next/router";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 
@@ -36,7 +34,6 @@ interface Props extends PageProps {
 }
 
 export default function Checkout({ cartData, user }: Props) {
-	const router = useRouter();
 	const [clientSecret, setClientSecret] = useState("");
 	const [paymentIntentId, setPaymentIntentId] = useState("");
 	const [invoiceId, setInvoiceId] = useState("");
