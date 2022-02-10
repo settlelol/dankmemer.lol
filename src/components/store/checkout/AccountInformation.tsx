@@ -4,11 +4,13 @@ import Checkbox from "src/components/ui/Checkbox";
 import Input from "../Input";
 import Button from "src/components/ui/Button";
 import Link from "next/link";
-import { PaymentRequest } from "@stripe/stripe-js";
+import { PaymentRequest, Stripe } from "@stripe/stripe-js";
 import { PaymentRequestButtonElement } from "@stripe/react-stripe-js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
+	stripe: Stripe | null;
+	clientSecret: string;
 	canCheckout: Boolean;
 	acceptsIntegratedWallet: Boolean;
 	integratedWallet: PaymentRequest | null;
@@ -22,17 +24,21 @@ interface Props {
 	userEmail: string;
 	processingPayment: Boolean;
 	confirmPayment: any;
+	completedPayment: any;
 	totalCost: string;
 	integratedWalletButtonType: "check-out" | "subscribe";
 }
 
 export default function AccountInformation({
+	stripe,
+	clientSecret,
 	canCheckout,
 	acceptsIntegratedWallet,
 	integratedWallet,
 	selectedPaymentOption,
 	processingPayment,
 	confirmPayment,
+	completedPayment,
 	userEmail,
 	totalCost,
 	integratedWalletButtonType,
@@ -44,6 +50,35 @@ export default function AccountInformation({
 
 	const [receiptEmail, setReceiptEmail] = useState(userEmail);
 	const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+	useEffect(() => {
+		if (!integratedWallet || !stripe || !clientSecret) return;
+		integratedWallet.once("paymentmethod", async (e) => {
+			const { paymentIntent, error: confirmPaymentError } =
+				await stripe.confirmCardPayment(
+					clientSecret,
+					{ payment_method: e.paymentMethod.id },
+					{ handleActions: false }
+				);
+
+			if (confirmPaymentError) {
+				e.complete("fail");
+			} else {
+				e.complete("success");
+				if (paymentIntent?.status === "requires_action") {
+					const { error: actionError } =
+						await stripe.confirmCardPayment(clientSecret);
+					if (actionError) {
+						alert("22222 SOMETHING WENT WRONG OH NO!!!!!!!!!");
+					} else {
+						completedPayment();
+					}
+				} else {
+					completedPayment();
+				}
+			}
+		});
+	}, [integratedWallet, stripe, clientSecret]);
 
 	return (
 		<div className="min-h-[200px]">
@@ -123,7 +158,10 @@ export default function AccountInformation({
 					</Link>
 					.
 				</Checkbox>
-				{acceptsIntegratedWallet && integratedWallet !== null ? (
+				{acceptsIntegratedWallet &&
+				integratedWallet !== null &&
+				selectedPaymentOption !== "Card" &&
+				selectedPaymentOption !== "PayPal" ? (
 					<div className="mt-3">
 						<PaymentRequestButtonElement
 							options={{
