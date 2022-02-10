@@ -136,8 +136,8 @@ export default function AccountInformation({
 				</p>
 				<Input
 					width="w-60"
-					type="text"
-					placeholder="admin@dankmemer.gg"
+					type="email"
+					placeholder="support@dankmemer.gg"
 					defaultValue={receiptEmail}
 					onChange={(e: any) => setReceiptEmail(e.target.value)}
 					className="mt-2 !py-1"
