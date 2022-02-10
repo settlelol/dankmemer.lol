@@ -8,7 +8,9 @@ import {
 } from "@stripe/react-stripe-js";
 import {
 	CanMakePaymentResult,
+	PaymentMethod,
 	PaymentRequest,
+	PaymentRequestPaymentMethodEvent,
 	StripeCardCvcElementChangeEvent,
 	StripeCardExpiryElementChangeEvent,
 	StripeCardNumberElementChangeEvent,
@@ -65,6 +67,7 @@ export default function CheckoutForm({
 	cart,
 }: Props) {
 	const _invoiceId = useRef(invoiceId);
+	const _clientSecret = useRef(clientSecret);
 	const successfulCheckout = useRef(false);
 
 	const [totalCost, setTotalCost] = useState<string>("0.00");
@@ -145,6 +148,10 @@ export default function CheckoutForm({
 	}, [invoiceId]);
 
 	useEffect(() => {
+		_clientSecret.current = clientSecret;
+	}, [clientSecret]);
+
+	useEffect(() => {
 		setupIntegratedWallet();
 	}, [stripe]);
 
@@ -221,6 +228,7 @@ export default function CheckoutForm({
 	) => {
 		if (!stripe || !stripeElements || !canCheckout) return;
 		setProcessingPayment(true);
+
 		const result = await stripe.confirmCardPayment(clientSecret, {
 			setup_future_usage: saveCardAsDefault ? "off_session" : null,
 			receipt_email: receiptEmail,
@@ -231,28 +239,33 @@ export default function CheckoutForm({
 							card: stripeElements.getElement("cardNumber")!,
 					  },
 		});
+
 		if (result.error) {
-			alert("SOMETHING WENT WRONG OH NO!!!!!!!!!");
-			console.error(result.error);
 			setProcessingPayment(false);
+			console.error(result.error);
+			alert("111111 SOMETHING WENT WRONG OH NO!!!!!!!!!");
 		} else {
-			successfulCheckout.current = true;
-			axios({
-				method: "PATCH",
-				url: `/api/store/checkout/finalize?invoice=${invoiceId}`,
-				data: {
-					customerName: nameOnCard,
-					isGift,
-					giftFor,
-				},
-			})
-				.then(() => {
-					setProcessingPayment(false);
-				})
-				.finally(() => {
-					router.push(`/store/checkout/success?id=${invoiceId}`);
-				});
+			completedPayment(isGift, giftFor);
 		}
+	};
+
+	const completedPayment = (isGift: Boolean, giftFor: string) => {
+		successfulCheckout.current = true;
+		axios({
+			method: "PATCH",
+			url: `/api/store/checkout/finalize?invoice=${invoiceId}`,
+			data: {
+				customerName: nameOnCard,
+				isGift,
+				giftFor,
+			},
+		})
+			.then(() => {
+				setProcessingPayment(false);
+			})
+			.finally(() => {
+				router.push(`/store/checkout/success?id=${invoiceId}`);
+			});
 	};
 
 	return (
@@ -295,152 +308,162 @@ export default function CheckoutForm({
 							/>
 						)}
 					</div>
-					{(!defaultPaymentMethod || !savedPaymentMethods) && (
-						<PaymentMethods
-							savedPaymentMethods={savedPaymentMethods}
-							defaultPaymentMethod={defaultPaymentMethod}
-							select={setSelectedPaymentMethod}
-							selected={selectedPaymentMethod}
-						/>
-					)}
-				</div>
-				<h3 className="mt-7 font-montserrat text-base font-bold">
-					{!defaultPaymentMethod || !savedPaymentMethods
-						? "Enter other card details"
-						: "Enter card details"}
-				</h3>
-				{selectedPaymentOption === "Card" ? (
-					<div className="flex items-center justify-start overflow-hidden">
-						<div>
-							<Input
-								width="large"
-								type="text"
-								label="Name on card"
-								defaultValue={nameOnCard}
-								disabled={processingPayment}
-								onChange={(e: any) =>
-									setNameOnCard(e.target.value)
-								}
-								placeholder="John doe"
+					{selectedPaymentOption === "Card" &&
+						(!defaultPaymentMethod || !savedPaymentMethods) && (
+							<PaymentMethods
+								savedPaymentMethods={savedPaymentMethods}
+								defaultPaymentMethod={defaultPaymentMethod}
+								select={setSelectedPaymentMethod}
+								selected={selectedPaymentMethod}
 							/>
-							<div className="mt-2 flex flex-col justify-start phone:flex-row phone:items-center">
-								<div className="mr-0 w-48 phone:mr-7">
-									<label className="text-neutral-300">
-										Card number
-									</label>
-									<CardNumberElement
-										onChange={(data) =>
-											setCardNumberInput(data)
-										}
-										options={{
-											disabled: processingPayment,
-											placeholder: "4024 0071 1411 4951",
-											style: {
-												base: {
-													color: "#ffffff",
-													fontFamily:
-														"Inter, sans-serif",
-													fontWeight: "400",
-													fontSize: "14px",
-													"::placeholder": {
-														color: "#9ca3af",
+						)}
+				</div>
+				{selectedPaymentOption === "Card" && (
+					<>
+						<h3 className="mt-7 font-montserrat text-base font-bold">
+							{!defaultPaymentMethod || !savedPaymentMethods
+								? "Enter other card details"
+								: "Enter card details"}
+						</h3>
+						<div className="flex items-center justify-start overflow-hidden">
+							<div>
+								<Input
+									width="large"
+									type="text"
+									label="Name on card"
+									defaultValue={nameOnCard}
+									disabled={processingPayment}
+									onChange={(e: any) =>
+										setNameOnCard(e.target.value)
+									}
+									placeholder="John doe"
+								/>
+								<div className="mt-2 flex flex-col justify-start phone:flex-row phone:items-center">
+									<div className="mr-0 w-48 phone:mr-7">
+										<label className="text-neutral-300">
+											Card number
+										</label>
+										<CardNumberElement
+											onChange={(data) =>
+												setCardNumberInput(data)
+											}
+											options={{
+												disabled: processingPayment,
+												placeholder:
+													"4024 0071 1411 4951",
+												style: {
+													base: {
+														color: "#ffffff",
+														fontFamily:
+															"Inter, sans-serif",
+														fontWeight: "400",
+														fontSize: "14px",
+														"::placeholder": {
+															color: "#9ca3af",
+														},
 													},
 												},
-											},
-											classes: {
-												base: "mt-1 w-[200px] px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
-												focus: "border-[#199532] outline-none",
-												invalid: "border-[#F84A4A]",
-											},
-										}}
-									/>
-								</div>
-								<div className="mt-2 flex items-center justify-start phone:mt-0">
-									<div className="mr-5 w-max">
-										<label className="text-neutral-300">
-											Expiry
-										</label>
-										<div className="w-20">
-											<CardExpiryElement
-												onChange={(data) =>
-													setCardExpiryInput(data)
-												}
-												options={{
-													disabled: processingPayment,
-													placeholder: "04 / 25",
-													style: {
-														base: {
-															color: "#ffffff",
-															fontFamily:
-																"Inter, sans-serif",
-															fontWeight: "400",
-															fontSize: "14px",
-															"::placeholder": {
-																color: "#9ca3af",
+												classes: {
+													base: "mt-1 w-[200px] px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
+													focus: "border-[#199532] outline-none",
+													invalid: "border-[#F84A4A]",
+												},
+											}}
+										/>
+									</div>
+									<div className="mt-2 flex items-center justify-start phone:mt-0">
+										<div className="mr-5 w-max">
+											<label className="text-neutral-300">
+												Expiry
+											</label>
+											<div className="w-20">
+												<CardExpiryElement
+													onChange={(data) =>
+														setCardExpiryInput(data)
+													}
+													options={{
+														disabled:
+															processingPayment,
+														placeholder: "04 / 25",
+														style: {
+															base: {
+																color: "#ffffff",
+																fontFamily:
+																	"Inter, sans-serif",
+																fontWeight:
+																	"400",
+																fontSize:
+																	"14px",
+																"::placeholder":
+																	{
+																		color: "#9ca3af",
+																	},
 															},
 														},
-													},
-													classes: {
-														base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
-														focus: "border-[#199532]",
-														invalid:
-															"border-[#F84A4A]",
-													},
-												}}
-											/>
+														classes: {
+															base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
+															focus: "border-[#199532]",
+															invalid:
+																"border-[#F84A4A]",
+														},
+													}}
+												/>
+											</div>
 										</div>
-									</div>
-									<div className="w-max">
-										<label className="text-neutral-300">
-											CVC
-										</label>
-										<div className="w-14">
-											<CardCvcElement
-												onChange={(data) =>
-													setCardCvcInput(data)
-												}
-												options={{
-													disabled: processingPayment,
-													placeholder: "964",
-													style: {
-														base: {
-															color: "#ffffff",
-															fontFamily:
-																"Inter, sans-serif",
-															fontWeight: "400",
-															fontSize: "14px",
-															"::placeholder": {
-																color: "#9ca3af",
+										<div className="w-max">
+											<label className="text-neutral-300">
+												CVC
+											</label>
+											<div className="w-14">
+												<CardCvcElement
+													onChange={(data) =>
+														setCardCvcInput(data)
+													}
+													options={{
+														disabled:
+															processingPayment,
+														placeholder: "964",
+														style: {
+															base: {
+																color: "#ffffff",
+																fontFamily:
+																	"Inter, sans-serif",
+																fontWeight:
+																	"400",
+																fontSize:
+																	"14px",
+																"::placeholder":
+																	{
+																		color: "#9ca3af",
+																	},
 															},
 														},
-													},
-													classes: {
-														base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
-														focus: "border-[#199532]",
-														invalid:
-															"border-[#F84A4A]",
-													},
-												}}
-											/>
+														classes: {
+															base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
+															focus: "border-[#199532]",
+															invalid:
+																"border-[#F84A4A]",
+														},
+													}}
+												/>
+											</div>
 										</div>
 									</div>
 								</div>
+								<Checkbox
+									className="!mt-4"
+									state={saveCardAsDefault}
+									callback={() =>
+										setSaveCardAsDefault(!saveCardAsDefault)
+									}
+								>
+									{defaultPaymentMethod === null
+										? "Save payment method to use it again easily in the future."
+										: "Save payment method as default for future purchases."}
+								</Checkbox>
 							</div>
-							<Checkbox
-								className="!mt-4"
-								state={saveCardAsDefault}
-								callback={() =>
-									setSaveCardAsDefault(!saveCardAsDefault)
-								}
-							>
-								{defaultPaymentMethod === null
-									? "Save payment method to use it again easily in the future."
-									: "Save payment method as default for future purchases."}
-							</Checkbox>
 						</div>
-					</div>
-				) : (
-					""
+					</>
 				)}
 				<div className="mt-9 flex flex-col items-start justify-items-start lg:flex-row">
 					{appliedDiscount && (
@@ -500,12 +523,15 @@ export default function CheckoutForm({
 						</div>
 					)}
 					<AccountInformation
+						stripe={stripe}
+						clientSecret={_clientSecret.current}
 						acceptsIntegratedWallet={acceptsIntegratedWallet}
 						integratedWallet={integratedWallet}
 						selectedPaymentOption={selectedPaymentOption}
 						userEmail={userEmail}
 						processingPayment={processingPayment}
 						confirmPayment={confirmPayment}
+						completedPayment={completedPayment}
 						canCheckout={canCheckout}
 						totalCost={totalCost}
 						integratedWalletButtonType={
