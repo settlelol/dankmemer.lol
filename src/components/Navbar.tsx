@@ -70,7 +70,7 @@ export default function Navbar({ user }: Props) {
 										: "text-gray-800 hover:text-dank-300 dark:text-light-200 dark:hover:text-dank-100"
 								)}
 							>
-								<Link href="/loot">
+								<Link href="/store">
 									<div className="flex cursor-pointer items-center space-x-2">
 										<span>Store</span>
 										{!!discount && (
@@ -208,7 +208,7 @@ export default function Navbar({ user }: Props) {
 								Community
 							</li>
 						</Link>
-						<Link href="/loot">
+						<Link href="/store">
 							<li className="pt-5 text-dark-500 hover:text-light-600 dark:text-white">
 								Store
 							</li>
