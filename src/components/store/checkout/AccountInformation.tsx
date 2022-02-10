@@ -162,20 +162,26 @@ export default function AccountInformation({
 				integratedWallet !== null &&
 				selectedPaymentOption !== "Card" &&
 				selectedPaymentOption !== "PayPal" ? (
-					<div className="mt-3">
-						<PaymentRequestButtonElement
-							options={{
-								paymentRequest: integratedWallet,
-								style: {
-									paymentRequestButton: {
-										type: integratedWalletButtonType,
-										theme:
-											theme === "dark" ? "dark" : "light",
+					receiptEmail.length >= 5 && acceptedTerms ? (
+						<div className="mt-3">
+							<PaymentRequestButtonElement
+								options={{
+									paymentRequest: integratedWallet,
+									style: {
+										paymentRequestButton: {
+											type: integratedWalletButtonType,
+											theme:
+												theme === "dark"
+													? "dark"
+													: "light",
+										},
 									},
-								},
-							}}
-						/>
-					</div>
+								}}
+							/>
+						</div>
+					) : (
+						<div className="mt-3 h-10 w-full rounded-md bg-white/10"></div>
+					)
 				) : (
 					<Button
 						size="medium-large"
