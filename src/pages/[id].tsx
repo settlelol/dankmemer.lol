@@ -11,6 +11,7 @@ import { Badge } from "../components/Badge";
 import { BlogPost } from "../components/community/blog/BlogPost";
 import { ViewMore } from "../components/community/blog/ViewMore";
 import { PostCard } from "../components/community/PostCard";
+import Box from "../components/ui/Box";
 import Button from "../components/ui/Button";
 import Container from "../components/ui/Container";
 import Dropdown from "../components/ui/Dropdown";
@@ -467,7 +468,10 @@ export default function ProfilePage({ user }: PageProps) {
 								</div>
 							)}
 
-							<div className="flex flex-col justify-between space-y-2 rounded-md bg-light-500 py-4 px-8 dark:bg-dark-100 md:flex-row md:space-y-0">
+							<Box
+								size="md"
+								className="flex flex-col justify-between space-y-2 px-8 md:flex-row md:space-y-0"
+							>
 								{[
 									[profile.posts.length, `Post?s made`],
 									[profile.comments, "Comment?s made"],
@@ -493,7 +497,7 @@ export default function ProfilePage({ user }: PageProps) {
 										</div>
 									</div>
 								))}
-							</div>
+							</Box>
 
 							{profile.blogs.length > 0 && (
 								<div className="relative flex flex-col space-y-2">
