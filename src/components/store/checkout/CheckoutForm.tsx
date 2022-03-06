@@ -524,6 +524,7 @@ export default function CheckoutForm({
 					)}
 					<AccountInformation
 						stripe={stripe}
+						userId={userId}
 						cartData={cart}
 						clientSecret={_clientSecret.current}
 						acceptsIntegratedWallet={acceptsIntegratedWallet}

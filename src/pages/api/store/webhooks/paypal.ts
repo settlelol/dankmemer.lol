@@ -1,6 +1,8 @@
 import { NextApiResponse } from "next";
 import { NextIronRequest, withSession } from "src/util/session";
 import PayPal from "src/util/paypal";
+import { PayPalEvent } from "src/util/paypal/classes/Webhooks";
+import { WebhookPaymentEvents } from "src/util/paypal/classes/Simulations";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	if (req.method?.toLowerCase() !== "post") {
@@ -10,7 +12,16 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	const paypal = new PayPal();
-	paypal.webhooks.constructEvent(req);
+	try {
+		let event: PayPalEvent = await paypal.webhooks.constructEvent(req);
+		switch (event.type) {
+			case WebhookPaymentEvents.CAPTURE_COMPLETED:
+				console.log(event);
+				break;
+		}
+	} catch (e: any) {
+		console.error(e.message.replace(/"/g, ""));
+	}
 
 	return res.status(200).json({ a: 1 });
 };

@@ -7,14 +7,143 @@ import axios from "axios";
 import { unsigned } from "buffer-crc32";
 import { createVerify } from "crypto";
 import { NextApiRequest } from "next";
+import { stripeConnect } from "src/util/stripe";
+import Stripe from "stripe";
+import { inspect } from "util";
+import { createPayPal } from "../PayPalEndpoint";
+import { LinkDescription } from "./Products";
+import { WebhookPaymentEvents } from "./Simulations";
 
 let hostURL =
 	process.env.NODE_ENV === "production"
 		? "api.paypal.com"
 		: "api.sandbox.paypal.com";
 
+interface ValidRequest {
+	valid: Boolean;
+	error?: never;
+	message: string;
+}
+
+interface InvalidRequest {
+	valid: Boolean;
+	error: string;
+	message?: never;
+}
+
+export interface PayPalEvent {
+	type: WebhookPaymentEvents;
+	data: PayPalEventData;
+}
+
+interface PayPalEventData {
+	id: string;
+	purchasedBy?: string;
+	purchasedFor?: string;
+	isGift?: Boolean;
+	items?: PayPalCartItem[];
+}
+
+interface PayPalCartItem {
+	name: string;
+	unit_amount: {
+		currency_code: "USD";
+		value: string;
+	};
+	quantity: string;
+	sku: string;
+	category: string;
+}
+
 export default class Webhooks {
-	public async constructEvent(req: NextApiRequest) {
+	/**
+	 * TODO:(InBlue) Implement discounts
+	 */
+	public constructEvent(req: NextApiRequest): Promise<PayPalEvent> {
+		const stripe = stripeConnect();
+		return new Promise(async (resolve, reject) => {
+			const httpClient = await createPayPal();
+			let result: PayPalEvent = {
+				type: req.body.event_type,
+				data: { id: req.body.resource.id },
+			};
+			const { valid, error } = await this.verifyRequest(req);
+			if (!valid) {
+				reject(Error(error));
+			}
+
+			const orderUrl: LinkDescription = req.body.resource.links.find(
+				(link: LinkDescription) => link.rel === "up"
+			);
+
+			if (!orderUrl) {
+				return reject(
+					Error(`Event '${req.body.event_type}' is unsupported.`)
+				);
+			}
+
+			const { data } = await httpClient(orderUrl.href);
+			const cartItems: PayPalCartItem[] =
+				data.purchase_units[0].items.filter(
+					(item: PayPalCartItem) =>
+						item.sku.split(":")[0] !== "SALESTAX"
+				);
+
+			for (let i = 0; i < cartItems.length; i++) {
+				const id = cartItems[i].sku.split(":")[0];
+				const interval = cartItems[i].sku.split(":")[1] as
+					| "single"
+					| "day"
+					| "week"
+					| "month"
+					| "year";
+				const stripeProduct = await stripe.products.retrieve(id);
+				if (!stripeProduct) {
+					reject(
+						Error(
+							`Received unknown product (name=${cartItems[i].name} id/sku=${cartItems[i].sku}) during paypal checkout.`
+						)
+					);
+					break;
+				}
+				let query: Stripe.PriceListParams =
+					interval !== "single"
+						? {
+								product: stripeProduct.id,
+								recurring: { interval },
+						  }
+						: { product: stripeProduct.id };
+				const { data: prices } = await stripe.prices.list(query);
+				if (
+					(prices[0].unit_amount! / 100).toFixed(2) !==
+					cartItems[i].unit_amount.value
+				) {
+					return reject(
+						Error(
+							`Mismatched price of ${cartItems[i].name} (id: ${cartItems[i].sku}).`
+						)
+					);
+				}
+			}
+			const purchasedBy = data.purchase_units[0].custom_id.split(":")[0];
+			const purchasedFor = data.purchase_units[0].custom_id.split(":")[1];
+			const isGift = JSON.parse(
+				data.purchase_units[0].custom_id.split(":")[2]
+			);
+			result.data = {
+				...result.data,
+				purchasedBy,
+				purchasedFor,
+				isGift,
+				items: cartItems,
+			};
+			resolve(result);
+		});
+	}
+
+	private async verifyRequest(
+		req: NextApiRequest
+	): Promise<ValidRequest | InvalidRequest> {
 		const signature: string =
 			req.headers["paypal-transmission-sig"]?.toString()!;
 		const authAlgorithm: string =
@@ -28,7 +157,7 @@ export default class Webhooks {
 				`Cannot verify signature with given algorithm, expected 'SHA256withRSA' and received '${authAlgorithm}'`
 			);
 			return {
-				status: 406,
+				valid: false,
 				error: "Unsupported authentication algorithm",
 			};
 		}
@@ -38,7 +167,7 @@ export default class Webhooks {
 				`Received Webhook from unexpected host: ${certificateUrl.host}`
 			);
 			return {
-				status: 406,
+				valid: false,
 				error: "Unexpected certificate host",
 			};
 		}
@@ -49,7 +178,7 @@ export default class Webhooks {
 				`Unable to get certificate from ${certificateUrl.href}`
 			);
 			return {
-				status: 406,
+				valid: false,
 				error: `Unable to get certificate from ${certificateUrl.href}`,
 			};
 		}
@@ -67,15 +196,15 @@ export default class Webhooks {
 			.verify(certificate, signature, "base64");
 
 		if (!validation) {
-			console.error("Unable to validate signature.");
-			console.error(validation);
 			return {
-				status: 500,
-				message: "Signature verification failed.",
+				valid: false,
+				error: "Signature verification failed.",
 			};
 		} else {
-			console.log("Validated signature");
-			console.log(validation);
+			return {
+				valid: true,
+				message: "Signature verified.",
+			};
 		}
 	}
 }

@@ -12,6 +12,7 @@ import { CartItem } from "src/pages/store";
 
 interface Props {
 	stripe: Stripe | null;
+	userId: string;
 	cartData: CartItem[];
 	clientSecret: string;
 	canCheckout: Boolean;
@@ -34,6 +35,7 @@ interface Props {
 
 export default function AccountInformation({
 	stripe,
+	userId,
 	cartData,
 	clientSecret,
 	canCheckout,
@@ -80,7 +82,10 @@ export default function AccountInformation({
 						},
 					},
 					description: "Dank Memer Store",
-					custom_id: clientSecret,
+					// Format of <purchasedBy:purchasedFor:isGift>
+					custom_id: `${userId}:${
+						isGift ? giftRecipient : userId
+					}:${isGift}`,
 					items: [
 						...cartData.map((item) => {
 							return {
@@ -94,6 +99,9 @@ export default function AccountInformation({
 								},
 								quantity: item.quantity,
 								category: "DIGITAL_GOODS",
+								sku: `${item.id}:${
+									item.selectedPrice.interval || "single"
+								}`,
 							};
 						}),
 						{
@@ -106,6 +114,7 @@ export default function AccountInformation({
 							},
 							quantity: "1",
 							category: "DIGITAL_GOODS",
+							sku: "SALESTAX:single",
 						},
 					],
 				},
