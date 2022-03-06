@@ -10,8 +10,8 @@ import { NextApiRequest } from "next";
 
 let hostURL =
 	process.env.NODE_ENV === "production"
-		? "https://api-m.paypal.com"
-		: "https://api-m.sandbox.paypal.com";
+		? "api.paypal.com"
+		: "api.sandbox.paypal.com";
 
 export default class Webhooks {
 	public async constructEvent(req: NextApiRequest) {
