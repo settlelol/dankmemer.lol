@@ -1,10 +1,5 @@
-import axios from "axios";
 import { NextApiResponse } from "next";
 import { NextIronRequest, withSession } from "src/util/session";
-import { stripeConnect } from "src/util/stripe";
-import Stripe from "stripe";
-// @ts-ignore
-import { buffer } from "micro";
 import PayPal from "src/util/paypal";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
