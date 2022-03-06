@@ -8,9 +8,11 @@ import { PaymentRequest, Stripe } from "@stripe/stripe-js";
 import { PaymentRequestButtonElement } from "@stripe/react-stripe-js";
 import { useEffect, useState } from "react";
 import { PayPalButton } from "react-paypal-button-v2";
+import { CartItem } from "src/pages/store";
 
 interface Props {
 	stripe: Stripe | null;
+	cartData: CartItem[];
 	clientSecret: string;
 	canCheckout: Boolean;
 	acceptsIntegratedWallet: Boolean;
@@ -32,6 +34,7 @@ interface Props {
 
 export default function AccountInformation({
 	stripe,
+	cartData,
 	clientSecret,
 	canCheckout,
 	acceptsIntegratedWallet,
@@ -66,26 +69,33 @@ export default function AccountInformation({
 						value: totalWithTax,
 						currency_code: "USD",
 						breakdown: {
-							currency_code: "USD",
-							value: totalWithTax,
+							item_total: {
+								currency_code: "USD",
+								value: totalWithTax,
+							},
 						},
 						shipping_discount: {
 							currency_code: "USD",
 							value: "0.00",
 						},
 					},
-					description: "Dankmemer Store",
+					description: "Dank Memer Store",
 					custom_id: clientSecret,
 					items: [
-						{
-							name: "Deez nuts",
-							unit_amount: {
-								currency_code: "USD",
-								value: "4.99",
-							},
-							quantity: "1",
-							category: "DIGITAL_GOODS",
-						},
+						...cartData.map((item) => {
+							return {
+								name: item.name,
+								unit_amount: {
+									currency_code: "USD",
+									value: (
+										(item.selectedPrice.price / 100) *
+										item.quantity
+									).toFixed(2),
+								},
+								quantity: item.quantity,
+								category: "DIGITAL_GOODS",
+							};
+						}),
 						{
 							name: "Sales tax",
 							unit_amount: {
@@ -101,11 +111,28 @@ export default function AccountInformation({
 				},
 			],
 			application_context: {
-				brand_name: "Dankmemer's Webstore",
+				brand_name: "Dank Memer's Webstore",
 				shipping_preference: "NO_SHIPPING",
 				user_action: "PAY_NOW",
 			},
 		};
+	};
+
+	const paypalApprove = (actions: any) => {
+		return actions.order
+			.capture()
+			.then((data: any) => {
+				console.log(data);
+			})
+			.catch((err: any) => {
+				console.error(err);
+			});
+	};
+
+	const paypalSuccess = (details: any, data: any) => {
+		console.log("Success");
+		console.log(details);
+		console.log(data);
 	};
 
 	useEffect(() => {
@@ -240,20 +267,30 @@ export default function AccountInformation({
 						<div className="mt-3 h-10 w-full rounded-md bg-white/10"></div>
 					)
 				) : selectedPaymentOption === "PayPal" ? (
-					<PayPalButton
-						options={{
-							clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
-						}}
-						style={{
-							height: 50,
-							fontFamily: "'Inter', sans-serif",
-							layout: "horizontal",
-						}}
-						createOrder={(_: any, actions: any) =>
-							actions.order.create(createPayment())
-						}
-						onApprove={(_: any, actions: any) => alert("approved")}
-					/>
+					<div className="mt-3 w-full dark:text-white">
+						<PayPalButton
+							options={{
+								clientId:
+									process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+							}}
+							style={{
+								height: 50,
+								fontFamily: "'Inter', sans-serif",
+								layout: "horizontal",
+								color: theme === "dark" ? "black" : "silver",
+								tagline: false,
+							}}
+							createOrder={(_: any, actions: any) =>
+								actions.order.create(createPayment())
+							}
+							onApprove={(_: any, actions: any) =>
+								paypalApprove(actions)
+							}
+							onSuccess={(details: any, data: any) =>
+								paypalSuccess(details, data)
+							}
+						/>
+					</div>
 				) : (
 					<Button
 						size="medium-large"
