@@ -187,12 +187,11 @@ export default class Webhooks {
 			req.headers["paypal-transmission-id"],
 			req.headers["paypal-transmission-time"],
 			process.env.PAYPAL_WEBHOOK_ID,
-			unsigned(JSON.stringify(req.body)),
+			unsigned(Buffer.from(JSON.stringify(req.body))),
 		].join("|");
 
 		const validation = createVerify("sha256WithRSAEncryption")
 			.update(verificationInput)
-			.end()
 			.verify(certificate, signature, "base64");
 
 		if (!validation) {
