@@ -7,6 +7,7 @@ import Link from "next/link";
 import { PaymentRequest, Stripe } from "@stripe/stripe-js";
 import { PaymentRequestButtonElement } from "@stripe/react-stripe-js";
 import { useEffect, useState } from "react";
+import { PayPalButton } from "react-paypal-button-v2";
 
 interface Props {
 	stripe: Stripe | null;
@@ -50,6 +51,62 @@ export default function AccountInformation({
 
 	const [receiptEmail, setReceiptEmail] = useState(userEmail);
 	const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+	// Remade to fit new store!
+	const createPayment = () => {
+		const totalWithTax = (
+			parseFloat(totalCost) +
+			parseFloat(totalCost) * 0.0675
+		).toFixed(2);
+		return {
+			intent: "CAPTURE", // Capture a payment, no pre-authorization,
+			purchase_units: [
+				{
+					amount: {
+						value: totalWithTax,
+						currency_code: "USD",
+						breakdown: {
+							currency_code: "USD",
+							value: totalWithTax,
+						},
+						shipping_discount: {
+							currency_code: "USD",
+							value: "0.00",
+						},
+					},
+					description: "Dankmemer Store",
+					custom_id: clientSecret,
+					items: [
+						{
+							name: "Deez nuts",
+							unit_amount: {
+								currency_code: "USD",
+								value: "4.99",
+							},
+							quantity: "1",
+							category: "DIGITAL_GOODS",
+						},
+						{
+							name: "Sales tax",
+							unit_amount: {
+								currency_code: "USD",
+								value: (parseFloat(totalCost) * 0.0675).toFixed(
+									2
+								),
+							},
+							quantity: "1",
+							category: "DIGITAL_GOODS",
+						},
+					],
+				},
+			],
+			application_context: {
+				brand_name: "Dankmemer's Webstore",
+				shipping_preference: "NO_SHIPPING",
+				user_action: "PAY_NOW",
+			},
+		};
+	};
 
 	useEffect(() => {
 		if (!integratedWallet || !stripe || !clientSecret) return;
@@ -182,6 +239,21 @@ export default function AccountInformation({
 					) : (
 						<div className="mt-3 h-10 w-full rounded-md bg-white/10"></div>
 					)
+				) : selectedPaymentOption === "PayPal" ? (
+					<PayPalButton
+						options={{
+							clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+						}}
+						style={{
+							height: 50,
+							fontFamily: "'Inter', sans-serif",
+							layout: "horizontal",
+						}}
+						createOrder={(_: any, actions: any) =>
+							actions.order.create(createPayment())
+						}
+						onApprove={(_: any, actions: any) => alert("approved")}
+					/>
 				) : (
 					<Button
 						size="medium-large"
