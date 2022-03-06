@@ -23,7 +23,7 @@ export async function createPayPal(reset = false) {
 				"Content-Type": "application/x-www-form-urlencoded",
 			},
 			auth: {
-				username: process.env.PAYPAL_CLIENT_ID!,
+				username: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!,
 				password: process.env.PAYPAL_CLIENT_SECRET!,
 			},
 		});
@@ -37,9 +37,14 @@ export async function createPayPal(reset = false) {
 				Authorization: `Bearer ${data.access_token}`,
 			},
 		});
-	} catch (e) {
+	} catch (e: any) {
 		console.error(e);
-		throw new Error(`Failed to create PayPal REST Client: ${e}`);
+		throw new Error(
+			`Failed to create PayPal REST Client: ${e.message.replace(
+				/"/g,
+				""
+			)}`
+		);
 	}
 }
 
