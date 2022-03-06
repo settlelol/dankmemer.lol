@@ -41,6 +41,7 @@ interface PayPalEventData {
 	purchasedBy?: string;
 	purchasedFor?: string;
 	isGift?: Boolean;
+	total?: string;
 	items?: PayPalCartItem[];
 }
 
@@ -135,6 +136,7 @@ export default class Webhooks {
 				purchasedBy,
 				purchasedFor,
 				isGift,
+				total: data.purchase_units[0].amount.value,
 				items: cartItems,
 			};
 			resolve(result);
