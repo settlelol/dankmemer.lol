@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Ad } from "../components/Ad";
 import { Title } from "../components/Title";
+import Box from "../components/ui/Box";
 import Button from "../components/ui/Button";
 import Container from "../components/ui/Container";
 import { Item, PageProps } from "../types";
@@ -207,9 +208,12 @@ export default function TradePage({ user }: PageProps) {
 					<div className="flex flex-col space-y-8">
 						<div>
 							<div className="flex flex-col items-center space-y-2 space-x-0 md:flex-row md:space-y-0 md:space-x-2">
-								<div className="flex h-9 w-full flex-1 items-center overflow-hidden whitespace-nowrap rounded-md bg-light-500 pl-2 text-gray-900 dark:bg-dark-100 dark:text-white md:w-auto">
+								<Box
+									size="sm"
+									className="flex h-9 w-full flex-1 items-center overflow-hidden whitespace-nowrap rounded-md  text-gray-900 dark:text-white md:w-auto"
+								>
 									{command}
-								</div>
+								</Box>
 								<Button
 									className=" w-full md:w-auto"
 									variant="dark"

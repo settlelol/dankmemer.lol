@@ -3,6 +3,7 @@ import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import React, { useEffect, useRef, useState } from "react";
 import { PostCard } from "../../../components/community/PostCard";
+import Box from "../../../components/ui/Box";
 import Button from "../../../components/ui/Button";
 import Container from "../../../components/ui/Container";
 import Dropdown from "../../../components/ui/Dropdown";
@@ -96,10 +97,10 @@ export default function Posts({ user }: PageProps) {
 
 	return (
 		<Container title="Posts" user={user}>
-			<div className="my-16 flex flex-col space-y-4">
-				<div
-					className="flex flex-col justify-between space-y-2 rounded-md bg-light-500 p-2 dark:bg-dark-100 md:flex-row md:items-center md:space-y-0"
-					ref={top}
+			<div className="my-16 flex flex-col space-y-4" ref={top}>
+				<Box
+					size="sm"
+					className="flex flex-col justify-between space-y-2 md:flex-row md:items-center md:space-y-0"
 				>
 					<div className="flex space-x-4">
 						<Dropdown
@@ -205,8 +206,11 @@ export default function Posts({ user }: PageProps) {
 							)}
 						/>
 					</div>
-				</div>
-				<div className="flex flex-col space-y-2 space-x-0 rounded-md bg-light-500 p-2 dark:bg-dark-100 md:flex-row md:items-center md:space-y-0 md:space-x-4">
+				</Box>
+				<Box
+					size="sm"
+					className="flex flex-col space-y-2 space-x-0 md:flex-row md:items-center md:space-y-0 md:space-x-4"
+				>
 					<Input
 						onChange={(e) => {
 							setSearch(e.target.value);
@@ -241,7 +245,7 @@ export default function Posts({ user }: PageProps) {
 					>
 						Search
 					</Button>
-				</div>
+				</Box>
 				{(loadingPosts || posts.length > 0) && (
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 						{loadingPosts
@@ -252,16 +256,19 @@ export default function Posts({ user }: PageProps) {
 					</div>
 				)}
 				{posts.length == 0 && (
-					<div className="flex flex-col items-center space-y-2 rounded-md bg-light-500 p-4 dark:bg-dark-100">
+					<Box className="flex flex-col items-center space-y-2">
 						<img
 							src="/img/memer.png"
 							width={160}
 							className="grayscale"
 						/>
 						<div className="italic">Woah... so empty</div>
-					</div>
+					</Box>
 				)}
-				<div className="flex items-center justify-between space-x-4 rounded-md bg-light-500 p-2 dark:bg-dark-100">
+				<Box
+					size="sm"
+					className="flex items-center justify-between space-x-4"
+				>
 					<Button
 						block
 						variant="dark"
@@ -284,7 +291,7 @@ export default function Posts({ user }: PageProps) {
 					>
 						Next Page
 					</Button>
-				</div>
+				</Box>
 			</div>
 		</Container>
 	);
