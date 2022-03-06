@@ -82,7 +82,6 @@ export default function AccountInformation({
 						},
 					},
 					description: "Dank Memer Store",
-					// Format of <purchasedBy:purchasedFor:isGift>
 					custom_id: `${userId}:${
 						isGift ? giftRecipient : userId
 					}:${isGift}`,
@@ -276,29 +275,33 @@ export default function AccountInformation({
 						<div className="mt-3 h-10 w-full rounded-md bg-white/10"></div>
 					)
 				) : selectedPaymentOption === "PayPal" ? (
-					<div className="mt-3 w-full dark:text-white">
-						<PayPalButton
-							options={{
-								clientId:
-									process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
-							}}
-							style={{
-								height: 50,
-								fontFamily: "'Inter', sans-serif",
-								layout: "horizontal",
-								color: theme === "dark" ? "black" : "silver",
-								tagline: false,
-							}}
-							createOrder={(_: any, actions: any) =>
-								actions.order.create(createPayment())
-							}
-							onApprove={(_: any, actions: any) =>
-								paypalApprove(actions)
-							}
-							onSuccess={(details: any, data: any) =>
-								paypalSuccess(details, data)
-							}
-						/>
+					<div className="mt-3 min-h-[56px] w-full dark:text-white">
+						{acceptedTerms && (
+							<PayPalButton
+								options={{
+									clientId:
+										process.env
+											.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+								}}
+								style={{
+									height: 50,
+									fontFamily: "'Inter', sans-serif",
+									layout: "horizontal",
+									color:
+										theme === "dark" ? "black" : "silver",
+									tagline: false,
+								}}
+								createOrder={(_: any, actions: any) =>
+									actions.order.create(createPayment())
+								}
+								onApprove={(_: any, actions: any) =>
+									paypalApprove(actions)
+								}
+								onSuccess={(details: any, data: any) =>
+									paypalSuccess(details, data)
+								}
+							/>
+						)}
 					</div>
 				) : (
 					<Button
