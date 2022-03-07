@@ -96,11 +96,22 @@ export default function Checkout({ cartData, user }: Props) {
 											/>
 										))}
 									</div>
-									<div className="mt-3 flex w-full max-w-[260px] justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
-										<Title size="small">Subtotal:</Title>
-										<Title size="small">
-											${subtotalCost}
-										</Title>
+									<div>
+										<p className="text-right text-sm dark:text-neutral-400/80">
+											Added sales tax: $
+											{(
+												parseFloat(subtotalCost) *
+												0.0675
+											).toFixed(2)}
+										</p>
+										<div className="flex w-full max-w-[260px] justify-between space-x-2 rounded-lg px-4 py-3 dark:bg-dank-500">
+											<Title size="small">
+												Subtotal:
+											</Title>
+											<Title size="small">
+												${subtotalCost}
+											</Title>
+										</div>
 									</div>
 								</div>
 							</div>
