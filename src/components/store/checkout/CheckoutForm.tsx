@@ -200,7 +200,7 @@ export default function CheckoutForm({
 			currency: "usd",
 			total: {
 				label: `Dank Memer store purchase`,
-				amount: parseFloat(totalCost) * 100,
+				amount: Math.floor(parseFloat(totalCost) * 100),
 			},
 			displayItems: cart.map((item) => {
 				return {
