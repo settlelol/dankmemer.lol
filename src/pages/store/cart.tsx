@@ -40,20 +40,30 @@ export default function Cart({ cartData, user }: Props) {
 	const [appliedDiscount, setAppliedDiscount] = useState(false);
 
 	useEffect(() => {
-		axios({
-			url: "/api/store/cart/set",
-			method: "PUT",
-			data: { cartData: cart },
-		});
+		try {
+			axios({
+				url: "/api/store/cart/set",
+				method: "PUT",
+				data: { cartData: cart },
+			});
+		} catch (e: any) {
+			if (e.response.status === 429) {
+				toast.error(
+					"You are doing that too fast! Input a number instead of incrementing it.",
+					{
+						theme: "colored",
+						position: "top-center",
+					}
+				);
+			}
+		}
 		if (cart.length < 1) {
 			router.push("/store");
 		} else {
-			setTotalCost(
-				cart.reduce(
-					(acc: number, item: CartItems) =>
-						acc + (item.selectedPrice.price / 100) * item.quantity,
-					0
-				)
+			const cartTotal = cart.reduce(
+				(acc: number, item: CartItems) =>
+					acc + (item.selectedPrice.price / 100) * item.quantity,
+				0
 			);
 			setTotalCost(cartTotal);
 			setThresholdDiscount(cartTotal >= 20);
@@ -94,10 +104,12 @@ export default function Cart({ cartData, user }: Props) {
 			.then(({ data }) => {
 				setAppliedDiscount(true);
 				setDiscountedItems(data.discountedItems);
-				setAppliedSavings(data.totalSavings);
+				setAppliedSavings(
+					data.totalSavings +
+						(thresholdDiscount ? totalCost * 0.1 : 0)
+				);
 			})
 			.catch((e) => {
-				console.error(e);
 				switch (e.response.status) {
 					case 404:
 						setDiscountError("Invalid discount code provided.");
@@ -234,7 +246,8 @@ export default function Cart({ cartData, user }: Props) {
 												</p>
 											)}
 										</div>
-										{appliedDiscount && (
+										{(appliedDiscount ||
+											thresholdDiscount) && (
 											<div>
 												<div className="flex justify-between">
 													<h3 className="font-montserrat text-base font-bold">
@@ -250,29 +263,59 @@ export default function Cart({ cartData, user }: Props) {
 												<div>
 													<ul className="pl-3">
 														{discountedItems.map(
-															(item) => (
-																<li className="flex list-decimal justify-between text-sm">
-																	<p className="dark:text-[#b4b4b4]">
-																		•{" "}
-																		{
-																			cart.filter(
-																				(
-																					_item
-																				) =>
-																					_item.id ===
-																					item.id
-																			)[0]
-																				.name
-																		}
-																	</p>
-																	<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
-																		-$
-																		{item.savings.toFixed(
-																			2
-																		)}
-																	</p>
-																</li>
-															)
+															(item) => {
+																const cartItem =
+																	cart.filter(
+																		(
+																			_item
+																		) =>
+																			_item.id ===
+																			item.id
+																	)[0];
+																return (
+																	<li className="flex list-decimal justify-between text-sm">
+																		<p className="dark:text-[#b4b4b4]">
+																			•{" "}
+																			{
+																				cartItem.quantity
+																			}
+																			x{" "}
+																			{
+																				cartItem.name
+																			}
+																		</p>
+																		<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+																			-$
+																			{item.savings.toFixed(
+																				2
+																			)}
+																		</p>
+																	</li>
+																);
+															}
+														)}
+														{thresholdDiscount && (
+															<li className="flex list-decimal justify-between text-sm">
+																<p className="flex items-center justify-center space-x-1 dark:text-[#b4b4b4]">
+																	<span>
+																		•
+																		Threshold
+																		discount
+																	</span>
+																	<Tooltip content="10% Discount applied because base cart value exceeds $20">
+																		<Iconify icon="ant-design:question-circle-filled" />
+																	</Tooltip>
+																</p>
+																<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+																	-$
+																	{(
+																		totalCost *
+																		0.1
+																	).toFixed(
+																		2
+																	)}
+																</p>
+															</li>
 														)}
 													</ul>
 												</div>
