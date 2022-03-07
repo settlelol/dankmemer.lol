@@ -92,11 +92,10 @@ export default function AccountInformation({
 								unit_amount: {
 									currency_code: "USD",
 									value: (
-										(item.selectedPrice.price / 100) *
-										item.quantity
+										item.selectedPrice.price / 100
 									).toFixed(2),
 								},
-								quantity: item.quantity,
+								quantity: item.quantity.toString(),
 								category: "DIGITAL_GOODS",
 								sku: `${item.id}:${
 									item.selectedPrice.interval || "single"
