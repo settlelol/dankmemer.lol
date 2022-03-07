@@ -467,11 +467,11 @@ export default function CheckoutForm({
 				)}
 				<div className="mt-9 flex flex-col items-start justify-items-start lg:flex-row">
 					{appliedDiscount && (
-						<div className="mr-9 mb-5 min-h-[248px] w-full border-b-[1px] pb-5 dark:border-neutral-600 lg:w-80">
+						<div className="mr-9 w-full lg:w-80">
 							<h3 className="font-montserrat text-base font-bold">
 								Applied discounts
 							</h3>
-							<div className="flex min-h-[225px] flex-col justify-between">
+							<div className="flex min-h-[235px] flex-col justify-between">
 								<div className="text-black dark:text-white">
 									<div className="mb-2">
 										<div className="flex justify-between">
@@ -482,7 +482,7 @@ export default function CheckoutForm({
 												</code>
 											</h3>
 										</div>
-										<div className="max-h-[8rem] overflow-y-scroll">
+										<div className="max-h-[8rem] overflow-y-auto">
 											<ul className="pl-3">
 												{discountedItems.length >= 1 &&
 													cart.length >= 1 &&
