@@ -95,8 +95,10 @@ export default function Cart({ cartData, user }: Props) {
 						break;
 					case 410:
 						setDiscountError("Discount code has expired.");
+						break;
 					case 403:
 						setDiscountError("Minimum cart value not met.");
+						break;
 					default:
 						console.log(
 							`Unhandled discount error code: ${e.response.status}`
