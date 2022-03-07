@@ -18,6 +18,9 @@ import { DiscountItem } from "./checkout";
 import clsx from "clsx";
 import StoreBreadcrumb from "src/components/store/StoreBreadcrumb";
 import { Session } from "next-iron-session";
+import Tooltip from "src/components/ui/Tooltip";
+import { Icon as Iconify } from "@iconify/react";
+import { toast } from "react-toastify";
 
 interface Props extends PageProps {
 	cartData: CartItems[];
@@ -29,6 +32,7 @@ export default function Cart({ cartData, user }: Props) {
 	const [cart, setCart] = useState<CartItems[]>(cartData);
 	const [totalCost, setTotalCost] = useState<number>(0);
 
+	const [thresholdDiscount, setThresholdDiscount] = useState<Boolean>();
 	const [discountError, setDiscountError] = useState("");
 	const [discountInput, setDiscountInput] = useState("");
 	const [discountedItems, setDiscountedItems] = useState<DiscountItem[]>([]);
@@ -51,6 +55,11 @@ export default function Cart({ cartData, user }: Props) {
 					0
 				)
 			);
+			setTotalCost(cartTotal);
+			setThresholdDiscount(cartTotal >= 20);
+			setAppliedDiscount(false);
+			setDiscountedItems([]);
+			setAppliedSavings(cartTotal >= 20 ? cartTotal * 0.1 : 0);
 		}
 	}, [cart]);
 
