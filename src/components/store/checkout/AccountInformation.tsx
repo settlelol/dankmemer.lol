@@ -172,7 +172,7 @@ export default function AccountInformation({
 	}, [integratedWallet, stripe, clientSecret]);
 
 	return (
-		<div className="min-h-[200px] w-full">
+		<div className="w-full">
 			<h3 className="font-montserrat text-base font-bold">
 				Account information
 			</h3>
@@ -274,7 +274,7 @@ export default function AccountInformation({
 						<div className="mt-3 h-10 w-full rounded-md bg-white/10"></div>
 					)
 				) : selectedPaymentOption === "PayPal" ? (
-					<div className="mt-3 min-h-[56px] w-full dark:text-white">
+					<div className="mt-3 h-[50px] w-full overflow-hidden dark:text-white">
 						{acceptedTerms && (
 							<PayPalButton
 								options={{
