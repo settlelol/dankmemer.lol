@@ -172,7 +172,7 @@ export default function AccountInformation({
 	}, [integratedWallet, stripe, clientSecret]);
 
 	return (
-		<div className="min-h-[200px]">
+		<div className="min-h-[200px] w-full">
 			<h3 className="font-montserrat text-base font-bold">
 				Account information
 			</h3>
