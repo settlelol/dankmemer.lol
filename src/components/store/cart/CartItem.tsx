@@ -17,18 +17,16 @@ interface Props extends CartItems {
 
 export default function CartItem({
 	index,
-	id,
 	size = "large",
 	name,
 	selectedPrice,
-	prices,
-	unit_cost,
 	quantity,
 	metadata,
 	image,
 	updateQuantity,
 	changeInterval,
 	deleteItem,
+	disabled,
 }: Props) {
 	const setQuantity = (value: any) => {
 		const quantity = parseInt(value);
@@ -130,36 +128,52 @@ export default function CartItem({
 											},
 									  ]
 							}
-						></Dropdown>
+						/>
 					) : (
 						<div className="flex items-center justify-center">
-							<Iconify
-								icon="ant-design:minus-outlined"
-								height={size === "small" ? "13" : "15"}
+							<div
 								className={clsx(
-									"cursor-pointer text-gray-800 transition-colors hover:!text-white dark:text-gray-400",
-									size === "small" ? "" : "mr-2"
+									"group grid h-6 w-6 cursor-pointer place-items-center rounded transition-colors",
+									size === "small" ? "" : "mr-2",
+									!disabled && "dark:hover:bg-white/10",
+									disabled && "cursor-not-allowed"
 								)}
 								onClick={() => setQuantity(quantity - 1)}
-							/>
+							>
+								<Iconify
+									icon="ant-design:minus-outlined"
+									height={size === "small" ? "13" : "15"}
+									className="text-gray-800 group-hover:!text-white dark:text-gray-400"
+								/>
+							</div>
 							<input
 								type="text"
 								className={clsx(
-									"w-8 bg-transparent text-center focus-visible:outline-none",
-									size === "small" ? "text-sm" : "text-base"
+									"w-10 rounded bg-transparent text-center focus-visible:outline-none",
+									size === "small" ? "text-sm" : "text-base",
+									!disabled &&
+										"dark:focus-within:bg-white/10",
+									disabled && "cursor-not-allowed"
 								)}
 								value={quantity}
 								onChange={(e) => setQuantity(e.target.value)}
+								disabled
 							/>
-							<Iconify
-								icon="ant-design:plus-outlined"
-								height={size === "small" ? "13" : "15"}
+							<div
 								className={clsx(
-									"cursor-pointer text-gray-800 transition-colors hover:!text-white dark:text-gray-400",
-									size === "small" ? "" : "ml-2"
+									"group grid h-6 w-6 cursor-pointer place-items-center rounded transition-colors",
+									size === "small" ? "" : "ml-2",
+									!disabled && "dark:hover:bg-white/10",
+									disabled && "cursor-not-allowed"
 								)}
 								onClick={() => setQuantity(quantity + 1)}
-							/>
+							>
+								<Iconify
+									icon="ant-design:plus-outlined"
+									height={size === "small" ? "13" : "15"}
+									className="cursor-pointer text-gray-800 hover:!text-white dark:text-gray-400"
+								/>
+							</div>
 						</div>
 					)}
 				</div>
