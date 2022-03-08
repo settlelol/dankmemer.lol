@@ -327,7 +327,7 @@ export default function Cart({ cartData, user }: Props) {
 													width="medium"
 													type="text"
 													placeholder="NEWSTORE5"
-													defaultValue={discountInput}
+													value={discountInput}
 													className="mr-3"
 													onChange={(e: any) =>
 														setDiscountInput(
@@ -338,32 +338,31 @@ export default function Cart({ cartData, user }: Props) {
 												<Button
 													size="medium"
 													className={clsx(
-														"rounded-md",
+														"w-full rounded-md",
 														discountInput?.length <
 															1 ||
 															processingChange
-															? "bg-[#7F847F] text-[#333533]"
-															: ""
+															? "!bg-[#7F847F] text-[#333533]"
+															: "",
+														appliedDiscount &&
+															"bg-red-500"
 													)}
-													onClick={submitDiscountCode}
+													onClick={
+														appliedDiscount
+															? removeDiscount
+															: submitDiscountCode
+													}
 													disabled={processingChange}
 												>
-													Submit
+													{appliedDiscount
+														? "Clear"
+														: "Submit"}
 												</Button>
 											</div>
-											{discountError.length > 1 ? (
+											{discountError.length > 1 && (
 												<p className="text-right text-sm text-red-500">
 													{discountError}
 												</p>
-											) : (
-												appliedDiscount && (
-													<p
-														className="text-right text-sm text-red-500"
-														onClick={removeDiscount}
-													>
-														Remove discount
-													</p>
-												)
 											)}
 										</div>
 										{(appliedDiscount ||
