@@ -27,7 +27,10 @@ interface Props extends PageProps {
 export default function Cart({ cartData, user }: Props) {
 	const router = useRouter();
 
+	const [processingChange, setProcessingChange] = useState<boolean>(false);
 	const [cart, setCart] = useState<CartItems[]>(cartData);
+	const [salesTax, setSalesTax] = useState<number>(0);
+	const [subtotalCost, setSubtotalCost] = useState<number>(0);
 	const [totalCost, setTotalCost] = useState<number>(0);
 
 	const [thresholdDiscount, setThresholdDiscount] = useState<Boolean>();
@@ -36,6 +39,17 @@ export default function Cart({ cartData, user }: Props) {
 	const [discountedItems, setDiscountedItems] = useState<DiscountItem[]>([]);
 	const [appliedSavings, setAppliedSavings] = useState(0);
 	const [appliedDiscount, setAppliedDiscount] = useState(false);
+
+	useEffect(() => {
+		console.log(cart);
+		const cartTotal = cart.reduce(
+			(acc: number, item: CartItems) =>
+				acc + (item.selectedPrice.price / 100) * item.quantity,
+			0
+		);
+
+		setSubtotalCost(cartTotal);
+	}, []);
 
 	useEffect(() => {
 		try {
@@ -63,11 +77,44 @@ export default function Cart({ cartData, user }: Props) {
 					acc + (item.selectedPrice.price / 100) * item.quantity,
 				0
 			);
-			setTotalCost(cartTotal);
-			setThresholdDiscount(cartTotal >= 20);
-			setAppliedDiscount(false);
-			setDiscountedItems([]);
-			setAppliedSavings(cartTotal >= 20 ? cartTotal * 0.1 : 0);
+			const thresholdDiscountAmount =
+				cartTotal >= 20 ? cartTotal * 0.1 : 0;
+			const _salesTax = (cartTotal - thresholdDiscountAmount) * 0.0675;
+
+			if (discountInput.length >= 1) {
+				recalculateDiscount();
+			} else {
+				axios("/api/store/discount/get")
+					.then(({ data }) => {
+						setAppliedDiscount(true);
+						setDiscountedItems(data.discountedItems);
+						setDiscountInput(data.code);
+
+						setAppliedSavings(
+							(data.totalSavings ?? 0) + thresholdDiscountAmount
+						);
+						setSubtotalCost(cartTotal);
+						setSalesTax(_salesTax);
+						setTotalCost(
+							cartTotal +
+								_salesTax -
+								((data.totalSavings ?? 0) +
+									thresholdDiscountAmount)
+						);
+					})
+					.catch(() => {
+						setSubtotalCost(cartTotal);
+						setSalesTax(_salesTax);
+						setTotalCost(
+							cartTotal + _salesTax - thresholdDiscountAmount
+						);
+
+						setAppliedSavings(thresholdDiscountAmount);
+						return;
+					});
+				setAppliedDiscount(appliedDiscount ?? cartTotal >= 20);
+				setThresholdDiscount(cartTotal >= 20);
+			}
 		}
 	}, [cart]);
 
@@ -76,35 +123,63 @@ export default function Cart({ cartData, user }: Props) {
 	}, [discountInput]);
 
 	const deleteItem = (index: number) => {
-		const _cart = [...cart];
-		_cart.splice(index, 1);
-		setCart(_cart);
+		if (!processingChange) {
+			const _cart = [...cart];
+			_cart.splice(index, 1);
+			setCart(_cart);
+		}
 	};
 
 	const updateQuantity = (index: number, quantity: number) => {
-		const _cart = [...cart];
-		_cart[index].quantity = quantity;
-		setCart(_cart);
+		if (!processingChange) {
+			const _cart = [...cart];
+			_cart[index].quantity = quantity;
+			setCart(_cart);
+		}
 	};
 
 	const changeInterval = (index: number, interval: "month" | "year") => {
-		const _cart: CartItems[] = [...cart];
-		_cart[index].selectedPrice = _cart[index].prices.filter(
-			(price) => price.interval === interval
-		)[0];
-		setCart(_cart);
+		if (!processingChange) {
+			const _cart: CartItems[] = [...cart];
+			_cart[index].selectedPrice = _cart[index].prices.filter(
+				(price) => price.interval === interval
+			)[0];
+			setCart(_cart);
+		}
+	};
+
+	const removeDiscount = () => {
+		axios(`/api/store/discount/remove`).catch(() => {
+			setDiscountInput("");
+			setDiscountedItems([]);
+			setDiscountError("No discount is currently active");
+			setTimeout(() => {
+				setDiscountError("");
+			}, 3_000);
+		});
 	};
 
 	const submitDiscountCode = () => {
 		if (discountInput.length < 1) return;
 		if (discountError.length > 1) return setDiscountError("");
+		const thresholdDiscountAmount =
+			subtotalCost >= 20 ? subtotalCost * 0.1 : 0;
+		const _salesTax = (subtotalCost - thresholdDiscountAmount) * 0.0675;
+
+		setProcessingChange(true);
 		axios(`/api/store/discount/apply?code=${discountInput}`)
 			.then(({ data }) => {
 				setAppliedDiscount(true);
+				setDiscountInput(data.code);
 				setDiscountedItems(data.discountedItems);
 				setAppliedSavings(
-					data.totalSavings +
-						(thresholdDiscount ? totalCost * 0.1 : 0)
+					(data.totalSavings ?? 0) + thresholdDiscountAmount
+				);
+				setSalesTax(_salesTax);
+				setTotalCost(
+					subtotalCost +
+						_salesTax -
+						((data.totalSavings ?? 0) + thresholdDiscountAmount)
 				);
 			})
 			.catch((e) => {
@@ -123,7 +198,40 @@ export default function Cart({ cartData, user }: Props) {
 							`Unhandled discount error code: ${e.response.status}`
 						);
 				}
-			});
+			})
+			.finally(() => setProcessingChange(false));
+	};
+
+	const recalculateDiscount = () => {
+		const thresholdDiscountAmount =
+			subtotalCost >= 20 ? subtotalCost * 0.1 : 0;
+		const _salesTax = (subtotalCost - thresholdDiscountAmount) * 0.0675;
+
+		setProcessingChange(true);
+
+		axios({
+			method: "POST",
+			url: `/api/store/discount/recalculate`,
+			data: { code: discountInput, cart },
+		})
+			.then(({ data }) => {
+				setAppliedDiscount(true);
+				setDiscountInput(data.code);
+				setDiscountedItems(data.discountedItems);
+				setAppliedSavings(
+					(data.totalSavings ?? 0) + thresholdDiscountAmount
+				);
+				setSalesTax(_salesTax);
+				setTotalCost(
+					subtotalCost +
+						_salesTax -
+						((data.totalSavings ?? 0) + thresholdDiscountAmount)
+				);
+			})
+			.catch((e) => {
+				console.error(e);
+			})
+			.finally(() => setProcessingChange(false));
 	};
 
 	const addToCart = async (item: CartItems) => {
@@ -229,19 +337,30 @@ export default function Cart({ cartData, user }: Props) {
 													size="medium"
 													className={clsx(
 														"rounded-md",
-														discountInput.length < 1
+														discountInput?.length <
+															1
 															? "bg-[#7F847F] text-[#333533]"
 															: ""
 													)}
 													onClick={submitDiscountCode}
+													disabled={processingChange}
 												>
 													Submit
 												</Button>
 											</div>
-											{discountError.length > 1 && (
+											{discountError.length > 1 ? (
 												<p className="text-right text-sm text-red-500">
 													{discountError}
 												</p>
+											) : (
+												appliedDiscount && (
+													<p
+														className="text-right text-sm text-red-500"
+														onClick={removeDiscount}
+													>
+														Remove discount
+													</p>
+												)
 											)}
 										</div>
 										{(appliedDiscount ||
@@ -260,7 +379,7 @@ export default function Cart({ cartData, user }: Props) {
 												</div>
 												<div>
 													<ul className="pl-3">
-														{discountedItems.map(
+														{discountedItems?.map(
 															(item) => {
 																const cartItem =
 																	cart.filter(
@@ -307,7 +426,7 @@ export default function Cart({ cartData, user }: Props) {
 																<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
 																	-$
 																	{(
-																		totalCost *
+																		subtotalCost *
 																		0.1
 																	).toFixed(
 																		2
@@ -323,16 +442,23 @@ export default function Cart({ cartData, user }: Props) {
 								</div>
 							</div>
 						</div>
-						<div className="mt-3 flex w-full justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
-							<Title size="small">Total:</Title>
-							<Title size="small">
-								${(totalCost - appliedSavings).toFixed(2)}
-							</Title>
+						<div className="mt-3">
+							<p className="text-right text-sm dark:text-neutral-400/80">
+								Added sales tax: ${salesTax.toFixed(2)}
+							</p>
+							<div className="flex w-full justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
+								<Title size="small">Total:</Title>
+								<Title size="small">
+									${totalCost.toFixed(2)}
+								</Title>
+							</div>
 						</div>
+
 						<Button
 							size="medium"
 							className="mt-3 w-full"
 							onClick={() => router.push("/store/checkout")}
+							disabled={processingChange}
 						>
 							Continue to Checkout
 						</Button>
