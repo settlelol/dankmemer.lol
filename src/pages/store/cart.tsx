@@ -41,7 +41,6 @@ export default function Cart({ cartData, user }: Props) {
 	const [appliedDiscount, setAppliedDiscount] = useState(false);
 
 	useEffect(() => {
-		console.log(cart);
 		const cartTotal = cart.reduce(
 			(acc: number, item: CartItems) =>
 				acc + (item.selectedPrice.price / 100) * item.quantity,
@@ -57,6 +56,52 @@ export default function Cart({ cartData, user }: Props) {
 				url: "/api/store/cart/set",
 				method: "PUT",
 				data: { cartData: cart },
+			}).then(() => {
+				const cartTotal = cart.reduce(
+					(acc: number, item: CartItems) =>
+						acc + (item.selectedPrice.price / 100) * item.quantity,
+					0
+				);
+				const thresholdDiscountAmount =
+					cartTotal >= 20 ? cartTotal * 0.1 : 0;
+				const _salesTax =
+					(cartTotal - thresholdDiscountAmount) * 0.0675;
+
+				if (discountInput.length >= 1) {
+					recalculateDiscount();
+				} else {
+					axios("/api/store/discount/get")
+						.then(({ data }) => {
+							setAppliedDiscount(true);
+							setDiscountedItems(data.discountedItems);
+							setDiscountInput(data.code);
+
+							setAppliedSavings(
+								(data.totalSavings ?? 0) +
+									thresholdDiscountAmount
+							);
+							setSubtotalCost(cartTotal);
+							setSalesTax(_salesTax);
+							setTotalCost(
+								cartTotal +
+									_salesTax -
+									((data.totalSavings ?? 0) +
+										thresholdDiscountAmount)
+							);
+						})
+						.catch(() => {
+							setSubtotalCost(cartTotal);
+							setSalesTax(_salesTax);
+							setTotalCost(
+								cartTotal + _salesTax - thresholdDiscountAmount
+							);
+
+							setAppliedSavings(thresholdDiscountAmount);
+							return;
+						});
+					setAppliedDiscount(appliedDiscount ?? cartTotal >= 20);
+					setThresholdDiscount(cartTotal >= 20);
+				}
 			});
 		} catch (e: any) {
 			if (e.response.status === 429) {
@@ -71,50 +116,6 @@ export default function Cart({ cartData, user }: Props) {
 		}
 		if (cart.length < 1) {
 			router.push("/store");
-		} else {
-			const cartTotal = cart.reduce(
-				(acc: number, item: CartItems) =>
-					acc + (item.selectedPrice.price / 100) * item.quantity,
-				0
-			);
-			const thresholdDiscountAmount =
-				cartTotal >= 20 ? cartTotal * 0.1 : 0;
-			const _salesTax = (cartTotal - thresholdDiscountAmount) * 0.0675;
-
-			if (discountInput.length >= 1) {
-				recalculateDiscount();
-			} else {
-				axios("/api/store/discount/get")
-					.then(({ data }) => {
-						setAppliedDiscount(true);
-						setDiscountedItems(data.discountedItems);
-						setDiscountInput(data.code);
-
-						setAppliedSavings(
-							(data.totalSavings ?? 0) + thresholdDiscountAmount
-						);
-						setSubtotalCost(cartTotal);
-						setSalesTax(_salesTax);
-						setTotalCost(
-							cartTotal +
-								_salesTax -
-								((data.totalSavings ?? 0) +
-									thresholdDiscountAmount)
-						);
-					})
-					.catch(() => {
-						setSubtotalCost(cartTotal);
-						setSalesTax(_salesTax);
-						setTotalCost(
-							cartTotal + _salesTax - thresholdDiscountAmount
-						);
-
-						setAppliedSavings(thresholdDiscountAmount);
-						return;
-					});
-				setAppliedDiscount(appliedDiscount ?? cartTotal >= 20);
-				setThresholdDiscount(cartTotal >= 20);
-			}
 		}
 	}, [cart]);
 
