@@ -12,6 +12,7 @@ interface Props extends CartItems {
 	updateQuantity: any;
 	changeInterval: any;
 	deleteItem: any;
+	disabled: boolean;
 }
 
 export default function CartItem({
