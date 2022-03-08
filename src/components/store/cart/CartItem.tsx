@@ -157,7 +157,7 @@ export default function CartItem({
 								)}
 								value={quantity}
 								onChange={(e) => setQuantity(e.target.value)}
-								disabled
+								disabled={disabled}
 							/>
 							<div
 								className={clsx(
