@@ -6,6 +6,7 @@ interface InputProps {
 	type: HTMLInputTypeAttribute;
 	placeholder: string;
 	defaultValue?: string;
+	value?: string;
 	label?: string | ReactNode;
 	disabled?: boolean;
 	className?: string;
@@ -24,6 +25,7 @@ export default function Input({
 	type = "text",
 	placeholder,
 	defaultValue,
+	value,
 	label,
 	disabled,
 	className,
@@ -37,6 +39,7 @@ export default function Input({
 				disabled={disabled}
 				placeholder={placeholder}
 				defaultValue={defaultValue}
+				value={value}
 				onChange={onChange}
 				className={clsx(
 					inputWidths[width] || width,
