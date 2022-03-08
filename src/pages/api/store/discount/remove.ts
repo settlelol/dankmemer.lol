@@ -7,12 +7,16 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		return res.status(401).json({ error: "You are not logged in." });
 	}
 
-	const discount = await req.session.get("discountCode");
-	if (!discount) {
-		return res.status(410).json({ error: "No active discount code" });
-	}
+	const activeDiscount = await req.session.get("discountCode");
+	if (!activeDiscount)
+		return res
+			.status(400)
+			.json({ error: "You do not have an active discount code." });
 
-	return res.status(200).json({ ...discount });
+	req.session.unset("discountCode");
+	await req.session.save();
+
+	return res.status(200).json({ message: "Discount code removed." });
 };
 
 export default withSession(handler);

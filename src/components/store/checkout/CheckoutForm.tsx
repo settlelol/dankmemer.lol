@@ -156,7 +156,14 @@ export default function CheckoutForm({
 	}, [stripe]);
 
 	useEffect(() => {
-		setTotalCost((parseFloat(subtotalCost) - appliedSavings).toFixed(2));
+		const numSubCost = parseFloat(subtotalCost);
+		setTotalCost(
+			(
+				numSubCost -
+				(numSubCost >= 20 ? numSubCost * 0.1 : 0) -
+				appliedSavings
+			).toFixed(2)
+		);
 	}, [subtotalCost, appliedSavings]);
 
 	useEffect(() => {
@@ -474,14 +481,16 @@ export default function CheckoutForm({
 							<div className="flex min-h-[235px] flex-col justify-between">
 								<div className="text-black dark:text-white">
 									<div className="mb-2">
-										<div className="flex justify-between">
-											<h3 className="flex items-center justify-start text-base font-semibold text-neutral-300">
-												Code:{" "}
-												<code className="ml-2 text-lg text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
-													{appliedDiscountCode}
-												</code>
-											</h3>
-										</div>
+										{appliedDiscountCode.length > 1 && (
+											<div className="flex justify-between">
+												<h3 className="flex items-center justify-start text-base font-semibold text-neutral-300">
+													Code:{" "}
+													<code className="ml-2 text-lg text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+														{appliedDiscountCode}
+													</code>
+												</h3>
+											</div>
+										)}
 										<div className="max-h-[8rem] overflow-y-auto">
 											<ul className="pl-3">
 												{discountedItems.length >= 1 &&

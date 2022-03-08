@@ -81,7 +81,10 @@ export default function Checkout({ cartData, user }: Props) {
 							invoiceId={invoiceId}
 							userId={user!.id}
 							userEmail={user!.email}
-							subtotalCost={subtotalCost}
+							subtotalCost={(
+								parseFloat(subtotalCost) +
+								parseFloat(subtotalCost) * 0.0675
+							).toFixed(2)}
 							cart={cartData}
 						/>
 						<div className="relative hidden w-full lg:ml-5 lg:block">
@@ -109,7 +112,12 @@ export default function Checkout({ cartData, user }: Props) {
 												Subtotal:
 											</Title>
 											<Title size="small">
-												${subtotalCost}
+												$
+												{(
+													parseFloat(subtotalCost) +
+													parseFloat(subtotalCost) *
+														0.0675
+												).toFixed(2)}
 											</Title>
 										</div>
 									</div>
