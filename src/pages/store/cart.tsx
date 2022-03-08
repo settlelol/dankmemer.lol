@@ -269,6 +269,7 @@ export default function Cart({ cartData, user }: Props) {
 									updateQuantity={updateQuantity}
 									changeInterval={changeInterval}
 									deleteItem={deleteItem}
+									disabled={processingChange}
 								/>
 							))}
 						</div>
@@ -339,7 +340,8 @@ export default function Cart({ cartData, user }: Props) {
 													className={clsx(
 														"rounded-md",
 														discountInput?.length <
-															1
+															1 ||
+															processingChange
 															? "bg-[#7F847F] text-[#333533]"
 															: ""
 													)}
@@ -457,7 +459,12 @@ export default function Cart({ cartData, user }: Props) {
 
 						<Button
 							size="medium"
-							className="mt-3 w-full"
+							className={clsx(
+								"mt-3 w-full",
+								processingChange
+									? "bg-[#7F847F] text-[#333533]"
+									: ""
+							)}
 							onClick={() => router.push("/store/checkout")}
 							disabled={processingChange}
 						>
