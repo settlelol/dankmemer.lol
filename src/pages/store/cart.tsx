@@ -37,6 +37,7 @@ export default function Cart({ cartData, user }: Props) {
 	const [discountError, setDiscountError] = useState("");
 	const [discountInput, setDiscountInput] = useState("");
 	const [discountedItems, setDiscountedItems] = useState<DiscountItem[]>([]);
+	const [appliedCode, setAppliedCode] = useState("");
 	const [appliedSavings, setAppliedSavings] = useState(0);
 	const [appliedDiscount, setAppliedDiscount] = useState(false);
 
@@ -74,6 +75,7 @@ export default function Cart({ cartData, user }: Props) {
 						.then(({ data }) => {
 							setAppliedDiscount(true);
 							setDiscountedItems(data.discountedItems);
+							setAppliedCode(data.code);
 							setDiscountInput(data.code);
 
 							setAppliedSavings(
@@ -171,6 +173,7 @@ export default function Cart({ cartData, user }: Props) {
 		axios(`/api/store/discount/apply?code=${discountInput}`)
 			.then(({ data }) => {
 				setAppliedDiscount(true);
+				setAppliedCode(data.code);
 				setDiscountInput(data.code);
 				setDiscountedItems(data.discountedItems);
 				setAppliedSavings(
@@ -345,6 +348,8 @@ export default function Cart({ cartData, user }: Props) {
 															? "!bg-[#7F847F] text-[#333533]"
 															: "",
 														appliedDiscount &&
+															appliedCode ===
+																discountInput &&
 															"bg-red-500"
 													)}
 													onClick={
@@ -354,7 +359,9 @@ export default function Cart({ cartData, user }: Props) {
 													}
 													disabled={processingChange}
 												>
-													{appliedDiscount
+													{appliedDiscount &&
+													appliedCode ===
+														discountInput
 														? "Clear"
 														: "Submit"}
 												</Button>
