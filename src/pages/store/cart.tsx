@@ -68,6 +68,9 @@ export default function Cart({ cartData, user }: Props) {
 				const _salesTax =
 					(cartTotal - thresholdDiscountAmount) * 0.0675;
 
+				setThresholdDiscount(cartTotal >= 20);
+				setSubtotalCost(cartTotal);
+
 				if (discountInput.length >= 1) {
 					recalculateDiscount();
 				} else {
@@ -82,7 +85,6 @@ export default function Cart({ cartData, user }: Props) {
 								(data.totalSavings ?? 0) +
 									thresholdDiscountAmount
 							);
-							setSubtotalCost(cartTotal);
 							setSalesTax(_salesTax);
 							setTotalCost(
 								cartTotal +
@@ -92,7 +94,6 @@ export default function Cart({ cartData, user }: Props) {
 							);
 						})
 						.catch(() => {
-							setSubtotalCost(cartTotal);
 							setSalesTax(_salesTax);
 							setTotalCost(
 								cartTotal + _salesTax - thresholdDiscountAmount
@@ -102,7 +103,6 @@ export default function Cart({ cartData, user }: Props) {
 							return;
 						});
 					setAppliedDiscount(appliedDiscount ?? cartTotal >= 20);
-					setThresholdDiscount(cartTotal >= 20);
 				}
 			});
 		} catch (e: any) {
