@@ -155,8 +155,10 @@ export default function Cart({ cartData, user }: Props) {
 		axios(`/api/store/discount/remove`)
 			.then(() => {
 				setAppliedCode("");
+				setAppliedSavings(0);
 				setDiscountInput("");
 				setDiscountedItems([]);
+				setAppliedDiscount(false);
 			})
 			.catch(() => {
 				setDiscountError("No discount is currently active");
