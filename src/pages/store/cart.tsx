@@ -152,14 +152,18 @@ export default function Cart({ cartData, user }: Props) {
 	};
 
 	const removeDiscount = () => {
-		axios(`/api/store/discount/remove`).catch(() => {
-			setDiscountInput("");
-			setDiscountedItems([]);
-			setDiscountError("No discount is currently active");
-			setTimeout(() => {
-				setDiscountError("");
-			}, 3_000);
-		});
+		axios(`/api/store/discount/remove`)
+			.then(() => {
+				setAppliedCode("");
+				setDiscountInput("");
+				setDiscountedItems([]);
+			})
+			.catch(() => {
+				setDiscountError("No discount is currently active");
+				setTimeout(() => {
+					setDiscountError("");
+				}, 3_000);
+			});
 	};
 
 	const submitDiscountCode = () => {
