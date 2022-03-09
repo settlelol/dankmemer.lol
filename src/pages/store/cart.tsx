@@ -191,6 +191,7 @@ export default function Cart({ cartData, user }: Props) {
 				);
 			})
 			.catch((e) => {
+				setAppliedCode("");
 				switch (e.response.status) {
 					case 404:
 						setDiscountError("Invalid discount code provided.");
@@ -216,7 +217,6 @@ export default function Cart({ cartData, user }: Props) {
 		const _salesTax = (subtotalCost - thresholdDiscountAmount) * 0.0675;
 
 		setProcessingChange(true);
-
 		axios({
 			method: "POST",
 			url: `/api/store/discount/recalculate`,
@@ -237,6 +237,7 @@ export default function Cart({ cartData, user }: Props) {
 				);
 			})
 			.catch((e) => {
+				setAppliedCode("");
 				console.error(e);
 			})
 			.finally(() => setProcessingChange(false));
