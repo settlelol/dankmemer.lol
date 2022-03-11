@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CartItem as CartItems } from "src/pages/store";
 import { Title } from "../Title";
 import Button from "../ui/Button";

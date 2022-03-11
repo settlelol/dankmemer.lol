@@ -212,7 +212,10 @@ export default function StoreHome({ user }: PageProps) {
 		} else {
 			setTotalCost(
 				cartItems
-					.map((item: CartItem) => item.unit_cost * item.quantity)
+					.map(
+						(item: CartItem) =>
+							(item.selectedPrice.price / 100) * item.quantity
+					)
 					.reduce((a: number, b: number) => a + b)
 					.toFixed(2)
 			);
