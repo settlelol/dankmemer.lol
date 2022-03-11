@@ -195,14 +195,17 @@ export default function Cart({ cartData, user }: Props) {
 			.catch((e) => {
 				setAppliedCode("");
 				switch (e.response.status) {
+					case 403:
+						setDiscountError("Minimum cart value not met.");
+						break;
 					case 404:
 						setDiscountError("Invalid discount code provided.");
 						break;
+					case 406:
+						setDiscountError("Could not apply to any cart items.");
+						break;
 					case 410:
 						setDiscountError("Discount code has expired.");
-						break;
-					case 403:
-						setDiscountError("Minimum cart value not met.");
 						break;
 					default:
 						console.log(
@@ -214,6 +217,9 @@ export default function Cart({ cartData, user }: Props) {
 	};
 
 	const recalculateDiscount = () => {
+		if (appliedCode.length < 1) {
+			return;
+		}
 		const thresholdDiscountAmount =
 			subtotalCost >= 20 ? subtotalCost * 0.1 : 0;
 		const _salesTax = (subtotalCost - thresholdDiscountAmount) * 0.0675;
@@ -222,7 +228,7 @@ export default function Cart({ cartData, user }: Props) {
 		axios({
 			method: "POST",
 			url: `/api/store/discount/recalculate`,
-			data: { code: discountInput, cart },
+			data: { code: appliedCode, cart },
 		})
 			.then(({ data }) => {
 				setAppliedDiscount(true);

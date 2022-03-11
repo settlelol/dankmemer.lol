@@ -98,7 +98,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				(item) => item.id === appliesTo[i]
 			)[0];
 
-			if (!itemInCart) return;
+			if (!itemInCart) break;
 
 			const itemCost =
 				(itemInCart.selectedPrice.interval === "year"
@@ -137,6 +137,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			discountedItems.push(result);
 			totalSavings += parseFloat((itemCost * discountAmount).toFixed(2));
 		}
+	}
+
+	if (discountedItems.length < 1) {
+		return res.status(406).json({ code });
 	}
 
 	req.session.set("discountCode", { code, discountedItems, totalSavings });
