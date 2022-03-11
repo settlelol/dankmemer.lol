@@ -32,6 +32,8 @@ import Checkbox from "src/components/ui/Checkbox";
 import ApplyPay from "public/img/store/ApplePay.svg";
 import PaymentMethods from "./PaymentMethods";
 import AccountInformation from "./AccountInformation";
+import Tooltip from "src/components/ui/Tooltip";
+import { Icon as Iconify } from "@iconify/react";
 
 interface Props {
 	clientSecret: string;
@@ -103,6 +105,9 @@ export default function CheckoutForm({
 
 	const [saveCardAsDefault, setSaveCardAsDefault] = useState(false);
 
+	const [thresholdDiscount, setThresholdDiscount] = useState(
+		parseFloat(subtotalCost) >= 20
+	);
 	const [appliedDiscountCode, setAppliedDiscountCode] = useState("");
 	const [discountedItems, setDiscountedItems] = useState<DiscountItem[]>([]);
 	const [appliedSavings, setAppliedSavings] = useState(0);
@@ -111,17 +116,21 @@ export default function CheckoutForm({
 	const [canCheckout, setCanCheckout] = useState(false);
 
 	useEffect(() => {
-		axios("/api/store/discount/get").then(({ data }) => {
-			if (!data) return setAppliedDiscount(false);
+		axios("/api/store/discount/get")
+			.then(({ data }) => {
+				if (!data) return setAppliedDiscount(false);
 
-			const { code, discountedItems, totalSavings } = data;
-			if (!code || !discountedItems || !totalSavings) return;
+				const { code, discountedItems, totalSavings } = data;
+				if (!code || !discountedItems || !totalSavings) return;
 
-			setAppliedDiscountCode(code);
-			setDiscountedItems(discountedItems);
-			setAppliedSavings(totalSavings);
-			setAppliedDiscount(true);
-		});
+				setAppliedDiscountCode(code);
+				setDiscountedItems(discountedItems);
+				setAppliedSavings(totalSavings);
+				setAppliedDiscount(true);
+			})
+			.catch(() => {
+				return;
+			});
 
 		axios(`/api/store/customers/retrieve?id=${userId}&sensitive=true`).then(
 			({ data }) => {
@@ -157,6 +166,7 @@ export default function CheckoutForm({
 
 	useEffect(() => {
 		const numSubCost = parseFloat(subtotalCost);
+		setThresholdDiscount(numSubCost >= 20);
 		setTotalCost(
 			(
 				numSubCost -
@@ -473,12 +483,12 @@ export default function CheckoutForm({
 					</>
 				)}
 				<div className="mt-9 flex flex-col items-start justify-items-start lg:flex-row">
-					{appliedDiscount && (
-						<div className="mr-9 w-full lg:w-80">
+					{(appliedDiscount || thresholdDiscount) && (
+						<div className="mr-9 h-[224px] w-full lg:w-96">
 							<h3 className="font-montserrat text-base font-bold">
 								Applied discounts
 							</h3>
-							<div className="flex min-h-[235px] flex-col justify-between">
+							<div className="flex h-full flex-col justify-between">
 								<div className="text-black dark:text-white">
 									<div className="mb-2">
 										{appliedDiscountCode.length > 1 && (
@@ -491,7 +501,7 @@ export default function CheckoutForm({
 												</h3>
 											</div>
 										)}
-										<div className="max-h-[8rem] overflow-y-auto">
+										<div className="max-h-[8rem]">
 											<ul className="pl-3">
 												{discountedItems.length >= 1 &&
 													cart.length >= 1 &&
@@ -520,6 +530,27 @@ export default function CheckoutForm({
 															</li>
 														)
 													)}
+												{thresholdDiscount && (
+													<li className="flex list-decimal justify-between text-sm">
+														<p className="flex items-center justify-center space-x-1 dark:text-[#b4b4b4]">
+															<span>
+																• Threshold
+																discount
+															</span>
+															<Tooltip content="10% Discount applied because base cart value exceeds $20">
+																<Iconify icon="ant-design:question-circle-filled" />
+															</Tooltip>
+														</p>
+														<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+															-$
+															{(
+																parseFloat(
+																	subtotalCost
+																) * 0.1
+															).toFixed(2)}
+														</p>
+													</li>
+												)}
 											</ul>
 										</div>
 									</div>
