@@ -41,29 +41,31 @@ export default function Tooltip({
 			onMouseLeave={hide}
 		>
 			{children}
-			<div
-				className={clsx(
-					"absolute left-1/2 z-[100] -translate-x-1/2 whitespace-nowrap leading-none",
-					"rounded-md bg-[#18191c] p-2 text-sm text-white",
-					margins[margin],
-					"transition-opacity duration-200 ease-in-out",
-					active ? "opacity-100" : "opacity-0"
-				)}
-			>
-				{content}
-				<svg
-					className="absolute left-0 top-full h-3 w-full text-[#18191c]"
-					x="0px"
-					y="0px"
-					viewBox="0 0 255 255"
-					xmlSpace="preserve"
+			{active && (
+				<div
+					className={clsx(
+						"absolute left-1/2 z-[100] -translate-x-1/2 whitespace-nowrap leading-none",
+						"rounded-md bg-[#18191c] p-2 text-sm text-white",
+						margins[margin],
+						"transition-opacity duration-200 ease-in-out",
+						active ? "opacity-100" : "opacity-0"
+					)}
 				>
-					<polygon
-						className="fill-current"
-						points="0, 0 127.5, 127.5 255, 0"
-					/>
-				</svg>
-			</div>
+					{content}
+					<svg
+						className="absolute left-0 top-full h-3 w-full text-[#18191c]"
+						x="0px"
+						y="0px"
+						viewBox="0 0 255 255"
+						xmlSpace="preserve"
+					>
+						<polygon
+							className="fill-current"
+							points="0, 0 127.5, 127.5 255, 0"
+						/>
+					</svg>
+				</div>
+			)}
 		</div>
 	);
 }
