@@ -48,7 +48,7 @@ export default function ShoppingCart({
 	const buttonEnter = () => {
 		timeout = setTimeout(() => {
 			setShowCart(true);
-		}, 200);
+		}, 300);
 	};
 
 	const buttonLeave = () => {
@@ -64,15 +64,15 @@ export default function ShoppingCart({
 				variant="dark"
 				onClick={() => router.push(`/store/cart`)}
 			>
-				<div className="flex items-center space-x-2 py-1">
+				<div className="z-50 flex items-center space-x-2 py-1">
 					<Iconify icon="akar-icons:cart" color="white" height={20} />
 					<p>{label}</p>
 				</div>
 			</Button>
 			{showCart &&
 				(cart.length >= 1 ? (
-					<div className="absolute right-0 z-50 pt-2 motion-safe:animate-slide-in">
-						<div className="w-96 rounded-md bg-neutral-300 py-3 px-4 dark:bg-dank-600">
+					<div className="absolute right-0 z-40 pt-2 motion-safe:animate-slide-in">
+						<div className="w-[420px] rounded-md bg-neutral-300 py-3 px-4 dark:bg-dank-600">
 							<Title size="small">Your cart</Title>
 							<div className="flex flex-col">
 								<div>
@@ -84,13 +84,16 @@ export default function ShoppingCart({
 											changeInterval={changeInterval}
 											updateQuantity={updateQuantity}
 											deleteItem={deleteItem}
+											disabled={false}
 										/>
 									))}
 								</div>
 								<div className="mt-5 flex justify-end">
 									<div className="flex w-2/3 flex-col">
 										<div className="flex w-full justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
-											<Title size="small">Total:</Title>
+											<Title size="small">
+												Subtotal:
+											</Title>
 											<Title size="small">
 												${totalCost}
 											</Title>

@@ -63,7 +63,7 @@ export default function CartItem({
 					>
 						{name}
 					</h4>
-					<p className="text-sm leading-none text-light-600">
+					<p className="text-xs leading-none text-light-600">
 						{metadata?.type && toTitleCase(metadata?.type)}
 					</p>
 				</div>
@@ -181,8 +181,8 @@ export default function CartItem({
 					className={clsx(
 						"mr-7 text-right font-montserrat font-bold text-gray-800 dark:text-white",
 						size === "small"
-							? "w-[50px] text-sm"
-							: "w-[70px] text-base"
+							? "min-w-[50px] text-sm"
+							: "min-w-[70px] text-base"
 					)}
 				>
 					${((selectedPrice.price / 100) * quantity).toFixed(2)}
