@@ -5,6 +5,12 @@ import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { NextIronRequest, withSession } from "../../../../util/session";
 
+export interface AppliedDiscount {
+	code: string;
+	discountedItems: DiscountItem[];
+	totalSavings: number;
+}
+
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	if (req.method?.toLowerCase() !== "get") {
 		return res.status(405).json({
