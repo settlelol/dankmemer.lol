@@ -37,6 +37,7 @@ interface Invoice {
 	items: InvoiceItems[] | InvoiceSubscription[];
 	total: number;
 	metadata: any;
+	salesTax: number;
 }
 
 interface Props extends PageProps {
@@ -116,11 +117,22 @@ export default function Checkout({ invoice, user }: Props) {
 									</div>
 								</div>
 								<div className="flex w-max flex-col justify-start">
-									<div className="mt-3 flex w-full min-w-[260px] justify-between rounded-lg bg-neutral-300 px-4 py-3 dark:bg-dank-500">
-										<Title size="small">Total:</Title>
-										<Title size="small">
-											${(invoice.total / 100).toFixed(2)}
-										</Title>
+									<div className="mt-3">
+										<p className="text-right text-sm text-neutral-300/50">
+											Added sales tax: $
+											{(invoice.salesTax / 100).toFixed(
+												2
+											)}
+										</p>
+										<div className="mt-1 flex w-full min-w-[260px] justify-between rounded-lg bg-neutral-300 px-4 py-3 dark:bg-dank-500">
+											<Title size="small">Total:</Title>
+											<Title size="small">
+												$
+												{(invoice.total / 100).toFixed(
+													2
+												)}
+											</Title>
+										</div>
 									</div>
 									<div className="mt-2 flex w-full items-center justify-end">
 										<Link href="/store">
@@ -171,11 +183,13 @@ export const getServerSideProps: GetServerSideProps = withSession(
 			};
 		}
 
+		let salesTax: number = 0;
 		const stripe = stripeConnect();
 		const invoice = await stripe.invoices.retrieve(
 			ctx.query.id.toString(),
 			{ expand: ["payment_intent"] }
 		);
+
 		const { data: invoiceItems } = await stripe.invoices.listLineItems(
 			invoice.id
 		);
@@ -205,30 +219,35 @@ export const getServerSideProps: GetServerSideProps = withSession(
 
 		for (let i = 0; i < invoiceItems.length; i++) {
 			const item = invoiceItems[i];
-
 			// @ts-ignore
 			const product = await stripe.products.retrieve(item.price?.product);
-			if (item.type === "invoiceitem") {
-				items.push({
-					type: item.type,
-					name: product.name,
-					price: item.price?.unit_amount!,
-					quantity: item.quantity!,
-					metadata: product.metadata,
-					image: product.images[0],
-				});
+
+			if (product.name.includes("Product for invoice item ")) {
+				salesTax = item.amount;
 			} else {
-				items.push({
-					type: item.type,
-					name: product.name,
-					price: subscription!.items.data[0].price.unit_amount!,
-					quantity: 1,
-					interval:
-						subscription!.items.data[0].price.recurring?.interval!,
-					endsAt: subscription!.current_period_end,
-					metadata: product.metadata,
-					image: product.images[0],
-				});
+				if (item.type === "invoiceitem") {
+					items.push({
+						type: item.type,
+						name: product.name,
+						price: item.price?.unit_amount!,
+						quantity: item.quantity!,
+						metadata: product.metadata,
+						image: product.images[0] || "",
+					});
+				} else {
+					items.push({
+						type: item.type,
+						name: product.name,
+						price: subscription!.items.data[0].price.unit_amount!,
+						quantity: 1,
+						interval:
+							subscription!.items.data[0].price.recurring
+								?.interval!,
+						endsAt: subscription!.current_period_end,
+						metadata: product.metadata,
+						image: product.images[0],
+					});
+				}
 			}
 		}
 
@@ -240,11 +259,13 @@ export const getServerSideProps: GetServerSideProps = withSession(
 						email: paymentIntent.receipt_email,
 					},
 					items,
+					subtotal: invoice.subtotal,
 					total: invoice.total,
 					metadata: {
 						invoice: invoice.metadata,
 						paymentIntent: paymentIntent.metadata,
 					},
+					salesTax,
 				},
 				user,
 			},
