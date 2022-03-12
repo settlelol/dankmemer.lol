@@ -376,16 +376,24 @@ export default function Cart({ cartData, user }: Props) {
 										{(appliedDiscount ||
 											thresholdDiscount) && (
 											<div>
-												<div className="flex justify-between">
+												<div className="flex items-center justify-between">
 													<h3 className="font-montserrat text-base font-bold">
 														Discount
 													</h3>
-													<h3 className="font-montserrat text-base font-bold text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
-														-$
-														{appliedSavings.toFixed(
-															2
-														)}
-													</h3>
+													{processingChange ? (
+														<div className="h-5 w-12 animate-[pulse_0.5s_ease-in-out_infinite] rounded bg-dank-400"></div>
+													) : (
+														<h3 className="font-montserrat text-base font-bold text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+															-$
+															{(
+																appliedSavings +
+																(thresholdDiscount
+																	? totalCost *
+																	  0.1
+																	: 0)
+															).toFixed(2)}
+														</h3>
+													)}
 												</div>
 												<div>
 													<ul className="pl-3">
