@@ -1,6 +1,6 @@
 import axios from "axios";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Title } from "src/components/Title";
 import Container from "src/components/ui/Container";
 import { PageProps } from "src/types";
@@ -19,6 +19,7 @@ import { Session } from "next-iron-session";
 import Tooltip from "src/components/ui/Tooltip";
 import { Icon as Iconify } from "@iconify/react";
 import { toast } from "react-toastify";
+import { AppliedDiscount } from "../api/store/discount/apply";
 
 interface Props extends PageProps {
 	cartData: CartItems[];
@@ -32,6 +33,10 @@ export default function Cart({ cartData, user }: Props) {
 	const [salesTax, setSalesTax] = useState<number>(0);
 	const [subtotalCost, setSubtotalCost] = useState<number>(0);
 	const [totalCost, setTotalCost] = useState<number>(0);
+
+	const [discountData, setDiscountData] = useState<AppliedDiscount | null>(
+		null
+	);
 
 	const [thresholdDiscount, setThresholdDiscount] = useState<Boolean>();
 	const [discountError, setDiscountError] = useState("");
@@ -63,37 +68,25 @@ export default function Cart({ cartData, user }: Props) {
 						acc + (item.selectedPrice.price / 100) * item.quantity,
 					0
 				);
-				const thresholdDiscountAmount =
-					cartTotal >= 20 ? cartTotal * 0.1 : 0;
-				const _salesTax =
-					(cartTotal - thresholdDiscountAmount) * 0.0675;
-
-				setThresholdDiscount(cartTotal >= 20);
 				setSubtotalCost(cartTotal);
 
 				if (discountInput.length >= 1) {
 					recalculateDiscount();
 				} else {
+					setAppliedDiscount(appliedDiscount ?? cartTotal >= 20);
 					axios("/api/store/discount/get")
 						.then(({ data }) => {
 							setAppliedDiscount(true);
-							setDiscountedItems(data.discountedItems);
-							setAppliedCode(data.code);
-							setDiscountInput(data.code);
-
-							setAppliedSavings(
-								(data.totalSavings ?? 0) +
-									thresholdDiscountAmount
-							);
-							setSalesTax(_salesTax);
-							setTotalCost(
-								cartTotal +
-									_salesTax -
-									((data.totalSavings ?? 0) +
-										thresholdDiscountAmount)
-							);
+							setDiscountData(data);
+							// calculateEverything(data);
 						})
 						.catch(() => {
+							const thresholdDiscountAmount =
+								cartTotal >= 20 ? cartTotal * 0.1 : 0;
+							const _salesTax =
+								(cartTotal - thresholdDiscountAmount) * 0.0675;
+
+							setThresholdDiscount(cartTotal >= 20);
 							setSalesTax(_salesTax);
 							setTotalCost(
 								cartTotal + _salesTax - thresholdDiscountAmount
@@ -102,7 +95,6 @@ export default function Cart({ cartData, user }: Props) {
 							setAppliedSavings(thresholdDiscountAmount);
 							return;
 						});
-					setAppliedDiscount(appliedDiscount ?? cartTotal >= 20);
 				}
 			});
 		} catch (e: any) {
@@ -171,26 +163,14 @@ export default function Cart({ cartData, user }: Props) {
 	const submitDiscountCode = () => {
 		if (discountInput.length < 1) return;
 		if (discountError.length > 1) return setDiscountError("");
-		const thresholdDiscountAmount =
-			subtotalCost >= 20 ? subtotalCost * 0.1 : 0;
-		const _salesTax = (subtotalCost - thresholdDiscountAmount) * 0.0675;
 
 		setProcessingChange(true);
 		axios(`/api/store/discount/apply?code=${discountInput}`)
 			.then(({ data }) => {
 				setAppliedDiscount(true);
-				setAppliedCode(data.code);
-				setDiscountInput(data.code);
-				setDiscountedItems(data.discountedItems);
-				setAppliedSavings(
-					(data.totalSavings ?? 0) + thresholdDiscountAmount
-				);
-				setSalesTax(_salesTax);
-				setTotalCost(
-					subtotalCost +
-						_salesTax -
-						((data.totalSavings ?? 0) + thresholdDiscountAmount)
-				);
+				setDiscountData(data);
+
+				// calculateEverything(data);
 			})
 			.catch((e) => {
 				setAppliedCode("");
@@ -220,9 +200,7 @@ export default function Cart({ cartData, user }: Props) {
 		if (appliedCode.length < 1) {
 			return;
 		}
-		const thresholdDiscountAmount =
-			subtotalCost >= 20 ? subtotalCost * 0.1 : 0;
-		const _salesTax = (subtotalCost - thresholdDiscountAmount) * 0.0675;
+		console.log("recalc");
 
 		setProcessingChange(true);
 		axios({
@@ -232,17 +210,9 @@ export default function Cart({ cartData, user }: Props) {
 		})
 			.then(({ data }) => {
 				setAppliedDiscount(true);
-				setDiscountInput(data.code);
-				setDiscountedItems(data.discountedItems);
-				setAppliedSavings(
-					(data.totalSavings ?? 0) + thresholdDiscountAmount
-				);
-				setSalesTax(_salesTax);
-				setTotalCost(
-					subtotalCost +
-						_salesTax -
-						((data.totalSavings ?? 0) + thresholdDiscountAmount)
-				);
+				setDiscountData(data);
+
+				// calculateEverything(data);
 			})
 			.catch((e) => {
 				setAppliedCode("");
@@ -250,6 +220,24 @@ export default function Cart({ cartData, user }: Props) {
 			})
 			.finally(() => setProcessingChange(false));
 	};
+
+	useMemo(() => {
+		const data = discountData;
+		if (!data) {
+			return;
+		}
+		const _salesTax = subtotalCost * 0.0675;
+		const total = subtotalCost + _salesTax - data.totalSavings;
+		console.log(subtotalCost, _salesTax, data.totalSavings);
+
+		setAppliedCode(data.code);
+		setDiscountInput(data.code);
+		setDiscountedItems(data.discountedItems);
+		setAppliedSavings(data.totalSavings ?? 0);
+		setSalesTax(_salesTax);
+		setTotalCost(total);
+		setThresholdDiscount(total >= 20);
+	}, [discountData, subtotalCost]);
 
 	const addToCart = async (item: CartItems) => {
 		if (
@@ -434,7 +422,7 @@ export default function Cart({ cartData, user }: Props) {
 															}
 														)}
 														{thresholdDiscount && (
-															<li className="flex list-decimal justify-between text-sm">
+															<li className="flex list-decimal items-center justify-between text-sm">
 																<p className="flex items-center justify-center space-x-1 dark:text-[#b4b4b4]">
 																	<span>
 																		•
@@ -445,15 +433,19 @@ export default function Cart({ cartData, user }: Props) {
 																		<Iconify icon="ant-design:question-circle-filled" />
 																	</Tooltip>
 																</p>
-																<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
-																	-$
-																	{(
-																		subtotalCost *
-																		0.1
-																	).toFixed(
-																		2
-																	)}
-																</p>
+																{processingChange ? (
+																	<div className="h-4 w-12 animate-[pulse_0.5s_ease-in-out_infinite] rounded bg-dank-400"></div>
+																) : (
+																	<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+																		-$
+																		{(
+																			totalCost *
+																			0.1
+																		).toFixed(
+																			2
+																		)}
+																	</p>
+																)}
 															</li>
 														)}
 													</ul>
@@ -468,11 +460,21 @@ export default function Cart({ cartData, user }: Props) {
 							<p className="text-right text-sm dark:text-neutral-400/80">
 								Added sales tax: ${salesTax.toFixed(2)}
 							</p>
-							<div className="flex w-full justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
+							<div className="flex w-full items-center justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
 								<Title size="small">Total:</Title>
-								<Title size="small">
-									${totalCost.toFixed(2)}
-								</Title>
+								{processingChange ? (
+									<div className="h-5 w-16 animate-[pulse_0.5s_ease-in-out_infinite] rounded bg-dank-400"></div>
+								) : (
+									<Title size="small">
+										$
+										{(
+											totalCost -
+											(thresholdDiscount
+												? totalCost * 0.1
+												: 0)
+										).toFixed(2)}
+									</Title>
+								)}
 							</div>
 						</div>
 

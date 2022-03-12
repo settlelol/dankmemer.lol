@@ -166,12 +166,12 @@ export default function CheckoutForm({
 
 	useEffect(() => {
 		const numSubCost = parseFloat(subtotalCost);
-		setThresholdDiscount(numSubCost >= 20);
+		const totalAfterSavings = numSubCost - appliedSavings;
+		setThresholdDiscount(totalAfterSavings >= 20);
 		setTotalCost(
 			(
-				numSubCost -
-				(numSubCost >= 20 ? numSubCost * 0.1 : 0) -
-				appliedSavings
+				totalAfterSavings -
+				(totalAfterSavings >= 20 ? totalAfterSavings * 0.1 : 0)
 			).toFixed(2)
 		);
 	}, [subtotalCost, appliedSavings]);
@@ -544,9 +544,11 @@ export default function CheckoutForm({
 														<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
 															-$
 															{(
-																parseFloat(
+																(parseFloat(
 																	subtotalCost
-																) * 0.1
+																) -
+																	appliedSavings) *
+																0.1
 															).toFixed(2)}
 														</p>
 													</li>
