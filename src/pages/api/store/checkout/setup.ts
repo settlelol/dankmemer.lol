@@ -5,6 +5,7 @@ import { Db, ObjectId } from "mongodb";
 import { CartItem } from "src/pages/store";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
+import { AppliedDiscount } from "../discount/apply";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const stripe = stripeConnect();
@@ -55,9 +56,13 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		}
 	}
 
-	let discountCode: string = "";
-	const discount = await req.session.get("discountCode");
-	discount ? (discountCode = discount.discountCode) : null;
+	let discountCode: AppliedDiscount | undefined = await req.session.get(
+		"discountCode"
+	);
+	let promotionalCode = await stripe.promotionCodes.list({
+		code: discountCode?.code,
+	});
+	const discount: Stripe.PromotionCode = promotionalCode.data[0];
 
 	try {
 		if (cart.length === 1 && cart[0].metadata?.type === "membership") {
@@ -65,7 +70,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				customer: customer?.id!,
 				payment_behavior: "default_incomplete",
 				expand: ["latest_invoice.payment_intent"],
-				coupon: discountCode ?? "",
+				coupon: discount.coupon.id ?? "",
 				items: [{ price: cart[0].selectedPrice.id }],
 			});
 
@@ -88,6 +93,24 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			});
 		}
 
+		/**
+		 * Add Sales tax to the Stripe total. The 10% discount for orders >= $20
+		 * is calculated later here.
+		 */
+		await stripe.invoiceItems.create({
+			customer: customer?.id!,
+			currency: "usd",
+			unit_amount_decimal: (
+				cart.reduce(
+					(acc: number, item: CartItem) =>
+						acc + (item.selectedPrice.price / 100) * item.quantity,
+					0
+				) *
+				0.0675 *
+				100
+			).toFixed(0),
+		});
+
 		const pendingInvoice = await stripe.invoices.create({
 			customer: customer?.id!,
 			auto_advance: true,
@@ -97,11 +120,17 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			},
 		});
 
+		let discounts: Stripe.InvoiceUpdateParams.Discount[] = [];
 		if (discountCode) {
-			await stripe.invoices.update(pendingInvoice.id, {
-				discounts: [{ coupon: discountCode }],
-			});
+			discounts.push({ coupon: discount.coupon.id });
 		}
+		if (pendingInvoice.total >= 20) {
+			discounts.push({ coupon: "THRESHOLD" });
+		}
+
+		await stripe.invoices.update(pendingInvoice.id, {
+			discounts,
+		});
 
 		const finalizedInvoice = await stripe.invoices.finalizeInvoice(
 			pendingInvoice.id
