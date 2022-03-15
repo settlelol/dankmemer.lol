@@ -44,7 +44,7 @@ interface Props extends PageProps {
 	invoice: Invoice;
 }
 
-export default function Checkout({ invoice, user }: Props) {
+export default function Success({ invoice, user }: Props) {
 	return (
 		<Container title="Successful purchase" user={user}>
 			<div className="mb-24 grid place-items-center">
@@ -86,7 +86,11 @@ export default function Checkout({ invoice, user }: Props) {
 													Account ID:
 													<br />
 													<span className="text-dank-200">
-														{user!.id}
+														{
+															invoice.metadata
+																.paymentIntent
+																.giftFor
+														}
 													</span>
 												</p>
 											</div>
