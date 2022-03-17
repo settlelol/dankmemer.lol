@@ -211,7 +211,15 @@ export default function AccountInformation({
 								width="large"
 								type="text"
 								placeholder="270904126974590976"
-								className="!py-1 "
+								className={clsx(
+									"!py-1",
+									/^[0-9]*$/.test(giftRecipient) &&
+										giftRecipient.length >= 16 &&
+										giftRecipient.length <= 20 &&
+										giftRecipient !== userId
+										? ""
+										: "border-red-500"
+								)}
 								onChange={(e: any) =>
 									setGiftRecipient(e.target.value)
 								}
@@ -310,7 +318,13 @@ export default function AccountInformation({
 							!(
 								canCheckout &&
 								receiptEmail.length >= 5 &&
-								acceptedTerms
+								acceptedTerms &&
+								(isGift
+									? /^[0-9]*$/.test(giftRecipient) &&
+									  giftRecipient.length >= 16 &&
+									  giftRecipient.length <= 20 &&
+									  giftRecipient !== userId
+									: true)
 							)
 								? "bg-neutral-500 text-neutral-800"
 								: ""
@@ -319,7 +333,13 @@ export default function AccountInformation({
 							!(
 								canCheckout &&
 								receiptEmail.length >= 5 &&
-								acceptedTerms
+								acceptedTerms &&
+								(isGift
+									? /^[0-9]*$/.test(giftRecipient) &&
+									  giftRecipient.length >= 16 &&
+									  giftRecipient.length <= 20 &&
+									  giftRecipient !== userId
+									: true)
 							)
 						}
 						onClick={() =>
