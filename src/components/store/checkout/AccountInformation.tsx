@@ -29,8 +29,22 @@ interface Props {
 	processingPayment: Boolean;
 	confirmPayment: any;
 	completedPayment: any;
+	subtotalCost: string;
+	itemsTotal: string;
 	totalCost: string;
+	discounts: DiscountsApplied;
 	integratedWalletButtonType: "check-out" | "subscribe";
+}
+
+interface DiscountsApplied {
+	discountsUsed: Discounts[];
+	discountedItemsTotalSavings: number;
+	thresholdDiscount: string;
+}
+
+interface Discounts {
+	code: string;
+	items: string[];
 }
 
 export default function AccountInformation({
@@ -46,7 +60,10 @@ export default function AccountInformation({
 	confirmPayment,
 	completedPayment,
 	userEmail,
+	itemsTotal,
+	subtotalCost,
 	totalCost,
+	discounts,
 	integratedWalletButtonType,
 }: Props) {
 	const { theme } = useTheme();
@@ -60,10 +77,12 @@ export default function AccountInformation({
 	// Remade to fit new store!
 	const createPayment = () => {
 		const totalWithTax = (
-			parseFloat(totalCost) +
-			parseFloat(totalCost) * 0.0675
+			parseFloat(itemsTotal) +
+			parseFloat(itemsTotal) * 0.0675 -
+			(parseFloat(discounts.thresholdDiscount) +
+				discounts.discountedItemsTotalSavings)
 		).toFixed(2);
-		return {
+		const res = {
 			intent: "CAPTURE", // Capture a payment, no pre-authorization,
 			purchase_units: [
 				{
@@ -73,18 +92,29 @@ export default function AccountInformation({
 						breakdown: {
 							item_total: {
 								currency_code: "USD",
-								value: totalWithTax,
+								value: subtotalCost,
 							},
-						},
-						shipping_discount: {
-							currency_code: "USD",
-							value: "0.00",
+							discount: {
+								currency_code: "USD",
+								value: (
+									parseFloat(discounts.thresholdDiscount) +
+									discounts.discountedItemsTotalSavings
+								).toFixed(2),
+							},
 						},
 					},
 					description: "Dank Memer Store",
 					custom_id: `${userId}:${
 						isGift ? giftRecipient : userId
-					}:${isGift}`,
+					}:${isGift}:${discounts.discountsUsed.map((discount) => {
+						if (
+							discount.code.length < 1 ||
+							discount.items.length < 1
+						) {
+							return;
+						}
+						return `${discount.code}|${discount.items.join("|")}`;
+					})}`,
 					items: [
 						...cartData.map((item) => {
 							return {
@@ -106,9 +136,9 @@ export default function AccountInformation({
 							name: "Sales tax",
 							unit_amount: {
 								currency_code: "USD",
-								value: (parseFloat(totalCost) * 0.0675).toFixed(
-									2
-								),
+								value: (
+									parseFloat(itemsTotal) * 0.0675
+								).toFixed(2),
 							},
 							quantity: "1",
 							category: "DIGITAL_GOODS",
@@ -123,6 +153,8 @@ export default function AccountInformation({
 				user_action: "PAY_NOW",
 			},
 		};
+		console.log(res);
+		return res;
 	};
 
 	const paypalApprove = (actions: any) => {

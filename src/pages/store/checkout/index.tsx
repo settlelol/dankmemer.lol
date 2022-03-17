@@ -81,6 +81,7 @@ export default function Checkout({ cartData, user }: Props) {
 							invoiceId={invoiceId}
 							userId={user!.id}
 							userEmail={user!.email}
+							itemsTotal={subtotalCost}
 							subtotalCost={(
 								parseFloat(subtotalCost) +
 								parseFloat(subtotalCost) * 0.0675

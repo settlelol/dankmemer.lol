@@ -40,6 +40,7 @@ interface Props {
 	invoiceId: string;
 	userId: string;
 	userEmail: string;
+	itemsTotal: string;
 	subtotalCost: string;
 	cart: CartItem[];
 }
@@ -65,6 +66,7 @@ export default function CheckoutForm({
 	invoiceId,
 	userId,
 	userEmail,
+	itemsTotal,
 	subtotalCost,
 	cart,
 }: Props) {
@@ -577,7 +579,34 @@ export default function CheckoutForm({
 						confirmPayment={confirmPayment}
 						completedPayment={completedPayment}
 						canCheckout={canCheckout}
+						itemsTotal={itemsTotal}
+						subtotalCost={subtotalCost}
 						totalCost={totalCost}
+						discounts={{
+							discountsUsed: [
+								{
+									code: appliedDiscountCode ?? "",
+									items:
+										appliedDiscountCode.length >= 1
+											? discountedItems.map((di) => di.id)
+											: [],
+								},
+								{
+									code: thresholdDiscount ? "THRESHOLD" : "",
+									items: thresholdDiscount
+										? cart.map((item) => item.id)
+										: [],
+								},
+							],
+							discountedItemsTotalSavings: discountedItems.reduce(
+								(acc: number, item: DiscountItem) =>
+									acc + item.savings,
+								0
+							),
+							thresholdDiscount: thresholdDiscount
+								? (parseFloat(subtotalCost) * 0.1).toFixed(2)
+								: "0.00",
+						}}
 						integratedWalletButtonType={
 							cart[0].selectedPrice.type === "recurring"
 								? "subscribe"
