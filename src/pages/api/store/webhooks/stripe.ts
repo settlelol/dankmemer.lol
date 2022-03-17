@@ -13,7 +13,7 @@ export const config = {
 };
 
 interface PaymentIntentItemResult {
-	name: string | "SALESTAX";
+	name: string;
 	price: number;
 	quantity: number;
 	type: Stripe.Price.Type;
