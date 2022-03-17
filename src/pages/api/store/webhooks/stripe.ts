@@ -155,7 +155,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					value: `<@!${invoice.metadata!.boughtByDiscordId}> (${
 						invoice.metadata!.boughtByDiscordId
 					})`,
-					inline: true,
+					inline:
+						paymentIntent.metadata?.isGift &&
+						JSON.parse(paymentIntent.metadata.isGift),
 				},
 			];
 
@@ -168,9 +170,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					value: `<@!${paymentIntent.metadata.giftFor}> (${paymentIntent.metadata.giftFor})`,
 					inline: true,
 				});
+				fields.push({ name: "_ _", value: "_ _", inline: true }); // Add an invisible embed field
 			}
 
-			fields.push({ name: "_ _", value: "_ _", inline: true }); // Add an invisible embed field
 			fields.push({
 				name: "Goods purchased",
 				value: `• ${items
