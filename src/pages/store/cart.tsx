@@ -78,7 +78,6 @@ export default function Cart({ cartData, user }: Props) {
 						.then(({ data }) => {
 							setAppliedDiscount(true);
 							setDiscountData(data);
-							// calculateEverything(data);
 						})
 						.catch(() => {
 							const thresholdDiscountAmount =
@@ -91,9 +90,6 @@ export default function Cart({ cartData, user }: Props) {
 							setTotalCost(
 								cartTotal + _salesTax - thresholdDiscountAmount
 							);
-
-							setAppliedSavings(thresholdDiscountAmount);
-							return;
 						});
 				}
 			});
@@ -169,8 +165,6 @@ export default function Cart({ cartData, user }: Props) {
 			.then(({ data }) => {
 				setAppliedDiscount(true);
 				setDiscountData(data);
-
-				// calculateEverything(data);
 			})
 			.catch((e) => {
 				setAppliedCode("");
@@ -200,7 +194,6 @@ export default function Cart({ cartData, user }: Props) {
 		if (appliedCode.length < 1) {
 			return;
 		}
-		console.log("recalc");
 
 		setProcessingChange(true);
 		axios({
@@ -211,8 +204,6 @@ export default function Cart({ cartData, user }: Props) {
 			.then(({ data }) => {
 				setAppliedDiscount(true);
 				setDiscountData(data);
-
-				// calculateEverything(data);
 			})
 			.catch((e) => {
 				setAppliedCode("");
@@ -228,7 +219,6 @@ export default function Cart({ cartData, user }: Props) {
 		}
 		const _salesTax = subtotalCost * 0.0675;
 		const total = subtotalCost + _salesTax - data.totalSavings;
-		console.log(subtotalCost, _salesTax, data.totalSavings);
 
 		setAppliedCode(data.code);
 		setDiscountInput(data.code);
