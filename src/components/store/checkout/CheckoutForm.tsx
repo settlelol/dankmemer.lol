@@ -283,7 +283,9 @@ export default function CheckoutForm({
 				setProcessingPayment(false);
 			})
 			.finally(() => {
-				router.push(`/store/checkout/success?id=${invoiceId}`);
+				router.push(
+					`/store/checkout/success?gateway=stripe&id=${invoiceId}`
+				);
 			});
 	};
 
