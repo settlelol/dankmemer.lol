@@ -82,7 +82,7 @@ export default function AccountInformation({
 			(parseFloat(discounts.thresholdDiscount) +
 				discounts.discountedItemsTotalSavings)
 		).toFixed(2);
-		const res = {
+		return {
 			intent: "CAPTURE", // Capture a payment, no pre-authorization,
 			purchase_units: [
 				{
@@ -153,8 +153,6 @@ export default function AccountInformation({
 				user_action: "PAY_NOW",
 			},
 		};
-		console.log(res);
-		return res;
 	};
 
 	const paypalApprove = (actions: any) => {
