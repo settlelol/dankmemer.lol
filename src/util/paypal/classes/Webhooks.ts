@@ -11,6 +11,7 @@ import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { inspect } from "util";
 import { createPayPal } from "../PayPalEndpoint";
+import { PayPalCartItem } from "../types";
 import { LinkDescription } from "./Products";
 import { WebhookPaymentEvents } from "./Simulations";
 
@@ -43,17 +44,6 @@ interface PayPalEventData {
 	isGift?: Boolean;
 	total?: string;
 	items?: PayPalCartItem[];
-}
-
-interface PayPalCartItem {
-	name: string;
-	unit_amount: {
-		currency_code: "USD";
-		value: string;
-	};
-	quantity: string;
-	sku: string;
-	category: string;
 }
 
 export default class Webhooks {

@@ -9,6 +9,7 @@ import { PaymentRequestButtonElement } from "@stripe/react-stripe-js";
 import { useEffect, useState } from "react";
 import { PayPalButton } from "react-paypal-button-v2";
 import { CartItem } from "src/pages/store";
+import { useRouter } from "next/router";
 
 interface Props {
 	stripe: Stripe | null;
@@ -66,6 +67,7 @@ export default function AccountInformation({
 	discounts,
 	integratedWalletButtonType,
 }: Props) {
+	const router = useRouter();
 	const { theme } = useTheme();
 
 	const [giftRecipient, setGiftRecipient] = useState("");
@@ -167,9 +169,12 @@ export default function AccountInformation({
 	};
 
 	const paypalSuccess = (details: any, data: any) => {
-		console.log("Success");
-		console.log(details);
-		console.log(data);
+		router.push(
+			`/store/checkout/success?gateway=paypal&id=${data.orderId}`
+		);
+		// console.log("Success");
+		// console.log(details);
+		// console.log(data);
 	};
 
 	useEffect(() => {

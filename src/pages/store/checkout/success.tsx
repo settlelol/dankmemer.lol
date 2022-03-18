@@ -12,6 +12,8 @@ import Stripe from "stripe";
 import CartItemImmutable from "src/components/store/checkout/CartItemImmutable";
 import Button from "src/components/ui/Button";
 import { Icon as Iconify } from "@iconify/react";
+import PayPal from "src/util/paypal";
+import { OrdersRetrieveResponse } from "src/util/paypal/classes/Orders";
 
 interface BuyerDetails {
 	discordId: string;
@@ -41,10 +43,18 @@ interface Invoice {
 }
 
 interface Props extends PageProps {
+	paymentGateway: "stripe" | "paypal";
 	invoice: Invoice;
 }
 
 export default function Success({ invoice, user }: Props) {
+	const router = useRouter();
+
+	useEffect(() => {
+		// Use this when page is done ;)
+		// router.replace("/store/checkout/success")
+	}, []);
+
 	return (
 		<Container title="Successful purchase" user={user}>
 			<div className="mb-24 grid place-items-center">
@@ -188,91 +198,161 @@ export const getServerSideProps: GetServerSideProps = withSession(
 		}
 
 		let salesTax: number = 0;
+		const paymentGateway = ctx.query.gateway?.toString().toLowerCase();
 		const stripe = stripeConnect();
-		const invoice = await stripe.invoices.retrieve(
-			ctx.query.id.toString(),
-			{ expand: ["payment_intent"] }
-		);
+		const paypal = new PayPal();
 
-		const { data: invoiceItems } = await stripe.invoices.listLineItems(
-			invoice.id
-		);
-		let items: InvoiceItems[] | InvoiceSubscription[] = [];
-
-		const paymentIntent = await stripe.paymentIntents.retrieve(
-			// @ts-ignore
-			invoice.payment_intent!.id
-		);
-
-		let subscription: Stripe.Subscription | null = null;
-		if (invoiceItems[0].type === "subscription") {
-			subscription = await stripe.subscriptions.retrieve(
-				// @ts-ignore
-				invoiceItems[0].subscription
+		if (paymentGateway === "stripe") {
+			const invoice = await stripe.invoices.retrieve(
+				ctx.query.id.toString(),
+				{ expand: ["payment_intent"] }
 			);
-		}
 
-		if (invoice.metadata!.boughtByDiscordId !== user.id) {
+			const { data: invoiceItems } = await stripe.invoices.listLineItems(
+				invoice.id
+			);
+			let items: InvoiceItems[] | InvoiceSubscription[] = [];
+
+			const paymentIntent = await stripe.paymentIntents.retrieve(
+				// @ts-ignore
+				invoice.payment_intent!.id
+			);
+
+			let subscription: Stripe.Subscription | null = null;
+			if (invoiceItems[0].type === "subscription") {
+				subscription = await stripe.subscriptions.retrieve(
+					// @ts-ignore
+					invoiceItems[0].subscription
+				);
+			}
+
+			if (invoice.metadata!.boughtByDiscordId !== user.id) {
+				return {
+					redirect: {
+						destination: "/store",
+						permanent: false,
+					},
+				};
+			}
+
+			for (let i = 0; i < invoiceItems.length; i++) {
+				const item = invoiceItems[i];
+				// @ts-ignore
+				const product = await stripe.products.retrieve(
+					item.price?.product as string
+				);
+
+				if (product.name.includes("Product for invoice item ")) {
+					salesTax = item.amount;
+				} else {
+					if (item.type === "invoiceitem") {
+						items.push({
+							type: item.type,
+							name: product.name,
+							price: item.price?.unit_amount!,
+							quantity: item.quantity!,
+							metadata: product.metadata,
+							image: product.images[0] || "",
+						});
+					} else {
+						items.push({
+							type: item.type,
+							name: product.name,
+							price: subscription!.items.data[0].price
+								.unit_amount!,
+							quantity: 1,
+							interval:
+								subscription!.items.data[0].price.recurring
+									?.interval!,
+							endsAt: subscription!.current_period_end,
+							metadata: product.metadata,
+							image: product.images[0],
+						});
+					}
+				}
+			}
+
 			return {
-				redirect: {
-					destination: "/store",
-					permanent: false,
+				props: {
+					paymentGateway,
+					invoice: {
+						buyer: {
+							discordId: invoice.metadata!.boughtByDiscordId,
+							email: paymentIntent.receipt_email,
+						},
+						items,
+						subtotal: invoice.subtotal,
+						total: invoice.total,
+						metadata: {
+							invoice: invoice.metadata,
+							paymentIntent: paymentIntent.metadata,
+						},
+						salesTax,
+					},
+					user,
 				},
 			};
-		}
+		} else if (paymentGateway === "paypal") {
+			const order = (await paypal.orders.retrieve(
+				ctx.query.id.toString()
+			)) as OrdersRetrieveResponse;
 
-		for (let i = 0; i < invoiceItems.length; i++) {
-			const item = invoiceItems[i];
-			// @ts-ignore
-			const product = await stripe.products.retrieve(item.price?.product);
-
-			if (product.name.includes("Product for invoice item ")) {
-				salesTax = item.amount;
-			} else {
-				if (item.type === "invoiceitem") {
-					items.push({
-						type: item.type,
-						name: product.name,
-						price: item.price?.unit_amount!,
-						quantity: item.quantity!,
-						metadata: product.metadata,
-						image: product.images[0] || "",
-					});
+			let items: InvoiceItems[] | InvoiceSubscription[] = [];
+			const purchasedItems = order.purchase_units[0].items;
+			for (let i = 0; purchasedItems.length > i; i++) {
+				const item = purchasedItems[i];
+				if (item.name === "Sales tax") {
+					salesTax = parseFloat(item.unit_amount.value) * 100;
 				} else {
+					const product = await stripe.products.retrieve(
+						item.sku.split(":")[0]
+					);
 					items.push({
-						type: item.type,
-						name: product.name,
-						price: subscription!.items.data[0].price.unit_amount!,
-						quantity: 1,
-						interval:
-							subscription!.items.data[0].price.recurring
-								?.interval!,
-						endsAt: subscription!.current_period_end,
+						type: "invoiceitem", // TODO: Paypal subscriptions
+						name: item.name,
+						price: parseFloat(item.unit_amount.value) * 100,
+						quantity: parseInt(item.quantity),
 						metadata: product.metadata,
 						image: product.images[0],
 					});
 				}
 			}
-		}
 
-		return {
-			props: {
-				invoice: {
-					buyer: {
-						discordId: invoice.metadata!.boughtByDiscordId,
-						email: paymentIntent.receipt_email,
+			return {
+				props: {
+					paymentGateway,
+					invoice: {
+						buyer: {
+							discordId:
+								order.purchase_units[0].custom_id!.split(
+									":"
+								)[0],
+							email: order.payer.email_address,
+						},
+						items,
+						subtotal: order.purchase_units[0].amount.value,
+						total:
+							parseFloat(order.purchase_units[0].amount.value!) *
+							100,
+						metadata: {
+							invoice: "invoice.metadata",
+							paymentIntent: {
+								isGift: JSON.parse(
+									order.purchase_units[0].custom_id!.split(
+										":"
+									)[2]
+								),
+								giftFor:
+									order.purchase_units[0].custom_id!.split(
+										":"
+									)[1],
+							},
+						},
+						salesTax,
 					},
-					items,
-					subtotal: invoice.subtotal,
-					total: invoice.total,
-					metadata: {
-						invoice: invoice.metadata,
-						paymentIntent: paymentIntent.metadata,
-					},
-					salesTax,
+					user,
 				},
-				user,
-			},
-		};
+			};
+		}
 	}
 );
