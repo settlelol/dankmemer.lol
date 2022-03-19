@@ -81,10 +81,10 @@ const sendPurchaseWebhook = async (event: PayPalEvent) => {
 		{
 			avatar_url:
 				"https://newsroom.uk.paypal-corp.com/image/PayPal_Logo_Thumbnail.jpg",
-			color: 0x1676594,
 			embeds: [
 				{
 					title: "Successful PayPal Purchase",
+					color: 2777007,
 					fields,
 					footer: {
 						text: `Total purchase value: $${event.data.total} (incl. sales tax)`,
