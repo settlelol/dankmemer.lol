@@ -168,13 +168,10 @@ export default function AccountInformation({
 			});
 	};
 
-	const paypalSuccess = (details: any, data: any) => {
+	const paypalSuccess = (_: any, data: any) => {
 		router.push(
-			`/store/checkout/success?gateway=paypal&id=${data.orderId}`
+			`/store/checkout/success?gateway=paypal&id=${data.orderID}`
 		);
-		// console.log("Success");
-		// console.log(details);
-		// console.log(data);
 	};
 
 	useEffect(() => {
