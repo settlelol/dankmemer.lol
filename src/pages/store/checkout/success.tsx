@@ -36,6 +36,7 @@ interface InvoiceSubscription extends InvoiceItems {
 }
 
 interface Invoice {
+	id: string;
 	buyer: BuyerDetails;
 	items: InvoiceItems[] | InvoiceSubscription[];
 	total: number;
@@ -59,12 +60,36 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 	return (
 		<Container title="Successful purchase" user={user}>
 			<div className="mb-24 grid place-items-center">
-				<div className="mt-12 mb-5 flex w-2/5 flex-col">
+				<div className="mt-12 mb-3 flex w-2/5 flex-col">
 					<Title size="big">Purchase Summary</Title>
-					<p className="my-2 text-neutral-400">
-						Thank you for your purchase, your payment has been
-						successful! You should receive your purchased goods
-						within 5 minutes of purchase.
+					<p className="mt-2 text-sm dark:text-neutral-300">
+						Thank you for your purchase! You should receive your
+						purchased goods within 5 minutes of purchase.
+					</p>
+					<p className="my-2 text-sm dark:text-neutral-300">
+						If you have yet to receive your purchased goods, join{" "}
+						<Link href="https://discord.gg/meme">
+							<a
+								className="text-dank-300 underline"
+								target="_blank"
+							>
+								our support server
+							</a>
+						</Link>{" "}
+						and let our staff know of your purchase id:{" "}
+						<span
+							className="group inline-flex cursor-pointer items-center"
+							onClick={() =>
+								navigator.clipboard.writeText(invoice.id)
+							}
+						>
+							<span className="text-dank-300 underline decoration-dotted">
+								{invoice.id}
+							</span>
+							<span className="ml-1 text-dank-300 opacity-0 transition-opacity duration-100 group-hover:opacity-100">
+								<Iconify icon="carbon:copy" hFlip={true} />
+							</span>
+						</span>
 					</p>
 				</div>
 				<div className="relative box-border grid h-[587px] w-2/5 place-items-center overflow-hidden">
@@ -298,6 +323,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 				props: {
 					paymentGateway,
 					invoice: {
+						id: ctx.query.id,
 						buyer: {
 							discordId: invoice.metadata!.boughtByDiscordId,
 							email: paymentIntent.receipt_email,
@@ -344,6 +370,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 				props: {
 					paymentGateway,
 					invoice: {
+						id: ctx.query.id,
 						buyer: {
 							discordId:
 								order.purchase_units[0].custom_id!.split(
