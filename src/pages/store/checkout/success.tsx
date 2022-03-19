@@ -14,6 +14,7 @@ import Button from "src/components/ui/Button";
 import { Icon as Iconify } from "@iconify/react";
 import PayPal from "src/util/paypal";
 import { OrdersRetrieveResponse } from "src/util/paypal/classes/Orders";
+import clsx from "clsx";
 
 interface BuyerDetails {
 	discordId: string;
@@ -47,7 +48,7 @@ interface Props extends PageProps {
 	invoice: Invoice;
 }
 
-export default function Success({ invoice, user }: Props) {
+export default function Success({ paymentGateway, invoice, user }: Props) {
 	const router = useRouter();
 
 	useEffect(() => {
@@ -58,8 +59,13 @@ export default function Success({ invoice, user }: Props) {
 	return (
 		<Container title="Successful purchase" user={user}>
 			<div className="mb-24 grid place-items-center">
-				<div className="mt-12 mb-5 flex flex-col items-center justify-between sm:flex-row sm:space-y-0">
+				<div className="mt-12 mb-5 flex w-2/5 flex-col">
 					<Title size="big">Purchase Summary</Title>
+					<p className="my-2 text-neutral-400">
+						Thank you for your purchase, your payment has been
+						successful! You should receive your purchased goods
+						within 5 minutes of purchase.
+					</p>
 				</div>
 				<div className="relative box-border grid h-[587px] w-2/5 place-items-center overflow-hidden">
 					<div className="relative h-full w-full max-w-4xl">
@@ -67,7 +73,17 @@ export default function Success({ invoice, user }: Props) {
 							<div className="flex h-full flex-col items-end justify-between">
 								<div className="w-full">
 									<div className="flex justify-between">
-										<div className="flex w-1/2 flex-col">
+										<div
+											className={clsx(
+												"flex flex-col",
+												JSON.parse(
+													invoice.metadata
+														.paymentIntent.isGift
+												)
+													? "w-1/2"
+													: "w-full"
+											)}
+										>
 											<h3 className="font-montserrat text-base font-bold text-black dark:text-white">
 												Purchased by
 											</h3>
@@ -167,6 +183,12 @@ export default function Success({ invoice, user }: Props) {
 							</div>
 						</div>
 					</div>
+				</div>
+				<div className="mt-3 rounded-full bg-dank-300/40 px-3 py-1 dark:bg-dank-400/50">
+					<p className="text-xs text-neutral-800 dark:text-neutral-300">
+						Your payment was securely processed by{" "}
+						{paymentGateway === "stripe" ? "Stripe" : "PayPal"}
+					</p>
 				</div>
 			</div>
 		</Container>
