@@ -314,11 +314,11 @@ export default function AccountInformation({
 							/>
 						</div>
 					) : (
-						<div className="mt-3 h-10 w-full rounded-md bg-white/10"></div>
+						<div className="mt-3 h-10 w-full rounded-md dark:bg-white/10"></div>
 					)
 				) : selectedPaymentOption === "PayPal" ? (
 					<div className="mt-3 h-[50px] w-full overflow-hidden dark:text-white">
-						{acceptedTerms && (
+						{acceptedTerms ? (
 							<PayPalButton
 								options={{
 									clientId:
@@ -326,7 +326,7 @@ export default function AccountInformation({
 											.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
 								}}
 								style={{
-									height: 50,
+									height: 40,
 									fontFamily: "'Inter', sans-serif",
 									layout: "horizontal",
 									color:
@@ -343,6 +343,8 @@ export default function AccountInformation({
 									paypalSuccess(details, data)
 								}
 							/>
+						) : (
+							<div className="h-10 w-full rounded-md dark:bg-white/10"></div>
 						)}
 					</div>
 				) : (
