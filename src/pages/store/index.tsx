@@ -250,7 +250,7 @@ export default function StoreHome({ user }: PageProps) {
 				<div className="mt-4">
 					<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 						<Title size="small">Subscriptions</Title>
-						<div className="flex items-center justify-center">
+						<div className="flex items-center justify-end">
 							<p className="mr-2 text-sm text-neutral-900 dark:text-neutral-100">
 								Annual pricing
 							</p>
@@ -261,13 +261,12 @@ export default function StoreHome({ user }: PageProps) {
 							>
 								<span
 									className={clsx(
-										"absolute h-4 w-4 rounded-full",
+										"h-4 w-4 rounded-full",
 										annualPricing
 											? "bg-dank-300"
 											: "bg-gray-400 dark:bg-dank-400"
 									)}
 								/>
-								<span>{annualPricing}</span>
 							</label>
 						</div>
 					</div>
