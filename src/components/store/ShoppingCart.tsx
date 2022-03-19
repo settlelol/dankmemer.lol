@@ -64,14 +64,14 @@ export default function ShoppingCart({
 				variant="dark"
 				onClick={() => router.push(`/store/cart`)}
 			>
-				<div className="z-50 flex items-center space-x-2 py-1">
+				<div className="flex items-center space-x-2 py-1">
 					<Iconify icon="akar-icons:cart" color="white" height={20} />
 					<p>{label}</p>
 				</div>
 			</Button>
 			{showCart &&
 				(cart.length >= 1 ? (
-					<div className="absolute right-0 z-40 pt-2 motion-safe:animate-slide-in">
+					<div className="absolute right-0 pt-2 motion-safe:animate-slide-in">
 						<div className="w-[420px] rounded-md bg-neutral-300 py-3 px-4 dark:bg-dank-600">
 							<Title size="small">Your cart</Title>
 							<div className="flex flex-col">
