@@ -2,7 +2,7 @@ import { NextApiResponse } from "next";
 import { dbConnect } from "src/util/mongodb";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
-import { NextIronRequest, withSession } from "../../../../util/session";
+import { NextIronRequest, withSession } from "../../../../../util/session";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	if (req.method?.toLowerCase() !== "patch") {
