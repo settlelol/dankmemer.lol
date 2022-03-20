@@ -20,7 +20,7 @@ interface PaymentIntentItemResult {
 	discounts?: PaymentIntentItemDiscount[] | [];
 }
 
-interface PaymentIntentItemDiscount {
+export interface PaymentIntentItemDiscount {
 	id: string;
 	code: string;
 	name: string;
