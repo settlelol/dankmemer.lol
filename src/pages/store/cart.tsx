@@ -82,8 +82,7 @@ export default function Cart({ cartData, user }: Props) {
 						.catch(() => {
 							const thresholdDiscountAmount =
 								cartTotal >= 20 ? cartTotal * 0.1 : 0;
-							const _salesTax =
-								(cartTotal - thresholdDiscountAmount) * 0.0675;
+							const _salesTax = cartTotal * 0.0675;
 
 							setThresholdDiscount(cartTotal >= 20);
 							setSalesTax(_salesTax);
