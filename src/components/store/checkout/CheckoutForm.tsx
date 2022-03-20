@@ -2,15 +2,12 @@ import {
 	CardCvcElement,
 	CardExpiryElement,
 	CardNumberElement,
-	PaymentRequestButtonElement,
 	useElements,
 	useStripe,
 } from "@stripe/react-stripe-js";
 import {
 	CanMakePaymentResult,
-	PaymentMethod,
 	PaymentRequest,
-	PaymentRequestPaymentMethodEvent,
 	StripeCardCvcElementChangeEvent,
 	StripeCardExpiryElementChangeEvent,
 	StripeCardNumberElementChangeEvent,
