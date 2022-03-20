@@ -272,7 +272,7 @@ export default function CheckoutForm({
 		successfulCheckout.current = true;
 		axios({
 			method: "PATCH",
-			url: `/api/store/checkout/finalize?invoice=${invoiceId}`,
+			url: `/api/store/checkout/finalize/stripe?invoice=${invoiceId}`,
 			data: {
 				customerName: nameOnCard,
 				isGift,
