@@ -10,6 +10,8 @@ import { useEffect, useState } from "react";
 import { PayPalButton } from "react-paypal-button-v2";
 import { CartItem } from "src/pages/store";
 import { useRouter } from "next/router";
+import axios from "axios";
+import { OrdersRetrieveResponse } from "src/util/paypal/classes/Orders";
 
 interface Props {
 	stripe: Stripe | null;
@@ -17,6 +19,7 @@ interface Props {
 	cartData: CartItem[];
 	clientSecret: string;
 	canCheckout: Boolean;
+	invoiceId: string;
 	acceptsIntegratedWallet: Boolean;
 	integratedWallet: PaymentRequest | null;
 	selectedPaymentOption:
@@ -54,6 +57,7 @@ export default function AccountInformation({
 	cartData,
 	clientSecret,
 	canCheckout,
+	invoiceId,
 	acceptsIntegratedWallet,
 	integratedWallet,
 	selectedPaymentOption,
@@ -70,6 +74,7 @@ export default function AccountInformation({
 	const router = useRouter();
 	const { theme } = useTheme();
 
+	const [validGiftRecipient, setValidGiftRecipient] = useState(false);
 	const [giftRecipient, setGiftRecipient] = useState("");
 	const [isGift, setIsGift] = useState(false);
 
@@ -157,22 +162,31 @@ export default function AccountInformation({
 		};
 	};
 
-	const paypalApprove = (actions: any) => {
-		return actions.order
-			.capture()
-			.then((data: any) => {
-				console.log(data);
-			})
-			.catch((err: any) => {
-				console.error(err);
-			});
+	const paypalSuccess = (details: OrdersRetrieveResponse, data: any) => {
+		axios({
+			method: "PATCH",
+			url: `/api/store/checkout/finalize/paypal?orderID=${data.orderID}`,
+			data: {
+				stripeInvoice: invoiceId,
+				status: details.status,
+				isGift,
+				giftFor: giftRecipient,
+			},
+		}).then(() => {
+			router.push(
+				`/store/checkout/success?gateway=paypal&id=${data.orderID}`
+			);
+		});
 	};
 
-	const paypalSuccess = (_: any, data: any) => {
-		router.push(
-			`/store/checkout/success?gateway=paypal&id=${data.orderID}`
+	useEffect(() => {
+		setValidGiftRecipient(
+			/^[0-9]*$/.test(giftRecipient) &&
+				giftRecipient.length >= 16 &&
+				giftRecipient.length <= 20 &&
+				giftRecipient !== userId
 		);
-	};
+	}, [giftRecipient]);
 
 	useEffect(() => {
 		if (!integratedWallet || !stripe || !clientSecret) return;
@@ -245,12 +259,7 @@ export default function AccountInformation({
 								placeholder="270904126974590976"
 								className={clsx(
 									"!py-1",
-									/^[0-9]*$/.test(giftRecipient) &&
-										giftRecipient.length >= 16 &&
-										giftRecipient.length <= 20 &&
-										giftRecipient !== userId
-										? ""
-										: "border-red-500"
+									validGiftRecipient ? "" : "border-red-500"
 								)}
 								onChange={(e: any) =>
 									setGiftRecipient(e.target.value)
@@ -334,7 +343,7 @@ export default function AccountInformation({
 									actions.order.create(createPayment())
 								}
 								onApprove={(_: any, actions: any) =>
-									paypalApprove(actions)
+									actions.order.capture()
 								}
 								onSuccess={(details: any, data: any) =>
 									paypalSuccess(details, data)
@@ -353,12 +362,7 @@ export default function AccountInformation({
 								canCheckout &&
 								receiptEmail.length >= 5 &&
 								acceptedTerms &&
-								(isGift
-									? /^[0-9]*$/.test(giftRecipient) &&
-									  giftRecipient.length >= 16 &&
-									  giftRecipient.length <= 20 &&
-									  giftRecipient !== userId
-									: true)
+								(isGift ? validGiftRecipient : true)
 							)
 								? "bg-neutral-500 text-neutral-800"
 								: ""
@@ -368,12 +372,7 @@ export default function AccountInformation({
 								canCheckout &&
 								receiptEmail.length >= 5 &&
 								acceptedTerms &&
-								(isGift
-									? /^[0-9]*$/.test(giftRecipient) &&
-									  giftRecipient.length >= 16 &&
-									  giftRecipient.length <= 20 &&
-									  giftRecipient !== userId
-									: true)
+								(isGift ? validGiftRecipient : true)
 							)
 						}
 						onClick={() =>

@@ -570,6 +570,7 @@ export default function CheckoutForm({
 						userId={userId}
 						cartData={cart}
 						clientSecret={_clientSecret.current}
+						invoiceId={invoiceId}
 						acceptsIntegratedWallet={acceptsIntegratedWallet}
 						integratedWallet={integratedWallet}
 						selectedPaymentOption={selectedPaymentOption}
