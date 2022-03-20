@@ -31,11 +31,6 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		.collection("customers")
 		.findOne({ discordId: user.id });
 
-	req.session.unset("cart");
-	req.session.unset("discountCode");
-
-	await req.session.save();
-
 	if (!_customer) {
 		return res.status(500).json({
 			error: "Unable to find customer. If you do not receive your purchased goods please contact support and reference the following invoice id",
@@ -56,10 +51,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		metadata = { isGift };
 	}
 
-	// @ts-ignore
-	const customer: Stripe.Customer = await stripe.customers.retrieve(
+	const customer = (await stripe.customers.retrieve(
 		_customer._id
-	);
+	)) as Stripe.Customer;
 
 	if (!customer.name) {
 		customerData.name = customerName;
@@ -69,10 +63,27 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		paymentIntentData["metadata"] = metadata;
 		await stripe.customers.update(customer.id, customerData);
 		await stripe.paymentIntents.update(
-			// @ts-ignore
-			invoice.payment_intent!.id,
+			(invoice.payment_intent! as Stripe.PaymentIntent).id,
 			paymentIntentData
 		);
+		await db.collection("customers").updateOne(
+			{ discordId: user.id },
+			{
+				$push: {
+					purchases: {
+						type: "stripe",
+						invoice: invoice.id,
+						paymentIntent: (
+							invoice.payment_intent! as Stripe.PaymentIntent
+						).id,
+					},
+				},
+			}
+		);
+		req.session.unset("cart");
+		req.session.unset("discountCode");
+
+		await req.session.save();
 		return res.status(200).json({ invoiceId });
 	} catch (e: any) {
 		console.error(
