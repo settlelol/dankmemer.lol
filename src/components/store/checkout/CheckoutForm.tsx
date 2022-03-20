@@ -604,7 +604,17 @@ export default function CheckoutForm({
 								0
 							),
 							thresholdDiscount: thresholdDiscount
-								? (parseFloat(subtotalCost) * 0.1).toFixed(2)
+								? (
+										(parseFloat(subtotalCost) -
+											discountedItems.reduce(
+												(
+													acc: number,
+													item: DiscountItem
+												) => acc + item.savings,
+												0
+											)) *
+										0.1
+								  ).toFixed(2)
 								: "0.00",
 						}}
 						integratedWalletButtonType={
