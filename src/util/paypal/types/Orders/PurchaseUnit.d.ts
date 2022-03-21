@@ -1,4 +1,4 @@
-import { BillingAddress, PayPalCartItem } from "..";
+import { BillingAddress, PaymentAmount, PayPalCartItem } from "..";
 import { LinkDescription } from "../../classes/Products";
 
 export interface PurchaseUnit {
@@ -79,9 +79,4 @@ interface RefundedPayment {
 	links?: LinkDescription[];
 	create_time?: string;
 	update_time?: string;
-}
-
-interface PaymentAmount {
-	currency_code?: string;
-	value?: string;
 }
