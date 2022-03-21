@@ -101,14 +101,14 @@ export default function Checkout({ cartData, user }: Props) {
 										))}
 									</div>
 									<div>
-										<p className="text-right text-sm dark:text-neutral-400/80">
+										<p className="text-right text-sm text-neutral-600 dark:text-neutral-300/50">
 											Added sales tax: $
 											{(
 												parseFloat(subtotalCost) *
 												0.0675
 											).toFixed(2)}
 										</p>
-										<div className="flex w-full max-w-[260px] justify-between space-x-2 rounded-lg px-4 py-3 dark:bg-dank-500">
+										<div className="flex w-full max-w-[260px] justify-between space-x-2 rounded-lg bg-neutral-300 px-4 py-3 dark:bg-dank-500">
 											<Title size="small">
 												Subtotal:
 											</Title>

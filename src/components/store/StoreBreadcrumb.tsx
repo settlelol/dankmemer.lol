@@ -10,7 +10,7 @@ export default function StoreBreadcrumb({ currentPage }: Props) {
 	const router = useRouter();
 
 	return (
-		<div className="mb-3 flex select-none items-center justify-start overflow-x-auto dark:text-neutral-300">
+		<div className="mb-3 flex select-none items-center justify-start overflow-x-auto text-neutral-600 dark:text-neutral-300">
 			<p
 				className="flex cursor-pointer items-center justify-start transition-colors hover:dark:text-white"
 				onClick={() => router.push("/store")}
@@ -22,7 +22,7 @@ export default function StoreBreadcrumb({ currentPage }: Props) {
 				<Iconify icon="ic:sharp-chevron-right" height={20} />
 			</p>
 			{currentPage === "cart" ? (
-				<p className="flex w-full items-center justify-start text-dank-100">
+				<p className="flex w-full items-center justify-start text-dank-300 dark:text-dank-100">
 					<Iconify
 						icon="akar-icons:cart"
 						color="currentColor"

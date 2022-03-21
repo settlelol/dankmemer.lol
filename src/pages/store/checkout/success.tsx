@@ -62,11 +62,11 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 			<div className="mb-24 grid place-items-center">
 				<div className="mt-12 mb-3 flex w-2/5 flex-col">
 					<Title size="big">Purchase Summary</Title>
-					<p className="mt-2 text-sm dark:text-neutral-300">
+					<p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
 						Thank you for your purchase! You should receive your
 						purchased goods within 5 minutes of purchase.
 					</p>
-					<p className="my-2 text-sm dark:text-neutral-300">
+					<p className="my-2 text-sm text-neutral-700 dark:text-neutral-300">
 						If you have yet to receive your purchased goods, join{" "}
 						<Link href="https://discord.gg/meme">
 							<a
@@ -173,7 +173,7 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 								</div>
 								<div className="flex w-max flex-col justify-start">
 									<div className="mt-3">
-										<p className="text-right text-sm text-neutral-300/50">
+										<p className="text-right text-sm text-neutral-600 dark:text-neutral-300/50">
 											Added sales tax: $
 											{(invoice.salesTax / 100).toFixed(
 												2

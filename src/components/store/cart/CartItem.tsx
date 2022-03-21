@@ -40,7 +40,7 @@ export default function CartItem({
 			<div className="flex">
 				<div
 					className={clsx(
-						"rounded-md bg-center bg-no-repeat dark:bg-black/30",
+						"rounded-md bg-black/10 bg-center bg-no-repeat dark:bg-black/30",
 						size === "small"
 							? "h-[36px] min-w-[36px] bg-[length:20px_20px]"
 							: "h-12 w-12 bg-[length:33px_33px]"
@@ -149,7 +149,7 @@ export default function CartItem({
 							<input
 								type="text"
 								className={clsx(
-									"w-10 rounded bg-transparent text-center focus-visible:outline-none",
+									"w-10 rounded bg-transparent text-center text-black focus-visible:outline-none dark:text-white",
 									size === "small" ? "text-sm" : "text-base",
 									!disabled &&
 										"dark:focus-within:bg-white/10",

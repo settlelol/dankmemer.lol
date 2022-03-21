@@ -25,7 +25,7 @@ export default function CartItemImmutable({
 			<div className="mt-3 flex w-full items-center justify-between">
 				<div className="flex">
 					<div
-						className="h-12 w-12 rounded-md bg-[length:33px_33px] bg-center bg-no-repeat dark:bg-black/30"
+						className="h-12 w-12 rounded-md bg-black/10 bg-[length:33px_33px] bg-center bg-no-repeat dark:bg-black/30"
 						style={{
 							backgroundImage: `url('${image}')`,
 						}}
