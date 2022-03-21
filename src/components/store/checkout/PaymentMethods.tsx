@@ -21,10 +21,10 @@ export default function PaymentMethods({
 }: Props) {
 	return (
 		<div className="mt-5">
-			<h3 className="font-montserrat text-base font-bold">
+			<h3 className="font-montserrat text-base font-bold text-neutral-700 dark:text-white">
 				Your saved payment methods
 			</h3>
-			<p className="w-2/3 text-sm text-neutral-300">
+			<p className="w-2/3 text-sm text-neutral-600 dark:text-neutral-300">
 				Below are a list of previously used payment methods you have
 				opted for us to save. Select one to use it again.
 			</p>
@@ -92,7 +92,7 @@ export default function PaymentMethods({
 								"mb-5 flex cursor-pointer select-none items-center justify-between rounded-md border-[1px] px-4 py-3 dark:bg-dank-500",
 								selected === id
 									? "border-dank-300"
-									: "border-white/30"
+									: "border-black/30 dark:border-white/30"
 							)}
 							onClick={() => select(id)}
 						>
@@ -102,7 +102,7 @@ export default function PaymentMethods({
 										"relative mr-2 grid h-3 min-w-[0.75rem] place-items-center rounded-full border-2",
 										selected === id
 											? "border-dank-300"
-											: "border-white/30"
+											: "border-black/30 dark:border-white/30"
 									)}
 								>
 									{selected === id && (
@@ -121,9 +121,11 @@ export default function PaymentMethods({
 								{card.brand === "amex" && (
 									<Amex width={30} height={30} />
 								)}
-								<p className="ml-3 text-sm">
+								<p className="ml-3 text-sm text-black dark:text-white">
 									{toTitleCase(card.brand)} {card.type} card{" "}
-									<span className="text-neutral-600">•</span>{" "}
+									<span className="dark:text-neutral-600">
+										•
+									</span>{" "}
 									Ending with <code>{card.last4}</code>
 								</p>
 							</div>

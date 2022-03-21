@@ -219,11 +219,11 @@ export default function AccountInformation({
 
 	return (
 		<div className="w-full">
-			<h3 className="font-montserrat text-base font-bold">
+			<h3 className="font-montserrat text-base font-bold text-neutral-700 dark:text-white">
 				Account information
 			</h3>
 			<div className="">
-				<p className="text-sm dark:text-neutral-300">
+				<p className="text-sm text-neutral-600 dark:text-neutral-300">
 					This purchase is being made for
 				</p>
 				<div className="mt-2 flex flex-col justify-start phone:flex-row phone:items-center">
@@ -232,7 +232,7 @@ export default function AccountInformation({
 							className={clsx(
 								!isGift
 									? "bg-dank-300 text-white"
-									: "text-neutral-400 dark:bg-black/30",
+									: "bg-black/10 text-neutral-600 dark:bg-black/30 dark:text-neutral-400",
 								"rounded-l-md border-[1px] border-transparent px-3 py-1"
 							)}
 							onClick={() => setIsGift(false)}
@@ -243,7 +243,7 @@ export default function AccountInformation({
 							className={clsx(
 								isGift
 									? "bg-dank-300 text-white"
-									: "text-neutral-400 dark:bg-black/30",
+									: "bg-black/10 text-neutral-600 dark:bg-black/30 dark:text-neutral-400",
 								"rounded-r-md border-[1px] border-transparent px-3 py-1"
 							)}
 							onClick={() => setIsGift(true)}
@@ -270,7 +270,7 @@ export default function AccountInformation({
 				</div>
 			</div>
 			<div className="mt-3">
-				<p className="text-sm dark:text-[#7F847F]">
+				<p className="text-sm text-neutral-600 dark:text-neutral-500">
 					The following email will receive the purchase receipt once
 					the payment has been processed.
 				</p>

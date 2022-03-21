@@ -37,7 +37,9 @@ export default function Checkbox({
 					/>
 				)}
 			</div>
-			<p className="text-xs">{children}</p>
+			<p className="text-xs text-neutral-600 dark:text-neutral-300">
+				{children}
+			</p>
 		</div>
 	);
 }

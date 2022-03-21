@@ -31,6 +31,7 @@ import PaymentMethods from "./PaymentMethods";
 import AccountInformation from "./AccountInformation";
 import Tooltip from "src/components/ui/Tooltip";
 import { Icon as Iconify } from "@iconify/react";
+import clsx from "clsx";
 
 interface Props {
 	clientSecret: string;
@@ -57,6 +58,9 @@ export interface CardData {
 	id: string;
 	card: Card;
 }
+
+const StripeInputBaseStyles =
+	"mt-1 px-3 py-2 border-[1px] bg-white border-neutral-300 dark:border-neutral-700 dark:bg-black/30 rounded-md focus:border-dank-300";
 
 export default function CheckoutForm({
 	clientSecret,
@@ -338,7 +342,7 @@ export default function CheckoutForm({
 				</div>
 				{selectedPaymentOption === "Card" && (
 					<>
-						<h3 className="mt-7 font-montserrat text-base font-bold">
+						<h3 className="mt-7 font-montserrat text-base font-bold text-neutral-700 dark:text-white">
 							{!defaultPaymentMethod || !savedPaymentMethods
 								? "Enter other card details"
 								: "Enter card details"}
@@ -358,7 +362,7 @@ export default function CheckoutForm({
 								/>
 								<div className="mt-2 flex flex-col justify-start phone:flex-row phone:items-center">
 									<div className="mr-0 w-48 phone:mr-7">
-										<label className="text-neutral-300">
+										<label className="text-neutral-600 dark:text-neutral-300">
 											Card number
 										</label>
 										<CardNumberElement
@@ -382,7 +386,10 @@ export default function CheckoutForm({
 													},
 												},
 												classes: {
-													base: "mt-1 w-[200px] px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
+													base: clsx(
+														"w-[200px]",
+														StripeInputBaseStyles
+													),
 													focus: "border-[#199532] outline-none",
 													invalid: "border-[#F84A4A]",
 												},
@@ -391,7 +398,7 @@ export default function CheckoutForm({
 									</div>
 									<div className="mt-2 flex items-center justify-start phone:mt-0">
 										<div className="mr-5 w-max">
-											<label className="text-neutral-300">
+											<label className="text-neutral-600 dark:text-neutral-300">
 												Expiry
 											</label>
 											<div className="w-20">
@@ -419,7 +426,7 @@ export default function CheckoutForm({
 															},
 														},
 														classes: {
-															base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
+															base: StripeInputBaseStyles,
 															focus: "border-[#199532]",
 															invalid:
 																"border-[#F84A4A]",
@@ -429,7 +436,7 @@ export default function CheckoutForm({
 											</div>
 										</div>
 										<div className="w-max">
-											<label className="text-neutral-300">
+											<label className="text-neutral-600 dark:text-neutral-300">
 												CVC
 											</label>
 											<div className="w-14">
@@ -457,7 +464,7 @@ export default function CheckoutForm({
 															},
 														},
 														classes: {
-															base: "mt-1 px-3 py-2 border-[1px] border-[#3C3C3C] dark:bg-black/30 rounded-md focus:border-dank-300",
+															base: StripeInputBaseStyles,
 															focus: "border-[#199532]",
 															invalid:
 																"border-[#F84A4A]",
@@ -486,7 +493,7 @@ export default function CheckoutForm({
 				<div className="mt-9 flex flex-col items-start justify-items-start lg:flex-row">
 					{(appliedDiscount || thresholdDiscount) && (
 						<div className="mr-9 h-[224px] w-full lg:w-96">
-							<h3 className="font-montserrat text-base font-bold">
+							<h3 className="font-montserrat text-base font-bold text-neutral-700 dark:text-white">
 								Applied discounts
 							</h3>
 							<div className="flex h-full flex-col justify-between">
@@ -558,7 +565,7 @@ export default function CheckoutForm({
 										</div>
 									</div>
 								</div>
-								<div className="flex w-full justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
+								<div className="flex w-full justify-between rounded-lg bg-neutral-300 px-4 py-3 dark:bg-dank-500">
 									<Title size="small">Total:</Title>
 									<Title size="small">${totalCost}</Title>
 								</div>

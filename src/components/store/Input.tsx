@@ -33,7 +33,11 @@ export default function Input({
 }: InputProps) {
 	return (
 		<div className="group flex flex-col justify-start text-black dark:text-white">
-			{label && <label className="mb-1 text-neutral-300">{label}</label>}
+			{label && (
+				<label className="mb-1 text-neutral-600 dark:text-neutral-300">
+					{label}
+				</label>
+			)}
 			<input
 				type={type}
 				disabled={disabled}
@@ -44,7 +48,7 @@ export default function Input({
 				className={clsx(
 					inputWidths[width] || width,
 					className ? className : "",
-					"rounded-md border-[1px] border-[#3C3C3C] px-3 py-2 font-inter text-sm focus-visible:border-dank-300 focus-visible:outline-none dark:bg-black/30"
+					"rounded-md border-[1px] border-neutral-300 px-3 py-2 font-inter text-sm focus-visible:border-dank-300 focus-visible:outline-none dark:border-neutral-700 dark:bg-black/30"
 				)}
 			/>
 		</div>

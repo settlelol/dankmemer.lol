@@ -65,7 +65,11 @@ export default function ShoppingCart({
 				onClick={() => router.push(`/store/cart`)}
 			>
 				<div className="flex items-center space-x-2 py-1">
-					<Iconify icon="akar-icons:cart" color="white" height={20} />
+					<Iconify
+						icon="akar-icons:cart"
+						className="text-black dark:text-white"
+						height={20}
+					/>
 					<p>{label}</p>
 				</div>
 			</Button>

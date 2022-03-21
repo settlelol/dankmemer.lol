@@ -20,7 +20,7 @@ export default function OtherProduct({
 		<div className="mt-3 flex items-center justify-between">
 			<div className="flex">
 				<div
-					className="h-12 w-12 rounded-md bg-[length:33px_33px] bg-center bg-no-repeat dark:bg-black/30"
+					className="h-12 w-12 rounded-md bg-black/10 bg-[length:33px_33px] bg-center bg-no-repeat dark:bg-black/30"
 					style={{
 						backgroundImage: `url('${image}')`,
 					}}
@@ -56,7 +56,7 @@ export default function OtherProduct({
 					<Iconify
 						icon="akar-icons:cart"
 						height="20"
-						className="cursor-pointer text-gray-800 transition-colors dark:text-gray-200"
+						className="cursor-pointer text-white transition-colors dark:text-gray-200"
 					/>
 				</div>
 			</div>

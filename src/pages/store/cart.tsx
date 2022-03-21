@@ -247,7 +247,7 @@ export default function Cart({ cartData, user }: Props) {
 
 			<div className="flex justify-between">
 				<div className="flex w-[73%] flex-col">
-					<div className="h-max w-full rounded-lg px-4 py-3 dark:bg-dark-200">
+					<div className="h-max w-full rounded-lg bg-light-500 px-4 py-3 dark:bg-dark-200">
 						<Title size="small">Your items</Title>
 						<div className="mt-2">
 							{cart.map((item, i) => (
@@ -263,7 +263,7 @@ export default function Cart({ cartData, user }: Props) {
 							))}
 						</div>
 					</div>
-					<div className="mt-5 h-max w-full rounded-lg px-4 py-3 dark:bg-dark-200">
+					<div className="mt-5 h-max w-full rounded-lg bg-light-500 px-4 py-3 dark:bg-dark-200">
 						<Title size="small">Other users have also bought</Title>
 						<div className="mt-2">
 							{/* 
@@ -296,15 +296,15 @@ export default function Cart({ cartData, user }: Props) {
 						topText="Unlock more savings by purchasing an annual subscription!"
 						bottomText="When purchasing a subscription you are able to save up to 10% by switching to annual subscription rather than a monthly subscription."
 					/>
-					<div className="my-5 h-max w-full rounded-lg px-8 py-7 dark:bg-dark-200">
+					<div className="my-5 h-max w-full rounded-lg bg-light-500 px-8 py-7 dark:bg-dark-200">
 						<Title size="small">Details</Title>
-						<p className="mt-2 font-inter text-sm leading-tight text-light-600">
+						<p className="mt-2 font-inter text-sm leading-tight text-neutral-700/80 dark:text-light-600">
 							Checkout is completed in USD, bank or card fees may
 							apply to international payments. The total below is
 							what is required to be paid upon checkout.
 						</p>
 						<div className="mt-3 mr-9 w-full">
-							<h3 className="font-montserrat text-base font-bold">
+							<h3 className="font-montserrat text-base font-bold text-black dark:text-white">
 								Apply a discount code
 							</h3>
 							<div className="group mt-2">
@@ -450,10 +450,10 @@ export default function Cart({ cartData, user }: Props) {
 							</div>
 						</div>
 						<div className="mt-3">
-							<p className="text-right text-sm dark:text-neutral-400/80">
+							<p className="text-right text-sm text-neutral-600 dark:text-neutral-300/50">
 								Added sales tax: ${salesTax.toFixed(2)}
 							</p>
-							<div className="flex w-full items-center justify-between rounded-lg px-4 py-3 dark:bg-dank-500">
+							<div className="flex w-full items-center justify-between rounded-lg bg-neutral-300 px-4 py-3 dark:bg-dank-500">
 								<Title size="small">Total:</Title>
 								{processingChange ? (
 									<div className="h-5 w-16 animate-[pulse_0.5s_ease-in-out_infinite] rounded bg-dank-400"></div>
