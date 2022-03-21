@@ -3,6 +3,11 @@ interface PayPalResponseError {
 	error_description: string;
 }
 
+export interface PaymentAmount {
+	currency_code?: string;
+	value?: string;
+}
+
 export interface PayPalCartItem {
 	name: string;
 	unit_amount: {
