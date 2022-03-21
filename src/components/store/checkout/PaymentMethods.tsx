@@ -89,7 +89,7 @@ export default function PaymentMethods({
 					savedPaymentMethods.map(({ id, card }) => (
 						<div
 							className={clsx(
-								"mb-5 flex cursor-pointer select-none items-center justify-between rounded-md border-[1px] px-4 py-3 dark:bg-dank-500",
+								"mb-5 flex cursor-pointer select-none items-center justify-between rounded-md border-[1px] bg-light-200/50 px-4 py-3 dark:bg-dank-500",
 								selected === id
 									? "border-dank-300"
 									: "border-black/30 dark:border-white/30"
