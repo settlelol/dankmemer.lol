@@ -364,7 +364,7 @@ export default function AccountInformation({
 								acceptedTerms &&
 								(isGift ? validGiftRecipient : true)
 							)
-								? "bg-neutral-500 text-neutral-800"
+								? "bg-neutral-400 text-neutral-600 dark:bg-neutral-500 dark:text-neutral-800"
 								: ""
 						)}
 						disabled={
