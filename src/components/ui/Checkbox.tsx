@@ -4,6 +4,7 @@ import clsx from "clsx";
 
 interface Props {
 	state: any;
+	style?: "border" | "fill";
 	callback: any;
 	children: ReactNode; // Checkbox label
 	className?: string;
@@ -11,6 +12,7 @@ interface Props {
 
 export default function Checkbox({
 	state,
+	style = "border",
 	callback,
 	children,
 	className,
@@ -26,14 +28,18 @@ export default function Checkbox({
 			<div
 				className={clsx(
 					!state ? "border-[#3C3C3C]" : "border-dank-300",
-					"relative mr-2 h-4 min-w-[1rem] rounded border-[1px] transition-colors dark:bg-black/30"
+					style === "fill" && state && "bg-dank-300",
+					"relative mr-2 h-4 min-w-[1rem] cursor-pointer rounded border-[1px] transition-colors dark:bg-black/30"
 				)}
 			>
 				{state && (
 					<Iconify
 						icon="bx:bx-check"
 						height="16"
-						className="absolute top-[-1.5px] left-[-1px] text-dank-300"
+						className={clsx(
+							"absolute top-[-1.5px] left-[-1px]",
+							style === "border" ? "text-dank-300" : "text-white"
+						)}
 					/>
 				)}
 			</div>

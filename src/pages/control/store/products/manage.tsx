@@ -11,10 +11,21 @@ import Button from "src/components/ui/Button";
 import Tooltip from "src/components/ui/Tooltip";
 import { toast } from "react-toastify";
 import { AnyProduct } from "src/pages/store";
+import Checkbox from "src/components/ui/Checkbox";
+import Input from "src/components/store/Input";
+import clsx from "clsx";
 
 export default function ManageProducts({ user }: PageProps) {
 	const [products, setProducts] = useState<AnyProduct[]>([]);
+	const [displayedProducts, setDisplayedProducts] = useState<AnyProduct[]>(
+		[]
+	);
 	const [editing, setEditing] = useState("");
+
+	const [filterSearch, setFilterSearch] = useState("");
+
+	const [filterSelectAll, setFilterSelectAll] = useState(false);
+	const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
 	const [selectedPrimaryBody, setSelectedPrimaryBody] = useState("");
 	const [selectedSecondaryBody, setSelectedSecondaryBody] = useState("");
@@ -22,7 +33,6 @@ export default function ManageProducts({ user }: PageProps) {
 	const [selectedSecondaryTitle, setSelectedSecondaryTitle] = useState("");
 
 	useEffect(() => {
-		setProducts([]);
 		const StoreAPI = axios.create({
 			baseURL: "/api/store/products",
 		});
@@ -33,17 +43,39 @@ export default function ManageProducts({ user }: PageProps) {
 			])
 			.then(
 				axios.spread(({ data: subscriptions }, { data: onetime }) => {
-					setProducts((_products) => [
-						..._products,
-						...subscriptions,
-					]);
-					setProducts((_products) => [..._products, ...onetime]);
+					const receivedProducts = [...subscriptions, ...onetime];
+					setProducts(receivedProducts);
+					setDisplayedProducts(receivedProducts);
 				})
 			)
 			.catch(() => {
 				toast.error("Unable to get store products.");
 			});
 	}, []);
+
+	useEffect(() => {
+		if (filterSelectAll) {
+			return setSelectedProducts(
+				displayedProducts.map((product) => product.id)
+			);
+		} else {
+			return setSelectedProducts(
+				selectedProducts.length >= 1 &&
+					selectedProducts.length !== displayedProducts.length
+					? selectedProducts
+					: []
+			);
+		}
+	}, [filterSelectAll]);
+
+	useEffect(() => {
+		if (
+			filterSelectAll &&
+			selectedProducts.length !== displayedProducts.length
+		) {
+			setFilterSelectAll(false);
+		}
+	}, [selectedProducts]);
 
 	// TODO: (Blue) Make a better alternative for editing a selected product rather than just
 	// having the fields below the product.
@@ -91,65 +123,137 @@ export default function ManageProducts({ user }: PageProps) {
 			<div className="mx-8">
 				<div className="my-10 flex min-h-screen flex-col">
 					<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">
-						Store Products
+						Products
 					</div>
-					<table className="mt-8 border-collapse overflow-hidden rounded-lg border-none bg-light-500 p-4 text-left text-dark-400 dark:bg-dark-100 dark:text-light-200">
+					<div className="mt-8">
+						<Input
+							icon="bx:search"
+							width="w-full"
+							className="mt-8 !bg-light-500 dark:!bg-dark-100"
+							placeholder="Search for a product name"
+							type={"search"}
+							value={filterSearch}
+							onChange={(e) => setFilterSearch(e.target.value)}
+						/>
+					</div>
+					<table
+						style={{ borderSpacing: "0 0.2rem" }}
+						className="mt-4 border-separate overflow-hidden rounded-lg border-none text-left text-neutral-600 dark:text-neutral-300"
+					>
 						<thead>
-							<tr className="border-b-2 border-white/20">
-								<th className="w-[60px]"></th>
-								<th className="w-2/12 py-3">Name</th>
-								<th className="w-48 py-3">Prices</th>
-								<th className="w-44 py-3">Last updated</th>
-								<th className="w-2/12">Total purchases</th>
-								<th>Actions</th>
+							<tr className="select-none font-inter">
+								<th className="w-10 bg-light-500 px-5 first:rounded-l-lg dark:bg-dark-100">
+									<Checkbox
+										className="mt-0"
+										state={filterSelectAll}
+										style="fill"
+										callback={() =>
+											setFilterSelectAll((curr) => !curr)
+										}
+									>
+										<></>
+									</Checkbox>
+								</th>
+								<th className="w-1/5 bg-light-500 py-3 font-normal dark:bg-dark-100">
+									Name
+								</th>
+								<th className="w-48 bg-light-500 py-3 font-normal dark:bg-dark-100">
+									Prices
+								</th>
+								<th className="w-44 bg-light-500 py-3 font-normal dark:bg-dark-100">
+									Last updated
+								</th>
+								<th className="w-[82px] bg-light-500 font-normal dark:bg-dark-100">
+									Total sales
+								</th>
+								<th className="w-32 bg-light-500 text-right font-normal dark:bg-dark-100">
+									Total revenue
+								</th>
+								<th className="w-10 bg-light-500 font-normal last:rounded-r-lg dark:bg-dark-100"></th>
+								<th className="bg-light-500 font-normal last:rounded-r-lg dark:bg-dark-100">
+									joe
+								</th>
 							</tr>
 						</thead>
+						{/* Required to add additional spacing between the thead and tbody elements */}
+						<div className="h-4" />
 						<tbody>
-							{products.map((product) => (
+							{displayedProducts.map((product, i) => (
 								<>
 									<tr
 										key={product.id}
-										className="border-t-[1px] border-black/10 dark:border-white/20"
+										className={clsx(
+											selectedProducts.includes(
+												product.id
+											)
+												? "text-neutral-800 dark:text-neutral-300"
+												: "dark:text-neutral-400",
+											"group"
+										)}
 									>
-										<td className="p-3">
-											<img
-												src={product.images[0]}
-												width={32}
-											/>
+										<td className="px-5 first:rounded-l-lg group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
+											<Checkbox
+												className="mt-0"
+												state={selectedProducts.includes(
+													product.id
+												)}
+												style="fill"
+												callback={() => {
+													if (
+														selectedProducts.includes(
+															product.id
+														)
+													) {
+														setSelectedProducts(
+															(products) =>
+																products.filter(
+																	(id) =>
+																		id !==
+																		product.id
+																)
+														);
+													} else {
+														setSelectedProducts(
+															(products) => [
+																...products,
+																product.id,
+															]
+														);
+													}
+												}}
+											>
+												<></>
+											</Checkbox>
 										</td>
-										<td>{product.name}</td>
-										<td className="text-sm">
-											{product.price ? (
-												<p>
-													<span className="text-dank-300">
-														$
-														{(
-															product.price / 100
-														).toFixed(2)}
-													</span>{" "}
-													for one
-												</p>
-											) : (
-												product.prices
-													?.sort(
-														(a, b) =>
-															a.price - b.price
+										<td className="py-1 group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
+											<div className="flex items-center justify-start space-x-4">
+												<div
+													className={clsx(
+														"rounded-md bg-black/10 bg-light-500 bg-center bg-no-repeat dark:bg-dark-100",
+														"h-12 w-12 bg-[length:33px_33px]"
+													)}
+													style={{
+														backgroundImage: `url('${product.images[0]}')`,
+													}}
+												/>
+												<span>{product.name}</span>
+											</div>
+										</td>
+										<td className="text-sm group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
+											<p>
+												{product.prices
+													.map(
+														(price) =>
+															"$" +
+															(
+																price.price /
+																100
+															).toFixed(2)
 													)
-													?.map((price) => (
-														<p className="mb-1">
-															<span className="text-dank-300">
-																$
-																{(
-																	price.price /
-																	100
-																).toFixed(2)}
-															</span>{" "}
-															per {price.interval}
-														</p>
-													))
-											)}
+													.join(" or ")}
+											</p>
 										</td>
-										<td>
+										<td className="group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
 											{product.metadata.lastUpdated
 												? formatDistance(
 														new Date(
@@ -165,13 +269,21 @@ export default function ManageProducts({ user }: PageProps) {
 												  )
 												: "Unknown"}
 										</td>
-										<td>
-											{product.metadata.purchaseCount?.toLocaleString() ??
-												(0).toLocaleString()}
+										<td className="text-right group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
+											<p>
+												{product.metadata.purchaseCount?.toLocaleString() ?? (
+													<span className="pr-1">
+														&mdash;
+													</span>
+												)}
+											</p>
 										</td>
-										<td>
+										<td className="text-right group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
+											${(102938).toLocaleString()}
+										</td>
+										<td className="px-5 last:rounded-r-lg group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
 											<Iconify
-												icon="akar-icons:edit"
+												icon="akar-icons:more-horizontal"
 												height={20}
 												className="cursor-pointer hover:!text-dank-100"
 												onClick={() =>
