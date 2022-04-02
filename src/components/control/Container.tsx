@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Head from "next/head";
 
 interface Props {
 	children: ReactNode;
@@ -24,6 +25,11 @@ export default function ControlPanelContainer({
 
 	return (
 		<>
+			<Head>
+				<title>
+					Dank Memer {title.length >= 1 ? `| ${title}` : ""}
+				</title>
+			</Head>
 			<ToastContainer position="top-center" theme="colored" />
 			<div className="fixed top-0 left-0 h-full w-72 bg-[#ECEFF0] px-9 py-5 dark:bg-dark-100">
 				<div
