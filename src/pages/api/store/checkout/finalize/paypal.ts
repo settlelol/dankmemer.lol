@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { NextApiResponse } from "next";
 import { dbConnect } from "src/util/mongodb";
 import { stripeConnect } from "src/util/stripe";
@@ -115,13 +116,17 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					purchases: {
 						type: "paypal",
 						id: orderID,
-						isGift,
-						giftFor,
-						items: items.filter((item) => item !== undefined),
 					},
 				},
 			}
 		);
+		await db.collection("purchases").insertOne({
+			_id: "paypal" as unknown as ObjectId,
+			isGift,
+			giftFor,
+			items: items.filter((item) => item !== undefined),
+			purchaseTime: new Date().getTime(),
+		});
 		await stripe.invoices.voidInvoice(stripeInvoice);
 		req.session.unset("cart");
 		req.session.unset("discountCode");

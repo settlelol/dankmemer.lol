@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { NextApiResponse } from "next";
 import { dbConnect } from "src/util/mongodb";
 import { stripeConnect } from "src/util/stripe";
@@ -72,14 +73,16 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				$push: {
 					purchases: {
 						type: "stripe",
-						invoice: invoice.id,
-						paymentIntent: (
-							invoice.payment_intent! as Stripe.PaymentIntent
-						).id,
+						id: invoice.id,
 					},
 				},
 			}
 		);
+		await db.collection("purchases").insertOne({
+			_id: invoice.id as unknown as ObjectId,
+			paymentIntent: (invoice.payment_intent! as Stripe.PaymentIntent).id,
+			purchaseTime: new Date().getTime(),
+		});
 		req.session.unset("cart");
 		req.session.unset("discountCode");
 
