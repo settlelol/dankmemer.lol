@@ -14,6 +14,7 @@ import { AnyProduct } from "src/pages/store";
 import Checkbox from "src/components/ui/Checkbox";
 import Input from "src/components/store/Input";
 import clsx from "clsx";
+import ProductRow from "src/components/control/store/ProductRow";
 
 export default function ManageProducts({ user }: PageProps) {
 	const [products, setProducts] = useState<AnyProduct[]>([]);
@@ -178,83 +179,17 @@ export default function ManageProducts({ user }: PageProps) {
 						{/* Required to add additional spacing between the thead and tbody elements */}
 						<div className="h-4" />
 						<tbody>
-							{displayedProducts.map((product, i) => (
+							{displayedProducts.map((product) => (
 								<>
-									<tr
-										key={product.id}
-										className={clsx(
-											selectedProducts.includes(
-												product.id
-											)
-												? "text-neutral-800 dark:text-neutral-300"
-												: "dark:text-neutral-400",
-											"group"
+									<ProductRow
+										id={product.id}
+										selected={selectedProducts.includes(
+											product.id
 										)}
-									>
-										<td className="px-5 first:rounded-l-lg group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
-											<Checkbox
-												className="mt-0"
-												state={selectedProducts.includes(
-													product.id
-												)}
-												style="fill"
-												callback={() => {
-													if (
-														selectedProducts.includes(
-															product.id
-														)
-													) {
-														setSelectedProducts(
-															(products) =>
-																products.filter(
-																	(id) =>
-																		id !==
-																		product.id
-																)
-														);
-													} else {
-														setSelectedProducts(
-															(products) => [
-																...products,
-																product.id,
-															]
-														);
-													}
-												}}
-											>
-												<></>
-											</Checkbox>
-										</td>
-										<td className="py-1 group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
-											<div className="flex items-center justify-start space-x-4">
-												<div
-													className={clsx(
-														"rounded-md bg-black/10 bg-light-500 bg-center bg-no-repeat dark:bg-dark-100",
-														"h-12 w-12 bg-[length:33px_33px]"
-													)}
-													style={{
-														backgroundImage: `url('${product.images[0]}')`,
-													}}
-												/>
-												<span>{product.name}</span>
-											</div>
-										</td>
-										<td className="text-sm group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
-											<p>
-												{product.prices
-													.map(
-														(price) =>
-															"$" +
-															(
-																price.price /
-																100
-															).toFixed(2)
-													)
-													.join(" or ")}
-											</p>
-										</td>
-										<td className="group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
-											{product.metadata.lastUpdated
+										name={product.name}
+										image={product.images[0]}
+										lastUpdated={
+											product.metadata.lastUpdated
 												? formatDistance(
 														new Date(
 															parseInt(
@@ -267,32 +202,32 @@ export default function ManageProducts({ user }: PageProps) {
 															addSuffix: true,
 														}
 												  )
-												: "Unknown"}
-										</td>
-										<td className="text-right group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
-											<p>
-												{product.metadata.purchaseCount?.toLocaleString() ?? (
-													<span className="pr-1">
-														&mdash;
-													</span>
-												)}
-											</p>
-										</td>
-										<td className="text-right group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
-											${(102938).toLocaleString()}
-										</td>
-										<td className="px-5 last:rounded-r-lg group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
-											<Iconify
-												icon="akar-icons:more-horizontal"
-												height={20}
-												className="cursor-pointer hover:!text-dank-100"
-												onClick={() =>
-													selectProduct(product.id)
-												}
-											/>
-										</td>
-									</tr>
-									{editing === product.id && (
+												: "Unknown"
+										}
+										price={product.prices
+											.map(
+												(price) =>
+													"$" +
+													(price.price / 100).toFixed(
+														2
+													)
+											)
+											.join(" or ")}
+										sales={product.metadata.purchases}
+										select={() => setSelectedProducts(
+											(products) => [
+												...products,
+												product.id,
+											]
+										)}
+										deselect={() => setSelectedProducts(
+											(products) =>
+												products.filter(
+													(id) => id !== product.id
+												)
+										)}
+									/>
+									{/* {editing === product.id && (
 										<tr>
 											<td colSpan={3} className="p-3">
 												<div className="flex flex-col justify-start">
@@ -420,7 +355,7 @@ export default function ManageProducts({ user }: PageProps) {
 												</div>
 											</td>
 										</tr>
-									)}
+									)} */}
 								</>
 							))}
 						</tbody>
