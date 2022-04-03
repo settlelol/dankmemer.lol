@@ -4,9 +4,12 @@ import { dbConnect } from "src/util/mongodb";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { NextIronRequest, withSession } from "../../../../../util/session";
-import { PaymentIntentItemDiscount } from "../../webhooks/stripe";
+import {
+	PaymentIntentItemDiscount,
+	PaymentIntentItemResult,
+} from "../../webhooks/stripe";
 
-interface PurchaseRecord {
+export interface PurchaseRecord {
 	id: string;
 	quantity: number;
 	discounts: (Stripe.Discount | Stripe.DeletedDiscount)[];
@@ -99,16 +102,20 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 					return {
 						id: lineItem.price?.product,
+						name: lineItem.description,
+						price: lineItem.amount / 100,
 						quantity: lineItem.quantity!,
+						type: lineItem.price?.type!,
 						discounts: usedDiscounts.map((usedDiscount) => ({
 							...discounts.find(
 								(discount) => discount.id === usedDiscount
 							),
-						})),
+						})) as PaymentIntentItemDiscount[],
 					};
 				}
 			}
-		) as PurchaseRecord[];
+		) as PaymentIntentItemResult[];
+
 		await db.collection("customers").updateOne(
 			{ discordId: user.id },
 			{
@@ -121,7 +128,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			}
 		);
 		await db.collection("purchases").insertOne({
-			_id: "paypal" as unknown as ObjectId,
+			_id: invoice.id as unknown as ObjectId,
 			isGift,
 			giftFor,
 			items: items.filter((item) => item !== undefined),
