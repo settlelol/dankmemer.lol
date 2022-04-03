@@ -13,10 +13,20 @@ import { toast } from "react-toastify";
 import { AnyProduct } from "src/pages/store";
 import Checkbox from "src/components/ui/Checkbox";
 import Input from "src/components/store/Input";
-import clsx from "clsx";
 import ProductRow from "src/components/control/store/ProductRow";
 
+interface SalesData {
+	productSales: ProductSales[];
+}
+
+interface ProductSales {
+	_id: string;
+	sales: number;
+	revenue: number;
+}
+
 export default function ManageProducts({ user }: PageProps) {
+	const [salesData, setSalesData] = useState<SalesData | null>(null);
 	const [products, setProducts] = useState<AnyProduct[]>([]);
 	const [displayedProducts, setDisplayedProducts] = useState<AnyProduct[]>(
 		[]
@@ -53,6 +63,15 @@ export default function ManageProducts({ user }: PageProps) {
 				toast.error("Unable to get store products.");
 			});
 	}, []);
+
+	useEffect(() => {
+		if (products.length <= 1) return;
+		axios(`/api/store/products/data`)
+			.then(({ data }) => {
+				setSalesData(data);
+			})
+			.catch((e) => console.error(e));
+	}, [products]);
 
 	useEffect(() => {
 		if (filterSelectAll) {
@@ -209,7 +228,16 @@ export default function ManageProducts({ user }: PageProps) {
 												(price.price / 100).toFixed(2)
 										)
 										.join(" or ")}
-									sales={product.metadata.purchases}
+									sales={
+										salesData?.productSales.find(
+											(prod) => prod._id === product.id
+										)?.sales!
+									}
+									revenue={
+										salesData?.productSales.find(
+											(prod) => prod._id === product.id
+										)?.revenue!
+									}
 									select={() =>
 										setSelectedProducts((products) => [
 											...products,
