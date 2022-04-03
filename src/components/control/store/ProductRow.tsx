@@ -1,6 +1,8 @@
 import { Icon as Iconify } from "@iconify/react";
 import Checkbox from "src/components/ui/Checkbox";
 import clsx from "clsx";
+import { useEffect } from "react";
+import axios from "axios";
 
 interface ProductRow {
 	id: string;
@@ -8,7 +10,8 @@ interface ProductRow {
 	image: string;
 	price: string;
 	lastUpdated: string;
-	sales: number | string;
+	sales: number;
+	revenue: number;
 	selected: boolean;
 	select: any;
 	deselect: any;
@@ -21,6 +24,7 @@ export default function ProductRow({
 	price,
 	lastUpdated,
 	sales,
+	revenue,
 	selected,
 	select,
 	deselect,
@@ -32,7 +36,7 @@ export default function ProductRow({
 				selected
 					? "text-neutral-800 dark:text-neutral-300"
 					: "dark:text-neutral-400",
-				"group"
+				"group text-sm"
 			)}
 		>
 			<td className="px-5 first:rounded-l-lg group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
@@ -59,7 +63,7 @@ export default function ProductRow({
 					<span>{name}</span>
 				</div>
 			</td>
-			<td className="text-sm group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
+			<td className="group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
 				<p>{price}</p>
 			</td>
 			<td className="group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
@@ -69,7 +73,7 @@ export default function ProductRow({
 				<p>{sales ?? <>&mdash;</>}</p>
 			</td>
 			<td className="text-right group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
-				${(102938).toLocaleString()}
+				<p>${revenue ? revenue.toFixed(2).toLocaleString() : "0.00"}</p>
 			</td>
 			<td className="px-5 last:rounded-r-lg group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
 				<Iconify
