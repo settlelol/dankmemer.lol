@@ -12,7 +12,7 @@ export const config = {
 	},
 };
 
-interface PaymentIntentItemResult {
+export interface PaymentIntentItemResult {
 	name: string;
 	price: number;
 	quantity: number;

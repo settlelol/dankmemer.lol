@@ -4,6 +4,11 @@ import { dbConnect } from "src/util/mongodb";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { NextIronRequest, withSession } from "../../../../../util/session";
+import {
+	PaymentIntentItemDiscount,
+	PaymentIntentItemResult,
+} from "../../webhooks/stripe";
+import { PurchaseRecord } from "./paypal";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	if (req.method?.toLowerCase() !== "patch") {
@@ -40,7 +45,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	const invoice = await stripe.invoices.retrieve(invoiceId, {
-		expand: ["payment_intent.payment_method"],
+		expand: ["payment_intent.payment_method", "discounts"],
 	});
 
 	let metadata;
@@ -61,6 +66,64 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	try {
+		let discounts: PaymentIntentItemDiscount[] = [];
+		for (
+			let i = 0;
+			i <
+			(
+				invoice.discounts as unknown as
+					| Stripe.Discount[]
+					| Stripe.DeletedDiscount[]
+			)?.length;
+			i++
+		) {
+			const discount = invoice.discounts![i] as unknown as
+				| Stripe.Discount
+				| Stripe.DeletedDiscount;
+			const { data: coupon } = await stripe.promotionCodes.list({
+				coupon: discount.coupon?.id,
+			});
+			discounts.push({
+				id: discount.id,
+				code: coupon[0].code,
+				name: coupon[0].coupon.name || "N/A",
+				discountDecimal: discount.coupon.percent_off!,
+				discountPercentage: `${parseFloat(
+					discount.coupon.percent_off as unknown as string
+				)}%`,
+			});
+		}
+
+		const items: PaymentIntentItemResult[] = invoice.lines.data.map(
+			(lineItem: Stripe.InvoiceLineItem) => {
+				if (lineItem.description === null) {
+					return {
+						name: "SALESTAX",
+						price: lineItem.amount / 100,
+						quantity: 1,
+						type: lineItem.price?.type!,
+					};
+				} else {
+					const usedDiscounts =
+						lineItem.discount_amounts
+							?.filter((da) => da.amount > 0)
+							.map((discount) => discount.discount) || [];
+					return {
+						id: lineItem.price?.product,
+						name: lineItem.description,
+						price: lineItem.amount / 100,
+						quantity: lineItem.quantity!,
+						type: lineItem.price?.type!,
+						discounts: usedDiscounts.map((usedDiscount) => ({
+							...discounts.find(
+								(discount) => discount.id === usedDiscount
+							),
+						})) as PaymentIntentItemDiscount[],
+					};
+				}
+			}
+		);
+
 		paymentIntentData["metadata"] = metadata;
 		await stripe.customers.update(customer.id, customerData);
 		await stripe.paymentIntents.update(
@@ -80,7 +143,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		);
 		await db.collection("purchases").insertOne({
 			_id: invoice.id as unknown as ObjectId,
-			paymentIntent: (invoice.payment_intent! as Stripe.PaymentIntent).id,
+			isGift,
+			giftFor,
+			items: items.filter((item) => item.name !== "SALESTAX"),
 			purchaseTime: new Date().getTime(),
 		});
 		req.session.unset("cart");
