@@ -178,185 +178,52 @@ export default function ManageProducts({ user }: PageProps) {
 						<div className="h-4" />
 						<tbody>
 							{displayedProducts.map((product) => (
-								<>
-									<ProductRow
-										id={product.id}
-										selected={selectedProducts.includes(
-											product.id
-										)}
-										name={product.name}
-										image={product.images[0]}
-										lastUpdated={
-											product.metadata.lastUpdated
-												? formatDistance(
-														new Date(
-															parseInt(
-																product.metadata
-																	.lastUpdated
-															)
-														),
-														new Date(),
-														{
-															addSuffix: true,
-														}
-												  )
-												: "Unknown"
-										}
-										price={product.prices
+								<ProductRow
+									id={product.id}
+									selected={selectedProducts.includes(
+										product.id
+									)}
+									name={product.name}
+									image={product.images[0]}
+									lastUpdated={
+										product.metadata.lastUpdated
+											? formatDistance(
+													new Date(
+														parseInt(
+															product.metadata
+																.lastUpdated
+														)
+													),
+													new Date(),
+													{
+														addSuffix: true,
+													}
+											  )
+											: "Unknown"
+									}
+									price={product.prices
 										.sort((a, b) => a.price - b.price)
-											.map(
-												(price) =>
-													"$" +
-													(price.price / 100).toFixed(
-														2
-													)
+										.map(
+											(price) =>
+												"$" +
+												(price.price / 100).toFixed(2)
+										)
+										.join(" or ")}
+									sales={product.metadata.purchases}
+									select={() =>
+										setSelectedProducts((products) => [
+											...products,
+											product.id,
+										])
+									}
+									deselect={() =>
+										setSelectedProducts((products) =>
+											products.filter(
+												(id) => id !== product.id
 											)
-											.join(" or ")}
-										sales={product.metadata.purchases}
-										select={() =>
-											setSelectedProducts((products) => [
-												...products,
-												product.id,
-											])
-										}
-										deselect={() =>
-											setSelectedProducts((products) =>
-												products.filter(
-													(id) => id !== product.id
-												)
-											)
-										}
-									/>
-									{/* {editing === product.id && (
-										<tr>
-											<td colSpan={3} className="p-3">
-												<div className="flex flex-col justify-start">
-													<label
-														htmlFor="includes"
-														className="mb-2"
-													>
-														Product includes
-														<sup className="text-red-500">
-															*
-														</sup>
-														<Tooltip content="Markdown is supported for this field">
-															<Iconify
-																icon="akar-icons:info"
-																className="mb-1 ml-2 inline-flex opacity-30"
-															/>
-														</Tooltip>
-													</label>
-													<textarea
-														id="includes"
-														className="h-40 resize-none rounded-md bg-light-200 px-2 py-1 text-sm focus-visible:outline focus-visible:outline-[1px] focus-visible:outline-dank-200 dark:bg-dank-600"
-														defaultValue={
-															selectedPrimaryBody
-														}
-														onChange={(e) =>
-															setSelectedPrimaryBody(
-																e.target.value
-															)
-														}
-													></textarea>
-												</div>
-											</td>
-											<td colSpan={2}>
-												<div className="flex flex-col justify-start">
-													<label
-														htmlFor="also-includes"
-														className="mb-2"
-													>
-														Additionally included
-														<Tooltip content="Markdown is supported for this field">
-															<Iconify
-																icon="akar-icons:info"
-																className="mb-1 ml-1 inline-flex opacity-30"
-															/>
-														</Tooltip>
-													</label>
-													<textarea
-														id="also-includes"
-														className="h-40 resize-none rounded-md bg-light-200 px-2 py-1 text-sm focus-visible:outline focus-visible:outline-[1px] focus-visible:outline-dank-200 dark:bg-dank-600"
-														defaultValue={
-															selectedSecondaryBody
-														}
-														onChange={(e) =>
-															setSelectedSecondaryBody(
-																e.target.value
-															)
-														}
-													></textarea>
-												</div>
-											</td>
-											<td
-												colSpan={1}
-												className="p-3 align-top"
-											>
-												<div className="flex flex-col justify-start">
-													<div className="flex flex-col justify-start">
-														<label
-															htmlFor="primary-title"
-															className="mb-2"
-														>
-															Primary title
-															<sup className="text-red-500">
-																*
-															</sup>
-														</label>
-														<input
-															id="primary-title"
-															type="text"
-															className="rounded-md bg-light-200 px-2 py-1 focus-visible:outline focus-visible:outline-[1px] focus-visible:outline-dank-200 dark:bg-dank-600"
-															placeholder="Exclusive benefits"
-															defaultValue={
-																selectedPrimaryTitle
-															}
-															onChange={(e) =>
-																setSelectedPrimaryTitle(
-																	e.target
-																		.value
-																)
-															}
-														/>
-													</div>
-													<div className="flex flex-col justify-start">
-														<label
-															htmlFor="primary-title"
-															className="mb-2"
-														>
-															Secondary title
-														</label>
-														<input
-															id="secondary-title"
-															type="text"
-															className="rounded-md bg-light-200 px-2 py-1 focus-visible:outline focus-visible:outline-[1px] focus-visible:outline-dank-200 dark:bg-dank-600"
-															placeholder="Also included"
-															defaultValue={
-																selectedSecondaryTitle
-															}
-															onChange={(e) =>
-																setSelectedSecondaryTitle(
-																	e.target
-																		.value
-																)
-															}
-														/>
-													</div>
-													<Button
-														className="mt-6"
-														size={"medium-large"}
-														onClick={saveEdits}
-													>
-														<p>
-															Save changes to '
-															{product.name}'
-														</p>
-													</Button>
-												</div>
-											</td>
-										</tr>
-									)} */}
-								</>
+										)
+									}
+								/>
 							))}
 						</tbody>
 					</table>
