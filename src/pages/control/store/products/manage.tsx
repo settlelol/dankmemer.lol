@@ -171,9 +171,7 @@ export default function ManageProducts({ user }: PageProps) {
 									Total revenue
 								</th>
 								<th className="w-10 bg-light-500 font-normal last:rounded-r-lg dark:bg-dark-100"></th>
-								<th className="bg-light-500 font-normal last:rounded-r-lg dark:bg-dark-100">
-									joe
-								</th>
+								<th className="bg-light-500 font-normal last:rounded-r-lg dark:bg-dark-100"></th>
 							</tr>
 						</thead>
 						{/* Required to add additional spacing between the thead and tbody elements */}
@@ -214,18 +212,19 @@ export default function ManageProducts({ user }: PageProps) {
 											)
 											.join(" or ")}
 										sales={product.metadata.purchases}
-										select={() => setSelectedProducts(
-											(products) => [
+										select={() =>
+											setSelectedProducts((products) => [
 												...products,
 												product.id,
-											]
-										)}
-										deselect={() => setSelectedProducts(
-											(products) =>
+											])
+										}
+										deselect={() =>
+											setSelectedProducts((products) =>
 												products.filter(
 													(id) => id !== product.id
 												)
-										)}
+											)
+										}
 									/>
 									{/* {editing === product.id && (
 										<tr>
