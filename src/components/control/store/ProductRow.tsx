@@ -35,7 +35,7 @@ export default function ProductRow({
 				"group"
 			)}
 		>
-			<td className="px-5 first:rounded-l-lg group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
+			<td className="px-5 first:rounded-l-lg group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
 				<Checkbox
 					className="mt-0"
 					state={selected}
@@ -45,7 +45,7 @@ export default function ProductRow({
 					<></>
 				</Checkbox>
 			</td>
-			<td className="py-1 group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
+			<td className="py-1 group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
 				<div className="flex items-center justify-start space-x-4">
 					<div
 						className={clsx(
@@ -59,19 +59,19 @@ export default function ProductRow({
 					<span>{name}</span>
 				</div>
 			</td>
-			<td className="text-sm group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
+			<td className="text-sm group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
 				<p>{price}</p>
 			</td>
-			<td className="group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
+			<td className="group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
 				<p>{lastUpdated}</p>
 			</td>
-			<td className="text-right group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
+			<td className="text-right group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
 				<p>{sales}</p>
 			</td>
-			<td className="text-right group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
+			<td className="text-right group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
 				${(102938).toLocaleString()}
 			</td>
-			<td className="px-5 last:rounded-r-lg group-hover:bg-neutral-100 group-hover:dark:bg-dark-100/50">
+			<td className="px-5 last:rounded-r-lg group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
 				<Iconify
 					icon="akar-icons:more-horizontal"
 					height={20}

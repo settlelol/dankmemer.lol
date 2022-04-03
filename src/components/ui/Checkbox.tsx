@@ -28,7 +28,7 @@ export default function Checkbox({
 			<div
 				className={clsx(
 					!state ? "border-[#3C3C3C]" : "border-dank-300",
-					style === "fill" && state && "bg-dank-300",
+					style === "fill" && state && "!bg-dank-300",
 					"relative mr-2 h-4 min-w-[1rem] cursor-pointer rounded border-[1px] transition-colors dark:bg-black/30"
 				)}
 			>
