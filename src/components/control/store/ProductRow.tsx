@@ -66,7 +66,7 @@ export default function ProductRow({
 				<p>{lastUpdated}</p>
 			</td>
 			<td className="text-right group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
-				<p>{sales}</p>
+				<p>{sales ?? <>&mdash;</>}</p>
 			</td>
 			<td className="text-right group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
 				${(102938).toLocaleString()}
