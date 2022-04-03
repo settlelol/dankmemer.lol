@@ -203,6 +203,7 @@ export default function ManageProducts({ user }: PageProps) {
 												: "Unknown"
 										}
 										price={product.prices
+										.sort((a, b) => a.price - b.price)
 											.map(
 												(price) =>
 													"$" +
