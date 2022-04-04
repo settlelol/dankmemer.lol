@@ -1,7 +1,7 @@
 import axios from "axios";
 import { formatDistance } from "date-fns";
 import { GetServerSideProps } from "next";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import ControlPanelContainer from "src/components/control/Container";
 import { PageProps } from "src/types";
 import { developerRoute } from "src/util/redirects";
@@ -14,6 +14,9 @@ import { AnyProduct } from "src/pages/store";
 import Checkbox from "src/components/ui/Checkbox";
 import Input from "src/components/store/Input";
 import ProductRow from "src/components/control/store/ProductRow";
+import { TableHeadersState } from "src/components/control/TableSortIcon";
+import TableHead from "src/components/control/TableHead";
+import clsx from "clsx";
 
 interface SalesData {
 	productSales: ProductSales[];
@@ -25,6 +28,31 @@ interface ProductSales {
 	revenue: number;
 }
 
+enum TableHeaders {
+	NAME = 0,
+	PRICES = 1,
+	LAST_UPDATED = 2,
+	TOTAL_SALES = 3,
+	TOTAL_REVENUE = 4,
+}
+
+interface FilterableColumnData {
+	type: "Sortable";
+	name: string;
+	selector: TableHeaders;
+	content?: never;
+	width: string;
+	rtl?: boolean;
+}
+
+interface UnfilterableColumnData {
+	type: "Unsortable";
+	name?: never;
+	selector?: never;
+	content: ReactNode;
+	width: string;
+}
+
 export default function ManageProducts({ user }: PageProps) {
 	const [salesData, setSalesData] = useState<SalesData | null>(null);
 	const [products, setProducts] = useState<AnyProduct[]>([]);
@@ -34,6 +62,10 @@ export default function ManageProducts({ user }: PageProps) {
 	const [editing, setEditing] = useState("");
 
 	const [filterSearch, setFilterSearch] = useState("");
+	const [filterTableHeaders, setFilterTableHeaders] =
+		useState<TableHeaders | null>();
+	const [filterTableHeadersState, setFilterTableHeadersState] =
+		useState<TableHeadersState>(TableHeadersState.BOTTOM);
 
 	const [filterSelectAll, setFilterSelectAll] = useState(false);
 	const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
@@ -42,6 +74,62 @@ export default function ManageProducts({ user }: PageProps) {
 	const [selectedSecondaryBody, setSelectedSecondaryBody] = useState("");
 	const [selectedPrimaryTitle, setSelectedPrimaryTitle] = useState("");
 	const [selectedSecondaryTitle, setSelectedSecondaryTitle] = useState("");
+
+	const TableHeads = useRef<
+		(FilterableColumnData | UnfilterableColumnData)[]
+	>([
+		{
+			type: "Unsortable",
+			content: (
+				<Checkbox
+					className="mt-0"
+					state={filterSelectAll}
+					style="fill"
+					callback={() => setFilterSelectAll((curr) => !curr)}
+				>
+					<></>
+				</Checkbox>
+			),
+			width: "w-10",
+		},
+		{
+			type: "Sortable",
+			name: "Name",
+			width: "w-1/5",
+			selector: TableHeaders.NAME,
+		},
+		{
+			type: "Sortable",
+			name: "Prices",
+			width: "w-48",
+			selector: TableHeaders.PRICES,
+		},
+		{
+			type: "Sortable",
+			name: "Last updated",
+			width: "w-44",
+			selector: TableHeaders.LAST_UPDATED,
+		},
+		{
+			type: "Sortable",
+			name: "Total sales",
+			width: "w-[100px]",
+			selector: TableHeaders.TOTAL_SALES,
+			rtl: true,
+		},
+		{
+			type: "Sortable",
+			name: "Total revenue",
+			width: "w-52",
+			selector: TableHeaders.TOTAL_REVENUE,
+			rtl: true,
+		},
+		{
+			type: "Unsortable",
+			content: <></>,
+			width: "w-10",
+		},
+	]);
 
 	useEffect(() => {
 		const StoreAPI = axios.create({
@@ -138,6 +226,124 @@ export default function ManageProducts({ user }: PageProps) {
 		});
 	};
 
+	const changeSorting = (
+		selector: TableHeaders,
+		state: TableHeadersState
+	) => {
+		setFilterTableHeaders(selector);
+		setFilterTableHeadersState(state);
+
+		switch (selector) {
+			case TableHeaders.NAME:
+				if (state === TableHeadersState.TOP) {
+					setDisplayedProducts((products) =>
+						products.sort((a, b) => a.name.localeCompare(b.name))
+					);
+				} else {
+					setDisplayedProducts((products) =>
+						products.sort((a, b) => b.name.localeCompare(a.name))
+					);
+				}
+				break;
+			case TableHeaders.PRICES:
+				if (state === TableHeadersState.TOP) {
+					setDisplayedProducts((products) =>
+						products.sort(
+							(a, b) => a.prices[0].price - b.prices[0].price
+						)
+					);
+				} else {
+					setDisplayedProducts((products) =>
+						products.sort(
+							(a, b) =>
+								b.prices.reduce(
+									(prev, { price: curr }) => prev + curr,
+									0
+								) -
+								a.prices.reduce(
+									(prev, { price: curr }) => prev + curr,
+									0
+								)
+						)
+					);
+				}
+				break;
+			case TableHeaders.LAST_UPDATED:
+				if (state === TableHeadersState.TOP) {
+					setDisplayedProducts((products) =>
+						products.sort(
+							(a, b) =>
+								(parseInt(b.metadata.lastUpdated) || 0) -
+								(parseInt(a.metadata.lastUpdated) || 0)
+						)
+					);
+				} else {
+					setDisplayedProducts((products) =>
+						products.sort(
+							(a, b) =>
+								(parseInt(a.metadata.lastUpdated) || 0) -
+								(parseInt(b.metadata.lastUpdated) || 0)
+						)
+					);
+				}
+				break;
+			case TableHeaders.TOTAL_SALES:
+				if (state === TableHeadersState.TOP) {
+					setDisplayedProducts((products) =>
+						products.sort(
+							(a, b) =>
+								(salesData?.productSales.find(
+									(prod) => prod._id === a.id
+								)?.sales || 0) -
+								(salesData?.productSales.find(
+									(prod) => prod._id === b.id
+								)?.sales || 0)
+						)
+					);
+				} else {
+					setDisplayedProducts((products) =>
+						products.sort(
+							(a, b) =>
+								(salesData?.productSales.find(
+									(prod) => prod._id === b.id
+								)?.sales || 0) -
+								(salesData?.productSales.find(
+									(prod) => prod._id === a.id
+								)?.sales || 0)
+						)
+					);
+				}
+				break;
+			case TableHeaders.TOTAL_REVENUE:
+				if (state === TableHeadersState.TOP) {
+					setDisplayedProducts((products) =>
+						products.sort(
+							(a, b) =>
+								(salesData?.productSales.find(
+									(prod) => prod._id === a.id
+								)?.revenue || 0) -
+								(salesData?.productSales.find(
+									(prod) => prod._id === b.id
+								)?.revenue || 0)
+						)
+					);
+				} else {
+					setDisplayedProducts((products) =>
+						products.sort(
+							(a, b) =>
+								(salesData?.productSales.find(
+									(prod) => prod._id === b.id
+								)?.revenue || 0) -
+								(salesData?.productSales.find(
+									(prod) => prod._id === a.id
+								)?.revenue || 0)
+						)
+					);
+				}
+				break;
+		}
+	};
+
 	return (
 		<ControlPanelContainer title={"Manage Products"} user={user}>
 			<div className="mx-8">
@@ -162,35 +368,51 @@ export default function ManageProducts({ user }: PageProps) {
 					>
 						<thead>
 							<tr className="select-none font-inter">
-								<th className="w-10 bg-light-500 px-5 first:rounded-l-lg dark:bg-dark-100">
-									<Checkbox
-										className="mt-0"
-										state={filterSelectAll}
-										style="fill"
-										callback={() =>
-											setFilterSelectAll((curr) => !curr)
-										}
-									>
-										<></>
-									</Checkbox>
-								</th>
-								<th className="w-1/5 bg-light-500 py-3 font-normal dark:bg-dark-100">
-									Name
-								</th>
-								<th className="w-48 bg-light-500 py-3 font-normal dark:bg-dark-100">
-									Prices
-								</th>
-								<th className="w-44 bg-light-500 py-3 font-normal dark:bg-dark-100">
-									Last updated
-								</th>
-								<th className="w-[82px] bg-light-500 font-normal dark:bg-dark-100">
-									Total sales
-								</th>
-								<th className="w-32 bg-light-500 text-right font-normal dark:bg-dark-100">
-									Total revenue
-								</th>
-								<th className="w-10 bg-light-500 font-normal last:rounded-r-lg dark:bg-dark-100"></th>
-								<th className="bg-light-500 font-normal last:rounded-r-lg dark:bg-dark-100"></th>
+								{TableHeads.current.map((data, i) =>
+									data.type === "Sortable" ? (
+										<TableHead
+											key={i}
+											type={data.type}
+											name={data.name}
+											width={data.width}
+											state={filterTableHeadersState}
+											active={
+												filterTableHeaders ===
+												data.selector
+											}
+											rtl={data.rtl}
+											className={clsx(
+												i === 0 && "rounded-l-lg",
+												i ===
+													TableHeads.current.length &&
+													"rounded-r-lg"
+											)}
+											onClick={() =>
+												changeSorting(
+													data.selector,
+													TableHeadersState.opposite(
+														filterTableHeadersState
+													)
+												)
+											}
+										/>
+									) : (
+										<TableHead
+											key={i}
+											className={clsx(
+												i === 0 && "rounded-l-lg",
+												i ===
+													TableHeads.current.length -
+														1 && "rounded-r-lg",
+												"px-5"
+											)}
+											type={data.type}
+											content={data.content}
+											width={data.width}
+										/>
+									)
+								)}
+								<th></th>
 							</tr>
 						</thead>
 						{/* Required to add additional spacing between the thead and tbody elements */}
