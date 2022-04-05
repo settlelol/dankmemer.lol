@@ -177,6 +177,14 @@ export default function ManageProducts({ user }: PageProps) {
 	}, [filterSelectAll]);
 
 	useEffect(() => {
+		setDisplayedProducts(
+			products.filter((prod) =>
+				prod.name.toLowerCase().includes(filterSearch.toLowerCase())
+			)
+		);
+	}, [filterSearch]);
+
+	useEffect(() => {
 		if (
 			filterSelectAll &&
 			selectedProducts.length !== displayedProducts.length
