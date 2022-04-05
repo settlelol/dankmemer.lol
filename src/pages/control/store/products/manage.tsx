@@ -131,6 +131,8 @@ export default function ManageProducts({ user }: PageProps) {
 		},
 	]);
 
+	const [showOptionsFor, setShowOptionsFor] = useState<string>("");
+
 	useEffect(() => {
 		const StoreAPI = axios.create({
 			baseURL: "/api/store/products",
@@ -370,121 +372,132 @@ export default function ManageProducts({ user }: PageProps) {
 							onChange={(e) => setFilterSearch(e.target.value)}
 						/>
 					</div>
-					<table
-						style={{ borderSpacing: "0 0.2rem" }}
-						className="mt-4 border-separate overflow-hidden rounded-lg border-none text-left text-neutral-600 dark:text-neutral-300"
-					>
-						<thead>
-							<tr className="select-none font-inter">
-								{TableHeads.current.map((data, i) =>
-									data.type === "Sortable" ? (
-										<TableHead
-											key={i}
-											type={data.type}
-											name={data.name}
-											width={data.width}
-											state={filterTableHeadersState}
-											active={
-												filterTableHeaders ===
-												data.selector
-											}
-											rtl={data.rtl}
-											className={clsx(
-												i === 0 && "rounded-l-lg",
-												i ===
-													TableHeads.current.length &&
-													"rounded-r-lg"
-											)}
-											onClick={() =>
-												changeSorting(
-													data.selector,
-													TableHeadersState.opposite(
-														filterTableHeadersState
-													)
-												)
-											}
-										/>
-									) : (
-										<TableHead
-											key={i}
-											className={clsx(
-												i === 0 && "rounded-l-lg",
-												i ===
-													TableHeads.current.length -
-														1 && "rounded-r-lg",
-												"px-5"
-											)}
-											type={data.type}
-											content={data.content}
-											width={data.width}
-										/>
-									)
-								)}
-								<th></th>
-							</tr>
-						</thead>
-						{/* Required to add additional spacing between the thead and tbody elements */}
-						<div className="h-4" />
-						<tbody>
-							{displayedProducts.map((product) => (
-								<ProductRow
-									id={product.id}
-									selected={selectedProducts.includes(
-										product.id
-									)}
-									name={product.name}
-									image={product.images[0]}
-									lastUpdated={
-										product.metadata.lastUpdated
-											? formatDistance(
-													new Date(
-														parseInt(
-															product.metadata
-																.lastUpdated
+					<div className="w-max min-w-[980px]">
+						<table
+							style={{ borderSpacing: "0 0.2rem" }}
+							className="relative mt-4 max-w-7xl border-separate overflow-hidden rounded-lg border-none text-left text-neutral-600 dark:text-neutral-300"
+						>
+							<thead>
+								<tr className="select-none font-inter">
+									{TableHeads.current.map((data, i) =>
+										data.type === "Sortable" ? (
+											<TableHead
+												key={i}
+												type={data.type}
+												name={data.name}
+												width={data.width}
+												state={filterTableHeadersState}
+												active={
+													filterTableHeaders ===
+													data.selector
+												}
+												rtl={data.rtl}
+												className={clsx(
+													i === 0 && "rounded-l-lg",
+													i ===
+														TableHeads.current
+															.length &&
+														"rounded-r-lg"
+												)}
+												onClick={() =>
+													changeSorting(
+														data.selector,
+														TableHeadersState.opposite(
+															filterTableHeadersState
 														)
-													),
-													new Date(),
-													{
-														addSuffix: true,
-													}
-											  )
-											: "Unknown"
-									}
-									price={product.prices
-										.sort((a, b) => a.price - b.price)
-										.map(
-											(price) =>
-												"$" +
-												(price.price / 100).toFixed(2)
+													)
+												}
+											/>
+										) : (
+											<TableHead
+												key={i}
+												className={clsx(
+													i === 0 && "rounded-l-lg",
+													i ===
+														TableHeads.current
+															.length -
+															1 && "rounded-r-lg",
+													"px-5"
+												)}
+												type={data.type}
+												content={data.content}
+												width={data.width}
+											/>
 										)
-										.join(" or ")}
-									sales={
-										salesData?.productSales.find(
-											(prod) => prod._id === product.id
-										)?.sales!
-									}
-									revenue={
-										salesData?.productSales.find(
-											(prod) => prod._id === product.id
-										)?.revenue!
-									}
-									select={() =>
-										setSelectedProducts((products) => [
-											...products,
-											product.id,
-										])
-									}
-									deselect={() =>
-										setSelectedProducts((products) =>
-											products.filter(
-												(id) => id !== product.id
+									)}
+								</tr>
+							</thead>
+							{/* Required to add additional spacing between the thead and tbody elements */}
+							<div className="h-4" />
+							<tbody>
+								{displayedProducts.map((product) => (
+									<ProductRow
+										id={product.id}
+										selected={selectedProducts.includes(
+											product.id
+										)}
+										name={product.name}
+										image={product.images[0]}
+										lastUpdated={
+											product.metadata.lastUpdated
+												? formatDistance(
+														new Date(
+															parseInt(
+																product.metadata
+																	.lastUpdated
+															)
+														),
+														new Date(),
+														{
+															addSuffix: true,
+														}
+												  )
+												: "Unknown"
+										}
+										price={product.prices
+											.sort((a, b) => a.price - b.price)
+											.map(
+												(price) =>
+													"$" +
+													(price.price / 100).toFixed(
+														2
+													)
 											)
-										)
-									}
-								/>
-							))}
-						</tbody>
-					</table>
+											.join(" or ")}
+										sales={
+											salesData?.productSales.find(
+												(prod) =>
+													prod._id === product.id
+											)?.sales!
+										}
+										revenue={
+											salesData?.productSales.find(
+												(prod) =>
+													prod._id === product.id
+											)?.revenue!
+										}
+										select={() =>
+											setSelectedProducts((products) => [
+												...products,
+												product.id,
+											])
+										}
+										deselect={() =>
+											setSelectedProducts((products) =>
+												products.filter(
+													(id) => id !== product.id
+												)
+											)
+										}
+										showOptionsFor={setShowOptionsFor}
+										showOptions={
+											showOptionsFor === product.id
+										}
+									/>
+								))}
+							</tbody>
+						</table>
+					</div>
 				</div>
 			</div>
 		</ControlPanelContainer>
