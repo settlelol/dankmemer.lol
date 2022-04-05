@@ -16,6 +16,7 @@ interface ProductRow {
 	deselect: any;
 	showOptionsFor: any;
 	showOptions: boolean;
+	editProduct: any;
 }
 
 export default function ProductRow({
@@ -31,6 +32,7 @@ export default function ProductRow({
 	deselect,
 	showOptionsFor,
 	showOptions,
+	editProduct,
 }: ProductRow) {
 	const options = useRef<any>(null);
 
@@ -113,7 +115,10 @@ export default function ProductRow({
 						className="absolute top-10 right-5 z-50 h-max w-36 rounded-lg bg-light-500 px-2 py-3 dark:bg-dark-100"
 					>
 						<ul className="space-y-1">
-							<li className="cursor-pointer select-none rounded-md py-2 px-2 transition-colors hover:dark:bg-dank-500 hover:dark:text-neutral-300">
+							<li
+								className="cursor-pointer select-none rounded-md py-2 px-2 transition-colors hover:dark:bg-dank-500 hover:dark:text-neutral-300"
+								onClick={editProduct}
+							>
 								Edit details
 							</li>
 							<li className="cursor-pointer select-none rounded-md py-2 px-2 transition-colors hover:dark:bg-dank-500 hover:dark:text-neutral-300">

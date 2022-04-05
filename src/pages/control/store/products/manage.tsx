@@ -17,6 +17,8 @@ import ProductRow from "src/components/control/store/ProductRow";
 import { TableHeadersState } from "src/components/control/TableSortIcon";
 import TableHead from "src/components/control/TableHead";
 import clsx from "clsx";
+import { Title } from "src/components/Title";
+import ProductEditor from "src/components/control/store/ProductEditor";
 
 interface SalesData {
 	productSales: ProductSales[];
@@ -59,7 +61,9 @@ export default function ManageProducts({ user }: PageProps) {
 	const [displayedProducts, setDisplayedProducts] = useState<AnyProduct[]>(
 		[]
 	);
-	const [editing, setEditing] = useState("");
+	const [editing, setEditing] = useState(false);
+	const [editorContent, setEditorContent] = useState<ReactNode>();
+	const [productToEdit, setProductToEdit] = useState<AnyProduct | null>(null);
 
 	const [filterSearch, setFilterSearch] = useState("");
 	const [filterTableHeaders, setFilterTableHeaders] =
@@ -69,11 +73,6 @@ export default function ManageProducts({ user }: PageProps) {
 
 	const [filterSelectAll, setFilterSelectAll] = useState(false);
 	const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
-
-	const [selectedPrimaryBody, setSelectedPrimaryBody] = useState("");
-	const [selectedSecondaryBody, setSelectedSecondaryBody] = useState("");
-	const [selectedPrimaryTitle, setSelectedPrimaryTitle] = useState("");
-	const [selectedSecondaryTitle, setSelectedSecondaryTitle] = useState("");
 
 	const TableHeads = useRef<
 		(FilterableColumnData | UnfilterableColumnData)[]
@@ -195,46 +194,60 @@ export default function ManageProducts({ user }: PageProps) {
 		}
 	}, [selectedProducts]);
 
+	useEffect(() => {
+		if (!productToEdit) {
+			setEditing(false);
+		} else {
+			setEditorContent(
+				<ProductEditor
+					id={productToEdit.id}
+					name={productToEdit.name}
+				/>
+			);
+			setEditing(true);
+		}
+	}, [productToEdit]);
+
 	// TODO: (Blue) Make a better alternative for editing a selected product rather than just
 	// having the fields below the product.
 
-	const selectProduct = (id: string) => {
-		axios(`/api/store/product/details?id=${id}`)
-			.then(({ data }) => {
-				setSelectedPrimaryTitle(data.primaryTitle || "");
-				setSelectedSecondaryTitle(data.secondaryTitle || "");
-				setSelectedSecondaryBody(data.secondaryBody || "");
-				setSelectedPrimaryBody(data.primaryBody || "");
-				setEditing(id);
-			})
-			.catch(() => {
-				setSelectedPrimaryTitle("");
-				setSelectedSecondaryTitle("");
-				setSelectedSecondaryBody("");
-				setSelectedPrimaryBody("");
-				setEditing(id);
-			});
-	};
+	// const selectProduct = (id: string) => {
+	// 	axios(`/api/store/product/details?id=${id}`)
+	// 		.then(({ data }) => {
+	// 			setSelectedPrimaryTitle(data.primaryTitle || "");
+	// 			setSelectedSecondaryTitle(data.secondaryTitle || "");
+	// 			setSelectedSecondaryBody(data.secondaryBody || "");
+	// 			setSelectedPrimaryBody(data.primaryBody || "");
+	// 			setEditing(id);
+	// 		})
+	// 		.catch(() => {
+	// 			setSelectedPrimaryTitle("");
+	// 			setSelectedSecondaryTitle("");
+	// 			setSelectedSecondaryBody("");
+	// 			setSelectedPrimaryBody("");
+	// 			setEditing(id);
+	// 		});
+	// };
 
-	const saveEdits = () => {
-		if (editing.length < 1) return;
-		if (selectedPrimaryTitle.length < 5)
-			return toast.error("A primary title is required.");
-		if (selectedPrimaryBody.length < 100)
-			return toast.error(
-				"Primary body length should be greater than 100 characters"
-			);
-		axios({
-			url: "/api/store/product/update?productId=" + editing,
-			method: "PUT",
-			data: {
-				primaryTitle: selectedPrimaryTitle,
-				secondaryTitle: selectedSecondaryTitle,
-				primaryBody: selectedPrimaryBody,
-				secondaryBody: selectedSecondaryBody,
-			},
-		});
-	};
+	// const saveEdits = () => {
+	// 	if (editing.length < 1) return;
+	// 	if (selectedPrimaryTitle.length < 5)
+	// 		return toast.error("A primary title is required.");
+	// 	if (selectedPrimaryBody.length < 100)
+	// 		return toast.error(
+	// 			"Primary body length should be greater than 100 characters"
+	// 		);
+	// 	axios({
+	// 		url: "/api/store/product/update?productId=" + editing,
+	// 		method: "PUT",
+	// 		data: {
+	// 			primaryTitle: selectedPrimaryTitle,
+	// 			secondaryTitle: selectedSecondaryTitle,
+	// 			primaryBody: selectedPrimaryBody,
+	// 			secondaryBody: selectedSecondaryBody,
+	// 		},
+	// 	});
+	// };
 
 	const changeSorting = (
 		selector: TableHeaders,
@@ -355,9 +368,20 @@ export default function ManageProducts({ user }: PageProps) {
 	};
 
 	return (
-		<ControlPanelContainer title={"Manage Products"} user={user}>
+		<ControlPanelContainer
+			title={"Manage Products"}
+			user={user}
+			hideRightPane={() => {
+				setEditing(false);
+				setTimeout(() => {
+					setProductToEdit(null);
+				}, 400);
+			}}
+			rightPaneVisible={editing}
+			rightPaneContent={editorContent}
+		>
 			<div className="mx-8">
-				<div className="my-10 flex min-h-screen flex-col">
+				<div className={clsx("my-10 flex min-h-screen flex-col")}>
 					<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">
 						Products
 					</div>
@@ -493,6 +517,10 @@ export default function ManageProducts({ user }: PageProps) {
 										showOptions={
 											showOptionsFor === product.id
 										}
+										editProduct={() => {
+											setShowOptionsFor("");
+											setProductToEdit(product);
+										}}
 									/>
 								))}
 							</tbody>
