@@ -31,7 +31,7 @@ export default function ControlPanelContainer({
 				</title>
 			</Head>
 			<ToastContainer position="top-center" theme="colored" />
-			<div className="fixed top-0 left-0 h-full w-72 bg-[#ECEFF0] px-9 py-5 dark:bg-dark-100">
+			<div className="fixed top-0 left-0 h-full w-72 bg-neutral-100 px-9 py-5 dark:bg-dark-100">
 				<div
 					className="mb-5 flex cursor-pointer items-center justify-start"
 					onClick={() => router.push("/")}
