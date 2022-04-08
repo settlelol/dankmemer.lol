@@ -30,7 +30,15 @@ export default function ProductEditor({ id, name }: Props) {
 	useEffect(() => {
 		axios(`/api/store/product/details?id=${id}`)
 			.then(({ data }) => {
-				console.log(data);
+				setProductName(name);
+				setPrimaryTitle(data.primaryTitle);
+				setPrimaryContent(data.primaryBody);
+
+				if (data.secondaryTitle || data.secondaryBody) {
+					setSecondaryEnabled(true);
+				}
+					setSecondaryTitle(data.secondaryTitle);
+					setSecondaryContent(data.secondaryBody);
 			})
 			.catch((e) => {
 				setNoDbContent(true);
