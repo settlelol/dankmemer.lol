@@ -298,7 +298,7 @@ export default function ControlPanelContainer({
 					rightPaneVisible ? "translate-x-0" : "translate-x-full"
 				)}
 			>
-				{rightPaneContent}
+				{rightPaneVisible ? rightPaneContent : ""}
 			</div>
 		</>
 	);
