@@ -2,6 +2,7 @@ import clsx from "clsx";
 import { ReactNode } from "react";
 
 const sizes = {
+	xsmall: "text-lg",
 	small: "text-xl",
 	medium: "text-2xl",
 	big: "text-3xl",
