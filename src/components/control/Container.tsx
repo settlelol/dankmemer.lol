@@ -294,7 +294,7 @@ export default function ControlPanelContainer({
 			)}
 			<div
 				className={clsx(
-					"fixed top-0 right-0 h-full w-1/5 min-w-[330px] max-w-5xl resize-x overflow-auto bg-neutral-100 px-8 pt-10 transition-transform duration-300 dark:bg-dark-100",
+					"fixed top-0 right-0 h-full w-1/5 min-w-[550px] max-w-5xl resize-x overflow-auto bg-neutral-100 px-8 pt-10 transition-transform duration-300 dark:bg-dark-100",
 					rightPaneVisible ? "translate-x-0" : "translate-x-full"
 				)}
 			>
