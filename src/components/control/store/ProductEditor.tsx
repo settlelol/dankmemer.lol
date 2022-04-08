@@ -13,6 +13,7 @@ interface Props {
 
 export default function ProductEditor({ id, name }: Props) {
 	const [noDbContent, setNoDbContent] = useState(false);
+	const [canSubmit, setCanSubmit] = useState(false);
 
 	const [productId, setProductId] = useState("");
 	const [productName, setProductName] = useState(name);
@@ -36,9 +37,9 @@ export default function ProductEditor({ id, name }: Props) {
 
 				if (data.secondaryTitle || data.secondaryBody) {
 					setSecondaryEnabled(true);
-				}
 					setSecondaryTitle(data.secondaryTitle);
 					setSecondaryContent(data.secondaryBody);
+				}
 			})
 			.catch((e) => {
 				setNoDbContent(true);
@@ -49,6 +50,29 @@ export default function ProductEditor({ id, name }: Props) {
 			setProductName("");
 		};
 	}, []);
+
+	useEffect(() => {
+		if (
+			productName.length >= 1 &&
+			productName.length <= 250 &&
+			primaryTitle.length >= 1 &&
+			primaryContent.length >= 1 &&
+			(secondaryEnabled
+				? secondaryTitle.length >= 1 && secondaryContent.length >= 1
+				: true)
+		) {
+			setCanSubmit(true);
+		} else {
+			setCanSubmit(false);
+		}
+	}, [
+		productName,
+		primaryTitle,
+		primaryContent,
+		secondaryEnabled,
+		secondaryTitle,
+		secondaryContent,
+	]);
 
 	const removeSecondary = () => {
 		if (
@@ -182,8 +206,8 @@ export default function ProductEditor({ id, name }: Props) {
 							<div className="">
 								<label className="mb-1 text-neutral-600 dark:text-neutral-300">
 									Content for '
-									{primaryTitle.length >= 1
-										? primaryTitle
+									{secondaryTitle.length >= 1
+										? secondaryTitle
 										: "Also included"}
 									'
 								</label>
@@ -214,6 +238,18 @@ export default function ProductEditor({ id, name }: Props) {
 						</div>
 					</div>
 				)}
+			</div>
+			<div className="sticky left-0 -bottom-0 w-full bg-neutral-100 py-10 dark:bg-dark-100">
+				<Button
+					size="medium-large"
+					variant={canSubmit ? "primary" : "dark"}
+					className={clsx(
+						!canSubmit && "cursor-not-allowed",
+						"w-full"
+					)}
+				>
+					Submit changes
+				</Button>
 			</div>
 		</>
 	);
