@@ -9,14 +9,18 @@ import Button from "src/components/ui/Button";
 interface Props {
 	id: string;
 	name: string;
+	image: string;
+	description: string;
 }
 
-export default function ProductEditor({ id, name }: Props) {
+export default function ProductEditor({ id, name, image, description }: Props) {
 	const [noDbContent, setNoDbContent] = useState(false);
 	const [canSubmit, setCanSubmit] = useState(false);
 
-	const [productId, setProductId] = useState("");
+	const [productId, setProductId] = useState(id);
 	const [productName, setProductName] = useState(name);
+	const [productImage, setProductImage] = useState(image);
+	const [productDescription, setProductDescription] = useState(description);
 
 	const [primaryTitle, setPrimaryTitle] = useState("");
 	const [primaryContent, setPrimaryContent] = useState("");
@@ -102,18 +106,51 @@ export default function ProductEditor({ id, name }: Props) {
 				Edit both website data and Stripe data for '{name}'
 			</p>
 			<div className="mt-4 space-y-5">
-				<Input
-					width="w-full"
-					type={"text"}
-					placeholder={"Dank Memer 2"}
-					value={productName}
-					onChange={(e) => setProductName(e.target.value)}
-					label={
-						<>
-							Product name<sup className="text-red-500">*</sup>
-						</>
-					}
-				/>
+				<div className="flex space-x-6">
+					<div className="w-max">
+						<p className="mb-1 whitespace-nowrap text-neutral-600 dark:text-neutral-300">
+							Product image<sup className="text-red-500">*</sup>
+						</p>
+						<div
+							className="h-28 w-28 rounded-lg bg-contain bg-center bg-no-repeat dark:bg-dank-500"
+							style={{ backgroundImage: `url('${image}')` }}
+						></div>
+						<Button size="small" className="mt-3 w-full">
+							<span>Upload new</span>
+						</Button>
+					</div>
+					<div className="w-full space-y-3">
+						<Input
+							width="w-full"
+							type={"text"}
+							placeholder={"Dank Memer 2"}
+							value={productName}
+							onChange={(e) => setProductName(e.target.value)}
+							label={
+								<>
+									Product name
+									<sup className="text-red-500">*</sup>
+								</>
+							}
+						/>
+						<div className="">
+							<label className="mb-1 text-neutral-600 dark:text-neutral-300">
+								Product description
+								<sup className="text-red-500">*</sup>
+							</label>
+							<textarea
+								value={description}
+								onChange={(e) =>
+									setProductDescription(e.target.value)
+								}
+								placeholder={
+									"This description will appear at checkout, in the customer portal, and on quotes."
+								}
+								className="h-20 w-full resize-none rounded-md border-[1px] border-neutral-300 px-3 py-2 font-inter text-sm focus-visible:border-dank-300 focus-visible:outline-none dark:border-neutral-700 dark:bg-black/30"
+							/>
+						</div>
+					</div>
+				</div>
 				<Input
 					width="w-full"
 					type={"text"}
@@ -123,7 +160,7 @@ export default function ProductEditor({ id, name }: Props) {
 					onChange={(e) => setPrimaryTitle(e.target.value)}
 					label={
 						<>
-							Primary description title
+							Primary body title
 							<sup className="text-red-500">*</sup>
 						</>
 					}
@@ -201,7 +238,7 @@ export default function ProductEditor({ id, name }: Props) {
 								onChange={(e) =>
 									setSecondaryTitle(e.target.value)
 								}
-								label={"Secondary description title"}
+								label={"Secondary body title"}
 							/>
 							<div className="">
 								<label className="mb-1 text-neutral-600 dark:text-neutral-300">
@@ -225,7 +262,7 @@ export default function ProductEditor({ id, name }: Props) {
 							<div className="grid cursor-pointer select-none place-items-center">
 								<button
 									onClick={() => removeSecondary()}
-									className="flex w-full max-w-xs items-center justify-center space-x-2 rounded-lg py-2 transition-colors dark:bg-black/10 dark:text-neutral-400 hover:dark:bg-red-500 hover:dark:text-white"
+									className="flex w-full max-w-xs items-center justify-center space-x-2 rounded-lg py-2 transition-colors dark:bg-black/30 dark:text-neutral-400 hover:dark:bg-red-500 hover:dark:text-white"
 								>
 									<Iconify icon="bx:minus" height={20} />
 									<p>
@@ -238,6 +275,15 @@ export default function ProductEditor({ id, name }: Props) {
 						</div>
 					</div>
 				)}
+			</div>
+			<div className="space-y-5 py-5">
+				<div>
+					<Title size="medium">Stripe data</Title>
+					<p>
+						Stripe/backend specific data. This is unlikely to be
+						seen by users.
+					</p>
+				</div>
 			</div>
 			<div className="sticky left-0 -bottom-0 w-full bg-neutral-100 py-10 dark:bg-dark-100">
 				<Button
