@@ -94,7 +94,7 @@ export default function ManageProducts({ user }: PageProps) {
 		{
 			type: "Sortable",
 			name: "Name",
-			width: "w-1/5",
+			width: "w-3/12",
 			selector: TableHeaders.NAME,
 		},
 		{
@@ -372,10 +372,16 @@ export default function ManageProducts({ user }: PageProps) {
 			title={"Manage Products"}
 			user={user}
 			hideRightPane={() => {
-				setEditing(false);
-				setTimeout(() => {
-					setProductToEdit(null);
-				}, 400);
+				if (
+					confirm(
+						"Are you sure you want to close the editor? All unsaved changes will be lost."
+					)
+				) {
+					setEditing(false);
+					setTimeout(() => {
+						setProductToEdit(null);
+					}, 400);
+				}
 			}}
 			rightPaneVisible={editing}
 			rightPaneContent={editorContent}
