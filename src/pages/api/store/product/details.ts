@@ -19,7 +19,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const product = await db.collection("products").findOne({ _id: productId });
 	if (!product)
 		return res
-			.status(500)
+			.status(404)
 			.json({ error: "Product with given id was not found." });
 
 	return res.status(200).json(product);
