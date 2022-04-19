@@ -198,7 +198,6 @@ export default function ManageProducts({ user }: PageProps) {
 				<ProductEditor
 					id={productToEdit.id}
 					name={productToEdit.name}
-					image={productToEdit.images[0]}
 					description={productToEdit.description || ""}
 				/>
 			);

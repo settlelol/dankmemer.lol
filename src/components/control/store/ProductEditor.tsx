@@ -9,20 +9,15 @@ import Button from "src/components/ui/Button";
 interface Props {
 	id: string;
 	name: string;
-	image: string;
 	description: string;
 }
 
-export default function ProductEditor({ id, name, image, description }: Props) {
-	const imageUploadInput = useRef<any>();
-
+export default function ProductEditor({ id, name, description }: Props) {
 	const [noDbContent, setNoDbContent] = useState(false);
 	const [canSubmit, setCanSubmit] = useState(false);
 
 	const [productId, setProductId] = useState(id);
 	const [productName, setProductName] = useState(name);
-	const [productImage, setProductImage] = useState<File>();
-	const [productImageUrl, setProductImageUrl] = useState(image);
 	const [productDescription, setProductDescription] = useState(description);
 
 	const [primaryTitle, setPrimaryTitle] = useState("");
@@ -58,13 +53,11 @@ export default function ProductEditor({ id, name, image, description }: Props) {
 		};
 	}, []);
 
-	// TODO: Check for image and description
 	useEffect(() => {
 		if (
 			productName.length >= 1 &&
 			productName.length <= 250 &&
 			productDescription.length <= 250 &&
-			productImageUrl.length >= 1 &&
 			primaryTitle.length >= 1 &&
 			primaryBody.length >= 1 &&
 			(secondaryEnabled
@@ -77,7 +70,6 @@ export default function ProductEditor({ id, name, image, description }: Props) {
 		}
 	}, [
 		productName,
-		productImage,
 		productDescription,
 		primaryTitle,
 		primaryBody,
