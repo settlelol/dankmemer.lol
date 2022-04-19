@@ -6,9 +6,6 @@ import ControlPanelContainer from "src/components/control/Container";
 import { PageProps } from "src/types";
 import { developerRoute } from "src/util/redirects";
 import { withSession } from "src/util/session";
-import { Icon as Iconify } from "@iconify/react";
-import Button from "src/components/ui/Button";
-import Tooltip from "src/components/ui/Tooltip";
 import { toast } from "react-toastify";
 import { AnyProduct } from "src/pages/store";
 import Checkbox from "src/components/ui/Checkbox";
@@ -17,7 +14,6 @@ import ProductRow from "src/components/control/store/ProductRow";
 import { TableHeadersState } from "src/components/control/TableSortIcon";
 import TableHead from "src/components/control/TableHead";
 import clsx from "clsx";
-import { Title } from "src/components/Title";
 import ProductEditor from "src/components/control/store/ProductEditor";
 
 interface SalesData {
@@ -209,47 +205,6 @@ export default function ManageProducts({ user }: PageProps) {
 			setEditing(true);
 		}
 	}, [productToEdit]);
-
-	// TODO: (Blue) Make a better alternative for editing a selected product rather than just
-	// having the fields below the product.
-
-	// const selectProduct = (id: string) => {
-	// 	axios(`/api/store/product/details?id=${id}`)
-	// 		.then(({ data }) => {
-	// 			setSelectedPrimaryTitle(data.primaryTitle || "");
-	// 			setSelectedSecondaryTitle(data.secondaryTitle || "");
-	// 			setSelectedSecondaryBody(data.secondaryBody || "");
-	// 			setSelectedPrimaryBody(data.primaryBody || "");
-	// 			setEditing(id);
-	// 		})
-	// 		.catch(() => {
-	// 			setSelectedPrimaryTitle("");
-	// 			setSelectedSecondaryTitle("");
-	// 			setSelectedSecondaryBody("");
-	// 			setSelectedPrimaryBody("");
-	// 			setEditing(id);
-	// 		});
-	// };
-
-	// const saveEdits = () => {
-	// 	if (editing.length < 1) return;
-	// 	if (selectedPrimaryTitle.length < 5)
-	// 		return toast.error("A primary title is required.");
-	// 	if (selectedPrimaryBody.length < 100)
-	// 		return toast.error(
-	// 			"Primary body length should be greater than 100 characters"
-	// 		);
-	// 	axios({
-	// 		url: "/api/store/product/update?productId=" + editing,
-	// 		method: "PUT",
-	// 		data: {
-	// 			primaryTitle: selectedPrimaryTitle,
-	// 			secondaryTitle: selectedSecondaryTitle,
-	// 			primaryBody: selectedPrimaryBody,
-	// 			secondaryBody: selectedSecondaryBody,
-	// 		},
-	// 	});
-	// };
 
 	const changeSorting = (
 		selector: TableHeaders,
