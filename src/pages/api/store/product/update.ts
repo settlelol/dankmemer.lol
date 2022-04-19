@@ -26,7 +26,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	if (!req.body) {
-		return res.status(400).json({ error: "No body data was provided." });
+		return res.status(400).json({ error: "No product data was provided." });
 	} else if (!req.body.primaryTitle && !req.body.primaryBody) {
 		return res
 			.status(400)
@@ -52,6 +52,8 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		);
 
 		await stripe.products.update(productId, {
+			name: req.body.name,
+			description: req.body.description,
 			metadata: {
 				lastUpdated: new Date().getTime(),
 			},

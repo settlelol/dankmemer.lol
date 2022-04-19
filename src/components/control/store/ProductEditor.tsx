@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Input from "src/components/store/Input";
 import { Title } from "src/components/Title";
 import { Icon as Iconify } from "@iconify/react";
@@ -14,35 +14,38 @@ interface Props {
 }
 
 export default function ProductEditor({ id, name, image, description }: Props) {
+	const imageUploadInput = useRef<any>();
+
 	const [noDbContent, setNoDbContent] = useState(false);
 	const [canSubmit, setCanSubmit] = useState(false);
 
 	const [productId, setProductId] = useState(id);
 	const [productName, setProductName] = useState(name);
-	const [productImage, setProductImage] = useState(image);
+	const [productImage, setProductImage] = useState<File>();
+	const [productImageUrl, setProductImageUrl] = useState(image);
 	const [productDescription, setProductDescription] = useState(description);
 
 	const [primaryTitle, setPrimaryTitle] = useState("");
-	const [primaryContent, setPrimaryContent] = useState("");
+	const [primaryBody, setPrimaryBody] = useState("");
 
 	const [secondaryCollapsed, setSecondaryCollapsed] = useState(false);
 	const [secondaryEnabled, setSecondaryEnabled] = useState(false);
 	const [confirmDeleteSecondary, setConfirmDeleteSecondary] = useState(false);
 
 	const [secondaryTitle, setSecondaryTitle] = useState("");
-	const [secondaryContent, setSecondaryContent] = useState("");
+	const [secondaryBody, setSecondaryBody] = useState("");
 
 	useEffect(() => {
 		axios(`/api/store/product/details?id=${id}`)
 			.then(({ data }) => {
 				setProductName(name);
 				setPrimaryTitle(data.primaryTitle);
-				setPrimaryContent(data.primaryBody);
+				setPrimaryBody(data.primaryBody);
 
 				if (data.secondaryTitle || data.secondaryBody) {
 					setSecondaryEnabled(true);
 					setSecondaryTitle(data.secondaryTitle);
-					setSecondaryContent(data.secondaryBody);
+					setSecondaryBody(data.secondaryBody);
 				}
 			})
 			.catch((e) => {
@@ -55,14 +58,17 @@ export default function ProductEditor({ id, name, image, description }: Props) {
 		};
 	}, []);
 
+	// TODO: Check for image and description
 	useEffect(() => {
 		if (
 			productName.length >= 1 &&
 			productName.length <= 250 &&
+			productDescription.length <= 250 &&
+			productImageUrl.length >= 1 &&
 			primaryTitle.length >= 1 &&
-			primaryContent.length >= 1 &&
+			primaryBody.length >= 1 &&
 			(secondaryEnabled
-				? secondaryTitle.length >= 1 && secondaryContent.length >= 1
+				? secondaryTitle.length >= 1 && secondaryBody.length >= 1
 				: true)
 		) {
 			setCanSubmit(true);
@@ -71,24 +77,43 @@ export default function ProductEditor({ id, name, image, description }: Props) {
 		}
 	}, [
 		productName,
+		productImage,
+		productDescription,
 		primaryTitle,
-		primaryContent,
+		primaryBody,
 		secondaryEnabled,
 		secondaryTitle,
-		secondaryContent,
+		secondaryBody,
 	]);
 
 	const removeSecondary = () => {
 		if (
 			!confirmDeleteSecondary &&
-			(secondaryTitle.length >= 1 || secondaryContent.length >= 1)
+			(secondaryTitle.length >= 1 || secondaryBody.length >= 1)
 		) {
 			setConfirmDeleteSecondary(true);
 		} else {
 			setConfirmDeleteSecondary(false);
 			setSecondaryEnabled(false);
 			setSecondaryTitle("");
-			setSecondaryContent("");
+			setSecondaryBody("");
+		}
+	};
+
+	const submitChanges = () => {
+		if (canSubmit) {
+			axios({
+				url: "/api/store/product/update?productId=" + id,
+				method: "PUT",
+				data: {
+					name: productName,
+					description: productDescription,
+					primaryTitle,
+					primaryBody,
+					secondaryTitle,
+					secondaryBody,
+				},
+			});
 		}
 	};
 
@@ -106,49 +131,34 @@ export default function ProductEditor({ id, name, image, description }: Props) {
 				Edit both website data and Stripe data for '{name}'
 			</p>
 			<div className="mt-4 space-y-5">
-				<div className="flex space-x-6">
-					<div className="w-max">
-						<p className="mb-1 whitespace-nowrap text-neutral-600 dark:text-neutral-300">
-							Product image<sup className="text-red-500">*</sup>
-						</p>
-						<div
-							className="h-28 w-28 rounded-lg bg-contain bg-center bg-no-repeat dark:bg-dank-500"
-							style={{ backgroundImage: `url('${image}')` }}
-						></div>
-						<Button size="small" className="mt-3 w-full">
-							<span>Upload new</span>
-						</Button>
-					</div>
-					<div className="w-full space-y-3">
-						<Input
-							width="w-full"
-							type={"text"}
-							placeholder={"Dank Memer 2"}
-							value={productName}
-							onChange={(e) => setProductName(e.target.value)}
-							label={
-								<>
-									Product name
-									<sup className="text-red-500">*</sup>
-								</>
-							}
-						/>
-						<div className="">
-							<label className="mb-1 text-neutral-600 dark:text-neutral-300">
-								Product description
+				<div className="w-full space-y-3">
+					<Input
+						width="w-full"
+						type={"text"}
+						placeholder={"Dank Memer 2"}
+						value={productName}
+						onChange={(e) => setProductName(e.target.value)}
+						label={
+							<>
+								Product name
 								<sup className="text-red-500">*</sup>
-							</label>
-							<textarea
-								value={description}
-								onChange={(e) =>
-									setProductDescription(e.target.value)
-								}
-								placeholder={
-									"This description will appear at checkout, in the customer portal, and on quotes."
-								}
-								className="h-20 w-full resize-none rounded-md border-[1px] border-neutral-300 px-3 py-2 font-inter text-sm focus-visible:border-dank-300 focus-visible:outline-none dark:border-neutral-700 dark:bg-black/30"
-							/>
-						</div>
+							</>
+						}
+					/>
+					<div className="">
+						<label className="mb-1 text-neutral-600 dark:text-neutral-300">
+							Product description
+						</label>
+						<textarea
+							value={productDescription}
+							onChange={(e) =>
+								setProductDescription(e.target.value)
+							}
+							placeholder={
+								"This is purely for Stripe and will not be shown on the store page. It may appear on invoices."
+							}
+							className="h-20 w-full resize-none rounded-md border-[1px] border-neutral-300 px-3 py-2 font-inter text-sm focus-visible:border-dank-300 focus-visible:outline-none dark:border-neutral-700 dark:bg-black/30"
+						/>
 					</div>
 				</div>
 				<Input
@@ -174,8 +184,8 @@ export default function ProductEditor({ id, name, image, description }: Props) {
 						'<sup className="text-red-500">*</sup>
 					</label>
 					<textarea
-						value={primaryContent}
-						onChange={(e) => setPrimaryContent(e.target.value)}
+						value={primaryBody}
+						onChange={(e) => setPrimaryBody(e.target.value)}
 						placeholder={
 							"What is so special about this product? Markdown is supported in this field."
 						}
@@ -249,9 +259,9 @@ export default function ProductEditor({ id, name, image, description }: Props) {
 									'
 								</label>
 								<textarea
-									value={secondaryContent}
+									value={secondaryBody}
 									onChange={(e) =>
-										setSecondaryContent(e.target.value)
+										setSecondaryBody(e.target.value)
 									}
 									placeholder={
 										"What else is so interesting about this product? Markdown is supported in this field."
@@ -276,15 +286,15 @@ export default function ProductEditor({ id, name, image, description }: Props) {
 					</div>
 				)}
 			</div>
-			<div className="space-y-5 py-5">
+			{/* <div className="space-y-5 py-5">
 				<div>
 					<Title size="medium">Stripe data</Title>
-					<p>
+					<p className="text-neutral-600 dark:text-neutral-400">
 						Stripe/backend specific data. This is unlikely to be
 						seen by users.
 					</p>
 				</div>
-			</div>
+			</div> */}
 			<div className="sticky left-0 -bottom-0 w-full bg-neutral-100 py-10 dark:bg-dark-100">
 				<Button
 					size="medium-large"
@@ -293,6 +303,7 @@ export default function ProductEditor({ id, name, image, description }: Props) {
 						!canSubmit && "cursor-not-allowed",
 						"w-full"
 					)}
+					onClick={submitChanges}
 				>
 					Submit changes
 				</Button>
