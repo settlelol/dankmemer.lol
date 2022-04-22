@@ -1,7 +1,7 @@
 import axios from "axios";
 import clsx from "clsx";
 import { formatDistance } from "date-fns";
-import { GetServerSideProps } from "next";
+import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -19,6 +19,7 @@ import Input from "../components/ui/Input";
 import { Activity, PageProps, Profile, User } from "../types";
 import { unauthenticatedRoute } from "../util/redirects";
 import { withSession } from "../util/session";
+import { Session } from "next-iron-session";
 
 function Actions({ user, profile }: { user: User; profile: Profile }) {
 	const swap = (role: string) => {
@@ -41,6 +42,34 @@ function Actions({ user, profile }: { user: User; profile: Profile }) {
 			.catch((e) => {
 				toast.dark(e.response.data.error);
 			});
+	};
+
+	const unban = () => {
+		axios
+			.patch(`/api/user/unban/?type=Community&id=${profile.user.id}`)
+			.then(({}) => {
+				location.reload();
+			})
+			.catch((e) => {
+				toast.dark(e.response.data.error);
+			});
+	};
+
+	const purge = () => {
+		if (
+			confirm(
+				"This will remove all of this user's data (posts, comments, upvotes, etc.) from the community page. Are you sure you want to continue?"
+			)
+		) {
+			axios
+				.patch(`/api/community/profile/purge/${profile.user.id}`)
+				.then(({}) => {
+					location.reload();
+				})
+				.catch((e) => {
+					toast.dark(e.response.data.error);
+				});
+		}
 	};
 
 	return (
@@ -102,10 +131,19 @@ function Actions({ user, profile }: { user: User; profile: Profile }) {
 								},
 						  }
 						: null,
+					user?.botModerator
+						? {
+								label: "Purge user",
+								onClick: () => {
+									purge();
+								},
+								variant: "danger",
+						  }
+						: null,
 					{
-						label: "Ban",
+						label: profile.banned ? "Unban" : "Ban",
 						onClick: () => {
-							ban();
+							(profile.banned ? unban : ban)();
 						},
 						variant: "danger",
 					},
@@ -178,12 +216,13 @@ export default function ProfilePage({ user }: PageProps) {
 	const router = useRouter();
 
 	useEffect(() => {
+		// Just in case, should never run
 		if (!(router.query.id as string).startsWith("@")) {
 			location.replace("/404");
 		}
 	}, []);
 
-	let id = (router.query.id as string).slice(1);
+	let id = (router.query.id as string)?.slice(1);
 
 	useEffect(() => {
 		axios(`/api/community/profile/get/${id}`)
@@ -549,5 +588,16 @@ export default function ProfilePage({ user }: PageProps) {
 	);
 }
 
-export const getServerSideProps: GetServerSideProps =
-	withSession(unauthenticatedRoute);
+export const getServerSideProps: GetServerSideProps = withSession(
+	(ctx: GetServerSidePropsContext & { req: { session: Session } }) => {
+		if (!(ctx.query?.id as string)?.startsWith("@")) {
+			return {
+				redirect: {
+					destination: `/404`,
+					permanent: true,
+				},
+			};
+		}
+		return unauthenticatedRoute(ctx);
+	}
+);

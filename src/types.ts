@@ -95,6 +95,13 @@ export interface Blog {
 	title: string;
 }
 
+export interface Tutorial {
+	_id: string;
+	content: string;
+	date: number;
+	title: string;
+}
+
 export interface Item {
 	id: string;
 	type: string;
@@ -149,6 +156,7 @@ export interface Profile {
 	upvotes: number;
 	activities: Activity[];
 	blogs: Blog[];
+	banned: boolean;
 	perks?: boolean;
 }
 

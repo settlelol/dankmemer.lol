@@ -22,6 +22,14 @@ const SORTING: Record<string, string> = {
 	old: "restore",
 };
 
+const TIME: Record<string, number> = {
+	"All Time": 365 * 10,
+	"This Year": 365,
+	"This Month": 31,
+	"This Week": 7,
+	Today: 1,
+};
+
 const LOAD_AMOUNT = 20;
 
 export default function Posts({ user }: PageProps) {
@@ -44,6 +52,11 @@ export default function Posts({ user }: PageProps) {
 			? (router.query.filter as string)
 			: "all"
 	);
+	const [time, setTime] = useState(
+		Object.keys(TIME).includes(router.query.time as string)
+			? (router.query.time as string)
+			: "All Time"
+	);
 	const [page, setPage] = useState(
 		Math.max(
 			1,
@@ -61,6 +74,7 @@ export default function Posts({ user }: PageProps) {
 				sorting,
 				category,
 				filter,
+				time,
 				page,
 				...(search.length > 0 ? { search } : {}),
 			},
@@ -73,6 +87,7 @@ export default function Posts({ user }: PageProps) {
 				amount: LOAD_AMOUNT.toString(),
 				category: category,
 				filter: filter,
+				time: TIME[time].toString(),
 				sorting: sorting,
 				search: search,
 			})}`
@@ -102,36 +117,78 @@ export default function Posts({ user }: PageProps) {
 					size="sm"
 					className="flex flex-col justify-between space-y-2 md:flex-row md:items-center md:space-y-0"
 				>
-					<div className="flex space-x-4">
-						<Dropdown
-							className="w-full md:w-auto"
-							content={
-								<Button
-									variant="dark"
-									className="w-full md:w-auto"
-								>
-									<div className="flex items-center space-x-2">
-										<div
-											className="material-icons"
-											style={{ fontSize: "18px" }}
-										>
-											{SORTING[sorting]}
+					<div className="flex flex-col space-x-0 space-y-2 md:flex-row md:space-x-4 md:space-y-0">
+						<div className="flex space-x-4">
+							<Dropdown
+								className="w-full md:w-auto"
+								content={
+									<Button
+										variant="dark"
+										className="w-full md:w-auto"
+									>
+										<div className="flex items-center space-x-2">
+											<div
+												className="material-icons"
+												style={{ fontSize: "18px" }}
+											>
+												{SORTING[sorting]}
+											</div>
+											<div>{toTitleCase(sorting)}</div>
 										</div>
-										<div>{toTitleCase(sorting)}</div>
-									</div>
-								</Button>
-							}
-							options={Object.entries(SORTING).map(
-								([name, icon]) => ({
-									label: toTitleCase(name),
-									icon: icon,
+									</Button>
+								}
+								options={Object.entries(SORTING).map(
+									([name, icon]) => ({
+										label: toTitleCase(name),
+										icon: icon,
+										onClick: () => {
+											setSorting(name);
+											setPage(-1);
+										},
+									})
+								)}
+							/>
+							<Dropdown
+								className="w-full md:w-auto"
+								content={
+									<Button
+										variant="dark"
+										className="w-full md:w-auto"
+									>
+										<div className="flex w-28 items-center  justify-center space-x-2">
+											<div
+												className="material-icons"
+												style={{ fontSize: "18px" }}
+											>
+												filter_alt
+											</div>
+											<div>
+												{toTitleCase(
+													filter.replace(
+														"all",
+														"all posts"
+													)
+												)}
+											</div>
+										</div>
+									</Button>
+								}
+								options={POST_LABELS.filter((l) =>
+									user?.moderator
+										? true
+										: !["denied", "duplicate"].includes(l)
+								).map((name) => ({
+									label: toTitleCase(
+										name.replace("all", "all posts")
+									),
 									onClick: () => {
-										setSorting(name);
+										setFilter(name);
+										setSearch("");
 										setPage(-1);
 									},
-								})
-							)}
-						/>
+								}))}
+							/>
+						</div>
 						<Dropdown
 							className="w-full md:w-auto"
 							content={
@@ -139,34 +196,21 @@ export default function Posts({ user }: PageProps) {
 									variant="dark"
 									className="w-full md:w-auto"
 								>
-									<div className="flex w-28 items-center space-x-2">
+									<div className="flex w-28 items-center justify-center space-x-2">
 										<div
 											className="material-icons"
 											style={{ fontSize: "18px" }}
 										>
-											filter_alt
+											history
 										</div>
-										<div>
-											{toTitleCase(
-												filter.replace(
-													"all",
-													"all posts"
-												)
-											)}
-										</div>
+										<div>{toTitleCase(time)}</div>
 									</div>
 								</Button>
 							}
-							options={POST_LABELS.filter((l) =>
-								user?.moderator
-									? true
-									: !["denied", "duplicate"].includes(l)
-							).map((name) => ({
-								label: toTitleCase(
-									name.replace("all", "all posts")
-								),
+							options={Object.keys(TIME).map((name) => ({
+								label: name,
 								onClick: () => {
-									setFilter(name);
+									setTime(name);
 									setSearch("");
 									setPage(-1);
 								},

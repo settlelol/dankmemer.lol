@@ -52,6 +52,7 @@ export default function Navbar({ user }: Props) {
 								src={"/img/memer.png"}
 								alt="Logo"
 								width="42"
+								height="42"
 							/>
 						</Link>
 						<ul className="ml-5 hidden space-x-4 lg:flex">
@@ -93,7 +94,7 @@ export default function Navbar({ user }: Props) {
 					</div>
 
 					<div className="relative hidden items-center lg:flex">
-						<Link href="https://discord.gg/meme">
+						<Link href="https://discord.gg/dankmemerbot">
 							<a
 								className="inline-block text-gray-800 hover:text-dank-300 dark:text-light-200 dark:hover:text-dank-100"
 								rel="noreferrer noopener"
@@ -260,11 +261,16 @@ export default function Navbar({ user }: Props) {
 									style={{
 										height: mobileAccountExpanded
 											? user.moderator
-												? "144px"
-												: "96px"
+												? "194px"
+												: "146px"
 											: "0px",
 									}}
 								>
+									<Link href="/community/notifications">
+										<li className="pt-5 text-dark-400 hover:text-light-600 dark:text-white">
+											Notifications
+										</li>
+									</Link>
 									<Link href="/appeals">
 										<li className="pt-5 text-dark-500 hover:text-light-600 dark:text-white">
 											Appeal a ban

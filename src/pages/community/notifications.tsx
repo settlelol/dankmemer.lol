@@ -27,56 +27,64 @@ export default function Notifications({ user }: PageProps) {
 	}, []);
 	return (
 		<Container title="Notifications" user={user}>
-			<div className="my-16 mx-8 flex flex-col space-y-4 xl:mx-0">
+			<div className="my-16 flex flex-col space-y-4 ">
 				<Title size="big">Your Notifications</Title>
 				<div className="flex flex-col space-y-4">
-					{notifications.map((notification, i) => (
-						<>
-							<Link href={notification.link}>
-								<a className="rounded-md bg-light-500 p-4 dark:bg-dark-100">
-									<div className="flex items-center space-x-4">
-										<div className="flex h-10 w-10 items-center justify-center rounded-full bg-light-400 text-black dark:bg-dank-400 dark:text-white">
-											<div
-												className="material-icons"
-												style={{ fontSize: "20px" }}
-											>
-												{notification.icon}
-											</div>
-										</div>
-										<div className="flex-1 text-sm">
-											<div className="flex items-center justify-between">
-												<div className="flex items-center space-x-2">
-													<div className="break-all text-black dark:text-white">
-														{notification.title}
-													</div>
-													{notification.createdAt >
-														lastNotification && (
-														<div className="rounded-md bg-rose-500 px-1 text-xs">
-															NEW
-														</div>
-													)}
-												</div>
-												<div className="text-light-600">
-													{formatDistance(
-														new Date(
-															notification.createdAt
-														),
-														new Date(),
-														{
-															addSuffix: true,
-														}
-													)}
-												</div>
-											</div>
-											<div className="text-light-600">
-												{notification.content}
-											</div>
+					{notifications.map((notification) => (
+						<Link href={notification.link}>
+							<a className="rounded-md bg-light-500 p-4 dark:bg-dark-100">
+								<div className="flex items-center space-x-4">
+									<div className="flex h-10 w-10 items-center justify-center rounded-full bg-light-400 text-black dark:bg-dank-400 dark:text-white">
+										<div
+											className="material-icons"
+											style={{ fontSize: "20px" }}
+										>
+											{notification.icon}
 										</div>
 									</div>
-								</a>
-							</Link>
-						</>
+									<div className="flex-1 text-sm">
+										<div className="flex items-center justify-between">
+											<div className="flex items-center space-x-2">
+												<div className="break-all text-black dark:text-white">
+													{notification.title}
+												</div>
+												{notification.createdAt >
+													lastNotification && (
+													<div className="rounded-md bg-rose-500 px-1 text-xs">
+														NEW
+													</div>
+												)}
+											</div>
+											<div className="hidden text-light-600 md:inline-block">
+												{formatDistance(
+													new Date(
+														notification.createdAt
+													),
+													new Date(),
+													{
+														addSuffix: true,
+													}
+												)}
+											</div>
+										</div>
+										<div className="text-light-600">
+											{notification.content}
+										</div>
+									</div>
+								</div>
+							</a>
+						</Link>
 					))}
+					{notifications.length == 0 && (
+						<div className="flex flex-col items-center space-y-2 rounded-md bg-light-500 p-4 dark:bg-dark-100">
+							<img
+								src="/img/memer.png"
+								width={160}
+								className="grayscale"
+							/>
+							<div className="italic">Woah... so empty</div>
+						</div>
+					)}
 				</div>
 			</div>
 		</Container>

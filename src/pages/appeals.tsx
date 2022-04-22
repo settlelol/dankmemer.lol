@@ -35,7 +35,8 @@ export default function Appeals({ user }: PageProps) {
 			body: JSON.stringify({
 				appeal,
 				rules: brokenRules.map(
-					(i) => APPEALS[type.includes("Bot") ? "user" : "server"][i]
+					(i) =>
+						APPEALS[type.includes("Bot") ? "user" : "server"][i - 1]
 				),
 				type,
 			}),
@@ -58,28 +59,30 @@ export default function Appeals({ user }: PageProps) {
 	return (
 		<Container title="Appeal" user={user}>
 			<div className="relative my-16 flex justify-center">
-				<div className="max-w-3xl bg-gray-200 dark:bg-dark-200 flex flex-col rounded-md">
-					<div className="p-8 text-center border-b-8 border-gray-300 dark:border-dark-100">
-						<div className="text-3xl font-bold font-montserrat text-dark-500 dark:text-white">
+				<div className="flex max-w-3xl flex-col rounded-md bg-gray-200 dark:bg-dark-200">
+					<div className="border-b-8 border-gray-300 p-8 text-center dark:border-dark-100">
+						<div className="font-montserrat text-3xl font-bold text-dark-500 dark:text-white">
 							Appeal{" "}
 							{
 								{
-									"Bot Ban": "a permanent ban",
-									"Bot Blacklist": "a temporary ban",
-									"Community Server Ban": "a community ban",
-									"Support Server Ban": "a support ban",
+									"Bot Ban": "a permanent bot ban",
+									"Bot Blacklist": "a temporary bot ban",
+									"Community Server Ban":
+										"a community server ban",
+									"Support Server Ban":
+										"a support server ban",
 								}[type]
 							}
 						</div>
-						<div className="text-gray-500 dark:text-gray-400 max-w-2xl">
+						<div className="max-w-2xl text-gray-500 dark:text-gray-400">
 							Please provide as much detail as possible when
 							submitting your appeal. Appealing does not guarantee
 							a reprieval of the punishment.
 						</div>
 					</div>
-					<div className="flex flex-col p-4 space-y-2">
-						<div className="text-lg font-bold font-montserrat text-dark-500 dark:text-white">
-							Which rules did you break?
+					<div className="flex flex-col space-y-2 p-4">
+						<div className="font-montserrat text-lg font-bold text-dark-400 dark:text-white">
+							Which rules were you punished for?
 						</div>
 						<div>
 							{[
@@ -92,11 +95,11 @@ export default function Appeals({ user }: PageProps) {
 									key={stype}
 									htmlFor={"type-" + stype}
 									onClick={() => setType(stype)}
-									className="flex items-center space-x-6 select-none text-dark-500 dark:text-white"
+									className="flex select-none items-center space-x-6 text-dark-500 dark:text-white"
 								>
 									<span
 										className={clsx(
-											"absolute rounded-full h-4 w-4",
+											"absolute h-4 w-4 rounded-full",
 											stype === type
 												? "bg-dank-300"
 												: "bg-gray-400 dark:bg-dank-400"
@@ -108,20 +111,27 @@ export default function Appeals({ user }: PageProps) {
 						</div>
 					</div>
 					{type == "Bot Blacklist" && (
-						<div className="text-rose-600 px-4">
-							If a blacklist duration is under a week, it will be
-							not appealed.
+						<div className="px-4 text-rose-600">
+							If a blacklist duration is under two weeks, it will
+							not be appealed.
+						</div>
+					)}
+					{type == "Community Server Ban" && (
+						<div className="px-4 text-rose-600">
+							If you are still in the server but cannot talk, you
+							are not banned. You are timed out. This cannot be
+							appealed as it is temporary.
 						</div>
 					)}
 					{type == "Bot Ban" && (
-						<div className="text-yellow-300 px-4">
+						<div className="px-4 text-yellow-300">
 							If your ban is temporary, that is a blacklist and
 							not a ban.
 						</div>
 					)}
-					<div className="flex flex-col p-4 space-y-2">
+					<div className="flex flex-col space-y-2 p-4">
 						<div className="flex flex-col space-y-2">
-							<div className="text-lg font-bold font-montserrat text-dark-500 dark:text-white">
+							<div className="font-montserrat text-lg font-bold text-dark-500 dark:text-white">
 								Which rules did you break?
 							</div>
 							<div className="flex flex-col space-y-1">
@@ -129,20 +139,22 @@ export default function Appeals({ user }: PageProps) {
 									type.includes("Bot") ? "user" : "server"
 								].map((rule, i) => (
 									<label
-										key={i}
-										htmlFor={"rule-" + i}
-										onClick={(e) => updateBrokenRules(i)}
-										className="flex items-center space-x-6 select-none text-dark-500 dark:text-white"
+										key={i + 1}
+										htmlFor={"rule-" + (i + 1)}
+										onClick={(e) =>
+											updateBrokenRules(i + 1)
+										}
+										className="flex select-none items-center space-x-6 text-dark-400 dark:text-white"
 									>
 										<span
 											className={clsx(
-												"absolute text-sm rounded-md h-5 w-5 flex items-center justify-center text-white",
-												brokenRules.includes(i)
+												"absolute flex h-5 w-5 items-center justify-center rounded-md text-sm text-white",
+												brokenRules.includes(i + 1)
 													? "bg-dank-300"
 													: "bg-gray-500 dark:bg-dank-400"
 											)}
 										>
-											{i}
+											{i + 1}
 										</span>
 										<span>{rule}</span>
 									</label>
@@ -151,13 +163,13 @@ export default function Appeals({ user }: PageProps) {
 						</div>
 					</div>
 
-					<div className="flex flex-col p-4 space-y-2">
+					<div className="flex flex-col space-y-2 p-4">
 						<div className="flex flex-col space-y-2">
-							<div className="text-lg font-bold font-montserrat text-dark-500 dark:text-white">
+							<div className="font-montserrat text-lg font-bold text-dark-500 dark:text-white">
 								Please write your appeal below.
 							</div>
 							<textarea
-								className="w-full bg-light-500 dark:bg-dank-500 px-2 py-1 outline-none text-black dark:text-light-300 text-sm h-48 overflow-hidden rounded-md placeholder-gray-500"
+								className="h-48 w-full overflow-hidden rounded-md bg-light-500 px-2 py-1 text-sm text-black placeholder-gray-500 outline-none dark:bg-dank-500 dark:text-light-300"
 								maxLength={2000}
 								onChange={(e) => setAppeal(e.target.value)}
 								value={appeal}

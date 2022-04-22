@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { ChangeEvent, KeyboardEvent } from "react";
+import { ChangeEvent, HTMLInputTypeAttribute, KeyboardEvent } from "react";
 
 const variantClasses = {
 	short: "h-10",
@@ -15,10 +15,12 @@ interface Props {
 	placeholder?: string;
 	value: string;
 	variant: keyof typeof variantClasses;
+	type?: HTMLInputTypeAttribute;
 	resizable?: boolean;
 	block?: boolean;
 	scrollable?: boolean;
 	label?: string;
+	required?: boolean;
 }
 
 export default function Input({
@@ -27,10 +29,13 @@ export default function Input({
 	value,
 	placeholder = "",
 	resizable,
+	type,
 	block,
 	label,
 	variant,
 	scrollable,
+	required,
+	...options
 }: Props) {
 	const Text = variant == "short" ? "input" : "textarea";
 
@@ -43,19 +48,24 @@ export default function Input({
 				"placeholder-gray-500",
 				"rounded-md p-3 text-sm outline-none",
 				scrollable ? "overflow-auto" : "overflow-hidden",
-				!resizable && "resize-none",
+				!resizable && "resize-none min-h-0",
 				block && "w-full",
 				variantClasses[variant]
 			)}
 			placeholder={placeholder}
 			value={value}
 			onKeyDown={onKeyDown}
+			type={type}
+			{...options}
 		/>
 	);
 
 	return label ? (
-		<div className="flex flex-col space-y-1">
-			<div className="text-sm text-black dark:text-white">{label}</div>
+		<div className="flex flex-col space-y-1 w-full">
+			<div className="text-sm text-black dark:text-white">
+				{label}
+				{required && <sup className="text-red-500">*</sup>}
+			</div>
 			{inp}
 		</div>
 	) : (

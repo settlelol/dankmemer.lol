@@ -18,6 +18,7 @@ export default function Footer({}: Props) {
 									src={"/img/memer.png"}
 									alt="Logo"
 									width="100"
+									height="100"
 								/>
 							</Link>
 							<div className="flex flex-col -space-y-1">
@@ -85,6 +86,16 @@ export default function Footer({}: Props) {
 								</Link>
 							</div>
 							<div className="flex flex-col">
+								<Link href="/tutorials">
+									<span className="cursor-pointer text-dark-100 hover:text-dank-200 dark:text-gray-300 dark:hover:text-white">
+										Tutorials
+									</span>
+								</Link>
+								<Link href="/jobs">
+									<span className="cursor-pointer text-dark-100 hover:text-dank-200 dark:text-gray-300 dark:hover:text-white">
+										We're Hiring!
+									</span>
+								</Link>
 								<span className="flex cursor-pointer select-none items-center text-dark-100 hover:text-dank-200 dark:text-gray-300 dark:hover:text-white">
 									<div
 										onClick={() =>
