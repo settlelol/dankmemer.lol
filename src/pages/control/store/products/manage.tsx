@@ -100,6 +100,11 @@ export default function ManageProducts({ user }: PageProps) {
 			selector: TableHeaders.PRICES,
 		},
 		{
+			type: "Unsortable",
+			content: "Type",
+			width: "w-12",
+		},
+		{
 			type: "Sortable",
 			name: "Last updated",
 			width: "w-44",
@@ -108,7 +113,7 @@ export default function ManageProducts({ user }: PageProps) {
 		{
 			type: "Sortable",
 			name: "Total sales",
-			width: "w-[100px]",
+			width: "w-[110px]",
 			selector: TableHeaders.TOTAL_SALES,
 			rtl: true,
 		},
@@ -450,6 +455,7 @@ export default function ManageProducts({ user }: PageProps) {
 													)
 											)
 											.join(" or ")}
+										type={product.prices[0].interval}
 										sales={
 											salesData?.productSales.find(
 												(prod) =>

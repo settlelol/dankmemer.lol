@@ -2,12 +2,15 @@ import { Icon as Iconify } from "@iconify/react";
 import Checkbox from "src/components/ui/Checkbox";
 import clsx from "clsx";
 import { useEffect, useRef } from "react";
+import Link from "next/link";
+import Tooltip from "src/components/ui/Tooltip";
 
 interface ProductRow {
 	id: string;
 	name: string;
 	image: string;
 	price: string;
+	type: string;
 	lastUpdated: string;
 	sales: number;
 	revenue: number;
@@ -24,6 +27,7 @@ export default function ProductRow({
 	name,
 	image,
 	price,
+	type,
 	lastUpdated,
 	sales,
 	revenue,
@@ -90,6 +94,26 @@ export default function ProductRow({
 					<p>{price}</p>
 				</td>
 				<td className="group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
+					<p className="grid place-items-center">
+						{type ? (
+							<Tooltip content="Subscription">
+								<Iconify
+									icon="wpf:recurring-appointment"
+									className="text-green-500"
+								/>
+							</Tooltip>
+						) : (
+							<Tooltip content="One-time purchase">
+								<Iconify
+									icon="akar-icons:shipping-box-01"
+									className="text-teal-600"
+									height={18}
+								/>
+							</Tooltip>
+						)}
+					</p>
+				</td>
+				<td className="group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
 					<p>{lastUpdated}</p>
 				</td>
 				<td className="text-right group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
@@ -116,12 +140,23 @@ export default function ProductRow({
 					>
 						<ul className="space-y-1">
 							<li
-								className="cursor-pointer select-none rounded-md py-2 px-2 transition-colors hover:dark:bg-dank-500 hover:dark:text-neutral-300"
+								className="cursor-pointer select-none rounded-md py-2 px-2 transition-colors hover:bg-neutral-300/80  hover:dark:bg-dank-500 hover:dark:text-neutral-300"
 								onClick={editProduct}
 							>
 								Edit details
 							</li>
-							<li className="cursor-pointer select-none rounded-md py-2 px-2 transition-colors hover:dark:bg-dank-500 hover:dark:text-neutral-300">
+							<li className="cursor-pointer select-none rounded-md py-2 px-2 transition-colors hover:bg-neutral-300/80 hover:dark:bg-dank-500 hover:dark:text-neutral-300">
+								<Link
+									href={`https://dashboard.stripe.com/${
+										process.env.NODE_ENV === "development"
+											? "test/"
+											: ""
+									}products/${id}`}
+								>
+									<a target={"_blank"}>View on Stripe</a>
+								</Link>
+							</li>
+							<li className="cursor-pointer select-none rounded-md py-2 px-2 text-rose-500 transition-colors hover:bg-neutral-300/80 hover:text-red-500 hover:dark:bg-dank-500">
 								Archive
 							</li>
 						</ul>
