@@ -15,6 +15,7 @@ import { TableHeadersState } from "src/components/control/TableSortIcon";
 import TableHead from "src/components/control/TableHead";
 import clsx from "clsx";
 import ProductEditor from "src/components/control/store/ProductEditor";
+import CheckboxHead from "src/components/control/store/CheckboxHead";
 
 interface SalesData {
 	productSales: ProductSales[];
@@ -70,21 +71,12 @@ export default function ManageProducts({ user }: PageProps) {
 	const [filterSelectAll, setFilterSelectAll] = useState(false);
 	const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
-	const TableHeads = useRef<
+	const [tableHeads, setTableHeads] = useState<
 		(FilterableColumnData | UnfilterableColumnData)[]
 	>([
 		{
 			type: "Unsortable",
-			content: (
-				<Checkbox
-					className="mt-0"
-					state={filterSelectAll}
-					style="fill"
-					callback={() => setFilterSelectAll((curr) => !curr)}
-				>
-					<></>
-				</Checkbox>
-			),
+			content: <CheckboxHead change={setFilterSelectAll} />,
 			width: "w-10",
 		},
 		{
