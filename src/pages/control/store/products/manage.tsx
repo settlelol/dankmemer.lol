@@ -357,7 +357,7 @@ export default function ManageProducts({ user }: PageProps) {
 					</div>
 					<div>
 						<table
-							style={{ borderSpacing: "0 0.2rem" }}
+							style={{ borderSpacing: "0 0.3rem" }}
 							className="relative mt-4 w-full border-separate overflow-hidden rounded-lg border-none text-left text-neutral-600 dark:text-neutral-300"
 						>
 							<thead>
@@ -410,9 +410,12 @@ export default function ManageProducts({ user }: PageProps) {
 							{/* Required to add additional spacing between the thead and tbody elements */}
 							<div className="h-4" />
 							<tbody>
-								{displayedProducts.map((product) => (
+								{displayedProducts.map((product, i) => (
 									<ProductRow
 										id={product.id}
+										reverseOptions={
+											displayedProducts.length - 2 <= i
+										}
 										selected={selectedProducts.includes(
 											product.id
 										)}

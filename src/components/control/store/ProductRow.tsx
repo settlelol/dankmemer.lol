@@ -7,6 +7,7 @@ import Tooltip from "src/components/ui/Tooltip";
 
 interface ProductRow {
 	id: string;
+	reverseOptions: boolean;
 	name: string;
 	image: string;
 	price: string;
@@ -24,6 +25,7 @@ interface ProductRow {
 
 export default function ProductRow({
 	id,
+	reverseOptions,
 	name,
 	image,
 	price,
@@ -66,7 +68,12 @@ export default function ProductRow({
 					"group relative text-sm"
 				)}
 			>
-				<td className="px-5 first:rounded-l-lg group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
+				<td
+					className={clsx(
+						showOptions && "bg-neutral-100 dark:bg-dark-100/50",
+						"px-5 first:rounded-l-lg group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
+					)}
+				>
 					<Checkbox
 						className="mt-0"
 						state={selected}
@@ -76,7 +83,12 @@ export default function ProductRow({
 						<></>
 					</Checkbox>
 				</td>
-				<td className="py-1 group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
+				<td
+					className={clsx(
+						showOptions && "bg-neutral-100 dark:bg-dark-100/50",
+						"group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
+					)}
+				>
 					<div className="flex items-center justify-start space-x-4">
 						<div
 							className={clsx(
@@ -90,10 +102,20 @@ export default function ProductRow({
 						<span>{name}</span>
 					</div>
 				</td>
-				<td className="group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
+				<td
+					className={clsx(
+						showOptions && "bg-neutral-100 dark:bg-dark-100/50",
+						"group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
+					)}
+				>
 					<p>{price}</p>
 				</td>
-				<td className="group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
+				<td
+					className={clsx(
+						showOptions && "bg-neutral-100 dark:bg-dark-100/50",
+						"group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
+					)}
+				>
 					<p className="w-max px-8">
 						{type ? (
 							<Tooltip content="Subscription">
@@ -113,19 +135,39 @@ export default function ProductRow({
 						)}
 					</p>
 				</td>
-				<td className="group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
+				<td
+					className={clsx(
+						showOptions && "bg-neutral-100 dark:bg-dark-100/50",
+						"group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
+					)}
+				>
 					<p>{lastUpdated}</p>
 				</td>
-				<td className="text-right group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
+				<td
+					className={clsx(
+						showOptions && "bg-neutral-100 dark:bg-dark-100/50",
+						"text-right group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
+					)}
+				>
 					<p>{sales ?? <>&mdash;</>}</p>
 				</td>
-				<td className="text-right group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
+				<td
+					className={clsx(
+						showOptions && "bg-neutral-100 dark:bg-dark-100/50",
+						"text-right group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
+					)}
+				>
 					<p>
 						$
 						{revenue ? revenue.toFixed(2).toLocaleString() : "0.00"}
 					</p>
 				</td>
-				<td className="px-5 last:rounded-r-lg group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
+				<td
+					className={clsx(
+						showOptions && "bg-neutral-100 dark:bg-dark-100/50",
+						"px-5 last:rounded-r-lg group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
+					)}
+				>
 					<Iconify
 						icon="akar-icons:more-horizontal"
 						height={20}
@@ -136,7 +178,10 @@ export default function ProductRow({
 				{showOptions && (
 					<div
 						ref={options}
-						className="absolute top-10 right-5 z-50 h-max w-36 rounded-lg bg-light-500 px-2 py-3 dark:bg-dark-100"
+						className={clsx(
+							reverseOptions ? "bottom-10" : "top-10",
+							"absolute right-5 z-50 h-max w-36 rounded-lg bg-light-500 px-2 py-3 dark:bg-dark-100"
+						)}
 					>
 						<ul className="space-y-1">
 							<li
