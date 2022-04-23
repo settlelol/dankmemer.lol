@@ -156,9 +156,6 @@ export default function ProductRow({
 									<a target={"_blank"}>View on Stripe</a>
 								</Link>
 							</li>
-							<li className="cursor-pointer select-none rounded-md py-2 px-2 text-rose-500 transition-colors hover:bg-neutral-300/80 hover:text-red-500 hover:dark:bg-dank-500">
-								Archive
-							</li>
 						</ul>
 					</div>
 				)}
