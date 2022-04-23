@@ -82,30 +82,30 @@ export default function ManageProducts({ user }: PageProps) {
 		{
 			type: "Sortable",
 			name: "Name",
-			width: "w-3/12",
+			width: "w-4/12",
 			selector: TableHeaders.NAME,
 		},
 		{
 			type: "Sortable",
 			name: "Prices",
-			width: "w-48",
+			width: "w-max",
 			selector: TableHeaders.PRICES,
 		},
 		{
 			type: "Unsortable",
 			content: "Type",
-			width: "w-12",
+			width: "w-13",
 		},
 		{
 			type: "Sortable",
 			name: "Last updated",
-			width: "w-44",
+			width: "min-w-[156px]",
 			selector: TableHeaders.LAST_UPDATED,
 		},
 		{
 			type: "Sortable",
 			name: "Total sales",
-			width: "w-[110px]",
+			width: "min-w-[110px]",
 			selector: TableHeaders.TOTAL_SALES,
 			rtl: true,
 		},
@@ -340,11 +340,11 @@ export default function ManageProducts({ user }: PageProps) {
 			rightPaneContent={editorContent}
 		>
 			<div className="mx-8">
-				<div className={clsx("my-10 flex min-h-screen flex-col")}>
+				<div className="my-10 flex min-h-screen flex-col lg:mt-16">
 					<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">
 						Products
 					</div>
-					<div className="mt-8">
+					<div className="">
 						<Input
 							icon="bx:search"
 							width="w-full"
@@ -355,14 +355,14 @@ export default function ManageProducts({ user }: PageProps) {
 							onChange={(e) => setFilterSearch(e.target.value)}
 						/>
 					</div>
-					<div className="w-max min-w-[980px]">
+					<div>
 						<table
 							style={{ borderSpacing: "0 0.2rem" }}
-							className="relative mt-4 max-w-7xl border-separate overflow-hidden rounded-lg border-none text-left text-neutral-600 dark:text-neutral-300"
+							className="relative mt-4 w-full border-separate overflow-hidden rounded-lg border-none text-left text-neutral-600 dark:text-neutral-300"
 						>
 							<thead>
 								<tr className="select-none font-inter">
-									{TableHeads.current.map((data, i) =>
+									{tableHeads.map((data, i) =>
 										data.type === "Sortable" ? (
 											<TableHead
 												key={i}
@@ -377,9 +377,7 @@ export default function ManageProducts({ user }: PageProps) {
 												rtl={data.rtl}
 												className={clsx(
 													i === 0 && "rounded-l-lg",
-													i ===
-														TableHeads.current
-															.length &&
+													i === tableHeads.length &&
 														"rounded-r-lg"
 												)}
 												onClick={() =>
@@ -397,9 +395,8 @@ export default function ManageProducts({ user }: PageProps) {
 												className={clsx(
 													i === 0 && "rounded-l-lg",
 													i ===
-														TableHeads.current
-															.length -
-															1 && "rounded-r-lg",
+														tableHeads.length - 1 &&
+														"rounded-r-lg",
 													"px-5"
 												)}
 												type={data.type}

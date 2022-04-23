@@ -94,7 +94,7 @@ export default function ProductRow({
 					<p>{price}</p>
 				</td>
 				<td className="group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
-					<p className="grid place-items-center">
+					<p className="w-max px-8">
 						{type ? (
 							<Tooltip content="Subscription">
 								<Iconify
