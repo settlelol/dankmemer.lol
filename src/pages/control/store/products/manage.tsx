@@ -339,7 +339,7 @@ export default function ManageProducts({ user }: PageProps) {
 			rightPaneVisible={editing}
 			rightPaneContent={editorContent}
 		>
-			<div className="mx-8">
+			<div className="ml-8 mr-16">
 				<div className="my-10 flex min-h-screen flex-col lg:mt-16">
 					<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">
 						Products
