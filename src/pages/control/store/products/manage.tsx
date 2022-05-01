@@ -1,7 +1,7 @@
 import axios from "axios";
 import { formatDistance } from "date-fns";
 import { GetServerSideProps } from "next";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import ControlPanelContainer from "src/components/control/Container";
 import { PageProps } from "src/types";
 import { developerRoute } from "src/util/redirects";
@@ -16,6 +16,9 @@ import TableHead from "src/components/control/TableHead";
 import clsx from "clsx";
 import ProductEditor from "src/components/control/store/ProductEditor";
 import CheckboxHead from "src/components/control/store/CheckboxHead";
+import Dropdown from "src/components/ui/Dropdown";
+import { Icon as Iconify } from "@iconify/react";
+import Button from "src/components/ui/Button";
 
 interface SalesData {
 	productSales: ProductSales[];
@@ -42,6 +45,7 @@ interface FilterableColumnData {
 	content?: never;
 	width: string;
 	rtl?: boolean;
+	hidden: boolean;
 }
 
 interface UnfilterableColumnData {
@@ -50,6 +54,7 @@ interface UnfilterableColumnData {
 	selector?: never;
 	content: ReactNode;
 	width: string;
+	hidden: boolean;
 }
 
 export default function ManageProducts({ user }: PageProps) {
@@ -71,6 +76,8 @@ export default function ManageProducts({ user }: PageProps) {
 	const [filterSelectAll, setFilterSelectAll] = useState(false);
 	const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
+	const [showOptionsFor, setShowOptionsFor] = useState<string>("");
+
 	const [tableHeads, setTableHeads] = useState<
 		(FilterableColumnData | UnfilterableColumnData)[]
 	>([
@@ -78,29 +85,34 @@ export default function ManageProducts({ user }: PageProps) {
 			type: "Unsortable",
 			content: <CheckboxHead change={setFilterSelectAll} />,
 			width: "w-10",
+			hidden: false,
 		},
 		{
 			type: "Sortable",
 			name: "Name",
 			width: "w-4/12",
 			selector: TableHeaders.NAME,
+			hidden: false,
 		},
 		{
 			type: "Sortable",
 			name: "Prices",
 			width: "w-max",
 			selector: TableHeaders.PRICES,
+			hidden: false,
 		},
 		{
 			type: "Unsortable",
 			content: "Type",
 			width: "w-13",
+			hidden: false,
 		},
 		{
 			type: "Sortable",
 			name: "Last updated",
 			width: "min-w-[156px]",
 			selector: TableHeaders.LAST_UPDATED,
+			hidden: false,
 		},
 		{
 			type: "Sortable",
@@ -108,6 +120,7 @@ export default function ManageProducts({ user }: PageProps) {
 			width: "min-w-[110px]",
 			selector: TableHeaders.TOTAL_SALES,
 			rtl: true,
+			hidden: false,
 		},
 		{
 			type: "Sortable",
@@ -115,15 +128,15 @@ export default function ManageProducts({ user }: PageProps) {
 			width: "w-52",
 			selector: TableHeaders.TOTAL_REVENUE,
 			rtl: true,
+			hidden: false,
 		},
 		{
 			type: "Unsortable",
 			content: <></>,
 			width: "w-10",
+			hidden: false,
 		},
 	]);
-
-	const [showOptionsFor, setShowOptionsFor] = useState<string>("");
 
 	useEffect(() => {
 		const StoreAPI = axios.create({
@@ -320,6 +333,13 @@ export default function ManageProducts({ user }: PageProps) {
 		}
 	};
 
+	const changeColumnVisibility = (i: number, newState: boolean) => {
+		let _tableHeads = [...tableHeads];
+		_tableHeads[i].hidden = newState;
+
+		setTableHeads(_tableHeads);
+	};
+
 	return (
 		<ControlPanelContainer
 			title={"Manage Products"}
@@ -344,16 +364,77 @@ export default function ManageProducts({ user }: PageProps) {
 					<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">
 						Products
 					</div>
-					<div className="">
-						<Input
-							icon="bx:search"
-							width="w-full"
-							className="mt-8 !bg-light-500 dark:!bg-dark-100"
-							placeholder="Search for a product name"
-							type={"search"}
-							value={filterSearch}
-							onChange={(e) => setFilterSearch(e.target.value)}
-						/>
+					<div className="flex w-full items-center justify-between space-x-10">
+						<div className="order-1 grow">
+							<Input
+								icon="bx:search"
+								width="w-full"
+								className="mt-8 !bg-light-500 dark:!bg-dark-100"
+								placeholder="Search for a product name"
+								type={"search"}
+								value={filterSearch}
+								onChange={(e) =>
+									setFilterSearch(e.target.value)
+								}
+							/>
+						</div>
+						<div className="order-2 mt-8 flex items-center justify-center space-x-4">
+							<div className="">
+								<Dropdown
+									content={
+										<div
+											className={clsx(
+												"flex items-center justify-center",
+												"rounded-md border-[1px] border-[#3C3C3C]",
+												"bg-light-500 transition-colors dark:bg-dark-100 dark:text-neutral-400 hover:dark:text-neutral-200",
+												"w-40 px-3 py-2 text-sm"
+											)}
+										>
+											<p>Visible columns</p>
+											<Iconify
+												icon="ic:baseline-expand-more"
+												height={15}
+												className="ml-1"
+											/>
+										</div>
+									}
+									options={tableHeads.map((column, i) => {
+										if (typeof column.name === "string") {
+											return {
+												label: (
+													<div className="flex items-center justify-start">
+														<Checkbox
+															state={
+																!column.hidden
+															}
+															style={"fill"}
+															className="!mt-0"
+															callback={() =>
+																changeColumnVisibility(
+																	i,
+																	!column.hidden
+																)
+															}
+														>
+															<p className="text-sm">
+																{column.name}
+															</p>
+														</Checkbox>
+													</div>
+												),
+											};
+										} else {
+											return null;
+										}
+									})}
+									isInput={false}
+									requireScroll={false}
+								/>
+							</div>
+							<Button variant="primary" className="w-max">
+								Add product
+							</Button>
+						</div>
 					</div>
 					<div>
 						<table
@@ -362,48 +443,56 @@ export default function ManageProducts({ user }: PageProps) {
 						>
 							<thead>
 								<tr className="select-none font-inter">
-									{tableHeads.map((data, i) =>
-										data.type === "Sortable" ? (
-											<TableHead
-												key={i}
-												type={data.type}
-												name={data.name}
-												width={data.width}
-												state={filterTableHeadersState}
-												active={
-													filterTableHeaders ===
-													data.selector
-												}
-												rtl={data.rtl}
-												className={clsx(
-													i === 0 && "rounded-l-lg",
-													i === tableHeads.length &&
-														"rounded-r-lg"
-												)}
-												onClick={() =>
-													changeSorting(
-														data.selector,
-														TableHeadersState.opposite(
-															filterTableHeadersState
+									{tableHeads.map(
+										(data, i) =>
+											!data.hidden &&
+											(data.type === "Sortable" ? (
+												<TableHead
+													key={i}
+													type={data.type}
+													name={data.name}
+													width={data.width}
+													state={
+														filterTableHeadersState
+													}
+													active={
+														filterTableHeaders ===
+														data.selector
+													}
+													rtl={data.rtl}
+													className={clsx(
+														i === 0 &&
+															"rounded-l-lg",
+														i ===
+															tableHeads.length &&
+															"rounded-r-lg"
+													)}
+													onClick={() =>
+														changeSorting(
+															data.selector,
+															TableHeadersState.opposite(
+																filterTableHeadersState
+															)
 														)
-													)
-												}
-											/>
-										) : (
-											<TableHead
-												key={i}
-												className={clsx(
-													i === 0 && "rounded-l-lg",
-													i ===
-														tableHeads.length - 1 &&
-														"rounded-r-lg",
-													"px-5"
-												)}
-												type={data.type}
-												content={data.content}
-												width={data.width}
-											/>
-										)
+													}
+												/>
+											) : (
+												<TableHead
+													key={i}
+													className={clsx(
+														i === 0 &&
+															"rounded-l-lg",
+														i ===
+															tableHeads.length -
+																1 &&
+															"rounded-r-lg",
+														"px-5"
+													)}
+													type={data.type}
+													content={data.content}
+													width={data.width}
+												/>
+											))
 									)}
 								</tr>
 							</thead>
@@ -413,6 +502,9 @@ export default function ManageProducts({ user }: PageProps) {
 								{displayedProducts.map((product, i) => (
 									<ProductRow
 										id={product.id}
+										hiddenColumns={tableHeads.map(
+											(c) => c.hidden
+										)}
 										reverseOptions={
 											displayedProducts.length - 2 <= i
 										}

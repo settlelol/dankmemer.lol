@@ -8,6 +8,7 @@ import Tooltip from "src/components/ui/Tooltip";
 interface ProductRow {
 	id: string;
 	reverseOptions: boolean;
+	hiddenColumns: boolean[];
 	name: string;
 	image: string;
 	price: string;
@@ -26,6 +27,7 @@ interface ProductRow {
 export default function ProductRow({
 	id,
 	reverseOptions,
+	hiddenColumns,
 	name,
 	image,
 	price,
@@ -65,7 +67,7 @@ export default function ProductRow({
 					selected
 						? "text-neutral-800 dark:text-neutral-300"
 						: "dark:text-neutral-400",
-					"group relative text-sm"
+					"group relative h-12 text-sm"
 				)}
 			>
 				<td
@@ -83,85 +85,99 @@ export default function ProductRow({
 						<></>
 					</Checkbox>
 				</td>
-				<td
-					className={clsx(
-						showOptions && "bg-neutral-100 dark:bg-dark-100/50",
-						"group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
-					)}
-				>
-					<div className="flex items-center justify-start space-x-4">
-						<div
-							className={clsx(
-								"rounded-md bg-black/10 bg-light-500 bg-center bg-no-repeat dark:bg-dark-100",
-								"h-12 w-12 bg-[length:33px_33px]"
-							)}
-							style={{
-								backgroundImage: `url('${image}')`,
-							}}
-						/>
-						<span>{name}</span>
-					</div>
-				</td>
-				<td
-					className={clsx(
-						showOptions && "bg-neutral-100 dark:bg-dark-100/50",
-						"group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
-					)}
-				>
-					<p>{price}</p>
-				</td>
-				<td
-					className={clsx(
-						showOptions && "bg-neutral-100 dark:bg-dark-100/50",
-						"group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
-					)}
-				>
-					<p className="w-max px-8">
-						{type ? (
-							<Tooltip content="Subscription">
-								<Iconify
-									icon="wpf:recurring-appointment"
-									className="text-green-500"
-								/>
-							</Tooltip>
-						) : (
-							<Tooltip content="One-time purchase">
-								<Iconify
-									icon="akar-icons:shipping-box-01"
-									className="text-teal-600"
-									height={18}
-								/>
-							</Tooltip>
+				{!hiddenColumns[1] && (
+					<td
+						className={clsx(
+							showOptions && "bg-neutral-100 dark:bg-dark-100/50",
+							"group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
 						)}
-					</p>
-				</td>
-				<td
-					className={clsx(
-						showOptions && "bg-neutral-100 dark:bg-dark-100/50",
-						"group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
-					)}
-				>
-					<p>{lastUpdated}</p>
-				</td>
-				<td
-					className={clsx(
-						showOptions && "bg-neutral-100 dark:bg-dark-100/50",
-						"text-right group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
-					)}
-				>
-					<p>{sales ?? <>&mdash;</>}</p>
-				</td>
-				<td
-					className={clsx(
-						showOptions && "bg-neutral-100 dark:bg-dark-100/50",
-						"text-right group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
-					)}
-				>
-					<p>
-						$
-						{revenue ? revenue.toFixed(2).toLocaleString() : "0.00"}
-					</p>
-				</td>
+					>
+						<div className="flex items-center justify-start space-x-4">
+							<div
+								className={clsx(
+									"rounded-md bg-black/10 bg-light-500 bg-center bg-no-repeat dark:bg-dark-100",
+									"h-12 w-12 bg-[length:33px_33px]"
+								)}
+								style={{
+									backgroundImage: `url('${image}')`,
+								}}
+							/>
+							<span>{name}</span>
+						</div>
+					</td>
+				)}
+				{!hiddenColumns[2] && (
+					<td
+						className={clsx(
+							showOptions && "bg-neutral-100 dark:bg-dark-100/50",
+							"group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
+						)}
+					>
+						<p>{price}</p>
+					</td>
+				)}
+				{!hiddenColumns[3] && (
+					<td
+						className={clsx(
+							showOptions && "bg-neutral-100 dark:bg-dark-100/50",
+							"group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
+						)}
+					>
+						<p className="w-max px-8">
+							{type ? (
+								<Tooltip content="Subscription">
+									<Iconify
+										icon="wpf:recurring-appointment"
+										className="text-green-500"
+									/>
+								</Tooltip>
+							) : (
+								<Tooltip content="One-time purchase">
+									<Iconify
+										icon="akar-icons:shipping-box-01"
+										className="text-teal-600"
+										height={18}
+									/>
+								</Tooltip>
+							)}
+						</p>
+					</td>
+				)}
+				{!hiddenColumns[4] && (
+					<td
+						className={clsx(
+							showOptions && "bg-neutral-100 dark:bg-dark-100/50",
+							"group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
+						)}
+					>
+						<p>{lastUpdated}</p>
+					</td>
+				)}
+				{!hiddenColumns[5] && (
+					<td
+						className={clsx(
+							showOptions && "bg-neutral-100 dark:bg-dark-100/50",
+							"text-right group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
+						)}
+					>
+						<p>{sales ?? <>&mdash;</>}</p>
+					</td>
+				)}
+				{!hiddenColumns[6] && (
+					<td
+						className={clsx(
+							showOptions && "bg-neutral-100 dark:bg-dark-100/50",
+							"text-right group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
+						)}
+					>
+						<p>
+							$
+							{revenue
+								? revenue.toFixed(2).toLocaleString()
+								: "0.00"}
+						</p>
+					</td>
+				)}
 				<td
 					className={clsx(
 						showOptions && "bg-neutral-100 dark:bg-dark-100/50",
