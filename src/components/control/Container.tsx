@@ -1,4 +1,10 @@
-import { ReactNode } from "react";
+import {
+	DetailedHTMLProps,
+	HTMLAttributes,
+	ReactNode,
+	useRef,
+	useState,
+} from "react";
 import { User } from "src/types";
 import { Icon as Iconify } from "@iconify/react";
 import LinkGroup from "./LinkGroup";
@@ -30,6 +36,34 @@ export default function ControlPanelContainer({
 	const router = useRouter();
 	const { theme, setTheme } = useTheme();
 
+	const rightPane = useRef<any>();
+	const [dragging, setDragging] = useState(false);
+	const draggingStartPos = useRef(0);
+	const [draggedWidth, setDraggedWidth] = useState(
+		rightPane.current?.getBoundingClientRect().width || 550
+	);
+
+	const draggerMouseDown = (e: MouseEvent) => {
+		setDragging(true);
+		draggingStartPos.current = e.clientX;
+		document.addEventListener("mousemove", draggerMouseMove);
+		document.addEventListener("mouseup", draggerMouseUp);
+	};
+
+	const draggerMouseUp = () => {
+		document.removeEventListener("mousemove", draggerMouseMove);
+		document.removeEventListener("mouseup", draggerMouseUp);
+		setDragging(false);
+	};
+
+	const draggerMouseMove = (e: MouseEvent) => {
+		const additionalWidth = draggingStartPos.current - e.clientX;
+		setDraggedWidth(
+			rightPane.current!.getBoundingClientRect().width + additionalWidth
+		);
+		draggingStartPos.current = e.clientX;
+	};
+
 	return (
 		<>
 			<Head>
@@ -39,7 +73,13 @@ export default function ControlPanelContainer({
 			</Head>
 			<ToastContainer position="top-center" theme="colored" />
 			{rightPaneVisible ? (
-				<div className="select-none opacity-50" onClick={hideRightPane}>
+				<div
+					className={clsx(
+						"select-none opacity-50",
+						dragging && "cursor-col-resize select-none"
+					)}
+					onClick={hideRightPane}
+				>
 					<div className="pointer-events-none fixed top-0 left-0 h-full w-72 bg-neutral-100 px-9 py-5 dark:bg-dark-100">
 						<div
 							className="mb-5 flex cursor-pointer items-center justify-start"
@@ -293,11 +333,26 @@ export default function ControlPanelContainer({
 				</>
 			)}
 			<div
+				ref={rightPane}
+				style={{ width: draggedWidth }}
 				className={clsx(
-					"fixed top-0 right-0 h-full w-1/5 min-w-[550px] max-w-5xl resize-x overflow-auto bg-neutral-100 px-8 pt-10 transition-transform duration-300 dark:bg-dark-100",
-					rightPaneVisible ? "translate-x-0" : "translate-x-full"
+					"fixed top-0 right-0 h-full min-w-[550px] max-w-5xl overflow-auto bg-neutral-100 px-8 pt-10 transition-transform duration-300 dark:bg-dark-100",
+					rightPaneVisible ? "translate-x-0" : "translate-x-full",
+					dragging && "pointer-events-none cursor-col-resize"
 				)}
 			>
+				<div
+					id="dragger"
+					className={clsx(
+						"absolute left-0 top-0 grid h-full w-2 cursor-col-resize select-none place-items-center pl-1"
+					)}
+					// @ts-expect-error
+					onMouseDown={draggerMouseDown}
+				>
+					<span className="text-[10px] text-black opacity-20 dark:text-white">
+						||
+					</span>
+				</div>
 				{rightPaneVisible ? rightPaneContent : ""}
 			</div>
 		</>
