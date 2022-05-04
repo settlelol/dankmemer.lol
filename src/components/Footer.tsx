@@ -1,15 +1,12 @@
 import { useTheme } from "next-themes";
-import Link from "next/link";
-import { Expire } from "./ui/Expire";
+import Link from "./ui/Link";
 
-interface Props {}
-
-export default function Footer({}: Props) {
+export default function Footer() {
 	const { theme, setTheme } = useTheme();
 
 	return (
 		<footer>
-			<div className="bg-light-200  font-inter dark:bg-dark-500">
+			<div className="bg-light-200 font-inter dark:bg-dark-500">
 				<div className="flex justify-center">
 					<div className="flex flex-col items-center space-x-0 space-y-4 p-14 lg:flex-row lg:space-x-72 lg:space-y-0">
 						<div className="flex items-center space-x-4">
@@ -34,70 +31,53 @@ export default function Footer({}: Props) {
 						</div>
 						<div className="flex space-x-6 lg:space-x-12">
 							<div className="flex flex-col space-y-0">
-								<a
-									className="cursor-pointer text-dark-100 hover:text-dank-200 dark:text-gray-300 dark:hover:text-white"
+								<Link
 									href="https://www.patreon.com/join/dankmemerbot"
+									variant="secondary"
 								>
 									Premium
-								</a>
-								<Link href="/commands">
-									<span className="cursor-pointer text-dark-100 hover:text-dank-200 dark:text-gray-300 dark:hover:text-white">
-										Commands
-									</span>
 								</Link>
-								<Link href="/community/blogs">
-									<span className="cursor-pointer text-dark-100 hover:text-dank-200 dark:text-gray-300 dark:hover:text-white">
-										Our blog
-									</span>
+								<Link href="/commands" variant="secondary">
+									Commands
 								</Link>
-							</div>
-							<div className="flex flex-col">
-								<Link href="/staff">
-									<span className="cursor-pointer text-dark-100 hover:text-dank-200 dark:text-gray-300 dark:hover:text-white">
-										Staff
-									</span>
-								</Link>
-								<Link href="/terms">
-									<span className="cursor-pointer text-dark-100 hover:text-dank-200 dark:text-gray-300 dark:hover:text-white">
-										Terms
-									</span>
-								</Link>
-								<Link href="/privacy">
-									<span className="cursor-pointer text-dark-100 hover:text-dank-200 dark:text-gray-300 dark:hover:text-white">
-										Privacy
-									</span>
+								<Link
+									href="/community/blog"
+									variant="secondary"
+								>
+									Our blog
 								</Link>
 							</div>
 							<div className="flex flex-col">
-								<Link href="/rules">
-									<span className="cursor-pointer text-dark-100 hover:text-dank-200 dark:text-gray-300 dark:hover:text-white">
-										Rules
-									</span>
+								<Link href="/staff" variant="secondary">
+									Staff
 								</Link>
-								<Link href="/reports">
-									<span className="cursor-pointer text-dark-100 hover:text-dank-200 dark:text-gray-300 dark:hover:text-white">
-										Reports
-									</span>
+								<Link href="/terms" variant="secondary">
+									Terms
 								</Link>
-								<Link href="/appeals">
-									<span className="cursor-pointer text-dark-100 hover:text-dank-200 dark:text-gray-300 dark:hover:text-white">
-										Appeals
-									</span>
+								<Link href="/privacy" variant="secondary">
+									Privacy
 								</Link>
 							</div>
 							<div className="flex flex-col">
-								<Link href="/tutorials">
-									<span className="cursor-pointer text-dark-100 hover:text-dank-200 dark:text-gray-300 dark:hover:text-white">
-										Tutorials
-									</span>
+								<Link href="/rules" variant="secondary">
+									Rules
 								</Link>
-								<Link href="/jobs">
-									<span className="cursor-pointer text-dark-100 hover:text-dank-200 dark:text-gray-300 dark:hover:text-white">
-										We're Hiring!
-									</span>
+								<Link href="/reports" variant="secondary">
+									Reports
 								</Link>
-								<span className="flex cursor-pointer select-none items-center text-dark-100 hover:text-dank-200 dark:text-gray-300 dark:hover:text-white">
-									<div
+								<Link href="/appeals" variant="secondary">
+									Appeals
+								</Link>
+							</div>
+							<div className="flex flex-col">
+								<Link href="/tutorials" variant="secondary">
+									tutorials
+								</Link>
+								<Link href="/jobs" variant="secondary">
+									We're Hiring!
+								</Link>
+								<Link href="#" variant="secondary">
+									<span
 										onClick={() =>
 											setTheme(
 												theme === "dark"
@@ -109,16 +89,8 @@ export default function Footer({}: Props) {
 										{theme === "dark"
 											? "Light Mode"
 											: "Dark Mode"}
-									</div>
-									<Expire
-										added={new Date("10-21-2021")}
-										expireIn="month"
-									>
-										<div className="ml-2 rounded-md bg-red-500 px-2 py-0.5 text-xs text-white">
-											NEW
-										</div>
-									</Expire>
-								</span>
+									</span>
+								</Link>
 							</div>
 						</div>
 					</div>
