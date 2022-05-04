@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+    mongo:
+        container_name: website-mongo
+        image: mongo:5.0
+        ports:
+            - "27017:27017"
+    redis:
+        image: redis:6.2
+        container_name: website-redis
+        ports:
+            - "6379:6379"
