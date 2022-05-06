@@ -44,7 +44,7 @@ interface ProductListResponse {
 	total_pages?: number;
 }
 
-interface ProductCreateResponse extends ProductCreateBody {
+export interface ProductCreateResponse extends ProductCreateBody {
 	create_time?: string;
 	update_time?: string;
 	links?: LinkDescription[];
