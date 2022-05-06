@@ -98,14 +98,18 @@ export default class Products {
 		const httpClient = await createPayPal();
 
 		let queryParameters: string = "";
-		const res = await httpClient({
-			url: `/v1/catalogs/products${queryParameters}`,
-			method: "POST",
-			data: body,
-			headers,
-		});
-		const data: ProductCreateResponse | ResponseError = res.data;
-		return data;
+		try {
+			return (
+				await httpClient({
+					url: `/v1/catalogs/products${queryParameters}`,
+					method: "POST",
+					data: body,
+					headers,
+				})
+			).data as ProductCreateResponse;
+		} catch (e: any) {
+			throw e as ResponseError;
+		}
 	}
 
 	public async delete(id: string) {

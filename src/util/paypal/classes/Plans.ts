@@ -68,19 +68,24 @@ export default class Plans {
 		return data;
 	}
 
-	public async create(options: CreatePlanParams) {
+	public async create(options: CreatePlanParams): Promise<Plan> {
 		const httpClient = await createPayPal();
 
 		if (!options) {
-			return new Error("No plan data was provided.");
+			throw new Error("No plan data was provided.");
+		} else {
+			try {
+				return (
+					await httpClient({
+						url: `/v2/billing/plans`,
+						method: "POST",
+						data: { ...options },
+					})
+				).data as Plan;
+			} catch (e) {
+				console.log(e);
+				throw e as PayPalResponseError;
+			}
 		}
-
-		const res = await httpClient({
-			url: `/v2/billing/plans`,
-			method: "POST",
-			data: { ...options },
-		});
-		const data: Plan | PayPalResponseError = res.data;
-		return data;
 	}
 }
