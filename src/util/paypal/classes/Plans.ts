@@ -1,5 +1,5 @@
 import { createPayPal } from "../PayPalEndpoint";
-import { PayPalResponseError } from "../types";
+import { PaymentAmount, PayPalResponseError } from "../types";
 import { BillingCycle } from "../types/Plans/BillingCycle";
 import { LinkDescription } from "./Products";
 
