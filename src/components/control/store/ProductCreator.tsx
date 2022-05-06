@@ -108,7 +108,7 @@ export default function ProductCreator({ id, name, description }: Props) {
 	const submitChanges = () => {
 		if (canSubmit) {
 			axios({
-				url: "/api/store/product/create?productId=" + id,
+				url: "/api/store/product/create",
 				method: "POST",
 				data: {
 					name: productName,
