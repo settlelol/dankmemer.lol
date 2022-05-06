@@ -2,11 +2,30 @@ import { NextApiResponse } from "next";
 import { NextIronRequest, withSession } from "../../../../util/session";
 import { dbConnect } from "src/util/mongodb";
 import { Db } from "mongodb";
+import { ProductPrice } from "src/components/control/store/ProductCreator";
+import { stripeConnect } from "src/util/stripe";
+import { createPayPal } from "src/util/paypal/PayPalEndpoint";
+import PayPal from "src/util/paypal";
+import { ObjectID } from "bson";
+import { ProductCreateResponse } from "src/util/paypal/classes/Products";
+import Stripe from "stripe";
 
 interface ProductData {
-	_id: any; // It is a string but produces a TS error if stated as such.
-	included: string;
-	additionallyIncluded?: string;
+	name: string;
+	type: "single" | "recurring";
+	prices: ProductPrice[];
+	description?: string; // Invoice descriptions
+	primaryTitle: string;
+	primaryBody: string;
+	secondaryTitle?: string;
+	secondaryBody?: string;
+}
+
+enum ProductIntervals {
+	"Daily" = "day",
+	"Weekly" = "week",
+	"Monthly" = "month",
+	"Annually" = "year",
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
@@ -27,18 +46,145 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	const productData: ProductData = req.body;
-	if (!productData || productData._id || productData.included) {
+	if (!productData) {
 		return res.status(400).json({ error: "Invalid body." });
 	}
 
-	const db: Db = await dbConnect();
-
 	try {
-		await db.collection("products").insertOne(productData);
+		// TODO:(InBlue) create a way for images to be uploaded when creating a product.
+		const db: Db = await dbConnect();
+		const stripe = stripeConnect();
+		const paypal = new PayPal();
+
+		let paypalProduct: ProductCreateResponse;
+
+		const stripeProduct = await stripe.products.create({
+			name: productData.name,
+			active: true,
+			tax_code: "txcd_10000000", // General - Electronically Supplied Services
+			...(productData.description &&
+				productData.description.length >= 1 && {
+					description: productData.description,
+				}),
+			metadata: {
+				hidden: "true",
+			},
+		});
+
+		try {
+			paypalProduct = await paypal.products.create({
+				name: productData.name,
+				type: "DIGITAL",
+				...(productData.description &&
+					productData.description.length >= 1 && {
+						description: productData.description,
+					}),
+			});
+		} catch (e) {
+			return res.status(500).json({
+				message: "Unable to create product on PayPal",
+				error: e,
+			});
+		}
+
+		// Change provided price to cents
+		const priceInCents = parseInt(
+			(
+				parseFloat(productData.prices[0].value as unknown as string) *
+				100
+			).toString()
+		);
+
+		if (productData.type === "single") {
+			await stripe.prices.create({
+				currency: "USD",
+				product: stripeProduct.id,
+				unit_amount: priceInCents,
+				tax_behavior: "exclusive",
+			});
+		} else if (productData.type === "recurring") {
+			for (let i = 0; i < productData.prices.length; i++) {
+				await stripe.prices.create({
+					currency: "USD",
+					product: stripeProduct.id,
+					unit_amount: priceInCents,
+					tax_behavior: "exclusive",
+					recurring: {
+						interval:
+							ProductIntervals[productData.prices[i].interval!],
+						interval_count:
+							productData.prices[i].intervalCount || 1,
+					},
+				});
+
+				try {
+					const plan = await paypal.plans.create({
+						product_id: paypalProduct.id!,
+						name: productData.name,
+						status: "ACTIVE",
+						...(productData.description &&
+							productData.description.length >= 1 && {
+								description: productData.description,
+							}),
+						billing_cycles: [
+							{
+								frequency: {
+									interval_unit: ProductIntervals[
+										productData.prices[i].interval!
+									].toUpperCase() as
+										| "DAY"
+										| "WEEK"
+										| "MONTH"
+										| "YEAR",
+									interval_count:
+										productData.prices[i].intervalCount!,
+								},
+								tenure_type: "REGULAR",
+								sequence: 1,
+								pricing_scheme: {
+									fixed_price: {
+										value: productData.prices[
+											i
+										].value.toString(),
+										currency_code: "USD",
+									},
+								},
+							},
+						],
+						payment_preferences: {
+							auto_bill_outstanding: true,
+							payment_failure_threshold: 3,
+							setup_fee_failure_action: "CONTINUE",
+						},
+					});
+					await stripe.products.update(stripeProduct.id, {
+						metadata: {
+							paypalPlan: plan.id,
+						},
+					});
+				} catch (e) {
+					return res.status(500).json({
+						message: "Unable to create subscription plan on PayPal",
+						error: e,
+					});
+				}
+			}
+		}
+
+		// Add store modal data to database
+		await db.collection("products").insertOne({
+			_id: stripeProduct.id as unknown as ObjectID,
+			primaryTitle: productData.primaryTitle,
+			primaryBody: productData.primaryBody,
+			secondaryTitle: productData.secondaryTitle || "",
+			secondaryBody: productData.secondaryBody || "",
+		});
 
 		return res.status(200).json({ message: "Product added successfully." });
 	} catch (e) {
-		return res.status(500).json({ error: "Product could not be added." });
+		return res
+			.status(500)
+			.json({ message: "Product could not be added.", error: e });
 	}
 };
 
