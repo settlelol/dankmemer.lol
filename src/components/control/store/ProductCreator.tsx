@@ -65,10 +65,10 @@ export default function ProductCreator({ id, name, description }: Props) {
 			if (productType === "recurring") {
 				for (const i in productPrices) {
 					if (
-						productPrices[i].value >= 1 &&
-						productPrices[i].interval!.length >= 1
+						parseFloat(productPrices[i].value.toString()) < 1 &&
+						productPrices[i].interval!.length < 1
 					) {
-						allValid = false;
+						allValid = true;
 						break;
 					}
 				}
@@ -79,6 +79,8 @@ export default function ProductCreator({ id, name, description }: Props) {
 		}
 	}, [
 		productName,
+		productPrices,
+		productType,
 		productDescription,
 		primaryTitle,
 		primaryBody,
