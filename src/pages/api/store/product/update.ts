@@ -54,9 +54,6 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		await stripe.products.update(productId, {
 			name: req.body.name,
 			description: req.body.description,
-			metadata: {
-				lastUpdated: new Date().getTime(),
-			},
 		});
 		return res.status(200).json({
 			message: `Product '${productId}' was updated successfully.`,

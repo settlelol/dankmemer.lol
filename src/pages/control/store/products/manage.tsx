@@ -524,13 +524,11 @@ export default function ManageProducts({ user }: PageProps) {
 										name={product.name}
 										image={product.images[0]}
 										lastUpdated={
-											product.metadata.lastUpdated
+											product.updated
 												? formatDistance(
 														new Date(
-															parseInt(
-																product.metadata
-																	.lastUpdated
-															)
+															product.updated *
+																1000
 														),
 														new Date(),
 														{
