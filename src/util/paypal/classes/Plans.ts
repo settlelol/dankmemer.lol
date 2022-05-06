@@ -77,7 +77,7 @@ export default class Plans {
 			try {
 				return (
 					await httpClient({
-						url: `/v2/billing/plans`,
+						url: `/v1/billing/plans`,
 						method: "POST",
 						data: { ...options },
 					})
