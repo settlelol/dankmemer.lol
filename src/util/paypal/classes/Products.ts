@@ -112,6 +112,8 @@ export default class Products {
 		}
 	}
 
+	// Maybe one day
+	/*
 	public async delete(id: string) {
 		const httpClient = await createPayPal();
 
@@ -126,4 +128,5 @@ export default class Products {
 			],
 		});
 	}
+	*/
 }
