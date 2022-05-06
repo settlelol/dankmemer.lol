@@ -8,7 +8,7 @@ interface Plan {
 	product_id: string;
 	name: string;
 	status: "CREATED" | "INACTIVE" | "ACTIVE";
-	description: string;
+	description?: string;
 	billing_cycles: BillingCycle[];
 	payment_preferences: PaymentPreferences;
 	taxes?: Taxes;
