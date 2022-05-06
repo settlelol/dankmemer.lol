@@ -61,8 +61,8 @@ export default function ProductCreator({ id, name, description }: Props) {
 				? secondaryTitle.length >= 1 && secondaryBody.length >= 1
 				: true)
 		) {
+			let allValid: boolean = true;
 			if (productType === "recurring") {
-				let allValid: boolean = true;
 				for (const i in productPrices) {
 					if (
 						productPrices[i].value >= 1 &&
@@ -72,8 +72,8 @@ export default function ProductCreator({ id, name, description }: Props) {
 						break;
 					}
 				}
-				setCanSubmit(allValid);
 			}
+			setCanSubmit(allValid);
 		} else {
 			setCanSubmit(false);
 		}
