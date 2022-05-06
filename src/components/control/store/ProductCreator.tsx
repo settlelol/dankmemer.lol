@@ -49,10 +49,6 @@ export default function ProductCreator({ id, name, description }: Props) {
 	const [redirectAfterSubmit, setRedirectAfterSubmit] = useState(false);
 
 	useEffect(() => {
-		console.log(productPrices[0]);
-	}, [productPrices]);
-
-	useEffect(() => {
 		if (
 			productName.length >= 1 &&
 			productName.length <= 250 &&
