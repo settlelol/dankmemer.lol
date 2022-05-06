@@ -11,8 +11,8 @@ interface Plan {
 	description: string;
 	billing_cycles: BillingCycle[];
 	payment_preferences: PaymentPreferences;
-	taxes: Taxes;
-	quantity_supported: boolean;
+	taxes?: Taxes;
+	quantity_supported?: boolean;
 	create_time: string;
 	update_time: string;
 	links: LinkDescription[];
@@ -20,7 +20,7 @@ interface Plan {
 
 interface PaymentPreferences {
 	auto_bill_outstanding: boolean;
-	setup_fee: {};
+	setup_fee?: PaymentAmount;
 	setup_fee_failure_action: "CONTINUE" | "CANCEL";
 	payment_failure_threshold: number;
 }

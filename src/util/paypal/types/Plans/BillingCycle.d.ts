@@ -10,16 +10,16 @@ export interface BillingCycle {
 	frequency: BillingFrequency;
 	tenure_type: keyof typeof BillingType;
 	sequence: BillingType;
-	total_cycles: number;
+	total_cycles?: number;
 }
 
 interface PricingScheme {
-	version: number;
-	fixed_price: PaymentAmount;
-	pricing_modal: "VOLUME" | "TIERED";
-	tiers: PricingTier[];
-	create_time: string;
-	update_time: string;
+	version?: number;
+	fixed_price?: PaymentAmount;
+	pricing_modal?: "VOLUME" | "TIERED";
+	tiers?: PricingTier[];
+	create_time?: string;
+	update_time?: string;
 }
 
 interface PricingTier {
