@@ -80,10 +80,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						description: productData.description,
 					}),
 			});
-		} catch (e) {
+		} catch (e: any) {
 			return res.status(500).json({
 				message: "Unable to create product on PayPal",
-				error: e,
+				error: e.message,
 			});
 		}
 
@@ -170,10 +170,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 							paypalPlan: plan.id,
 						},
 					});
-				} catch (e) {
+				} catch (e: any) {
 					return res.status(500).json({
 						message: "Unable to create subscription plan on PayPal",
-						error: e,
+						error: e.message,
 					});
 				}
 			}
@@ -189,10 +189,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		});
 
 		return res.status(200).json({ message: "Product added successfully." });
-	} catch (e) {
+	} catch (e: any) {
 		return res
 			.status(500)
-			.json({ message: "Product could not be added.", error: e });
+			.json({ message: "Product could not be added.", error: e.message });
 	}
 };
 

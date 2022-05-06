@@ -83,7 +83,6 @@ export default class Plans {
 					})
 				).data as Plan;
 			} catch (e) {
-				console.log(e);
 				throw e as PayPalResponseError;
 			}
 		}
