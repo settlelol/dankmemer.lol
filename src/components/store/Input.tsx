@@ -1,5 +1,10 @@
 import clsx from "clsx";
-import { ChangeEventHandler, HTMLInputTypeAttribute, ReactNode } from "react";
+import {
+	ChangeEventHandler,
+	FocusEventHandler,
+	HTMLInputTypeAttribute,
+	ReactNode,
+} from "react";
 import { Icon as Iconify } from "@iconify/react";
 
 interface InputProps {
@@ -10,9 +15,11 @@ interface InputProps {
 	value?: string;
 	label?: string | ReactNode;
 	icon?: string;
+	iconSize?: number;
 	disabled?: boolean;
 	className?: string;
 	onChange?: ChangeEventHandler<HTMLInputElement>;
+	onBlur?: FocusEventHandler<HTMLInputElement>;
 }
 
 const inputWidths = {
@@ -30,9 +37,11 @@ export default function Input({
 	value,
 	label,
 	icon,
+	iconSize = 24,
 	disabled,
 	className,
 	onChange,
+	onBlur,
 }: InputProps) {
 	return (
 		<div className="group relative flex flex-col justify-start text-black dark:text-white">
@@ -45,7 +54,7 @@ export default function Input({
 				<span className="absolute top-10 left-3">
 					<Iconify
 						icon={icon}
-						width={24}
+						width={iconSize}
 						className={clsx(
 							value?.length! >= 1
 								? "dark:text-white"
@@ -62,6 +71,7 @@ export default function Input({
 				defaultValue={defaultValue}
 				value={value}
 				onChange={onChange}
+				onBlur={onBlur}
 				className={clsx(
 					inputWidths[width] || width,
 					className ? className : "",

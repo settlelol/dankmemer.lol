@@ -19,6 +19,7 @@ import CheckboxHead from "src/components/control/store/CheckboxHead";
 import Dropdown from "src/components/ui/Dropdown";
 import { Icon as Iconify } from "@iconify/react";
 import Button from "src/components/ui/Button";
+import ProductCreator from "src/components/control/store/ProductCreator";
 
 interface SalesData {
 	productSales: ProductSales[];
@@ -340,6 +341,11 @@ export default function ManageProducts({ user }: PageProps) {
 		setTableHeads(_tableHeads);
 	};
 
+	const createProduct = () => {
+		setEditorContent(<ProductCreator id={""} name={""} description={""} />);
+		setEditing(true);
+	};
+
 	return (
 		<ControlPanelContainer
 			title={"Manage Products"}
@@ -431,7 +437,11 @@ export default function ManageProducts({ user }: PageProps) {
 									requireScroll={false}
 								/>
 							</div>
-							<Button variant="primary" className="w-max">
+							<Button
+								variant="primary"
+								className="w-max"
+								onClick={createProduct}
+							>
 								Add product
 							</Button>
 						</div>
