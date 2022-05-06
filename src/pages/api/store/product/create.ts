@@ -87,15 +87,15 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			});
 		}
 
-		// Change provided price to cents
-		const priceInCents = parseInt(
-			(
-				parseFloat(productData.prices[0].value as unknown as string) *
-				100
-			).toString()
-		);
-
 		if (productData.type === "single") {
+			// Change provided price to cents
+			const priceInCents = parseInt(
+				(
+					parseFloat(
+						productData.prices[0].value as unknown as string
+					) * 100
+				).toString()
+			);
 			await stripe.prices.create({
 				currency: "USD",
 				product: stripeProduct.id,
@@ -104,6 +104,14 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			});
 		} else if (productData.type === "recurring") {
 			for (let i = 0; i < productData.prices.length; i++) {
+				// Change provided price to cents
+				const priceInCents = parseInt(
+					(
+						parseFloat(
+							productData.prices[i].value as unknown as string
+						) * 100
+					).toString()
+				);
 				await stripe.prices.create({
 					currency: "USD",
 					product: stripeProduct.id,
