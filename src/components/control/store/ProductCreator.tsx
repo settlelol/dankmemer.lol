@@ -16,9 +16,10 @@ interface Props {
 }
 
 export interface ProductPrice {
-	value: number | string;
+	id: string;
+	value: string;
 	interval?: "Daily" | "Weekly" | "Monthly" | "Annually";
-	intervalCount?: number;
+	intervalCount?: string;
 }
 
 export default function ProductCreator({ id, name, description }: Props) {
@@ -27,6 +28,7 @@ export default function ProductCreator({ id, name, description }: Props) {
 	const [productName, setProductName] = useState(name);
 	const [productPrices, setProductPrices] = useState<ProductPrice[]>([
 		{
+			id: Math.random().toString(36).slice(2, 7),
 			value: "",
 		},
 	]);
@@ -89,6 +91,26 @@ export default function ProductCreator({ id, name, description }: Props) {
 		secondaryBody,
 	]);
 
+	useEffect(() => {
+		if (productType === "recurring") {
+			setProductPrices([
+				{
+					id: Math.random().toString(36).slice(2, 7),
+					value: "",
+					interval: "Monthly",
+					intervalCount: "1",
+				},
+			]);
+		} else if (productType === "single") {
+			setProductPrices([
+				{
+					id: Math.random().toString(36).slice(2, 7),
+					value: "",
+				},
+			]);
+		}
+	}, [productType]);
+
 	const removeSecondary = () => {
 		if (
 			!confirmDeleteSecondary &&
@@ -125,14 +147,25 @@ export default function ProductCreator({ id, name, description }: Props) {
 	const addNewPrice = () => {
 		const _prices = [...productPrices];
 		_prices.push({
-			value: 0,
+			id: Math.random().toString(36).slice(2, 7),
+			value: "",
+			interval: "Monthly",
+			intervalCount: "",
 		});
 		setProductPrices(_prices);
 	};
 
-	const updatePrice = (index: number, values: ProductPrice) => {
+	const updatePrice = (id: string, values: ProductPrice) => {
 		const _prices = [...productPrices];
-		_prices[index] = values;
+		Object.assign(
+			_prices.find((price) => price.id === id),
+			values
+		);
+		setProductPrices(_prices);
+	};
+
+	const deletePrice = (id: string) => {
+		let _prices = productPrices.filter((price) => price.id !== id);
 		setProductPrices(_prices);
 	};
 
@@ -222,11 +255,17 @@ export default function ProductCreator({ id, name, description }: Props) {
 							</div>
 
 							<div className="space-y-5">
-								{productPrices.map((_, i) => (
+								{productPrices.map((price, i) => (
 									<ProductCreatorPrice
+										id={price.id}
+										value={price.value.toString()}
+										interval={price.interval}
+										intervalCount={(
+											price.intervalCount || 0
+										).toString()}
 										mode={productType}
-										index={i}
 										updatePrice={updatePrice}
+										deletePrice={deletePrice}
 									/>
 								))}
 							</div>
@@ -245,9 +284,10 @@ export default function ProductCreator({ id, name, description }: Props) {
 									if (!Number.isNaN(e.target.value)) {
 										setProductPrices([
 											{
-												value: parseFloat(
-													e.target.value
-												),
+												id: Math.random()
+													.toString(36)
+													.slice(2, 7),
+												value: e.target.value,
 											},
 										]);
 									}
@@ -260,6 +300,9 @@ export default function ProductCreator({ id, name, description }: Props) {
 									) {
 										setProductPrices([
 											{
+												id: Math.random()
+													.toString(36)
+													.slice(2, 7),
 												value: parseFloat(
 													e.target.value
 												).toFixed(2),

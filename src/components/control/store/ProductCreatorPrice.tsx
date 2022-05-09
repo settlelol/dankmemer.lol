@@ -6,37 +6,60 @@ import { Icon as Iconify } from "@iconify/react";
 import Tooltip from "src/components/ui/Tooltip";
 
 interface Props {
+	id: string;
 	mode: "single" | "recurring" | null;
-	index: number;
+	value?: string;
+	interval?: string;
+	intervalCount?: string;
 	updatePrice: any;
+	deletePrice: any;
 }
 
 export default function ProductCreatorPrice({
+	id,
 	mode,
-	index,
+	value = "",
+	interval = "",
+	intervalCount = "",
 	updatePrice,
+	deletePrice,
 }: Props) {
-	const [price, setPrice] = useState("");
-	const [interval, setInterval] = useState("");
-	const [intervalCount, setIntervalCount] = useState("");
+	const [price, setPrice] = useState(value);
+	const [billingInterval, setBillingInterval] = useState(interval);
+	const [billingIntervalCount, setBillingIntervalCount] =
+		useState(intervalCount);
 
 	useEffect(() => {
-		updatePrice(index, {
+		console.log(new Date().getTime());
+	}, [value, interval, intervalCount]);
+
+	useEffect(() => {
+		updatePrice(id, {
+			id,
 			value: price,
-			interval,
-			intervalCount,
+			interval: billingInterval,
+			intervalCount: billingIntervalCount,
 		});
-	}, [price, interval, intervalCount]);
+	}, [price, billingInterval, billingIntervalCount]);
 
 	return (
-		<div className="rounded-lg py-5 px-4 dark:bg-dank-500">
+		<div
+			className="relative rounded-lg py-5 px-4 dark:bg-dank-500"
+			key={id}
+		>
+			<span
+				className="absolute right-3 top-2 cursor-pointer text-neutral-500 transition-colors hover:text-red-400"
+				onClick={() => deletePrice(id)}
+			>
+				<Iconify icon="bx:trash" height={18} />
+			</span>
 			<div className="flex w-full space-x-4">
 				<div className="w-1/4">
 					<Input
 						width="w-full"
 						type={"text"}
 						placeholder={"9.99"}
-						value={price}
+						value={value}
 						icon={"bi:currency-dollar"}
 						className="!pl-8"
 						iconSize={16}
@@ -76,8 +99,8 @@ export default function ProductCreatorPrice({
 										)}
 									>
 										<p>
-											{interval.length >= 1
-												? interval
+											{billingInterval.length >= 1
+												? billingInterval
 												: "Select one"}
 										</p>
 										<Iconify
@@ -90,19 +113,23 @@ export default function ProductCreatorPrice({
 								options={[
 									{
 										label: "Daily",
-										onClick: () => setInterval("Daily"),
+										onClick: () =>
+											setBillingInterval("Daily"),
 									},
 									{
 										label: "Weekly",
-										onClick: () => setInterval("Weekly"),
+										onClick: () =>
+											setBillingInterval("Weekly"),
 									},
 									{
 										label: "Monthly",
-										onClick: () => setInterval("Monthly"),
+										onClick: () =>
+											setBillingInterval("Monthly"),
 									},
 									{
 										label: "Annually",
-										onClick: () => setInterval("Annually"),
+										onClick: () =>
+											setBillingInterval("Annually"),
 									},
 								]}
 								isInput={false}
@@ -127,9 +154,9 @@ export default function ProductCreatorPrice({
 								defaultValue="1"
 								width="w-full"
 								placeholder="1"
-								value={intervalCount}
+								value={billingIntervalCount}
 								onChange={(e) =>
-									setIntervalCount(
+									setBillingIntervalCount(
 										e.target.value.match(/\d+/)
 											? e.target.value.match(/\d+/)![0]
 											: ""
@@ -143,25 +170,25 @@ export default function ProductCreatorPrice({
 			{mode === "recurring" && (
 				<p className="mt-1 text-sm dark:text-neutral-500">
 					User will pay{" "}
-					<span className="text-dank-300">${price}</span>
-					{interval !== "" && (
+					<span className="text-dank-300">${value}</span>
+					{billingInterval !== "" && (
 						<>
 							{" "}
 							every{" "}
 							<span className="text-dank-300">
-								{parseInt(intervalCount) > 1
-									? intervalCount
+								{parseInt(billingIntervalCount) > 1
+									? billingIntervalCount
 									: ""}{" "}
-								{interval === "Daily"
+								{billingInterval === "Daily"
 									? "day"
-									: interval === "Weekly"
+									: billingInterval === "Weekly"
 									? "week"
-									: interval === "Monthly"
+									: billingInterval === "Monthly"
 									? "month"
-									: interval === "Annually"
+									: billingInterval === "Annually"
 									? "year"
 									: ""}
-								{parseInt(intervalCount) > 1 ? "s" : ""}
+								{parseInt(billingIntervalCount) > 1 ? "s" : ""}
 							</span>
 						</>
 					)}
