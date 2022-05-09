@@ -342,7 +342,7 @@ export default function ManageProducts({ user }: PageProps) {
 	};
 
 	const createProduct = () => {
-		setEditorContent(<ProductCreator id={""} name={""} description={""} />);
+		setEditorContent(<ProductCreator />);
 		setEditing(true);
 	};
 

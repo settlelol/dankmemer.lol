@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "src/components/store/Input";
 import { Title } from "src/components/Title";
 import { Icon as Iconify } from "@iconify/react";
@@ -9,12 +9,6 @@ import Dropdown from "src/components/ui/Dropdown";
 import Checkbox from "src/components/ui/Checkbox";
 import ProductCreatorPrice from "./ProductCreatorPrice";
 
-interface Props {
-	id: string;
-	name: string;
-	description: string;
-}
-
 export interface ProductPrice {
 	id: string;
 	value: string;
@@ -22,10 +16,10 @@ export interface ProductPrice {
 	intervalCount?: string;
 }
 
-export default function ProductCreator({ id, name, description }: Props) {
+export default function ProductCreator() {
 	const [canSubmit, setCanSubmit] = useState(false);
 
-	const [productName, setProductName] = useState(name);
+	const [productName, setProductName] = useState("");
 	const [productPrices, setProductPrices] = useState<ProductPrice[]>([
 		{
 			id: Math.random().toString(36).slice(2, 7),
@@ -36,7 +30,7 @@ export default function ProductCreator({ id, name, description }: Props) {
 		"single"
 	);
 
-	const [productDescription, setProductDescription] = useState(description);
+	const [productDescription, setProductDescription] = useState("");
 
 	const [primaryTitle, setPrimaryTitle] = useState("");
 	const [primaryBody, setPrimaryBody] = useState("");
