@@ -2,6 +2,8 @@ import { stripeConnect } from "src/util/stripe";
 import { NextApiResponse } from "next";
 import { NextIronRequest, withSession } from "../../../../../util/session";
 import Stripe from "stripe";
+import { redisConnect } from "src/util/redis";
+import { TIME } from "../../../../../constants";
 
 interface Product extends Stripe.Product {
 	prices: Price[];
@@ -21,13 +23,24 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	let result: Product[] = [];
+
+	const redis = await redisConnect();
+	const cached = await redis.get("store:products:subscriptions");
+
+	if (cached) {
+		return res.status(200).json(JSON.parse(cached));
+	}
+
 	const stripe: Stripe = stripeConnect();
 	const { data: products } = await stripe.products.list({
 		active: true,
 	});
 
 	for (const i in products) {
-		if (!JSON.parse(products[i].metadata.hidden || "false")) {
+		if (
+			user.developer ||
+			!JSON.parse(products[i].metadata.hidden || "false")
+		) {
 			const _prices: Price[] = [];
 			const { data: prices } = await stripe.prices.list({
 				active: true,
@@ -46,6 +59,13 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			}
 		}
 	}
+
+	await redis.set(
+		"store:products:subscriptions",
+		JSON.stringify(result),
+		"PX",
+		TIME.month
+	);
 
 	return res.status(200).json(result);
 };

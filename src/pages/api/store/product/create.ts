@@ -9,6 +9,7 @@ import PayPal from "src/util/paypal";
 import { ObjectID } from "bson";
 import { ProductCreateResponse } from "src/util/paypal/classes/Products";
 import Stripe from "stripe";
+import { redisConnect } from "src/util/redis";
 
 interface ProductData {
 	name: string;
@@ -55,6 +56,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		const db: Db = await dbConnect();
 		const stripe = stripeConnect();
 		const paypal = new PayPal();
+		const redis = await redisConnect();
 
 		let paypalProduct: ProductCreateResponse;
 
@@ -102,6 +104,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				unit_amount: priceInCents,
 				tax_behavior: "exclusive",
 			});
+			await redis.del("store:products:one-time");
 		} else if (productData.type === "recurring") {
 			for (let i = 0; i < productData.prices.length; i++) {
 				// Change provided price to cents
@@ -178,6 +181,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					});
 				}
 			}
+			await redis.del("store:products:subscriptions");
 		}
 
 		// Add store modal data to database
