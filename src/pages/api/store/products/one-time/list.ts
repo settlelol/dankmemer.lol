@@ -26,16 +26,18 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	});
 
 	for (const i in products) {
-		const { data: price } = await stripe.prices.list({
-			active: true,
-			product: products[i].id,
-			type: "one_time",
-		});
-		if (price[0]) {
-			result.push({
-				...products[i],
-				prices: [{ id: price[0].id, price: price[0].unit_amount! }],
+		if (!JSON.parse(products[i].metadata.hidden || "false")) {
+			const { data: price } = await stripe.prices.list({
+				active: true,
+				product: products[i].id,
+				type: "one_time",
 			});
+			if (price[0]) {
+				result.push({
+					...products[i],
+					prices: [{ id: price[0].id, price: price[0].unit_amount! }],
+				});
+			}
 		}
 	}
 
