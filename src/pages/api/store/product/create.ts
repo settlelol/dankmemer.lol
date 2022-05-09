@@ -121,7 +121,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						interval:
 							ProductIntervals[productData.prices[i].interval!],
 						interval_count:
-							productData.prices[i].intervalCount || 1,
+							parseInt(productData.prices[i].intervalCount!) || 1,
 					},
 				});
 
@@ -144,8 +144,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 										| "WEEK"
 										| "MONTH"
 										| "YEAR",
-									interval_count:
-										productData.prices[i].intervalCount!,
+									interval_count: parseInt(
+										productData.prices[i].intervalCount!
+									),
 								},
 								tenure_type: "REGULAR",
 								sequence: 1,
@@ -188,7 +189,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			secondaryBody: productData.secondaryBody || "",
 		});
 
-		return res.status(200).json({ message: "Product added successfully." });
+		return res.status(200).json({
+			message: "Product added successfully.",
+			product: stripeProduct.id,
+		});
 	} catch (e: any) {
 		return res
 			.status(500)
