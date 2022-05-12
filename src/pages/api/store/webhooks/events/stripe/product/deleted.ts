@@ -25,6 +25,16 @@ export default async function (
 			value: metadata.length >= 1 ? metadata : "None",
 		},
 	];
+
+	if (product.metadata.category === "subscription") {
+		redis.del("store:products:subscriptions");
+	} else if (product.metadata.category === "one-time") {
+		redis.del("store:products:one-time");
+	} else {
+		redis.del("store:products:subscriptions");
+		redis.del("store:products:one-time");
+	}
+
 	return {
 		result: {
 			avatar_url: "https://stripe.com/img/v3/home/twitter.png",
