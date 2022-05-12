@@ -1,11 +1,10 @@
 import { APIEmbedField } from "discord-api-types/v10";
+import { redisConnect } from "src/util/redis";
 import Stripe from "stripe";
 import { EventResponse } from "../../../stripe";
 
-export default async function (
-	event: Stripe.Event,
-	stripe: Stripe
-): Promise<EventResponse> {
+export default async function (event: Stripe.Event): Promise<EventResponse> {
+	const redis = await redisConnect();
 	const product = event.data.object as Stripe.Product;
 
 	const metadata = Object.keys(product.metadata)
