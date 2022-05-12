@@ -46,11 +46,11 @@ export default async function (
 				{
 					title: "Product Created",
 					color: 1099597,
-					...(product.images.length >= 1 && {
-						thumbnail: {
-							url: product.images[0],
-						},
-					}),
+					thumbnail: {
+						url:
+							product.images[0] ||
+							"http://brentapac.com/wp-content/uploads/2017/03/transparent-square.png",
+					},
 					...(product.description && {
 						description: product.description,
 					}),

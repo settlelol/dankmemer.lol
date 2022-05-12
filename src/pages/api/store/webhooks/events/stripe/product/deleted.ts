@@ -37,6 +37,11 @@ export default async function (
 				{
 					title: "Product Deleted",
 					color: 16767820,
+					thumbnail: {
+						url:
+							product.images[0] ||
+							"http://brentapac.com/wp-content/uploads/2017/03/transparent-square.png",
+					},
 					description:
 						"This shouldn't be anything to worry about as products can't be deleted unless there are no previous purchases.",
 					fields,
