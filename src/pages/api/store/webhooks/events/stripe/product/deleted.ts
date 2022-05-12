@@ -7,10 +7,13 @@ export default async function (
 	stripe: Stripe
 ): Promise<EventResponse> {
 	const product = event.data.object as Stripe.Product;
-	const { data: prices } = await stripe.prices.list({
-		product: product.id,
-		active: true,
-	});
+
+	const metadata = Object.keys(product.metadata)
+		.map(
+			(metadata, i) =>
+				`${metadata}: ${Object.values(product.metadata)[i]}`
+		)
+		.join("\n");
 	const fields: APIEmbedField[] = [
 		{
 			name: "Name",
@@ -18,16 +21,8 @@ export default async function (
 			inline: true,
 		},
 		{
-			name: "Type",
-			value: prices.length > 1 ? "Subscription" : "Single-purchase",
-			inline: true,
-		},
-		{
-			name: `Price${prices.length !== 1 ? "s" : ""}`,
-			value: prices
-				.map((price) => `$${price.unit_amount! * 100}`)
-				.join(", "),
-			inline: true,
+			name: "Metadata",
+			value: metadata.length >= 1 ? metadata : "None",
 		},
 	];
 	return {

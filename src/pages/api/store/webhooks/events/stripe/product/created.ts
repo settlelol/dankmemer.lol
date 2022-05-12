@@ -11,6 +11,13 @@ export default async function (
 		product: product.id,
 		active: true,
 	});
+
+	const metadata = Object.keys(product.metadata)
+		.map(
+			(metadata, i) =>
+				`${metadata}: ${Object.values(product.metadata)[i]}`
+		)
+		.join("\n");
 	const fields: APIEmbedField[] = [
 		{
 			name: "Name",
@@ -31,12 +38,7 @@ export default async function (
 		},
 		{
 			name: "Metadata",
-			value: Object.keys(product.metadata)
-				.map(
-					(metadata, i) =>
-						`${metadata}: ${Object.values(product.metadata)[i]}`
-				)
-				.join("\n"),
+			value: metadata.length >= 1 ? metadata : "None",
 		},
 	];
 	return {
