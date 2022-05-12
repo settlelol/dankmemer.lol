@@ -55,11 +55,6 @@ export default async function (
 						description: product.description,
 					}),
 					fields,
-					footer: {
-						text: `Product created at: ${new Date(
-							product.created * 1000
-						)}`,
-					},
 				},
 			],
 		},
