@@ -97,7 +97,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			result = (await ProductCreated(event, stripe)).result;
 			break;
 		case "product.deleted":
-			result = (await ProductDeleted(event, stripe)).result;
+			result = (await ProductDeleted(event)).result;
 			break;
 	}
 
