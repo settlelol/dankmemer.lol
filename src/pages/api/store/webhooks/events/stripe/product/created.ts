@@ -32,7 +32,18 @@ export default async function (
 		{
 			name: `Price${prices.length !== 1 ? "s" : ""}`,
 			value: prices
-				.map((price) => `• $${price.unit_amount! * 100}`)
+				.map(
+					(price) =>
+						`• $${(price.unit_amount! / 100).toFixed(2)} ${
+							prices.length > 1
+								? `every ${
+										price.recurring!.interval_count > 1
+											? price.recurring!.interval_count
+											: ""
+								  } ${price.recurring!.interval}`
+								: "each"
+						}`
+				)
 				.join("\n"),
 			inline: true,
 		},
