@@ -99,6 +99,12 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		case "product.deleted":
 			result = (await ProductDeleted(event)).result;
 			break;
+		case "product.updated":
+			const updated = await ProductUpdated(event, stripe);
+			if (updated) {
+				result = updated.result;
+			}
+			break;
 	}
 
 	if (result !== null) {
