@@ -115,18 +115,6 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						) * 100
 					).toString()
 				);
-				await stripe.prices.create({
-					currency: "USD",
-					product: stripeProduct.id,
-					unit_amount: priceInCents,
-					tax_behavior: "exclusive",
-					recurring: {
-						interval:
-							ProductIntervals[productData.prices[i].interval!],
-						interval_count:
-							parseInt(productData.prices[i].intervalCount!) || 1,
-					},
-				});
 
 				try {
 					const plan = await paypal.plans.create({
@@ -169,7 +157,22 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 							setup_fee_failure_action: "CONTINUE",
 						},
 					});
-					await stripe.products.update(stripeProduct.id, {
+
+					await stripe.prices.create({
+						currency: "USD",
+						product: stripeProduct.id,
+						unit_amount: priceInCents,
+						tax_behavior: "exclusive",
+						recurring: {
+							interval:
+								ProductIntervals[
+									productData.prices[i].interval!
+								],
+							interval_count:
+								parseInt(
+									productData.prices[i].intervalCount!
+								) || 1,
+						},
 						metadata: {
 							paypalPlan: plan.id,
 						},
