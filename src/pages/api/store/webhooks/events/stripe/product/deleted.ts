@@ -1,4 +1,5 @@
 import { APIEmbedField } from "discord-api-types/v10";
+import convertStripeMetadata from "src/util/convertStripeMetadata";
 import { redisConnect } from "src/util/redis";
 import Stripe from "stripe";
 import { EventResponse } from "../../../stripe";
@@ -7,23 +8,21 @@ export default async function (event: Stripe.Event): Promise<EventResponse> {
 	const redis = await redisConnect();
 	const product = event.data.object as Stripe.Product;
 
-	const metadata = Object.keys(product.metadata)
-		.map(
-			(metadata, i) =>
-				`${metadata}: ${Object.values(product.metadata)[i]}`
-		)
-		.join("\n");
+	let metadata = convertStripeMetadata(product.metadata);
 	const fields: APIEmbedField[] = [
 		{
 			name: "Name",
 			value: product.name,
 			inline: true,
 		},
-		{
-			name: "Metadata",
-			value: metadata.length >= 1 ? metadata : "None",
-		},
 	];
+
+	if (metadata) {
+		fields.push({
+			name: "Metadata",
+			value: `\`\`\`json\n${JSON.stringify(metadata, null, "\t")}\`\`\``,
+		});
+	}
 
 	if (product.metadata.category === "subscription") {
 		redis.del("store:products:subscriptions");

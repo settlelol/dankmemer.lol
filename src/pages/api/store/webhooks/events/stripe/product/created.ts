@@ -1,4 +1,5 @@
 import { APIEmbedField } from "discord-api-types/v10";
+import convertStripeMetadata from "src/util/convertStripeMetadata";
 import Stripe from "stripe";
 import { EventResponse } from "../../../stripe";
 
@@ -12,12 +13,7 @@ export default async function (
 		active: true,
 	});
 
-	const metadata = Object.keys(product.metadata)
-		.map(
-			(metadata, i) =>
-				`${metadata}: ${Object.values(product.metadata)[i]}`
-		)
-		.join("\n");
+	let metadata = convertStripeMetadata(product.metadata);
 	const fields: APIEmbedField[] = [
 		{
 			name: "Name",
@@ -29,7 +25,10 @@ export default async function (
 			value: prices.length > 1 ? "Subscription" : "Single-purchase",
 			inline: true,
 		},
-		{
+	];
+
+	if (prices.length >= 1) {
+		fields.push({
 			name: `Price${prices.length !== 1 ? "s" : ""}`,
 			value: prices
 				.map(
@@ -46,12 +45,16 @@ export default async function (
 				)
 				.join("\n"),
 			inline: true,
-		},
-		{
+		});
+	}
+
+	if (metadata) {
+		fields.push({
 			name: "Metadata",
-			value: metadata.length >= 1 ? metadata : "None",
-		},
-	];
+			value: `\`\`\`json\n${JSON.stringify(metadata, null, "\t")}\`\`\``,
+		});
+	}
+
 	return {
 		result: {
 			avatar_url: "https://stripe.com/img/v3/home/twitter.png",
