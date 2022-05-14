@@ -9,6 +9,7 @@ import { buffer } from "micro";
 import { default as PaymentIntentSucceeded } from "./events/stripe/paymentIntent/succeeded";
 import { default as ProductCreated } from "./events/stripe/product/created";
 import { default as ProductDeleted } from "./events/stripe/product/deleted";
+import { default as ProductUpdated } from "./events/stripe/product/updated";
 
 import { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10";
 
@@ -111,12 +112,18 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		if (event.livemode && result.embeds) {
 			result.embeds[0].title = "(DEV) " + result.embeds[0].title;
 		}
-		await axios.post(process.env.STORE_WEBHOOK!, result, {
-			headers: { "Content-Type": "application/json" },
-		});
+		try {
+			await axios.post(process.env.STORE_WEBHOOK!, result, {
+				headers: { "Content-Type": "application/json" },
+			});
+			return res.status(200).json({ state: "Webhook sent" });
+		} catch (e: any) {
+			return res.status(500).json({
+				state: "Webhook failed to send",
+				error: e.message.replace(/"/g, ""),
+			});
+		}
 	}
-
-	return res.status(200).json({ event });
 };
 
 export default withSession(handler);
