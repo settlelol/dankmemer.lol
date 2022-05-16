@@ -121,7 +121,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	if (result !== null) {
-		if (event.livemode && result.embeds) {
+		if (!event.livemode && result.embeds) {
 			result.embeds[0].title = "(DEV) " + result.embeds[0].title;
 		}
 		try {
