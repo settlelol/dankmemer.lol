@@ -56,11 +56,13 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const signingSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 	if (!signingSecret) {
-		throw `Missing environment variable 'STRIPE_WEBHOOK_SECRET'`;
+		console.error(`Missing environment variable 'STRIPE_WEBHOOK_SECRET'`);
+		return res.status(400).json({ error: "Invalid request." });
 	} else if (!signature) {
-		return console.error(
+		console.error(
 			"No Stripe-Signature header was provided during webhook request."
 		);
+		return res.status(400).json({ error: "Invalid request." });
 	}
 
 	try {
@@ -95,15 +97,18 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			console.log(charge);
 			break;
 		case "product.created":
-			result = (await ProductCreated(event, stripe)).result;
+			const createdRes = await ProductCreated(event, stripe);
+			if (createdRes) {
+				result = createdRes.result;
+			}
 			break;
 		case "product.deleted":
 			result = (await ProductDeleted(event)).result;
 			break;
 		case "product.updated":
-			const updated = await ProductUpdated(event, stripe);
-			if (updated) {
-				result = updated.result;
+			const updatedRes = await ProductUpdated(event, stripe);
+			if (updatedRes) {
+				result = updatedRes.result;
 			}
 			break;
 	}
@@ -118,11 +123,16 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			});
 			return res.status(200).json({ state: "Webhook sent" });
 		} catch (e: any) {
-			return res.status(500).json({
-				state: "Webhook failed to send",
+			console.warn(
+				`Failed to send Discord webhook in response to Stripe webhook event. Failed on event, ${event.type}.`
+			);
+			return res.status(200).json({
+				state: "Discord webhook failed to send",
 				error: e.message.replace(/"/g, ""),
 			});
 		}
+	} else {
+		return res.status(200).json({ message: "Expecting more results." });
 	}
 };
 
