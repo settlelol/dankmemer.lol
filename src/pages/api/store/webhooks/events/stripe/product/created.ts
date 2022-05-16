@@ -1,19 +1,39 @@
 import { APIEmbedField } from "discord-api-types/v10";
+import { TIME } from "src/constants";
 import convertStripeMetadata from "src/util/convertStripeMetadata";
+import { redisConnect } from "src/util/redis";
 import Stripe from "stripe";
 import { EventResponse } from "../../../stripe";
 
 export default async function (
 	event: Stripe.Event,
 	stripe: Stripe
-): Promise<EventResponse> {
+): Promise<EventResponse | null> {
+	const redis = await redisConnect();
 	const product = event.data.object as Stripe.Product;
+	let metadata = convertStripeMetadata(product.metadata);
+
+	// When a product is created using the dashboard the prices
+	// are added separately, for that we wait until the prices
+	// have been added before creating and sending the webhook.
+	const pricesFinalized = await redis.get(
+		`webhooks:product-created:${product.id}`
+	);
+	if (metadata.hidden && (!pricesFinalized || !JSON.parse(pricesFinalized))) {
+		await redis.set(
+			`webhooks:product-created:${product.id}:waiting`,
+			JSON.stringify(event),
+			"PX",
+			TIME.minute * 5
+		);
+		return null;
+	}
+
 	const { data: prices } = await stripe.prices.list({
 		product: product.id,
 		active: true,
 	});
 
-	let metadata = convertStripeMetadata(product.metadata);
 	const fields: APIEmbedField[] = [
 		{
 			name: "Name",
@@ -54,6 +74,12 @@ export default async function (
 			value: `\`\`\`json\n${JSON.stringify(metadata, null, "\t")}\`\`\``,
 		});
 	}
+
+	await redis.del([
+		`webhooks:product-created:${product.id}`,
+		`webhooks:product-created:${product.id}:creator`,
+		`webhooks:product-created:${product.id}:waiting`,
+	]);
 
 	return {
 		result: {

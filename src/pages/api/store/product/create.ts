@@ -10,6 +10,7 @@ import { ObjectID } from "bson";
 import { ProductCreateResponse } from "src/util/paypal/classes/Products";
 import Stripe from "stripe";
 import { redisConnect } from "src/util/redis";
+import { TIME } from "src/constants";
 
 interface ProductData {
 	name: string;
@@ -106,6 +107,25 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			});
 			await redis.del("store:products:one-time");
 		} else if (productData.type === "recurring") {
+			await redis.set(
+				`webhooks:product-created:${stripeProduct.id}:creator`,
+				user.id,
+				"PX",
+				TIME.minute * 5
+			);
+			await redis.set(
+				`webhooks:product-created:${stripeProduct.id}:prices:expected`,
+				productData.prices.length,
+				"PX",
+				TIME.minute * 5
+			);
+			await redis.set(
+				`webhooks:product-created:${stripeProduct.id}:prices:received`,
+				0,
+				"PX",
+				TIME.minute * 5
+			);
+
 			for (let i = 0; i < productData.prices.length; i++) {
 				// Change provided price to cents
 				const priceInCents = parseInt(
@@ -115,6 +135,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						) * 100
 					).toString()
 				);
+				let intervalCount =
+					parseInt(productData.prices[i].intervalCount || "1") === 0
+						? 1
+						: parseInt(productData.prices[i].intervalCount!);
 
 				try {
 					const plan = await paypal.plans.create({
@@ -135,9 +159,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 										| "WEEK"
 										| "MONTH"
 										| "YEAR",
-									interval_count: parseInt(
-										productData.prices[i].intervalCount!
-									),
+									interval_count: intervalCount,
 								},
 								tenure_type: "REGULAR",
 								sequence: 1,
@@ -157,7 +179,6 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 							setup_fee_failure_action: "CONTINUE",
 						},
 					});
-
 					await stripe.prices.create({
 						currency: "USD",
 						product: stripeProduct.id,
@@ -178,6 +199,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						},
 					});
 				} catch (e: any) {
+					console.error(e);
 					return res.status(500).json({
 						message: "Unable to create subscription plan on PayPal",
 						error: e.message,

@@ -7,6 +7,7 @@ import Stripe from "stripe";
 import { buffer } from "micro";
 
 import { default as PaymentIntentSucceeded } from "./events/stripe/paymentIntent/succeeded";
+import { default as PriceCreated } from "./events/stripe/price/created";
 import { default as ProductCreated } from "./events/stripe/product/created";
 import { default as ProductDeleted } from "./events/stripe/product/deleted";
 import { default as ProductUpdated } from "./events/stripe/product/updated";
@@ -95,6 +96,12 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		case "charge.succeeded":
 			const charge = event.data.object;
 			console.log(charge);
+			break;
+		case "price.created":
+			const createdPrice = await PriceCreated(event, stripe);
+			if (createdPrice) {
+				result = createdPrice.result;
+			}
 			break;
 		case "product.created":
 			const createdRes = await ProductCreated(event, stripe);
