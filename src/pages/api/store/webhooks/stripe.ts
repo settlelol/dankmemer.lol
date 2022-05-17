@@ -6,7 +6,9 @@ import Stripe from "stripe";
 // @ts-ignore
 import { buffer } from "micro";
 
+import { default as ChargeDisputeClosed } from "./events/stripe/charge/dispute/closed";
 import { default as ChargeDisputeCreated } from "./events/stripe/charge/dispute/created";
+import { default as ChargeDisputeUpdated } from "./events/stripe/charge/dispute/updated";
 
 import { default as CouponCreated } from "./events/stripe/coupon/created";
 import { default as CouponDeleted } from "./events/stripe/coupon/deleted";
@@ -103,6 +105,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			break;
 		case "charge.dispute.created":
 			result = (await ChargeDisputeCreated(event, stripe)).result;
+			break;
+		case "charge.dispute.updated":
+			result = (await ChargeDisputeUpdated(event, stripe)).result;
 			break;
 		case "coupon.created":
 			result = (await CouponCreated(event, stripe)).result;
