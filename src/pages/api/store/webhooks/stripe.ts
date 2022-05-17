@@ -6,8 +6,12 @@ import Stripe from "stripe";
 // @ts-ignore
 import { buffer } from "micro";
 
+import { default as CouponCreated } from "./events/stripe/coupon/created";
+
 import { default as PaymentIntentSucceeded } from "./events/stripe/paymentIntent/succeeded";
+
 import { default as PriceCreated } from "./events/stripe/price/created";
+
 import { default as ProductCreated } from "./events/stripe/product/created";
 import { default as ProductDeleted } from "./events/stripe/product/deleted";
 import { default as ProductUpdated } from "./events/stripe/product/updated";
@@ -90,6 +94,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	switch (event.type) {
+		case "coupon.created":
+			result = (await CouponCreated(event, stripe)).result;
+			break;
 		case "payment_intent.succeeded":
 			result = (await PaymentIntentSucceeded(event, stripe)).result;
 			break;
@@ -131,7 +138,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			return res.status(200).json({ state: "Webhook sent" });
 		} catch (e: any) {
 			console.warn(
-				`Failed to send Discord webhook in response to Stripe webhook event. Failed on event, ${event.type}.`
+				`Failed to send Discord webhook in response to Stripe webhook event. Failed on event, ${
+					event.type
+				}.\nMessage: ${e.message.replace(/"/g, "")}`
 			);
 			return res.status(200).json({
 				state: "Discord webhook failed to send",
