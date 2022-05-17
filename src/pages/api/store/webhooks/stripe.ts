@@ -10,6 +10,8 @@ import { default as ChargeDisputeClosed } from "./events/stripe/charge/dispute/c
 import { default as ChargeDisputeCreated } from "./events/stripe/charge/dispute/created";
 import { default as ChargeDisputeUpdated } from "./events/stripe/charge/dispute/updated";
 
+import { default as ChargeRefundUpdated } from "./events/stripe/charge/refund/updated";
+
 import { default as CouponCreated } from "./events/stripe/coupon/created";
 import { default as CouponDeleted } from "./events/stripe/coupon/deleted";
 import { default as CouponUpdated } from "./events/stripe/coupon/updated";
@@ -100,6 +102,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	switch (event.type) {
+		case "charge.refund.updated":
+			({ result } = await ChargeRefundUpdated(event, stripe));
+			break;
 		case "charge.dispute.closed":
 			({ result } = await ChargeDisputeClosed(event, stripe));
 			break;
