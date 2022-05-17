@@ -18,7 +18,6 @@ export default async function (
 	let metadata = convertStripeMetadata(coupon.metadata || {});
 	let promotion = (await stripe.promotionCodes.list({ coupon: coupon.id }))
 		.data[0];
-	console.log(inspect(coupon, undefined, 4, true));
 
 	const fields: APIEmbedField[] = [
 		{
