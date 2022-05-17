@@ -72,6 +72,6 @@ export default async function (
 	}
 
 	return {
-		result: {},
+		result: null,
 	};
 }
