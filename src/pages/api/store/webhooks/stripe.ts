@@ -98,6 +98,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	switch (event.type) {
+		case "charge.dispute.closed":
+			result = (await ChargeDisputeClosed(event, stripe)).result;
+			break;
 		case "charge.dispute.created":
 			result = (await ChargeDisputeCreated(event, stripe)).result;
 			break;
