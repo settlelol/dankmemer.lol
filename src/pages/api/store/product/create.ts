@@ -90,23 +90,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			});
 		}
 
-		if (productData.type === "single") {
-			// Change provided price to cents
-			const priceInCents = parseInt(
-				(
-					parseFloat(
-						productData.prices[0].value as unknown as string
-					) * 100
-				).toString()
-			);
-			await stripe.prices.create({
-				currency: "USD",
-				product: stripeProduct.id,
-				unit_amount: priceInCents,
-				tax_behavior: "exclusive",
-			});
-			await redis.del("store:products:one-time");
-		} else if (productData.type === "recurring") {
+		try {
 			await redis.set(
 				`webhooks:product-created:${stripeProduct.id}:creator`,
 				user.id,
@@ -125,7 +109,30 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				"PX",
 				TIME.minute * 5
 			);
+		} catch (e: any) {
+			return res.status(500).json({
+				message: "Failed to add product to redis cache",
+				error: e.message.replace(/"/g, ""),
+			});
+		}
 
+		if (productData.type === "single") {
+			// Change provided price to cents
+			const priceInCents = parseInt(
+				(
+					parseFloat(
+						productData.prices[0].value as unknown as string
+					) * 100
+				).toString()
+			);
+			await stripe.prices.create({
+				currency: "USD",
+				product: stripeProduct.id,
+				unit_amount: priceInCents,
+				tax_behavior: "exclusive",
+			});
+			await redis.del("store:products:one-time");
+		} else if (productData.type === "recurring") {
 			for (let i = 0; i < productData.prices.length; i++) {
 				// Change provided price to cents
 				const priceInCents = parseInt(
