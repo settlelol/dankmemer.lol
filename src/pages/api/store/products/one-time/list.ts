@@ -27,7 +27,18 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const cached = await redis.get("store:products:one-time");
 
 	if (cached) {
-		return res.status(200).json(JSON.parse(cached));
+		let parsedCache = JSON.parse(cached) as Product[];
+		if (user.developer) {
+			return res.status(200).json(parsedCache);
+		} else {
+			return res
+				.status(200)
+				.json(
+					parsedCache.filter(
+						(product) => product.metadata.hidden !== "true"
+					)
+				);
+		}
 	}
 
 	const stripe: Stripe = stripeConnect();
@@ -36,21 +47,16 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	});
 
 	for (const i in products) {
-		if (
-			user.developer ||
-			!JSON.parse(products[i].metadata.hidden || "false")
-		) {
-			const { data: price } = await stripe.prices.list({
-				active: true,
-				product: products[i].id,
-				type: "one_time",
+		const { data: price } = await stripe.prices.list({
+			active: true,
+			product: products[i].id,
+			type: "one_time",
+		});
+		if (price[0]) {
+			result.push({
+				...products[i],
+				prices: [{ id: price[0].id, price: price[0].unit_amount! }],
 			});
-			if (price[0]) {
-				result.push({
-					...products[i],
-					prices: [{ id: price[0].id, price: price[0].unit_amount! }],
-				});
-			}
 		}
 	}
 
@@ -61,7 +67,15 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		TIME.month
 	);
 
-	return res.status(200).json(result);
+	if (user.developer) {
+		return res.status(200).json(result);
+	} else {
+		return res
+			.status(200)
+			.json(
+				result.filter((product) => product.metadata.hidden !== "true")
+			);
+	}
 };
 
 export default withSession(handler);
