@@ -2,13 +2,9 @@ import { APIEmbedField } from "discord-api-types/v10";
 import convertStripeMetadata from "src/util/convertStripeMetadata";
 import { toTitleCase } from "src/util/string";
 import Stripe from "stripe";
-import { inspect } from "util";
 import { EventResponse } from "../../../stripe";
 
-export default async function (
-	event: Stripe.Event,
-	stripe: Stripe
-): Promise<EventResponse> {
+export default async function (event: Stripe.Event): Promise<EventResponse> {
 	let coupon = event.data.object as Stripe.Coupon;
 	let metadata = convertStripeMetadata(coupon.metadata || {});
 
@@ -74,7 +70,7 @@ export default async function (
 			avatar_url: "https://stripe.com/img/v3/home/twitter.png",
 			embeds: [
 				{
-					title: "Coupon Created",
+					title: "Coupon Deleted",
 					color: 16731212,
 					fields,
 				},

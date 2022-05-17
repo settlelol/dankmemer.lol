@@ -8,6 +8,7 @@ export default async function (
 	event: Stripe.Event,
 	stripe: Stripe
 ): Promise<EventResponse> {
+	let previous_attributes = event.data.previous_attributes;
 	let coupon = await stripe.coupons.retrieve(
 		(event.data.object as Stripe.Coupon).id,
 		{
@@ -18,7 +19,7 @@ export default async function (
 	let promotion = (await stripe.promotionCodes.list({ coupon: coupon.id }))
 		.data[0];
 
-	const fields: APIEmbedField[] = [
+	let fields: APIEmbedField[] = [
 		{
 			name: "Name",
 			value: `${coupon.name || "No name"} (\`${promotion.code}\`)`,
@@ -39,6 +40,26 @@ export default async function (
 			inline: true,
 		},
 	];
+
+	if (previous_attributes) {
+		fields = [
+			{
+				name: "Changes",
+				value: Object.keys(previous_attributes)
+					.map(
+						(k) =>
+							`**${toTitleCase(k as string)}**\nOld: **${
+								// @ts-ignore
+								previous_attributes[k]
+								// @ts-ignore
+							}**\nNew: **${coupon[k]}**\n\n`
+					)
+					.map((j) => j)
+					.join("\n"),
+			},
+			...fields,
+		];
+	}
 
 	if (promotion.max_redemptions || coupon.max_redemptions) {
 		fields.push({
@@ -144,8 +165,8 @@ export default async function (
 			avatar_url: "https://stripe.com/img/v3/home/twitter.png",
 			embeds: [
 				{
-					title: "Coupon Created",
-					color: 1099597,
+					title: "Coupon Updated",
+					color: 16767820,
 					fields,
 				},
 			],

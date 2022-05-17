@@ -8,6 +8,7 @@ import { buffer } from "micro";
 
 import { default as CouponCreated } from "./events/stripe/coupon/created";
 import { default as CouponDeleted } from "./events/stripe/coupon/deleted";
+import { default as CouponUpdated } from "./events/stripe/coupon/updated";
 
 import { default as PaymentIntentSucceeded } from "./events/stripe/paymentIntent/succeeded";
 
@@ -99,7 +100,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			result = (await CouponCreated(event, stripe)).result;
 			break;
 		case "coupon.deleted":
-			result = (await CouponDeleted(event, stripe)).result;
+			result = (await CouponDeleted(event)).result;
+			break;
+		case "coupon.updated":
+			result = (await CouponUpdated(event, stripe)).result;
 			break;
 		case "payment_intent.succeeded":
 			result = (await PaymentIntentSucceeded(event, stripe)).result;
