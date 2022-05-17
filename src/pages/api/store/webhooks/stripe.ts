@@ -6,6 +6,8 @@ import Stripe from "stripe";
 // @ts-ignore
 import { buffer } from "micro";
 
+import { default as ChargeDisputeCreated } from "./events/stripe/charge/dispute/created";
+
 import { default as CouponCreated } from "./events/stripe/coupon/created";
 import { default as CouponDeleted } from "./events/stripe/coupon/deleted";
 import { default as CouponUpdated } from "./events/stripe/coupon/updated";
@@ -96,6 +98,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	switch (event.type) {
+		case "charge.dispute.created":
+			result = (await ChargeDisputeCreated(event, stripe)).result;
+			break;
 		case "coupon.created":
 			result = (await CouponCreated(event, stripe)).result;
 			break;
@@ -133,6 +138,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				result = updatedRes.result;
 			}
 			break;
+		default:
+			console.log(`Unhandled Stripe webhook event, '${event.type}'.`);
+			console.log(event.data.object);
 	}
 
 	if (result !== null) {
