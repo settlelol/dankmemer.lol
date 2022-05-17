@@ -4,11 +4,6 @@ import { toTitleCase } from "src/util/string";
 import Stripe from "stripe";
 import { EventResponse } from "../../../../stripe";
 
-interface EvidenceArray {
-	name: string;
-	value: string;
-}
-
 export default async function (
 	event: Stripe.Event,
 	stripe: Stripe
@@ -44,14 +39,13 @@ export default async function (
 			value: `\`${refund.reason}\``,
 			inline: true,
 		},
+		{
+			name: "Purchase information",
+			value: `Value (${refund.currency.toUpperCase()}): **$${(
+				refund.amount / 100
+			).toFixed(2)}**\nDate: <t:${refund.created}>`,
+		},
 	];
-
-	fields.push({
-		name: "Refunded purchase",
-		value: `Value (${refund.currency.toUpperCase()}): **$${(
-			refund.amount / 100
-		).toFixed(2)}**\nDate: <t:${refund.created}>`,
-	});
 
 	if (Object.keys(metadata).length >= 1) {
 		fields.push({
