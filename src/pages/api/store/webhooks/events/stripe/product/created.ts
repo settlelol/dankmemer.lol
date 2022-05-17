@@ -8,7 +8,7 @@ import { EventResponse } from "../../../stripe";
 export default async function (
 	event: Stripe.Event,
 	stripe: Stripe
-): Promise<EventResponse | null> {
+): Promise<EventResponse> {
 	const redis = await redisConnect();
 	const product = event.data.object as Stripe.Product;
 	let metadata = convertStripeMetadata(product.metadata);
@@ -26,7 +26,9 @@ export default async function (
 			"PX",
 			TIME.minute * 5
 		);
-		return null;
+		return {
+			result: null,
+		};
 	}
 
 	const { data: prices } = await stripe.prices.list({

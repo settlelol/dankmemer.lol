@@ -47,7 +47,7 @@ export interface PaymentIntentItemDiscount {
 }
 
 export interface EventResponse {
-	result: RESTPostAPIWebhookWithTokenJSONBody;
+	result: RESTPostAPIWebhookWithTokenJSONBody | null;
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
@@ -101,50 +101,37 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	switch (event.type) {
 		case "charge.dispute.closed":
-			result = (await ChargeDisputeClosed(event, stripe)).result;
+			({ result } = await ChargeDisputeClosed(event, stripe));
 			break;
 		case "charge.dispute.created":
-			result = (await ChargeDisputeCreated(event, stripe)).result;
+			({ result } = await ChargeDisputeCreated(event, stripe));
 			break;
 		case "charge.dispute.updated":
-			result = (await ChargeDisputeUpdated(event, stripe)).result;
+			({ result } = await ChargeDisputeUpdated(event, stripe));
 			break;
 		case "coupon.created":
-			result = (await CouponCreated(event, stripe)).result;
+			({ result } = await CouponCreated(event, stripe));
 			break;
 		case "coupon.deleted":
-			result = (await CouponDeleted(event)).result;
+			({ result } = await CouponDeleted(event));
 			break;
 		case "coupon.updated":
-			result = (await CouponUpdated(event, stripe)).result;
+			({ result } = await CouponUpdated(event, stripe));
 			break;
 		case "payment_intent.succeeded":
-			result = (await PaymentIntentSucceeded(event, stripe)).result;
-			break;
-		case "charge.succeeded":
-			const charge = event.data.object;
-			console.log(charge);
+			({ result } = await PaymentIntentSucceeded(event, stripe));
 			break;
 		case "price.created":
-			const createdPrice = await PriceCreated(event, stripe);
-			if (createdPrice) {
-				result = createdPrice.result;
-			}
+			({ result } = await PriceCreated(event, stripe));
 			break;
 		case "product.created":
-			const createdRes = await ProductCreated(event, stripe);
-			if (createdRes) {
-				result = createdRes.result;
-			}
+			({ result } = await ProductCreated(event, stripe));
 			break;
 		case "product.deleted":
-			result = (await ProductDeleted(event)).result;
+			({ result } = await ProductDeleted(event));
 			break;
 		case "product.updated":
-			const updatedRes = await ProductUpdated(event, stripe);
-			if (updatedRes) {
-				result = updatedRes.result;
-			}
+			({ result } = await ProductUpdated(event, stripe));
 			break;
 		default:
 			console.log(`Unhandled Stripe webhook event, '${event.type}'.`);

@@ -8,13 +8,15 @@ import { EventResponse } from "../../../stripe";
 export default async function (
 	event: Stripe.Event,
 	stripe: Stripe
-): Promise<EventResponse | null> {
+): Promise<EventResponse> {
 	const redis = await redisConnect();
 	const product = event.data.object as Stripe.Product;
 
 	const cached = await redis.get(`webhooks:product-updated:${product.id}`);
 	if (cached) {
-		return null;
+		return {
+			result: null,
+		};
 	}
 
 	const { data: prices } = await stripe.prices.list({
