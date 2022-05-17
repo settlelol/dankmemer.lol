@@ -1,6 +1,7 @@
 import Button from "../ui/Button";
 import Stripe from "stripe";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 type SubscriptionPrice = {
 	id: string;
@@ -55,30 +56,44 @@ export default function SubscriptionProduct({
 				</p>
 			</div>
 			<div className="mt-6 flex flex-col">
-				<Button
-					size="small"
-					onClick={() => {
-						addToCart({
-							id: product.id,
-							name: product.name,
-							selectedPrice: {
-								...product.prices.filter(
-									(price) =>
-										price.interval ===
-										(annualPricing ? "year" : "month")
-								)[0],
-								type: "recurring",
-							},
-							prices: product.prices,
-							unit_cost: formattedPrice,
-							quantity: 1,
-							metadata: product.metadata,
-							image: product.images[0],
-						});
-					}}
-				>
-					Add to cart
-				</Button>
+				{product.metadata.hidden ? (
+					<Button
+						size="small"
+						variant="dark"
+						onClick={() => {
+							toast.info(
+								"This product is hidden from normal users. A product image needs to be added before it can be purchased."
+							);
+						}}
+					>
+						Unavailable
+					</Button>
+				) : (
+					<Button
+						size="small"
+						onClick={() => {
+							addToCart({
+								id: product.id,
+								name: product.name,
+								selectedPrice: {
+									...product.prices.filter(
+										(price) =>
+											price.interval ===
+											(annualPricing ? "year" : "month")
+									)[0],
+									type: "recurring",
+								},
+								prices: product.prices,
+								unit_cost: formattedPrice,
+								quantity: 1,
+								metadata: product.metadata,
+								image: product.images[0],
+							});
+						}}
+					>
+						Add to cart
+					</Button>
+				)}
 				<p
 					className="mt-1 cursor-pointer text-center text-xs text-dank-300 underline dark:text-[#6A6C6A]"
 					onClick={openModal}
