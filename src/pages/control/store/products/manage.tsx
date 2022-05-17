@@ -342,7 +342,9 @@ export default function ManageProducts({ user }: PageProps) {
 	};
 
 	const createProduct = () => {
-		setEditorContent(<ProductCreator />);
+		setEditorContent(
+			<ProductCreator forceHide={() => setEditing(false)} />
+		);
 		setEditing(true);
 	};
 

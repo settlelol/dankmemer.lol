@@ -8,6 +8,7 @@ import Button from "src/components/ui/Button";
 import Dropdown from "src/components/ui/Dropdown";
 import Checkbox from "src/components/ui/Checkbox";
 import ProductCreatorPrice from "./ProductCreatorPrice";
+import { toast } from "react-toastify";
 
 export interface ProductPrice {
 	id: string;
@@ -16,7 +17,11 @@ export interface ProductPrice {
 	intervalCount?: string;
 }
 
-export default function ProductCreator() {
+interface Props {
+	forceHide: any;
+}
+
+export default function ProductCreator({ forceHide }: Props) {
 	const [canSubmit, setCanSubmit] = useState(false);
 
 	const [productName, setProductName] = useState("");
@@ -143,8 +148,14 @@ export default function ProductCreator() {
 					window.location.href = `https://dashboard.stripe.com/${
 						process.env.NODE_ENV === "development" ? "test" : ""
 					}/products/${data.product}`;
+				} else {
+					forceHide();
 				}
-			} catch (e) {}
+			} catch (e) {
+				toast.error(
+					"Issue while creating product, check response in devtools."
+				);
+			}
 		}
 	};
 
