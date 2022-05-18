@@ -128,13 +128,13 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			}
 		);
 		await db.collection("purchases").insertOne({
-			_id: invoice.id as unknown as ObjectId,
+			_id: orderID as unknown as ObjectId,
 			isGift,
 			giftFor,
 			items: items.filter((item) => item !== undefined),
 			purchaseTime: new Date().getTime(),
 		});
-		await stripe.invoices.voidInvoice(stripeInvoice);
+		await stripe.invoices.voidInvoice(invoice.id);
 		req.session.unset("cart");
 		req.session.unset("discountCode");
 

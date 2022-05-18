@@ -38,7 +38,7 @@ export interface PaymentIntentItemResult {
 	price: number;
 	quantity: number;
 	type: Stripe.Price.Type;
-	discounts?: PaymentIntentItemDiscount[] | [];
+	discounts?: PaymentIntentItemDiscount[];
 }
 
 export interface PaymentIntentItemDiscount {

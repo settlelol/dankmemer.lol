@@ -1,17 +1,13 @@
 import { NextApiResponse } from "next";
 import { NextIronRequest, withSession } from "src/util/session";
 import PayPal from "src/util/paypal";
-import { PayPalEvent } from "src/util/paypal/classes/Webhooks";
-import { WebhookPaymentEvents } from "src/util/paypal/classes/Simulations";
+import { PayPalEvent, WebhookEvents } from "src/util/paypal/classes/Webhooks";
 import axios from "axios";
 import { TIME } from "src/constants";
 import { redisConnect } from "src/util/redis";
+import { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10";
 
-interface EmbedField {
-	name: string;
-	value: string;
-	inline?: Boolean;
-}
+import { default as CaptureCompleted } from "./events/payment/capture/completed";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	if (req.method?.toLowerCase() !== "post") {
@@ -24,78 +20,57 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const paypal = new PayPal();
 	try {
 		let event: PayPalEvent = await paypal.webhooks.constructEvent(req);
+		let result: RESTPostAPIWebhookWithTokenJSONBody | null = null;
+
 		let processedEvent = await redis.get(
 			`paypal-purchase:${event.data.id}`
 		);
 		if (processedEvent) {
-			return;
+			return res.status(200).json({ message: "Event already processed" });
 		}
+
 		switch (event.type) {
-			case WebhookPaymentEvents.CAPTURE_COMPLETED:
-				await redis.set(
-					`paypal-purchase:${event.data.id}`,
-					event.data.id,
-					"PX",
-					TIME.minute * 15
-				);
-				sendPurchaseWebhook(event);
+			case WebhookEvents.CAPTURE_COMPLETED:
+				({ result } = await CaptureCompleted(event, paypal));
 				break;
 		}
-		return res.status(200).json({ a: 1 });
+
+		await redis.set(
+			`paypal-purchase:${event.data.id}`,
+			event.data.id,
+			"PX",
+			TIME.minute * 15
+		);
+
+		if (result !== null) {
+			if (process.env.NODE_ENV === "development" && result.embeds) {
+				result.embeds[0].title = "(DEV) " + result.embeds[0].title;
+			}
+			try {
+				await axios.post(process.env.STORE_WEBHOOK!, result, {
+					headers: { "Content-Type": "application/json" },
+				});
+				return res.status(200).json({ state: "Webhook sent" });
+			} catch (e: any) {
+				console.warn(
+					`Failed to send Discord webhook in response to Stripe webhook event. Failed on event, ${
+						event.type
+					}.\nMessage: ${e.message.replace(/"/g, "")}`
+				);
+				return res.status(200).json({
+					state: "Discord webhook failed to send",
+					error: e.message.replace(/"/g, ""),
+				});
+			}
+		} else {
+			return res.status(200).json({ message: "Expecting more results." });
+		}
 	} catch (e: any) {
 		if (process.env.NODE_ENV !== "production") {
 			console.error(`[DEV] ${e.message.replace(/"/g, "")}`);
 		}
 		return res.status(500).json({ err: e });
 	}
-};
-
-const sendPurchaseWebhook = async (event: PayPalEvent) => {
-	let fields: EmbedField[] = [
-		{
-			name: "Purchased by",
-			value: `<@!${event.data.purchasedBy}> (${event.data.purchasedBy})`,
-			inline: true,
-		},
-	];
-
-	if (event.data.isGift) {
-		fields.push({
-			name: "(Gift) Purchased for",
-			value: `<@!${event.data.purchasedFor}> (${event.data.purchasedFor})`,
-			inline: true,
-		});
-	}
-
-	fields.push({
-		name: "Goods purchased",
-		value: `• ${event.data.items
-			?.map((item) => {
-				return `${item.quantity}x ${item.name} ($${item.unit_amount.value})`;
-			})
-			.join("\n• ")}`,
-	});
-
-	await axios.post(
-		process.env.STORE_WEBHOOK!,
-		{
-			avatar_url:
-				"https://newsroom.uk.paypal-corp.com/image/PayPal_Logo_Thumbnail.jpg",
-			embeds: [
-				{
-					title: "Successful PayPal Purchase",
-					color: 2777007,
-					fields,
-					footer: {
-						text: `Total purchase value: $${event.data.total} (incl. sales tax)`,
-					},
-				},
-			],
-		},
-		{
-			headers: { "Content-Type": "application/json" },
-		}
-	);
 };
 
 export default withSession(handler);

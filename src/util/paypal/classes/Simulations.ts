@@ -1,21 +1,11 @@
 import { createPayPal } from "../PayPalEndpoint";
 import { LinkDescription } from "./Products";
 
-export enum WebhookPaymentEvents {
-	AUTHORIZATION_CREATED = "PAYMENT.AUTHORIZATION.CREATED",
-	AUTHORIZATION_VOIDED = "PAYMENT.AUTHORIZATION.VOIDED",
-	CAPTURE_COMPLETED = "PAYMENT.CAPTURE.COMPLETED",
-	CAPTURE_DENIED = "PAYMENT.CAPTURE.DENIED",
-	CAPTURE_PENDING = "PAYMENT.CAPTURE.PENDING",
-	CAPTURE_REFUNDED = "PAYMENT.CAPTURE.REFUNDED",
-	CAPTURE_REVERSED = "PAYMENT.CAPTURE.REVERSED",
-}
-
 interface WebhookSimulationOptionsA {
 	/**
 	 * @description The event name. Specify one of the subscribed events. For each request, provide only one event.
 	 */
-	event_type: WebhookPaymentEvents; // Any of the following https://developer.paypal.com/api/rest/webhooks/event-names/#link-authorizedandcapturedpayments
+	event_type: WebhookEvents; // Any of the following https://developer.paypal.com/api/rest/webhooks/event-names/#link-authorizedandcapturedpayments
 
 	/**
 	 * @description The ID of the webhook. If omitted, the URL is required.
@@ -37,7 +27,7 @@ interface WebhookSimulationOptionsB {
 	/**
 	 * @description The event name. Specify one of the subscribed events. For each request, provide only one event.
 	 */
-	event_type: WebhookPaymentEvents; // Any of the following https://developer.paypal.com/api/rest/webhooks/event-names/#link-authorizedandcapturedpayments
+	event_type: WebhookEvents; // Any of the following https://developer.paypal.com/api/rest/webhooks/event-names/#link-authorizedandcapturedpayments
 
 	/**
 	 * @description The ID of the webhook. If omitted, the URL is required.
@@ -67,7 +57,7 @@ interface WebhookResponse {
 	create_time: string; // Timestamp
 	resource_type: string;
 	event_version: "1.0" | "2.0";
-	event_type: WebhookPaymentEvents; // Any of the following https://developer.paypal.com/api/rest/webhooks/event-names/#link-authorizedandcapturedpayments
+	event_type: WebhookEvents; // Any of the following https://developer.paypal.com/api/rest/webhooks/event-names/#link-authorizedandcapturedpayments
 	summary: string;
 	resource_version: "1.0" | "2.0";
 	resource: WebhookResponseResource;

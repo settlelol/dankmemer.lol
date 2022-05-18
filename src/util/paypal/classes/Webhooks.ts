@@ -12,8 +12,9 @@ import Stripe from "stripe";
 import { inspect } from "util";
 import { createPayPal } from "../PayPalEndpoint";
 import { PayPalCartItem } from "../types";
+import { Payer } from "../types/Orders/Payer";
+import { PurchaseUnit } from "../types/Orders/PurchaseUnit";
 import { LinkDescription } from "./Products";
-import { WebhookPaymentEvents } from "./Simulations";
 
 let hostURL =
 	process.env.NODE_ENV === "production"
@@ -32,18 +33,41 @@ interface InvalidRequest {
 	message?: never;
 }
 
+export enum WebhookEvents {
+	AUTHORIZATION_CREATED = "PAYMENT.AUTHORIZATION.CREATED",
+	AUTHORIZATION_VOIDED = "PAYMENT.AUTHORIZATION.VOIDED",
+	CAPTURE_COMPLETED = "PAYMENT.CAPTURE.COMPLETED",
+	CAPTURE_DENIED = "PAYMENT.CAPTURE.DENIED",
+	CAPTURE_PENDING = "PAYMENT.CAPTURE.PENDING",
+	CAPTURE_REFUNDED = "PAYMENT.CAPTURE.REFUNDED",
+	CAPTURE_REVERSED = "PAYMENT.CAPTURE.REVERSED",
+	PRODUCT_CREATED = "CATALOG.PRODUCT.CREATED",
+}
+
 export interface PayPalEvent {
-	type: WebhookPaymentEvents;
+	type: WebhookEvents;
 	data: PayPalEventData;
 }
 
 interface PayPalEventData {
 	id: string;
+	order_id?: string;
 	purchasedBy?: string;
 	purchasedFor?: string;
-	isGift?: Boolean;
+	isGift?: boolean;
 	total?: string;
 	items?: PayPalCartItem[];
+}
+
+interface PayPalWebhookResource {
+	id: string;
+	update_time: string;
+	create_time: string;
+	purchase_units: PurchaseUnit[];
+	links: LinkDescription[];
+	intent: string;
+	payer: Payer;
+	status: string;
 }
 
 export default class Webhooks {
@@ -68,12 +92,15 @@ export default class Webhooks {
 			);
 
 			if (!orderUrl) {
+				// console.log(inspect(req.body, undefined, 4, true));
 				return reject(
 					Error(`Event '${req.body.event_type}' is unsupported.`)
 				);
 			}
 
-			const { data } = await httpClient(orderUrl.href);
+			const { data }: { data: PayPalWebhookResource } = await httpClient(
+				orderUrl.href
+			);
 			const cartItems: PayPalCartItem[] =
 				data.purchase_units[0].items.filter(
 					(item: PayPalCartItem) =>
@@ -123,6 +150,7 @@ export default class Webhooks {
 			);
 			result.data = {
 				...result.data,
+				order_id: data.id,
 				purchasedBy,
 				purchasedFor,
 				isGift,
