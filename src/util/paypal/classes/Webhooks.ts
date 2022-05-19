@@ -48,11 +48,12 @@ export interface PayPalWebhookResource {
 	id: string;
 	update_time: string;
 	create_time: string;
-	purchase_units: PurchaseUnit[];
+	purchase_units?: PurchaseUnit[];
+	name?: string;
 	links: LinkDescription[];
-	intent: string;
-	payer: Payer;
-	status: string;
+	intent?: string;
+	payer?: Payer;
+	status?: string;
 }
 
 export default class Webhooks {

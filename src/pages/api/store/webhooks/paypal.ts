@@ -8,6 +8,7 @@ import { redisConnect } from "src/util/redis";
 import { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10";
 
 import { default as CaptureCompleted } from "./events/paypal/payment/capture/completed";
+import { default as ProductCreated } from "./events/paypal/product/created";
 
 export interface EventResponse {
 	result: RESTPostAPIWebhookWithTokenJSONBody | null;
@@ -39,6 +40,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			case WebhookEvents.CAPTURE_COMPLETED:
 				({ result, error } = await CaptureCompleted(event, paypal));
 				break;
+			case WebhookEvents.PRODUCT_CREATED:
+				({ result, error } = await ProductCreated(event));
+				break;
 		}
 
 		await redis.set(
@@ -48,7 +52,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			TIME.minute * 15
 		);
 
-		if (result !== null) {
+		if (result !== null && !error) {
 			if (process.env.NODE_ENV === "development" && result.embeds) {
 				result.embeds[0].title = "(DEV) " + result.embeds[0].title;
 			}

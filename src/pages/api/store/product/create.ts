@@ -76,6 +76,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 		try {
 			paypalProduct = await paypal.products.create({
+				id: stripeProduct.id,
 				name: productData.name,
 				type: "DIGITAL",
 				...(productData.description &&
