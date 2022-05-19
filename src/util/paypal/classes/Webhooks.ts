@@ -36,6 +36,7 @@ export enum WebhookEvents {
 	CAPTURE_PENDING = "PAYMENT.CAPTURE.PENDING",
 	CAPTURE_REFUNDED = "PAYMENT.CAPTURE.REFUNDED",
 	CAPTURE_REVERSED = "PAYMENT.CAPTURE.REVERSED",
+	PLAN_CREATED = "BILLING.PLAN.CREATED",
 	PRODUCT_CREATED = "CATALOG.PRODUCT.CREATED",
 }
 
@@ -49,6 +50,7 @@ export interface PayPalWebhookResource {
 	update_time: string;
 	create_time: string;
 	purchase_units?: PurchaseUnit[];
+	product_id?: string;
 	name?: string;
 	links: LinkDescription[];
 	intent?: string;

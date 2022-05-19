@@ -8,11 +8,13 @@ import { redisConnect } from "src/util/redis";
 import { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10";
 
 import { default as CaptureCompleted } from "./events/paypal/payment/capture/completed";
+import { default as PlanCreated } from "./events/paypal/billing/plan/created";
 import { default as ProductCreated } from "./events/paypal/product/created";
 
 export interface EventResponse {
 	result: RESTPostAPIWebhookWithTokenJSONBody | null;
 	error?: string;
+	status?: number;
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
@@ -28,6 +30,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		let event: PayPalEvent = await paypal.webhooks.constructEvent(req);
 		let result: RESTPostAPIWebhookWithTokenJSONBody | null = null;
 		let error: string | undefined;
+		let status: number | undefined;
 
 		let processedEvent = await redis.get(
 			`paypal-purchase:${event.data.id}`
@@ -40,13 +43,16 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			case WebhookEvents.CAPTURE_COMPLETED:
 				({ result, error } = await CaptureCompleted(event, paypal));
 				break;
+			case WebhookEvents.PLAN_CREATED:
+				({ result, error } = await PlanCreated(event));
+				break;
 			case WebhookEvents.PRODUCT_CREATED:
-				({ result, error } = await ProductCreated(event));
+				({ result, error, status } = await ProductCreated(event));
 				break;
 		}
 
 		await redis.set(
-			`paypal-purchase:${event.data.id}`,
+			`paypal-event-for:${event.type}:${event.data.id}`,
 			event.data.id,
 			"PX",
 			TIME.minute * 15
@@ -72,6 +78,8 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					error: e.message.replace(/"/g, ""),
 				});
 			}
+		} else if (result === null && error && status) {
+			return res.status(status).json({ message: error });
 		} else {
 			return res.status(500).json({ message: error });
 		}

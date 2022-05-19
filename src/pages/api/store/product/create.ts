@@ -134,6 +134,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			});
 			await redis.del("store:products:one-time");
 		} else if (productData.type === "recurring") {
+			const billingPlans = [];
 			for (let i = 0; i < productData.prices.length; i++) {
 				// Change provided price to cents
 				const priceInCents = parseInt(
@@ -187,7 +188,8 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 							setup_fee_failure_action: "CONTINUE",
 						},
 					});
-					await stripe.prices.create({
+
+					let price = await stripe.prices.create({
 						currency: "USD",
 						product: stripeProduct.id,
 						unit_amount: priceInCents,
@@ -206,6 +208,11 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 							paypalPlan: plan.id,
 						},
 					});
+
+					billingPlans.push({
+						paypal: plan.id,
+						stripe: price.id,
+					});
 				} catch (e: any) {
 					console.error(e);
 					return res.status(500).json({
@@ -214,6 +221,18 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					});
 				}
 			}
+			await redis.set(
+				`webhooks:product-created:${paypalProduct.id}:billing-plans`,
+				JSON.stringify(billingPlans),
+				"PX",
+				TIME.minute * 15
+			);
+			await redis.set(
+				`webhooks:product-created:${paypalProduct.id}:billing-plans:received`,
+				0,
+				"PX",
+				TIME.minute * 15
+			);
 			await redis.del("store:products:subscriptions");
 		}
 
