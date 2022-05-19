@@ -1,10 +1,17 @@
 import { APIEmbedField } from "discord-api-types/v10";
 import { dbConnect } from "src/util/mongodb";
 import PayPal from "src/util/paypal";
-import { PayPalEvent } from "src/util/paypal/classes/Webhooks";
-import { inspect } from "util";
+import { LinkDescription } from "src/util/paypal/classes/Products";
 import {
-	EventResponse,
+	PayPalEvent,
+	PayPalWebhookResource,
+} from "src/util/paypal/classes/Webhooks";
+import { createPayPal } from "src/util/paypal/PayPalEndpoint";
+import { PayPalCartItem } from "src/util/paypal/types";
+import { stripeConnect } from "src/util/stripe";
+import Stripe from "stripe";
+import { EventResponse } from "../../../paypal";
+import {
 	PaymentIntentItemDiscount,
 	PaymentIntentItemResult,
 } from "../../../stripe";
@@ -13,19 +20,72 @@ export default async function (
 	event: PayPalEvent,
 	paypal: PayPal
 ): Promise<EventResponse> {
+	const httpClient = await createPayPal();
+	const stripe = stripeConnect();
+
+	const orderUrl: LinkDescription = event.data.links.find(
+		(link: LinkDescription) => link.rel === "up"
+	)!;
+
+	const { data }: { data: PayPalWebhookResource } = await httpClient(
+		orderUrl.href
+	);
+	const cartItems: PayPalCartItem[] = data.purchase_units[0].items.filter(
+		(item: PayPalCartItem) => item.sku.split(":")[0] !== "SALESTAX"
+	);
+
+	for (let i = 0; i < cartItems.length; i++) {
+		const id = cartItems[i].sku.split(":")[0];
+		const interval = cartItems[i].sku.split(":")[1] as
+			| "single"
+			| "day"
+			| "week"
+			| "month"
+			| "year";
+		const stripeProduct = await stripe.products.retrieve(id);
+		if (!stripeProduct) {
+			return {
+				result: null,
+				error: `Received unknown product (name=${cartItems[i].name} id/sku=${cartItems[i].sku}) during paypal checkout.`,
+			};
+		}
+		let query: Stripe.PriceListParams =
+			interval !== "single"
+				? {
+						product: stripeProduct.id,
+						recurring: { interval },
+				  }
+				: { product: stripeProduct.id };
+		const { data: prices } = await stripe.prices.list(query);
+		if (
+			(prices[0].unit_amount! / 100).toFixed(2) !==
+			cartItems[i].unit_amount.value
+		) {
+			return {
+				result: null,
+				error: `Mismatched price of ${cartItems[i].name} (id: ${cartItems[i].sku}).`,
+			};
+		}
+	}
+
+	const total = data.purchase_units[0].amount.value;
+	const purchasedBy = data.purchase_units[0].custom_id.split(":")[0];
+	const purchasedFor = data.purchase_units[0].custom_id.split(":")[1];
+	const isGift = JSON.parse(data.purchase_units[0].custom_id.split(":")[2]);
+
 	const db = await dbConnect();
 	let fields: APIEmbedField[] = [
 		{
 			name: "Purchased by",
-			value: `<@!${event.data.purchasedBy}> (${event.data.purchasedBy})`,
-			inline: event.data.isGift,
+			value: `<@!${purchasedBy}> (${purchasedBy})`,
+			inline: isGift,
 		},
 	];
 
-	if (event.data.isGift) {
+	if (isGift) {
 		fields.push({
 			name: "(Gift) Purchased for",
-			value: `<@!${event.data.purchasedFor}> (${event.data.purchasedFor})`,
+			value: `<@!${purchasedFor}> (${purchasedFor})`,
 			inline: true,
 		});
 		fields.push({ name: "_ _", value: "_ _", inline: true }); // Add an invisible embed field
@@ -33,7 +93,7 @@ export default async function (
 
 	fields.push({
 		name: "Goods purchased",
-		value: `• ${event.data.items
+		value: `• ${cartItems
 			?.map((item) => {
 				return `${item.quantity}x ${item.name} ($${item.unit_amount.value})`;
 			})
@@ -41,9 +101,7 @@ export default async function (
 		inline: true,
 	});
 
-	const record = await db
-		.collection("purchases")
-		.findOne({ _id: event.data.order_id });
+	const record = await db.collection("purchases").findOne({ _id: data.id });
 
 	if (record) {
 		let discounts: PaymentIntentItemDiscount[] = [];
@@ -95,7 +153,7 @@ export default async function (
 					color: 2777007,
 					fields,
 					footer: {
-						text: `Total purchase value: $${event.data.total} (incl. sales tax)`,
+						text: `Total purchase value: $${total} (incl. sales tax)`,
 					},
 				},
 			],

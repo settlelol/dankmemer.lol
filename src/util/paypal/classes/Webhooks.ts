@@ -7,11 +7,6 @@ import axios from "axios";
 import { unsigned } from "buffer-crc32";
 import { createVerify } from "crypto";
 import { NextApiRequest } from "next";
-import { stripeConnect } from "src/util/stripe";
-import Stripe from "stripe";
-import { inspect } from "util";
-import { createPayPal } from "../PayPalEndpoint";
-import { PayPalCartItem } from "../types";
 import { Payer } from "../types/Orders/Payer";
 import { PurchaseUnit } from "../types/Orders/PurchaseUnit";
 import { LinkDescription } from "./Products";
@@ -46,20 +41,10 @@ export enum WebhookEvents {
 
 export interface PayPalEvent {
 	type: WebhookEvents;
-	data: PayPalEventData;
+	data: PayPalWebhookResource;
 }
 
-interface PayPalEventData {
-	id: string;
-	order_id?: string;
-	purchasedBy?: string;
-	purchasedFor?: string;
-	isGift?: boolean;
-	total?: string;
-	items?: PayPalCartItem[];
-}
-
-interface PayPalWebhookResource {
+export interface PayPalWebhookResource {
 	id: string;
 	update_time: string;
 	create_time: string;
@@ -71,92 +56,23 @@ interface PayPalWebhookResource {
 }
 
 export default class Webhooks {
-	/**
-	 * TODO:(InBlue) Implement discounts
-	 */
 	public constructEvent(req: NextApiRequest): Promise<PayPalEvent> {
-		const stripe = stripeConnect();
 		return new Promise(async (resolve, reject) => {
-			const httpClient = await createPayPal();
 			let result: PayPalEvent = {
 				type: req.body.event_type,
-				data: { id: req.body.resource.id },
+				data: req.body.resource,
 			};
 			const { valid, error } = await this.verifyRequest(req);
 			if (!valid) {
 				reject(Error(error));
 			}
 
-			const orderUrl: LinkDescription = req.body.resource.links.find(
-				(link: LinkDescription) => link.rel === "up"
-			);
-
-			if (!orderUrl) {
-				// console.log(inspect(req.body, undefined, 4, true));
+			if (!Object.values(WebhookEvents).includes(req.body.event_type)) {
 				return reject(
 					Error(`Event '${req.body.event_type}' is unsupported.`)
 				);
 			}
 
-			const { data }: { data: PayPalWebhookResource } = await httpClient(
-				orderUrl.href
-			);
-			const cartItems: PayPalCartItem[] =
-				data.purchase_units[0].items.filter(
-					(item: PayPalCartItem) =>
-						item.sku.split(":")[0] !== "SALESTAX"
-				);
-
-			for (let i = 0; i < cartItems.length; i++) {
-				const id = cartItems[i].sku.split(":")[0];
-				const interval = cartItems[i].sku.split(":")[1] as
-					| "single"
-					| "day"
-					| "week"
-					| "month"
-					| "year";
-				const stripeProduct = await stripe.products.retrieve(id);
-				if (!stripeProduct) {
-					reject(
-						Error(
-							`Received unknown product (name=${cartItems[i].name} id/sku=${cartItems[i].sku}) during paypal checkout.`
-						)
-					);
-					break;
-				}
-				let query: Stripe.PriceListParams =
-					interval !== "single"
-						? {
-								product: stripeProduct.id,
-								recurring: { interval },
-						  }
-						: { product: stripeProduct.id };
-				const { data: prices } = await stripe.prices.list(query);
-				if (
-					(prices[0].unit_amount! / 100).toFixed(2) !==
-					cartItems[i].unit_amount.value
-				) {
-					return reject(
-						Error(
-							`Mismatched price of ${cartItems[i].name} (id: ${cartItems[i].sku}).`
-						)
-					);
-				}
-			}
-			const purchasedBy = data.purchase_units[0].custom_id.split(":")[0];
-			const purchasedFor = data.purchase_units[0].custom_id.split(":")[1];
-			const isGift = JSON.parse(
-				data.purchase_units[0].custom_id.split(":")[2]
-			);
-			result.data = {
-				...result.data,
-				order_id: data.id,
-				purchasedBy,
-				purchasedFor,
-				isGift,
-				total: data.purchase_units[0].amount.value,
-				items: cartItems,
-			};
 			resolve(result);
 		});
 	}

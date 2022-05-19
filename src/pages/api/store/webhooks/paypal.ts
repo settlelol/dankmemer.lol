@@ -9,6 +9,11 @@ import { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10";
 
 import { default as CaptureCompleted } from "./events/payment/capture/completed";
 
+export interface EventResponse {
+	result: RESTPostAPIWebhookWithTokenJSONBody | null;
+	error?: string;
+}
+
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	if (req.method?.toLowerCase() !== "post") {
 		return res.status(405).json({
@@ -21,6 +26,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	try {
 		let event: PayPalEvent = await paypal.webhooks.constructEvent(req);
 		let result: RESTPostAPIWebhookWithTokenJSONBody | null = null;
+		let error: string | undefined;
 
 		let processedEvent = await redis.get(
 			`paypal-purchase:${event.data.id}`
@@ -31,7 +37,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 		switch (event.type) {
 			case WebhookEvents.CAPTURE_COMPLETED:
-				({ result } = await CaptureCompleted(event, paypal));
+				({ result, error } = await CaptureCompleted(event, paypal));
 				break;
 		}
 
@@ -63,13 +69,13 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				});
 			}
 		} else {
-			return res.status(200).json({ message: "Expecting more results." });
+			return res.status(500).json({ message: error });
 		}
 	} catch (e: any) {
 		if (process.env.NODE_ENV !== "production") {
 			console.error(`[DEV] ${e.message.replace(/"/g, "")}`);
 		}
-		return res.status(500).json({ err: e });
+		return res.status(500).json({ message: e });
 	}
 };
 
