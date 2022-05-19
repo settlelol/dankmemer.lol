@@ -61,7 +61,11 @@ export default async function (
 										price.recurring!.interval_count > 1
 											? price.recurring!.interval_count
 											: ""
-								  } ${price.recurring!.interval}`
+								  } ${price.recurring!.interval}${
+										price.recurring!.interval_count > 1
+											? "s"
+											: ""
+								  }`
 								: "each"
 						}`
 				)
