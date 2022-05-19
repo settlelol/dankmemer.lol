@@ -7,7 +7,7 @@ import { TIME } from "src/constants";
 import { redisConnect } from "src/util/redis";
 import { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10";
 
-import { default as CaptureCompleted } from "./events/payment/capture/completed";
+import { default as CaptureCompleted } from "./events/paypal/payment/capture/completed";
 
 export interface EventResponse {
 	result: RESTPostAPIWebhookWithTokenJSONBody | null;
