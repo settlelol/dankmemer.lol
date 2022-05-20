@@ -15,6 +15,21 @@ export interface PurchaseRecord {
 	discounts: (Stripe.Discount | Stripe.DeletedDiscount)[];
 }
 
+interface RequestBody {
+	stripeInvoice: string;
+	status:
+		| "ACTIVE"
+		| "CREATED"
+		| "SAVED"
+		| "APPROVED"
+		| "VOIDED"
+		| "COMPLETED"
+		| "PAYER_ACTION_REQUIRED";
+	isGift: boolean;
+	giftFor: string;
+	subscription?: string;
+}
+
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	if (req.method?.toLowerCase() !== "patch") {
 		return res.status(405).json({
@@ -34,16 +49,22 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		return res.status(401).json({ error: "You are not logged in." });
 	}
 
-	const { stripeInvoice, status, isGift, giftFor } = req.body;
+	const {
+		stripeInvoice,
+		status,
+		isGift,
+		giftFor,
+		subscription,
+	}: RequestBody = req.body;
 
-	if (status !== "COMPLETED") {
+	if (status !== "COMPLETED" && status !== "ACTIVE") {
 		return res
 			.status(425)
 			.json({ error: "Payment has not completed processing." });
 	}
 
 	const db = await dbConnect();
-	const stripe = await stripeConnect();
+	const stripe = stripeConnect();
 	const _customer = await db
 		.collection("customers")
 		.findOne({ discordId: user.id });
@@ -133,6 +154,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			giftFor,
 			items: items.filter((item) => item !== undefined),
 			purchaseTime: new Date().getTime(),
+			...(subscription && { subscriptionId: subscription }),
 		});
 		await stripe.invoices.voidInvoice(invoice.id);
 		req.session.unset("cart");

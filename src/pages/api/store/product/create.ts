@@ -174,6 +174,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 								},
 								tenure_type: "REGULAR",
 								sequence: 1,
+								total_cycles: 0,
 								pricing_scheme: {
 									fixed_price: {
 										value: productData.prices[

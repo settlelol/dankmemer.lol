@@ -30,6 +30,7 @@ type PriceInformation = {
 	type: Stripe.Price.Type;
 	interval?: Stripe.Price.Recurring.Interval;
 	price: number;
+	metadata: any;
 };
 
 interface Metadata {

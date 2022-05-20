@@ -162,6 +162,11 @@ export default function AccountInformation({
 		};
 	};
 
+	const approvePayPalSubscription = async (data: any, actions: any) => {
+		const subscriptionDetails = await actions.subscription.get();
+		paypalSubscriptionSuccess(subscriptionDetails, data);
+	};
+
 	const paypalSuccess = (details: OrdersRetrieveResponse, data: any) => {
 		axios({
 			method: "PATCH",
@@ -176,6 +181,22 @@ export default function AccountInformation({
 			router.push(
 				`/store/checkout/success?gateway=paypal&id=${data.orderID}`
 			);
+		});
+	};
+
+	const paypalSubscriptionSuccess = (details: any, data: any) => {
+		axios({
+			method: "PATCH",
+			url: `/api/store/checkout/finalize/paypal?orderID=${data.orderID}`,
+			data: {
+				stripeInvoice: invoiceId,
+				status: details.status,
+				isGift,
+				giftFor: giftRecipient,
+				subscription: data.subscriptionId,
+			},
+		}).then(() => {
+			alert("Subscribed, now something will happen later.");
 		});
 	};
 
@@ -325,30 +346,77 @@ export default function AccountInformation({
 				) : selectedPaymentOption === "PayPal" ? (
 					<div className="mt-3 h-[50px] w-full overflow-hidden dark:text-white">
 						{acceptedTerms ? (
-							<PayPalButton
-								options={{
-									clientId:
-										process.env
-											.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
-								}}
-								style={{
-									height: 40,
-									fontFamily: "'Inter', sans-serif",
-									layout: "horizontal",
-									color:
-										theme === "dark" ? "black" : "silver",
-									tagline: false,
-								}}
-								createOrder={(_: any, actions: any) =>
-									actions.order.create(createPayment())
-								}
-								onApprove={(_: any, actions: any) =>
-									actions.order.capture()
-								}
-								onSuccess={(details: any, data: any) =>
-									paypalSuccess(details, data)
-								}
-							/>
+							cartData[0].metadata!.type! === "subscription" ? (
+								<PayPalButton
+									options={{
+										vault: true,
+										clientId:
+											process.env
+												.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+									}}
+									style={{
+										height: 40,
+										fontFamily: "'Inter', sans-serif",
+										layout: "horizontal",
+										color:
+											theme === "dark"
+												? "black"
+												: "silver",
+										tagline: false,
+									}}
+									createSubscription={(
+										_: any,
+										actions: any
+									) =>
+										actions.subscription.create({
+											plan_id:
+												cartData[0].selectedPrice
+													.metadata.paypalPlan,
+											custom_id: "",
+										})
+									}
+									onApprove={(data: any, actions: any) => {
+										approvePayPalSubscription(
+											data,
+											actions
+										);
+									}}
+									catchError={(err: any) => {
+										console.error(err);
+									}}
+									onError={(err: any) => {
+										console.log("onerror");
+										console.error(err);
+									}}
+								/>
+							) : (
+								<PayPalButton
+									options={{
+										clientId:
+											process.env
+												.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+									}}
+									style={{
+										height: 40,
+										fontFamily: "'Inter', sans-serif",
+										layout: "horizontal",
+										color:
+											theme === "dark"
+												? "black"
+												: "silver",
+										tagline: false,
+									}}
+									createOrder={(_: any, actions: any) =>
+										actions.order.create(createPayment())
+									}
+									onApprove={(_: any, actions: any) =>
+										actions.order.capture()
+									}
+									onSuccess={(details: any, data: any) =>
+										paypalSuccess(details, data)
+									}
+								/>
+							)
 						) : (
 							<div className="h-10 w-full rounded-md dark:bg-white/10"></div>
 						)}
