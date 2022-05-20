@@ -101,7 +101,7 @@ export default function Modal({
 									id: product.id,
 									name: product.name,
 									selectedPrice:
-										product.metadata.type === "membership"
+										product.metadata.type === "subscription"
 											? product.prices.filter(
 													(price) =>
 														price.interval ===

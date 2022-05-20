@@ -65,7 +65,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const discount: Stripe.PromotionCode = promotionalCode.data[0];
 
 	try {
-		if (cart.length === 1 && cart[0].metadata?.type === "membership") {
+		if (cart.length === 1 && cart[0].metadata?.type === "subscription") {
 			const subscription = await stripe.subscriptions.create({
 				customer: customer?.id!,
 				payment_behavior: "default_incomplete",

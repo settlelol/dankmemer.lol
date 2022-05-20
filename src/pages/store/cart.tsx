@@ -226,13 +226,13 @@ export default function Cart({ cartData, user }: Props) {
 
 	const addToCart = async (item: CartItems) => {
 		if (
-			item.metadata?.type === "membership" &&
+			item.metadata?.type === "subscription" &&
 			cart.filter(
-				(_item: CartItems) => _item.metadata?.type === "membership"
+				(_item: CartItems) => _item.metadata?.type === "subscription"
 			).length >= 1
 		)
 			return alert(
-				"Only one membership should be added to the cart. Remove the current membership item to add this one."
+				"Only one subscription should be added to the cart. Remove the current subscription item to add this one."
 			);
 
 		setCart((_items) => [..._items, item]);

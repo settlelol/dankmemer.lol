@@ -71,6 +71,8 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				}),
 			metadata: {
 				hidden: "true",
+				type:
+					productData.prices.length === 1 ? "single" : "subscription",
 			},
 		});
 

@@ -33,7 +33,8 @@ type PriceInformation = {
 };
 
 interface Metadata {
-	type?: "membership" | "lootbox";
+	type?: "subscription" | "single";
+	hidden?: boolean;
 }
 
 export type CartItem = {
@@ -117,37 +118,37 @@ export default function StoreHome({ user }: PageProps) {
 
 	const addToCart = async (item: CartItem) => {
 		if (
-			item.metadata?.type === "membership" &&
+			item.metadata?.type === "subscription" &&
 			cartItems.filter(
-				(_item: CartItem) => _item.metadata?.type === "membership"
+				(_item: CartItem) => _item.metadata?.type === "subscription"
 			).length >= 1
 		)
 			return alert(
-				"Only one membership should be added to the cart. Remove the current membership item to add this one."
+				"Only one subscription should be added to the cart. Remove the current subscription item to add this one."
 			);
 
 		if (
-			item.metadata?.type === "membership" &&
+			item.metadata?.type === "subscription" &&
 			cartItems.filter(
-				(_item: CartItem) => _item.metadata?.type === "membership"
+				(_item: CartItem) => _item.metadata?.type === "subscription"
 			).length >= 1
 		)
 			return alert(
-				"Only one membership should be added to the cart. Remove the current membership item to add this one."
+				"Only one subscription should be added to the cart. Remove the current subscription item to add this one."
 			);
 
 		if (
-			item.metadata?.type !== "membership" &&
+			item.metadata?.type !== "subscription" &&
 			cartItems.filter(
-				(_item: CartItem) => _item.metadata?.type === "membership"
-			).length >= 1
+				(_item: CartItem) => _item.metadata?.type === "subscription"
+			).length >= subscriptions.length
 		)
 			return alert(
 				"If you are purchasing a subscription-modal based item, you may not also checkout with any other item during the same checkout session."
 			);
 
 		if (
-			item.metadata?.type === "membership" &&
+			item.metadata?.type === "subscription" &&
 			item.selectedPrice.interval!.length < 1
 		)
 			item.selectedPrice.interval = annualPricing ? "year" : "month";
@@ -163,7 +164,7 @@ export default function StoreHome({ user }: PageProps) {
 	};
 
 	const showProduct = (product: AnyProduct) => {
-		if (product.metadata.type === "membership") {
+		if (product.metadata.type === "subscription") {
 			setModalProps({
 				product,
 				annualPricing,

@@ -70,7 +70,7 @@ export default function CartItem({
 			</div>
 			<div className={clsx("flex items-center justify-center")}>
 				<div className={clsx(size === "small" ? "mr-5" : "mr-16")}>
-					{metadata?.type === "membership" ? (
+					{metadata?.type === "subscription" ? (
 						<Dropdown
 							content={
 								<div

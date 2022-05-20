@@ -48,7 +48,7 @@ export default function CartItemImmutable({
 								: unit_cost.toFixed(2)
 							: (unit_cost * quantity).toFixed(2)}
 					</p>
-					{metadata?.type === "membership" ? (
+					{metadata?.type === "subscription" ? (
 						<p className="text-sm leading-none text-light-600">
 							Billing period:{" "}
 							{toTitleCase(selectedPrice.interval!)}ly
