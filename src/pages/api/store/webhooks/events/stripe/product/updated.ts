@@ -91,6 +91,9 @@ export default async function (
 				.join("\n"),
 			inline: true,
 		});
+		await redis.del("store:products:subscriptions");
+	} else {
+		await redis.del("store:products:one-time");
 	}
 
 	if (metadata || product) {
