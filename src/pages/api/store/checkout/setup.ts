@@ -61,6 +61,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	);
 	let promotionalCode = await stripe.promotionCodes.list({
 		code: discountCode?.code,
+		active: true,
 	});
 	const discount: Stripe.PromotionCode = promotionalCode.data[0];
 
