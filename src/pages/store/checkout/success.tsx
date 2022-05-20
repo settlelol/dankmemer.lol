@@ -15,6 +15,7 @@ import { Icon as Iconify } from "@iconify/react";
 import PayPal from "src/util/paypal";
 import { OrdersRetrieveResponse } from "src/util/paypal/classes/Orders";
 import clsx from "clsx";
+import { redisConnect } from "src/util/redis";
 
 interface BuyerDetails {
 	discordId: string;
@@ -261,8 +262,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 			let items: InvoiceItems[] | InvoiceSubscription[] = [];
 
 			const paymentIntent = await stripe.paymentIntents.retrieve(
-				// @ts-ignore
-				invoice.payment_intent!.id
+				(invoice.payment_intent! as Stripe.PaymentIntent).id
 			);
 
 			let subscription: Stripe.Subscription | null = null;
@@ -284,7 +284,6 @@ export const getServerSideProps: GetServerSideProps = withSession(
 
 			for (let i = 0; i < invoiceItems.length; i++) {
 				const item = invoiceItems[i];
-				// @ts-ignore
 				const product = await stripe.products.retrieve(
 					item.price?.product as string
 				);
