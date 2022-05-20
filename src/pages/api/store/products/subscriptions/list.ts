@@ -13,6 +13,7 @@ interface Price {
 	id: string;
 	price: number;
 	interval: string;
+	metadata: any;
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
@@ -60,6 +61,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					id: prices[i].id,
 					price: prices[i].unit_amount!,
 					interval: prices[i].recurring?.interval!,
+					metadata: prices[i].metadata,
 				});
 			}
 			result.push({ ...products[i], prices: _prices });
