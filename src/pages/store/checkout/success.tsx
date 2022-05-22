@@ -103,8 +103,7 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 											className={clsx(
 												"flex flex-col",
 												JSON.parse(
-													invoice.metadata
-														.paymentIntent.isGift
+													invoice.metadata.isGift
 												)
 													? "w-1/2"
 													: "w-full"
@@ -127,8 +126,7 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 											</p>
 										</div>
 										{JSON.parse(
-											invoice.metadata.paymentIntent
-												.isGift
+											invoice.metadata.isGift
 										) && (
 											<div className="flex w-2/5 flex-col">
 												<h3 className="font-montserrat text-base font-bold text-black dark:text-white">
@@ -140,7 +138,6 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 													<span className="text-dank-200">
 														{
 															invoice.metadata
-																.paymentIntent
 																.giftFor
 														}
 													</span>
@@ -330,10 +327,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 						items,
 						subtotal: invoice.subtotal,
 						total: invoice.total,
-						metadata: {
-							invoice: invoice.metadata,
-							paymentIntent: paymentIntent.metadata,
-						},
+						metadata: invoice.metadata,
 						salesTax,
 					},
 					user,

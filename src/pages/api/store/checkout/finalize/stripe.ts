@@ -8,7 +8,6 @@ import {
 	PaymentIntentItemDiscount,
 	PaymentIntentItemResult,
 } from "../../webhooks/stripe";
-import { PurchaseRecord } from "./paypal";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	if (req.method?.toLowerCase() !== "patch") {
@@ -48,14 +47,12 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		expand: ["payment_intent.payment_method", "discounts"],
 	});
 
-	let metadata;
-	let paymentIntentData: Stripe.PaymentIntentUpdateParams = {};
 	let customerData: Stripe.CustomerUpdateParams = {};
-	if (isGift) {
-		metadata = { isGift, giftFor };
-	} else if (!isGift) {
-		metadata = { isGift };
-	}
+	let metadata = {
+		boughtByDiscordId: user.id,
+		isGift,
+		...(isGift && { giftFor }),
+	};
 
 	const customer = (await stripe.customers.retrieve(
 		_customer._id
@@ -124,11 +121,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			}
 		);
 
-		paymentIntentData["metadata"] = metadata;
 		await stripe.customers.update(customer.id, customerData);
-		await stripe.paymentIntents.update(
-			(invoice.payment_intent! as Stripe.PaymentIntent).id,
-			paymentIntentData
+		await stripe.invoices.update(
+			(invoice.payment_intent! as Stripe.PaymentIntent).invoice as string,
+			{ metadata }
 		);
 		await db.collection("customers").updateOne(
 			{ discordId: user.id },
