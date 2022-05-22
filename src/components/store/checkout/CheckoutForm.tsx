@@ -144,15 +144,6 @@ export default function CheckoutForm({
 				if (data.cards.other) setSavedPaymentMethods(data.cards.other);
 			}
 		);
-
-		window.addEventListener("beforeunload", (e) => {
-			e.preventDefault();
-			return cancelInvoiceAndPayment();
-		});
-
-		return () => {
-			cancelInvoiceAndPayment();
-		};
 	}, []);
 
 	useEffect(() => {
@@ -200,18 +191,6 @@ export default function CheckoutForm({
 	useEffect(() => {
 		if (selectedPaymentMethod !== "") setSelectedPaymentMethod("");
 	}, [nameOnCard, cardNumberInput, cardExpiryInput, cardCvcInput]);
-
-	const cancelInvoiceAndPayment = () => {
-		if (!successfulCheckout.current) {
-			axios(
-				`/api/store/checkout/cancel?invoice=${_invoiceId.current}`
-			).catch(() => {
-				console.error(
-					"Failed to cancel payment. Continuing session uninterrupted."
-				);
-			});
-		}
-	};
 
 	const setupIntegratedWallet = async () => {
 		if (!stripe) return;
