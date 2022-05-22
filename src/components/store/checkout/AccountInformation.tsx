@@ -372,7 +372,6 @@ export default function AccountInformation({
 											plan_id:
 												cartData[0].selectedPrice
 													.metadata.paypalPlan,
-											custom_id: "",
 										})
 									}
 									onApprove={(data: any, actions: any) => {
