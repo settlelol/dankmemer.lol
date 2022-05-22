@@ -130,10 +130,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		if (discountCode && discount) {
 			discounts.push({ coupon: discount.coupon.id });
 		}
-		if (pendingInvoice.total >= 20) {
+		if (pendingInvoice.total / 100 >= 20) {
 			discounts.push({ coupon: "THRESHOLD" });
 		}
-
 		await stripe.invoices.update(pendingInvoice.id, {
 			discounts,
 		});
