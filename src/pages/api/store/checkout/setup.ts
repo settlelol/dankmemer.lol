@@ -56,14 +56,19 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		}
 	}
 
+	let discount: Stripe.PromotionCode | null = null;
 	let discountCode: AppliedDiscount | undefined = await req.session.get(
 		"discountCode"
 	);
-	let promotionalCode = await stripe.promotionCodes.list({
-		code: discountCode?.code,
-		active: true,
-	});
-	const discount: Stripe.PromotionCode = promotionalCode.data[0];
+
+	if (discountCode) {
+		let promotionalCode = await stripe.promotionCodes.list({
+			code: discountCode?.code,
+			active: true,
+		});
+
+		discount = promotionalCode.data[0];
+	}
 
 	try {
 		if (cart.length === 1 && cart[0].metadata?.type === "subscription") {
@@ -71,7 +76,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				customer: customer?.id!,
 				payment_behavior: "default_incomplete",
 				expand: ["latest_invoice.payment_intent"],
-				coupon: discount.coupon.id ?? "",
+				...(discount && { coupon: discount.coupon.id }),
 				items: [{ price: cart[0].selectedPrice.id }],
 			});
 
@@ -122,7 +127,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		});
 
 		let discounts: Stripe.InvoiceUpdateParams.Discount[] = [];
-		if (discountCode) {
+		if (discountCode && discount) {
 			discounts.push({ coupon: discount.coupon.id });
 		}
 		if (pendingInvoice.total >= 20) {
