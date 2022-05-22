@@ -377,18 +377,13 @@ export const getServerSideProps: GetServerSideProps = withSession(
 							parseFloat(order.purchase_units[0].amount.value!) *
 							100,
 						metadata: {
-							invoice: "invoice.metadata",
-							paymentIntent: {
-								isGift: JSON.parse(
-									order.purchase_units[0].custom_id!.split(
-										":"
-									)[2]
-								),
-								giftFor:
-									order.purchase_units[0].custom_id!.split(
-										":"
-									)[1],
-							},
+							isGift: JSON.parse(
+								order.purchase_units[0].custom_id!.split(":")[2]
+							),
+							giftFor:
+								order.purchase_units[0].custom_id!.split(
+									":"
+								)[1],
 						},
 						salesTax,
 					},
