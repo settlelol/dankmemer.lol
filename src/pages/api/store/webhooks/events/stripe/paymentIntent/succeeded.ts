@@ -44,34 +44,38 @@ export default async function (
 		});
 	}
 
-	const items: PaymentIntentItemResult[] = invoice.lines.data.map(
-		(lineItem: Stripe.InvoiceLineItem) => {
-			if (lineItem.description === null) {
-				return {
-					name: "SALESTAX",
-					price: lineItem.amount / 100,
-					quantity: 1,
-					type: lineItem.price?.type!,
-				};
-			} else {
-				const usedDiscounts =
-					lineItem.discount_amounts
-						?.filter((da) => da.amount > 0)
-						.map((discount) => discount.discount) || [];
-				return {
-					name: lineItem.description,
-					price: lineItem.amount / 100,
-					quantity: lineItem.quantity!,
-					type: lineItem.price?.type!,
-					discounts: usedDiscounts.map((usedDiscount) => ({
-						...discounts.find(
-							(discount) => discount.id === usedDiscount
-						),
-					})) as PaymentIntentItemDiscount[],
-				};
-			}
+	const items: PaymentIntentItemResult[] = [];
+	for (let lineItem of invoice.lines.data) {
+		if (lineItem.description === null) {
+			items.push({
+				name: "SALESTAX",
+				price: lineItem.amount / 100,
+				quantity: 1,
+				type: lineItem.price?.type!,
+			});
+		} else {
+			const productName = (
+				await stripe.products.retrieve(
+					lineItem.price!.product as string
+				)
+			).name;
+			const usedDiscounts =
+				lineItem.discount_amounts
+					?.filter((da) => da.amount > 0)
+					.map((discount) => discount.discount) || [];
+			items.push({
+				name: productName,
+				price: lineItem.amount / 100,
+				quantity: lineItem.quantity!,
+				type: lineItem.price?.type!,
+				discounts: usedDiscounts.map((usedDiscount) => ({
+					...discounts.find(
+						(discount) => discount.id === usedDiscount
+					),
+				})) as PaymentIntentItemDiscount[],
+			});
 		}
-	);
+	}
 
 	const fields: APIEmbedField[] = [
 		{
@@ -91,7 +95,9 @@ export default async function (
 	) {
 		fields.push({
 			name: "(Gift) Purchased for",
-			value: `<@!${paymentIntent.metadata.giftFor}> (${paymentIntent.metadata.giftFor})`,
+			value: `<@!${invoice!.metadata!.giftFor}> (${
+				paymentIntent.metadata.giftFor
+			})`,
 			inline: true,
 		});
 		fields.push({ name: "_ _", value: "_ _", inline: true }); // Add an invisible embed field
@@ -108,7 +114,7 @@ export default async function (
 		inline: true,
 	});
 
-	if (discounts) {
+	if (discounts.length >= 1) {
 		fields.push({
 			name: "Discounts applied",
 			value: `${discounts
