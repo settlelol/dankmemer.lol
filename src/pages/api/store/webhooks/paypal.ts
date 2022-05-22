@@ -10,6 +10,7 @@ import { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10";
 import { default as CaptureCompleted } from "./events/paypal/payment/capture/completed";
 import { default as PlanCreated } from "./events/paypal/billing/plan/created";
 import { default as ProductCreated } from "./events/paypal/product/created";
+import { default as SaleCompleted } from "./events/paypal/payment/sale/completed";
 
 export interface EventResponse {
 	result: RESTPostAPIWebhookWithTokenJSONBody | null;
@@ -49,6 +50,14 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			case WebhookEvents.PRODUCT_CREATED:
 				({ result, error, status } = await ProductCreated(event));
 				break;
+			case WebhookEvents.SALE_COMPLETED:
+				({ result, error } = await SaleCompleted(event, paypal));
+				break;
+			default:
+				({ error, status } = {
+					error: `Not expected to handle event type, ${event.type}`,
+					status: 200,
+				});
 		}
 
 		await redis.set(

@@ -38,6 +38,7 @@ export enum WebhookEvents {
 	CAPTURE_REVERSED = "PAYMENT.CAPTURE.REVERSED",
 	PLAN_CREATED = "BILLING.PLAN.CREATED",
 	PRODUCT_CREATED = "CATALOG.PRODUCT.CREATED",
+	SALE_COMPLETED = "PAYMENT.SALE.COMPLETED",
 }
 
 export interface PayPalEvent {
@@ -47,6 +48,7 @@ export interface PayPalEvent {
 
 export interface PayPalWebhookResource {
 	id: string;
+	custom?: string; // Custom assigned id to the resource
 	update_time: string;
 	create_time: string;
 	purchase_units?: PurchaseUnit[];
@@ -56,6 +58,8 @@ export interface PayPalWebhookResource {
 	intent?: string;
 	payer?: Payer;
 	status?: string;
+	plan_id?: string;
+	billing_agreement_id?: string;
 }
 
 export default class Webhooks {
