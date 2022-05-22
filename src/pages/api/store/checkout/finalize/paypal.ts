@@ -1,6 +1,8 @@
 import { ObjectId } from "mongodb";
 import { NextApiResponse } from "next";
+import { TIME } from "src/constants";
 import { dbConnect } from "src/util/mongodb";
+import { redisConnect } from "src/util/redis";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { NextIronRequest, withSession } from "../../../../../util/session";
@@ -28,6 +30,7 @@ interface RequestBody {
 	isGift: boolean;
 	giftFor: string;
 	subscription?: string;
+	customId?: string;
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
@@ -55,6 +58,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		isGift,
 		giftFor,
 		subscription,
+		customId,
 	}: RequestBody = req.body;
 
 	if (status !== "COMPLETED" && status !== "ACTIVE") {
@@ -64,6 +68,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	const db = await dbConnect();
+	const redis = await redisConnect();
 	const stripe = stripeConnect();
 	const _customer = await db
 		.collection("customers")
@@ -71,10 +76,27 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	if (!_customer) {
 		return res.status(404).json({
-			error: "Unable to find customer. If you do not receive your purchased goods please contact support and reference the following invoice id",
+			error: "Unable to find customer. If you do not receive your purchased goods please contact support and reference the following order id",
 			orderID,
 		});
 	}
+
+	if (subscription) {
+		try {
+			await redis.set(customId!, orderID, "PX", TIME.hour * 3);
+		} catch (e) {
+			console.error(e);
+			return res.status(500).json({
+				error: "Unable to cache custom id for later use. Critical error.",
+			});
+		}
+	}
+
+	let metadata: Stripe.Emptyable<Stripe.MetadataParam> = {
+		boughtByDiscordId: user.id,
+		isGift: JSON.stringify(isGift),
+		...(isGift && { giftFor }),
+	};
 
 	const invoice = await stripe.invoices.retrieve(stripeInvoice, {
 		expand: ["discounts"],
@@ -156,6 +178,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			purchaseTime: new Date().getTime(),
 			...(subscription && { subscriptionId: subscription }),
 		});
+
+		await stripe.invoices.update(invoice.id, { metadata });
+
 		await stripe.invoices.voidInvoice(invoice.id);
 		req.session.unset("cart");
 		req.session.unset("discountCode");

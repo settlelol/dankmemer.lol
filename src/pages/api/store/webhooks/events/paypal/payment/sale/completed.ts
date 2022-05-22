@@ -1,6 +1,8 @@
 import { APIEmbedField } from "discord-api-types/v10";
+import { dbConnect } from "src/util/mongodb";
 import PayPal from "src/util/paypal";
 import { PayPalEvent } from "src/util/paypal/classes/Webhooks";
+import { redisConnect } from "src/util/redis";
 import { stripeConnect } from "src/util/stripe";
 import { EventResponse } from "../../../../paypal";
 
@@ -9,7 +11,7 @@ export default async function (
 	paypal: PayPal
 ): Promise<EventResponse> {
 	let fields: APIEmbedField[] = [];
-
+	console.log(event);
 	if (!event.data.custom) {
 		return {
 			result: null,
@@ -26,12 +28,31 @@ export default async function (
 	const purchasedFor = event.data.custom!.split(":")[2];
 	const isGift = purchasedBy !== purchasedFor;
 
+	const db = await dbConnect();
+	const redis = await redisConnect();
 	const stripe = stripeConnect();
 	const price = (
 		await stripe.prices.search({
 			query: `active: 'true' AND metadata['paypalPlan']: '${plan}'`,
 		})
 	).data[0];
+
+	try {
+		const orderId = await redis.get(event.data.custom);
+		await db.collection("purchases").updateOne(
+			{ _id: orderId },
+			{
+				billingAgreement: event.data.billing_agreement_id,
+				paymentSaleCompleted: event.data.id,
+			}
+		);
+		await redis.del(event.data.custom);
+	} catch (e) {
+		console.error(e);
+		console.error(
+			`Unable to retrieve or update PayPal purchase record for order associated with billing agreement ${event.data.billing_agreement_id}, custom id is ${event.data.custom}`
+		);
+	}
 
 	if (!price) {
 		return {

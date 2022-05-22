@@ -54,8 +54,7 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 	const router = useRouter();
 
 	useEffect(() => {
-		// Use this when page is done ;)
-		// router.replace("/store/checkout/success")
+		router.replace("/store/checkout/success", undefined, { shallow: true });
 	}, []);
 
 	return (
@@ -333,12 +332,105 @@ export const getServerSideProps: GetServerSideProps = withSession(
 					user,
 				},
 			};
-		} else if (paymentGateway === "paypal") {
+		} else if (
+			paymentGateway === "paypal" &&
+			ctx.query.invoice &&
+			ctx.query.id
+		) {
+			const order = await paypal.orders.retrieve(ctx.query.id.toString());
+			const invoice = await stripe.invoices.retrieve(
+				ctx.query.invoice.toString(),
+				{ expand: ["payment_intent"] }
+			);
+
+			const { data: invoiceItems } = await stripe.invoices.listLineItems(
+				invoice.id
+			);
+			let items: InvoiceItems[] | InvoiceSubscription[] = [];
+
+			const paymentIntent = await stripe.paymentIntents.retrieve(
+				(invoice.payment_intent! as Stripe.PaymentIntent).id
+			);
+
+			let subscription: Stripe.Subscription | null = null;
+			if (invoiceItems[0].type === "subscription") {
+				subscription = await stripe.subscriptions.retrieve(
+					// @ts-ignore
+					invoiceItems[0].subscription
+				);
+			}
+
+			if (invoice.metadata!.boughtByDiscordId !== user.id) {
+				return {
+					redirect: {
+						destination: "/store",
+						permanent: false,
+					},
+				};
+			}
+
+			for (let i = 0; i < invoiceItems.length; i++) {
+				const item = invoiceItems[i];
+				const product = await stripe.products.retrieve(
+					item.price?.product as string
+				);
+
+				if (product.name.includes("Product for invoice item ")) {
+					salesTax = item.amount;
+				} else {
+					if (item.type === "invoiceitem") {
+						items.push({
+							type: item.type,
+							name: product.name,
+							price: item.price?.unit_amount!,
+							quantity: item.quantity!,
+							metadata: product.metadata,
+							image: product.images[0] || "",
+						});
+					} else {
+						items.push({
+							type: item.type,
+							name: product.name,
+							price: subscription!.items.data[0].price
+								.unit_amount!,
+							quantity: 1,
+							interval:
+								subscription!.items.data[0].price.recurring
+									?.interval!,
+							endsAt: subscription!.current_period_end,
+							metadata: product.metadata,
+							image: product.images[0],
+						});
+					}
+				}
+			}
+
+			return {
+				props: {
+					paymentGateway,
+					invoice: {
+						id: ctx.query.id,
+						buyer: {
+							discordId: invoice.metadata!.boughtByDiscordId,
+							email: (order as OrdersRetrieveResponse).payer
+								.email_address,
+						},
+						items,
+						subtotal: invoice.subtotal,
+						total: invoice.total,
+						metadata: invoice.metadata,
+						salesTax,
+					},
+					user,
+				},
+			};
+		} else {
 			const order = (await paypal.orders.retrieve(
 				ctx.query.id.toString()
 			)) as OrdersRetrieveResponse;
 
 			let items: InvoiceItems[] | InvoiceSubscription[] = [];
+
 			const purchasedItems = order.purchase_units[0].items;
 			for (let i = 0; purchasedItems.length > i; i++) {
 				const item = purchasedItems[i];

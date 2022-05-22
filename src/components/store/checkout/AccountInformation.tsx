@@ -6,7 +6,7 @@ import Button from "src/components/ui/Button";
 import Link from "next/link";
 import { PaymentRequest, Stripe } from "@stripe/stripe-js";
 import { PaymentRequestButtonElement } from "@stripe/react-stripe-js";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PayPalButton } from "react-paypal-button-v2";
 import { CartItem } from "src/pages/store";
 import { useRouter } from "next/router";
@@ -73,6 +73,7 @@ export default function AccountInformation({
 }: Props) {
 	const router = useRouter();
 	const { theme } = useTheme();
+	const loadedIn = useRef(new Date().getTime());
 
 	const [validGiftRecipient, setValidGiftRecipient] = useState(false);
 	const [giftRecipient, setGiftRecipient] = useState("");
@@ -185,6 +186,7 @@ export default function AccountInformation({
 	};
 
 	const paypalSubscriptionSuccess = (details: any, data: any) => {
+		console.log(data);
 		axios({
 			method: "PATCH",
 			url: `/api/store/checkout/finalize/paypal?orderID=${data.orderID}`,
@@ -193,10 +195,15 @@ export default function AccountInformation({
 				status: details.status,
 				isGift,
 				giftFor: giftRecipient,
-				subscription: data.subscriptionId,
+				subscription: data.subscriptionID,
+				customId: `${
+					cartData[0].selectedPrice.metadata.paypalPlan
+				}:${userId}:${giftRecipient || userId}:${loadedIn.current}`,
 			},
 		}).then(() => {
-			alert("Subscribed, now something will happen later.");
+			router.push(
+				`/store/checkout/success?gateway=paypal&id=${data.orderID}&invoice=${invoiceId}`
+			);
 		});
 	};
 
@@ -377,7 +384,7 @@ export default function AccountInformation({
 													.metadata.paypalPlan
 											}:${userId}:${
 												giftRecipient || userId
-											}:${new Date().getTime()}`,
+											}:${loadedIn.current}`,
 										})
 									}
 									onApprove={(data: any, actions: any) => {
