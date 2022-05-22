@@ -10,11 +10,11 @@ import { createPayPal } from "src/util/paypal/PayPalEndpoint";
 import { PayPalCartItem } from "src/util/paypal/types";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
-import { EventResponse } from "../../../paypal";
+import { EventResponse } from "../../../../paypal";
 import {
 	PaymentIntentItemDiscount,
 	PaymentIntentItemResult,
-} from "../../../stripe";
+} from "../../../../stripe";
 
 export default async function (
 	event: PayPalEvent,
@@ -30,7 +30,7 @@ export default async function (
 	const { data }: { data: PayPalWebhookResource } = await httpClient(
 		orderUrl.href
 	);
-	const cartItems: PayPalCartItem[] = data.purchase_units[0].items.filter(
+	const cartItems: PayPalCartItem[] = data.purchase_units![0].items.filter(
 		(item: PayPalCartItem) => item.sku.split(":")[0] !== "SALESTAX"
 	);
 
@@ -68,10 +68,10 @@ export default async function (
 		}
 	}
 
-	const total = data.purchase_units[0].amount.value;
-	const purchasedBy = data.purchase_units[0].custom_id.split(":")[0];
-	const purchasedFor = data.purchase_units[0].custom_id.split(":")[1];
-	const isGift = JSON.parse(data.purchase_units[0].custom_id.split(":")[2]);
+	const total = data.purchase_units![0].amount.value;
+	const purchasedBy = data.purchase_units![0].custom_id.split(":")[0];
+	const purchasedFor = data.purchase_units![0].custom_id.split(":")[1];
+	const isGift = JSON.parse(data.purchase_units![0].custom_id.split(":")[2]);
 
 	const db = await dbConnect();
 	let fields: APIEmbedField[] = [
