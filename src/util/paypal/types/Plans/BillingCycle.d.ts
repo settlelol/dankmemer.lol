@@ -13,6 +13,15 @@ export interface BillingCycle {
 	total_cycles?: number;
 }
 
+export interface CycleExecution {
+	tenure_type: keyof typeof BillingType;
+	sequence: BillingType;
+	cycles_completed: number;
+	cycles_remaining?: number;
+	current_pricing_scheme_version?: number;
+	total_cycles?: number;
+}
+
 interface PricingScheme {
 	version?: number;
 	fixed_price?: PaymentAmount;

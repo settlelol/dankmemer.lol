@@ -3,7 +3,7 @@ import { PaymentAmount, PayPalResponseError } from "../types";
 import { BillingCycle } from "../types/Plans/BillingCycle";
 import { LinkDescription } from "./Products";
 
-interface Plan {
+export interface Plan {
 	id: string;
 	product_id: string;
 	name: string;

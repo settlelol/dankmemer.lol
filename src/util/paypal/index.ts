@@ -3,6 +3,7 @@ import Webhooks from "./classes/Webhooks";
 import Simulations from "./classes/Simulations";
 import Orders from "./classes/Orders";
 import Plans from "./classes/Plans";
+import Subscriptions from "./classes/Subscriptions";
 
 if (!process.env.PAYPAL_CLIENT_ID && !process.env.PAYPAL_CLIENT_SECRET) {
 	throw new Error(
@@ -27,6 +28,7 @@ export default class PayPal {
 	orders: Orders;
 	webhooks: Webhooks;
 	simulate: Simulations;
+	subscriptions: Subscriptions;
 
 	constructor() {
 		this.products = new Products();
@@ -34,5 +36,6 @@ export default class PayPal {
 		this.orders = new Orders();
 		this.webhooks = new Webhooks();
 		this.simulate = new Simulations();
+		this.subscriptions = new Subscriptions();
 	}
 }
