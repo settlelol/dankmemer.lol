@@ -48,7 +48,7 @@
 		"sass": "^1.42.1",
 		"socket.io-client": "^4.4.0",
 		"string.prototype.replaceall": "^1.0.6",
-		"stripe": "^8.197.0"
+		"stripe": "^9.2.0"
 	},
 	"devDependencies": {
 		"@tailwindcss/line-clamp": "^0.3.0",
