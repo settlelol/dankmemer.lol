@@ -17,6 +17,8 @@ import { default as CouponCreated } from "./events/stripe/coupon/created";
 import { default as CouponDeleted } from "./events/stripe/coupon/deleted";
 import { default as CouponUpdated } from "./events/stripe/coupon/updated";
 
+import { default as CustomerSubscriptionDeleted } from "./events/stripe/customer/subscription/deleted";
+
 import { default as PaymentIntentSucceeded } from "./events/stripe/paymentIntent/succeeded";
 
 import { default as PriceCreated } from "./events/stripe/price/created";
@@ -126,6 +128,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			break;
 		case "coupon.updated":
 			({ result } = await CouponUpdated(event, stripe));
+			break;
+		case "customer.subscription.deleted":
+			({ result } = await CustomerSubscriptionDeleted(event, stripe));
 			break;
 		case "payment_intent.succeeded":
 			({ result } = await PaymentIntentSucceeded(event, stripe));
