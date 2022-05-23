@@ -38,6 +38,7 @@ interface Props {
 	itemsTotal: string;
 	totalCost: string;
 	discounts: DiscountsApplied;
+	showWarning: any;
 	integratedWalletButtonType: "check-out" | "subscribe";
 }
 
@@ -70,6 +71,7 @@ export default function AccountInformation({
 	subtotalCost,
 	totalCost,
 	discounts,
+	showWarning,
 	integratedWalletButtonType,
 }: Props) {
 	const router = useRouter();
@@ -89,6 +91,15 @@ export default function AccountInformation({
 			cartData[0].selectedPrice.type === "recurring"
 		) {
 			setIsGift(false);
+		}
+
+		if (
+			selectedPaymentOption === "PayPal" &&
+			cartData[0].selectedPrice.type === "recurring"
+		) {
+			showWarning(true);
+		} else {
+			showWarning(false);
 		}
 	}, [selectedPaymentOption, isGift]);
 

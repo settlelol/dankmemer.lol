@@ -14,6 +14,7 @@ import CartItemImmutable from "src/components/store/checkout/CartItemImmutable";
 import CheckoutForm from "src/components/store/checkout/CheckoutForm";
 import StoreBreadcrumb from "src/components/store/StoreBreadcrumb";
 import { Session } from "next-iron-session";
+import Link from "next/link";
 
 const _stripeElementsOptions: StripeElementsOptions = {};
 
@@ -41,6 +42,7 @@ export default function Checkout({ cartData, user }: Props) {
 		useState<StripeElementsOptions>();
 
 	const [subtotalCost, setSubtotalCost] = useState<string>("");
+	const [displayWarning, setDisplayWarning] = useState(false);
 
 	useEffect(() => {
 		setSubtotalCost(
@@ -75,6 +77,29 @@ export default function Checkout({ cartData, user }: Props) {
 						<Title size="big">Checkout</Title>
 					</div>
 					<StoreBreadcrumb currentPage="checkout" />
+					{displayWarning && (
+						<div className="my-5 grid w-full place-items-center rounded-lg border-2 border-red-500 bg-red-500/50 py-2 text-black dark:bg-red-500/25 dark:text-white">
+							<p className="max-w-3xl text-center">
+								Due to specific limitations, we are unable to
+								offer discounts for subscriptions, nor the
+								ability to gift subscriptions to other users
+								through PayPal. We encourage you to{" "}
+								<Link href="#">
+									<a
+										className="underline"
+										onClick={() =>
+											alert(
+												"Go to a blog post or something"
+											)
+										}
+									>
+										read more about it here
+									</a>
+								</Link>
+								.
+							</p>
+						</div>
+					)}
 					<div className="flex flex-1 flex-col justify-between lg:flex-row">
 						<CheckoutForm
 							clientSecret={clientSecret}
@@ -86,6 +111,7 @@ export default function Checkout({ cartData, user }: Props) {
 								parseFloat(subtotalCost) +
 								parseFloat(subtotalCost) * 0.0675
 							).toFixed(2)}
+							showWarning={setDisplayWarning}
 							cart={cartData}
 						/>
 						<div className="relative hidden w-full lg:ml-5 lg:block">
