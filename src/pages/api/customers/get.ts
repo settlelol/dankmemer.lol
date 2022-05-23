@@ -1,10 +1,31 @@
 import { Db } from "mongodb";
 import { NextApiResponse } from "next";
-import { AnyProduct } from "src/pages/store";
 import { dbConnect } from "src/util/mongodb";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { NextIronRequest, withSession } from "../../../util/session";
+
+export interface Customer {
+	_id: string;
+	discordId: string;
+	purchases: CustomerPurchases[];
+	subscription?: CustomerSubscription;
+}
+
+interface CustomerSubscription {
+	provider: "stripe" | "paypal";
+	id: string;
+	gifted: boolean;
+	giftedBy?: string;
+	purchaseTime: number;
+	expiryTime: number;
+	automaticRenewal: boolean;
+}
+
+interface CustomerPurchases {
+	type: "stripe" | "paypal";
+	id: string;
+}
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	if (req.method?.toLowerCase() !== "get") {
@@ -30,9 +51,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	const db: Db = await dbConnect();
-	const _customer = await db
+	const _customer = (await db
 		.collection("customers")
-		.findOne({ discordId: user.id });
+		.findOne({ discordId: user.id })) as Customer;
 
 	if (!_customer) {
 		return res
@@ -42,7 +63,12 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	const stripe = stripeConnect();
 
-	if (sensitive && user.id !== req.query.id) {
+	if (!sensitive) {
+		return res.status(200).json({
+			id: _customer._id,
+			isSubscribed: _customer.subscription ? true : false,
+		});
+	} else if (sensitive && user.id !== req.query.id) {
 		return res
 			.status(401)
 			.json({ error: "You cannot access this information." });
@@ -64,6 +90,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			});
 
 		return res.status(200).json({
+			...(_customer.subscription && {
+				activeSubscription: _customer.subscription,
+			}),
 			cards: {
 				default: defaultPaymentMethod
 					? {

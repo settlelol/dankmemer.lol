@@ -32,6 +32,8 @@ import AccountInformation from "./AccountInformation";
 import Tooltip from "src/components/ui/Tooltip";
 import { Icon as Iconify } from "@iconify/react";
 import clsx from "clsx";
+import { toast } from "react-toastify";
+import Link from "next/link";
 
 interface Props {
 	clientSecret: string;
@@ -228,6 +230,37 @@ export default function CheckoutForm({
 		if (!stripe || !stripeElements || !canCheckout) return;
 		setProcessingPayment(true);
 
+		const { data: res } = await axios(
+			`/api/customers/get?id=${isGift ? giftFor : userId}`
+		);
+
+		if (res.isSubscribed) {
+			setProcessingPayment(false);
+			return toast.info(
+				<p>
+					{isGift ? <>That user</> : <>You</>} already{" "}
+					{isGift ? <>has</> : <>have</>} an active subscription.{" "}
+					{isGift ? (
+						<></>
+					) : (
+						<>
+							If you wish to manage your subscription, you can do
+							so{" "}
+							<Link href="/dashboard/account">
+								<a className="underline">here</a>
+							</Link>
+							.
+						</>
+					)}
+				</p>,
+				{
+					theme: "colored",
+					position: "top-center",
+					hideProgressBar: true,
+				}
+			);
+		}
+
 		const result = await stripe.confirmCardPayment(clientSecret, {
 			setup_future_usage: saveCardAsDefault ? "off_session" : null,
 			receipt_email: receiptEmail,
@@ -241,8 +274,11 @@ export default function CheckoutForm({
 
 		if (result.error) {
 			setProcessingPayment(false);
-			console.error(result.error);
-			alert("111111 SOMETHING WENT WRONG OH NO!!!!!!!!!");
+			toast.error(result.error.message, {
+				position: "top-center",
+				theme: "colored",
+				hideProgressBar: true,
+			});
 		} else {
 			completedPayment(isGift, giftFor);
 		}

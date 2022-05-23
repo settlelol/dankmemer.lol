@@ -12,9 +12,12 @@ import {
 } from "../../webhooks/stripe";
 
 export interface PurchaseRecord {
-	id: string;
-	quantity: number;
-	discounts: (Stripe.Discount | Stripe.DeletedDiscount)[];
+	_id: string;
+	isGift: boolean;
+	giftFor?: string;
+	items: PaymentIntentItemResult[];
+	purchaseTime: number;
+	subscriptionId?: string;
 }
 
 interface RequestBody {
