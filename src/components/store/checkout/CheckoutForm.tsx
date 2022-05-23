@@ -135,7 +135,7 @@ export default function CheckoutForm({
 				return;
 			});
 
-		axios(`/api/store/customers/retrieve?id=${userId}&sensitive=true`).then(
+		axios(`/api/customers/get?id=${userId}&sensitive=true`).then(
 			({ data }) => {
 				if (data.cards.default) {
 					setDefaultPaymentMethod(data.cards.default);
