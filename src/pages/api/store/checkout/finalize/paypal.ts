@@ -2,10 +2,13 @@ import { ObjectId } from "mongodb";
 import { NextApiResponse } from "next";
 import { TIME } from "src/constants";
 import { dbConnect } from "src/util/mongodb";
+import PayPal from "src/util/paypal";
+import { createPayPal } from "src/util/paypal/PayPalEndpoint";
 import { redisConnect } from "src/util/redis";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { NextIronRequest, withSession } from "../../../../../util/session";
+import paypal from "../../webhooks/paypal";
 import {
 	PaymentIntentItemDiscount,
 	PaymentIntentItemResult,
@@ -149,8 +152,38 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			}
 		) as PaymentIntentItemResult[];
 
+		if (subscription) {
+			const paypal = new PayPal();
+			const subscriptionInfo = await paypal.subscriptions.get(
+				subscription
+			);
+			await db.collection("customers").updateOne(
+				{
+					discordId: isGift ? giftFor : user.id,
+				},
+				{
+					$set: {
+						subscription: {
+							provider: "paypal",
+							id: subscription,
+							gifted: isGift,
+							...(isGift && { giftedBy: user.id }),
+							purchaseTime: new Date().getTime(),
+							expiryTime: new Date(
+								subscriptionInfo.billing_info?.next_billing_time!
+							).getTime(),
+							automaticRenewal: true,
+						},
+					},
+				},
+				{ upsert: true }
+			);
+		}
+
 		await db.collection("customers").updateOne(
-			{ discordId: user.id },
+			{
+				discordId: user.id,
+			},
 			{
 				$push: {
 					purchases: {
@@ -160,6 +193,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				},
 			}
 		);
+
 		await db.collection("purchases").insertOne({
 			_id: orderID as unknown as ObjectId,
 			isGift,

@@ -53,26 +53,26 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const db: Db = await dbConnect();
 	const _customer = (await db
 		.collection("customers")
-		.findOne({ discordId: user.id })) as Customer;
-
-	if (!_customer) {
-		return res
-			.status(404)
-			.json({ error: "Requested user was not found in the database." });
-	}
+		.findOne({ discordId: req.query.id })) as Customer;
 
 	const stripe = stripeConnect();
 
 	if (!sensitive) {
 		return res.status(200).json({
-			id: _customer._id,
-			isSubscribed: _customer.subscription ? true : false,
+			id: _customer ? _customer._id : req.query.id,
+			isSubscribed: _customer && _customer.subscription ? true : false,
 		});
 	} else if (sensitive && user.id !== req.query.id) {
 		return res
 			.status(401)
 			.json({ error: "You cannot access this information." });
 	} else if (sensitive && user.id === req.query.id) {
+		if (!_customer) {
+			return res.status(404).json({
+				error: "Requested user was not found in the database.",
+			});
+		}
+
 		const customer = (await stripe.customers.retrieve(_customer._id, {
 			expand: ["invoice_settings.default_payment_method"],
 		})) as Stripe.Customer;

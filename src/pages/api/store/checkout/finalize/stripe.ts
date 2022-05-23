@@ -47,6 +47,8 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		expand: ["payment_intent.payment_method", "discounts"],
 	});
 
+	const subscription = invoice.billing_reason === "subscription_create";
+
 	let customerData: Stripe.CustomerUpdateParams = {};
 	let metadata = {
 		boughtByDiscordId: user.id,
@@ -126,6 +128,32 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			(invoice.payment_intent! as Stripe.PaymentIntent).invoice as string,
 			{ metadata }
 		);
+
+		if (subscription) {
+			const subscriptionInfo = await stripe.subscriptions.retrieve(
+				invoice.subscription as string
+			);
+			await db.collection("customers").updateOne(
+				{
+					discordId: isGift ? giftFor : user.id,
+				},
+				{
+					$set: {
+						subscription: {
+							provider: "stripe",
+							id: subscriptionInfo.id,
+							gifted: isGift,
+							...(isGift && { giftedBy: user.id }),
+							purchaseTime: subscriptionInfo.current_period_end,
+							expiryTime: invoice.period_end,
+							automaticRenewal: true,
+						},
+					},
+				},
+				{ upsert: true }
+			);
+		}
+
 		await db.collection("customers").updateOne(
 			{ discordId: user.id },
 			{
