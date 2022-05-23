@@ -82,6 +82,16 @@ export default function AccountInformation({
 	const [receiptEmail, setReceiptEmail] = useState(userEmail);
 	const [acceptedTerms, setAcceptedTerms] = useState(false);
 
+	useEffect(() => {
+		if (
+			selectedPaymentOption === "PayPal" &&
+			isGift &&
+			cartData[0].selectedPrice.type === "recurring"
+		) {
+			setIsGift(false);
+		}
+	}, [selectedPaymentOption, isGift]);
+
 	// Remade to fit new store!
 	const createPayment = () => {
 		const totalWithTax = (
@@ -275,29 +285,47 @@ export default function AccountInformation({
 								isGift
 									? "bg-dank-300 text-white"
 									: "bg-black/10 text-neutral-600 dark:bg-black/30 dark:text-neutral-400",
+								selectedPaymentOption === "PayPal" &&
+									cartData[0].selectedPrice.type ===
+										"recurring" &&
+									"cursor-not-allowed text-neutral-400 dark:text-neutral-600",
 								"rounded-r-md border-[1px] border-transparent px-3 py-1"
 							)}
-							onClick={() => setIsGift(true)}
+							onClick={() => {
+								if (
+									selectedPaymentOption === "PayPal" &&
+									cartData[0].selectedPrice.type ===
+										"recurring"
+								)
+									return;
+								setIsGift(true);
+							}}
 						>
 							Someone else
 						</p>
 					</div>
-					{isGift && (
-						<div className="mt-2 phone:mt-0">
-							<Input
-								width="large"
-								type="text"
-								placeholder="270904126974590976"
-								className={clsx(
-									"!py-1",
-									validGiftRecipient ? "" : "border-red-500"
-								)}
-								onChange={(e: any) =>
-									setGiftRecipient(e.target.value)
-								}
-							/>
-						</div>
-					)}
+					{isGift &&
+						!(
+							selectedPaymentOption === "PayPal" &&
+							cartData[0].selectedPrice.type === "recurring"
+						) && (
+							<div className="mt-2 phone:mt-0">
+								<Input
+									width="large"
+									type="text"
+									placeholder="270904126974590976"
+									className={clsx(
+										"!py-1",
+										validGiftRecipient
+											? ""
+											: "border-red-500"
+									)}
+									onChange={(e: any) =>
+										setGiftRecipient(e.target.value)
+									}
+								/>
+							</div>
+						)}
 				</div>
 			</div>
 			<div className="mt-3">
