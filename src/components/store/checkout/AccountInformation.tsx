@@ -12,6 +12,7 @@ import { CartItem } from "src/pages/store";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { OrdersRetrieveResponse } from "src/util/paypal/classes/Orders";
+import { toast } from "react-toastify";
 
 interface Props {
 	stripe: Stripe | null;
@@ -223,14 +224,20 @@ export default function AccountInformation({
 				);
 
 			if (confirmPaymentError) {
-				e.complete("fail");
+				e.complete("fail"); // Inform browser that the payment failed prompting to re-show the payment modal
 			} else {
-				e.complete("success");
+				e.complete("success"); // Payment was successful, let browser close payment modal
 				if (paymentIntent?.status === "requires_action") {
 					const { error: actionError } =
 						await stripe.confirmCardPayment(clientSecret);
 					if (actionError) {
-						alert("22222 SOMETHING WENT WRONG OH NO!!!!!!!!!");
+						toast.error(
+							"There was an issue processing your payment. If you wish to continue, try again using a different payment method.",
+							{
+								theme: "colored",
+								position: "top-center",
+							}
+						);
 					} else {
 						completedPayment();
 					}
