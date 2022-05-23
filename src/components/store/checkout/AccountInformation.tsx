@@ -73,7 +73,6 @@ export default function AccountInformation({
 }: Props) {
 	const router = useRouter();
 	const { theme } = useTheme();
-	const loadedIn = useRef(new Date().getTime());
 
 	const [validGiftRecipient, setValidGiftRecipient] = useState(false);
 	const [giftRecipient, setGiftRecipient] = useState("");
@@ -196,9 +195,6 @@ export default function AccountInformation({
 				isGift,
 				giftFor: giftRecipient,
 				subscription: data.subscriptionID,
-				customId: `${
-					cartData[0].selectedPrice.metadata.paypalPlan
-				}:${userId}:${giftRecipient || userId}:${loadedIn.current}`,
 			},
 		}).then(() => {
 			router.push(
@@ -384,7 +380,7 @@ export default function AccountInformation({
 													.metadata.paypalPlan
 											}:${userId}:${
 												giftRecipient || userId
-											}:${loadedIn.current}`,
+											}:${new Date().getTime()}`,
 										})
 									}
 									onApprove={(data: any, actions: any) => {

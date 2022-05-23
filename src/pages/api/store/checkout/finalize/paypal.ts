@@ -58,7 +58,6 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		isGift,
 		giftFor,
 		subscription,
-		customId,
 	}: RequestBody = req.body;
 
 	if (status !== "COMPLETED" && status !== "ACTIVE") {
