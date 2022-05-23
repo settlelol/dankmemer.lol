@@ -68,7 +68,6 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	const db = await dbConnect();
-	const redis = await redisConnect();
 	const stripe = stripeConnect();
 	const _customer = await db
 		.collection("customers")
@@ -79,17 +78,6 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			error: "Unable to find customer. If you do not receive your purchased goods please contact support and reference the following order id",
 			orderID,
 		});
-	}
-
-	if (subscription) {
-		try {
-			await redis.set(customId!, orderID, "PX", TIME.hour * 3);
-		} catch (e) {
-			console.error(e);
-			return res.status(500).json({
-				error: "Unable to cache custom id for later use. Critical error.",
-			});
-		}
 	}
 
 	let metadata: Stripe.Emptyable<Stripe.MetadataParam> = {
