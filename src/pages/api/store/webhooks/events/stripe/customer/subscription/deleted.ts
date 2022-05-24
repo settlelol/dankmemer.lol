@@ -1,4 +1,5 @@
 import { APIEmbedField } from "discord-api-types/v10";
+import { dbConnect } from "src/util/mongodb";
 import Stripe from "stripe";
 import { EventResponse } from "../../../../stripe";
 
@@ -8,6 +9,7 @@ export default async function (
 	event: Stripe.Event,
 	stripe: Stripe
 ): Promise<EventResponse> {
+	const db = await dbConnect();
 	const subscription = event.data
 		.object as SubscriptionEvent<Stripe.Subscription>;
 
@@ -38,6 +40,24 @@ export default async function (
 			inline: true,
 		},
 	];
+
+	try {
+		await db.collection("customers").updateOne(
+			{ _id: subscription.customer! },
+			{
+				$unset: {
+					subscription: {},
+				},
+			}
+		);
+	} catch (e: any) {
+		console.error(
+			`Error while remove subscription from customer (${subscription.customer!}): ${e.message.replace(
+				/"/g,
+				""
+			)}`
+		);
+	}
 
 	return {
 		result: {
