@@ -20,6 +20,7 @@ import Dropdown from "src/components/ui/Dropdown";
 import { Icon as Iconify } from "@iconify/react";
 import Button from "src/components/ui/Button";
 import ProductCreator from "src/components/control/store/ProductCreator";
+import ControlLinks from "src/components/control/ControlLinks";
 
 interface SalesData {
 	productSales: ProductSales[];
@@ -351,7 +352,6 @@ export default function ManageProducts({ user }: PageProps) {
 	return (
 		<ControlPanelContainer
 			title={"Manage Products"}
-			user={user}
 			hideRightPane={() => {
 				if (
 					confirm(
@@ -366,6 +366,7 @@ export default function ManageProducts({ user }: PageProps) {
 			}}
 			rightPaneVisible={editing}
 			rightPaneContent={editorContent}
+			links={<ControlLinks user={user!} />}
 		>
 			<div className="ml-8 mr-16">
 				<div className="my-10 flex min-h-screen flex-col lg:mt-16">
