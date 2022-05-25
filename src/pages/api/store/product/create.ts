@@ -14,7 +14,7 @@ import { TIME } from "src/constants";
 
 interface ProductData {
 	name: string;
-	type: "single" | "recurring";
+	type: "single" | "subscription";
 	prices: ProductPrice[];
 	description?: string; // Invoice descriptions
 	primaryTitle: string;
@@ -71,8 +71,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				}),
 			metadata: {
 				hidden: "true",
-				type:
-					productData.prices.length === 1 ? "single" : "subscription",
+				type: productData.type,
 			},
 		});
 
@@ -135,7 +134,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				tax_behavior: "exclusive",
 			});
 			await redis.del("store:products:one-time");
-		} else if (productData.type === "recurring") {
+		} else if (productData.type === "subscription") {
 			const billingPlans = [];
 			for (let i = 0; i < productData.prices.length; i++) {
 				// Change provided price to cents

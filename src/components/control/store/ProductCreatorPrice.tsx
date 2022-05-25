@@ -7,7 +7,7 @@ import Tooltip from "src/components/ui/Tooltip";
 
 interface Props {
 	id: string;
-	mode: "single" | "recurring" | null;
+	mode: "single" | "subscription" | null;
 	value?: string;
 	interval?: string;
 	intervalCount?: string;
@@ -81,7 +81,7 @@ export default function ProductCreatorPrice({
 						}
 					/>
 				</div>
-				{mode === "recurring" && (
+				{mode === "subscription" && (
 					<>
 						<div className="w-32">
 							<p className="mb-1 text-neutral-600 dark:text-neutral-300">
@@ -167,7 +167,7 @@ export default function ProductCreatorPrice({
 					</>
 				)}
 			</div>
-			{mode === "recurring" && (
+			{mode === "subscription" && (
 				<p className="mt-1 text-sm dark:text-neutral-500">
 					User will pay{" "}
 					<span className="text-dank-300">${value}</span>

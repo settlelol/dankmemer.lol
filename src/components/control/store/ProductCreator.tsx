@@ -31,7 +31,7 @@ export default function ProductCreator({ forceHide }: Props) {
 			value: "",
 		},
 	]);
-	const [productType, setProductType] = useState<"single" | "recurring">(
+	const [productType, setProductType] = useState<"single" | "subscription">(
 		"single"
 	);
 
@@ -64,7 +64,7 @@ export default function ProductCreator({ forceHide }: Props) {
 				: true)
 		) {
 			let allValid: boolean = true;
-			if (productType === "recurring") {
+			if (productType === "subscription") {
 				for (const i in productPrices) {
 					if (
 						parseFloat(productPrices[i].value.toString()) < 1 &&
@@ -92,7 +92,7 @@ export default function ProductCreator({ forceHide }: Props) {
 	]);
 
 	useEffect(() => {
-		if (productType === "recurring") {
+		if (productType === "subscription") {
 			setProductPrices([
 				{
 					id: Math.random().toString(36).slice(2, 7),
@@ -226,7 +226,7 @@ export default function ProductCreator({ forceHide }: Props) {
 										<p>
 											{productType === "single"
 												? "Single-purchase"
-												: productType === "recurring"
+												: productType === "subscription"
 												? "Subscription"
 												: "Select one"}
 										</p>
@@ -245,7 +245,7 @@ export default function ProductCreator({ forceHide }: Props) {
 									{
 										label: "Subscription",
 										onClick: () =>
-											setProductType("recurring"),
+											setProductType("subscription"),
 									},
 								]}
 								isInput={false}
@@ -253,7 +253,7 @@ export default function ProductCreator({ forceHide }: Props) {
 							/>
 						</div>
 					</div>
-					{productType === "recurring" ? (
+					{productType === "subscription" ? (
 						<>
 							<div className="flex items-center justify-between">
 								<p className="mb-1 text-neutral-600 dark:text-neutral-300">
