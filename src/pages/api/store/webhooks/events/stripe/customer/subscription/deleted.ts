@@ -20,12 +20,26 @@ export default async function (
 		subscription.latest_invoice as string
 	);
 
+	let payee: string = "";
+	if (
+		lastInvoice &&
+		lastInvoice.metadata &&
+		Object.values(lastInvoice.metadata!).length >= 1
+	) {
+		payee = lastInvoice.metadata!.boughtByDiscordId;
+	} else {
+		const customer = (await stripe.customers.retrieve(
+			subscription.customer as string
+		)) as Stripe.Customer;
+		payee = customer.metadata.discordId;
+	}
+
 	let fields: APIEmbedField[] = [
 		{
 			name: "Customer",
-			value: `<@!${lastInvoice.metadata!.boughtByDiscordId}> (${
-				lastInvoice.metadata!.boughtByDiscordId
-			})\n> ${subscription.customer as string}`,
+			value: `<@!${payee}> (${payee})\n> ${
+				subscription.customer as string
+			}`,
 		},
 		{
 			name: "Subscription",

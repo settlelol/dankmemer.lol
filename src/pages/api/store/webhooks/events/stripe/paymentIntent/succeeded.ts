@@ -77,12 +77,20 @@ export default async function (
 		}
 	}
 
+	let payee: string = "";
+	if (invoice.metadata && invoice.metadata.boughtByDiscordId) {
+		payee = invoice.metadata!.boughtByDiscordId;
+	} else {
+		const customer = (await stripe.customers.retrieve(
+			paymentIntent.customer as string
+		)) as Stripe.Customer;
+		payee = customer.metadata.discordId;
+	}
+
 	const fields: APIEmbedField[] = [
 		{
 			name: "Purchased by",
-			value: `<@!${invoice.metadata!.boughtByDiscordId}> (${
-				invoice.metadata!.boughtByDiscordId
-			})`,
+			value: `<@!${payee}> (${payee})`,
 			inline:
 				paymentIntent.metadata?.isGift &&
 				JSON.parse(paymentIntent.metadata.isGift),
