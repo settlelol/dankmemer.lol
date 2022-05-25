@@ -1,7 +1,7 @@
 import { NextApiResponse } from "next";
 import { NextIronRequest, withSession } from "../../../../util/session";
 import { dbConnect } from "src/util/mongodb";
-import { Db, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
 import { CartItem } from "src/pages/store";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
@@ -9,7 +9,7 @@ import { AppliedDiscount } from "../discount/apply";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const stripe = stripeConnect();
-	const db: Db = await dbConnect();
+	const db = await dbConnect();
 
 	const user = await req.session.get("user");
 	if (!user) {
@@ -18,26 +18,24 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	const cart: CartItem[] | undefined = await req.session.get("cart");
 	if (!cart) {
-		return res
-			.status(400)
-			.json({ error: "You must have items in your cart." });
+		return res.status(400).json({ error: "You must have items in your cart." });
 	}
 
-	const _customer = await db
-		.collection("customers")
-		.findOne({ discordId: user.id });
+	const dbCustomer = await db.collection("customers").findOne({ discordId: user.id });
 
 	let customer;
-	if (_customer) {
-		customer = await stripe.customers.retrieve(_customer._id);
-	} else if (!_customer) {
+	if (dbCustomer) {
+		customer = await stripe.customers.retrieve(dbCustomer._id);
+	} else if (!dbCustomer) {
 		try {
 			const unrecordedCustomer = await stripe.customers.search({
 				query: `metadata['discordId']:'${user.id}'`,
 			});
+
 			if (unrecordedCustomer) {
 				customer = unrecordedCustomer.data[0];
-				db.collection("customers").insertOne({
+
+				await db.collection("customers").insertOne({
 					_id: customer.id as unknown as ObjectId,
 					discordId: user.id,
 					purchases: [],
@@ -49,29 +47,21 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						discordId: user.id,
 					},
 				});
-				db.collection("customers").insertOne({
+
+				await db.collection("customers").insertOne({
 					_id: customer.id as unknown as ObjectId,
 					discordId: user.id,
 					purchases: [],
 				});
 			}
 		} catch (e: any) {
-			console.error(
-				`Error while creating Stripe customer: ${e.message.split(
-					/"/g,
-					""
-				)}`
-			);
-			return res
-				.status(500)
-				.json({ error: "Unable to create new customer" });
+			console.error(`Error while creating Stripe customer: ${e.message.split(/"/g, "")}`);
+			return res.status(500).json({ error: "Unable to create new customer" });
 		}
 	}
 
 	let discount: Stripe.PromotionCode | null = null;
-	let discountCode: AppliedDiscount | undefined = await req.session.get(
-		"discountCode"
-	);
+	let discountCode: AppliedDiscount | undefined = await req.session.get("discountCode");
 
 	if (discountCode) {
 		let promotionalCode = await stripe.promotionCodes.list({
@@ -91,13 +81,11 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				...(discount && { coupon: discount.coupon.id }),
 				items: [{ price: cart[0].selectedPrice.id }],
 			});
+			const invoice = subscription.latest_invoice as Stripe.Invoice;
 
 			return res.status(200).json({
-				client_secret:
-					// @ts-ignore
-					subscription.latest_invoice?.payment_intent?.client_secret,
-				// @ts-ignore
-				invoice: subscription.latest_invoice?.id,
+				client_secret: (invoice?.payment_intent as Stripe.PaymentIntent)?.client_secret,
+				invoice: invoice?.id,
 				subscription: subscription.id,
 			});
 		}
@@ -120,8 +108,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			currency: "usd",
 			unit_amount_decimal: (
 				cart.reduce(
-					(acc: number, item: CartItem) =>
-						acc + (item.selectedPrice.price / 100) * item.quantity,
+					(acc: number, item: CartItem) => acc + (item.selectedPrice.price / 100) * item.quantity,
 					0
 				) *
 				0.0675 *
@@ -138,7 +125,8 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			},
 		});
 
-		let discounts: Stripe.InvoiceUpdateParams.Discount[] = [];
+		const discounts: Stripe.InvoiceUpdateParams.Discount[] = [];
+
 		if (discountCode && discount) {
 			discounts.push({ coupon: discount.coupon.id });
 		}
@@ -149,16 +137,11 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			discounts,
 		});
 
-		const finalizedInvoice = await stripe.invoices.finalizeInvoice(
-			pendingInvoice.id
-		);
+		const finalizedInvoice = await stripe.invoices.finalizeInvoice(pendingInvoice.id);
 		const paymentIntent = await stripe.paymentIntents.update(
-			// @ts-ignore
-			finalizedInvoice.payment_intent?.toString(),
+			(finalizedInvoice.payment_intent as Stripe.PaymentIntent)?.toString(),
 			{
-				description: `Payment for ${cart
-					.map((item) => `${item.quantity}x ${item.name}`)
-					.join(", ")}`,
+				description: `Payment for ${cart.map((item) => `${item.quantity}x ${item.name}`).join(", ")}`,
 			}
 		);
 
@@ -168,9 +151,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		});
 	} catch (e: any) {
 		console.error(e.message.replace(/"/g, ""));
-		return res
-			.status(500)
-			.json({ error: "Error while creating Stripe Invoice." });
+		return res.status(500).json({ error: "Error while creating Stripe Invoice." });
 	}
 };
 

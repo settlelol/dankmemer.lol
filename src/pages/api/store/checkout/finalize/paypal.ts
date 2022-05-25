@@ -1,18 +1,11 @@
 import { ObjectId } from "mongodb";
 import { NextApiResponse } from "next";
-import { TIME } from "src/constants";
 import { dbConnect } from "src/util/mongodb";
 import PayPal from "src/util/paypal";
-import { createPayPal } from "src/util/paypal/PayPalEndpoint";
-import { redisConnect } from "src/util/redis";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { NextIronRequest, withSession } from "../../../../../util/session";
-import paypal from "../../webhooks/paypal";
-import {
-	PaymentIntentItemDiscount,
-	PaymentIntentItemResult,
-} from "../../webhooks/stripe";
+import { PaymentIntentItemDiscount, PaymentIntentItemResult } from "../../webhooks/stripe";
 
 export interface PurchaseRecord {
 	_id: string;
@@ -25,14 +18,7 @@ export interface PurchaseRecord {
 
 interface RequestBody {
 	stripeInvoice: string;
-	status:
-		| "ACTIVE"
-		| "CREATED"
-		| "SAVED"
-		| "APPROVED"
-		| "VOIDED"
-		| "COMPLETED"
-		| "PAYER_ACTION_REQUIRED";
+	status: "ACTIVE" | "CREATED" | "SAVED" | "APPROVED" | "VOIDED" | "COMPLETED" | "PAYER_ACTION_REQUIRED";
 	isGift: boolean;
 	giftFor: string;
 	subscription?: string;
@@ -58,27 +44,17 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		return res.status(401).json({ error: "You are not logged in." });
 	}
 
-	const {
-		stripeInvoice,
-		status,
-		isGift,
-		giftFor,
-		subscription,
-	}: RequestBody = req.body;
+	const { stripeInvoice, status, isGift, giftFor, subscription }: RequestBody = req.body;
 
 	if (status !== "COMPLETED" && status !== "ACTIVE") {
-		return res
-			.status(425)
-			.json({ error: "Payment has not completed processing." });
+		return res.status(425).json({ error: "Payment has not completed processing." });
 	}
 
 	const db = await dbConnect();
 	const stripe = stripeConnect();
-	const _customer = await db
-		.collection("customers")
-		.findOne({ discordId: user.id });
+	const customer = await db.collection("customers").findOne({ discordId: user.id });
 
-	if (!_customer) {
+	if (!customer) {
 		return res.status(404).json({
 			error: "Unable to find customer. If you do not receive your purchased goods please contact support and reference the following order id",
 			orderID,
@@ -94,6 +70,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const invoice = await stripe.invoices.retrieve(stripeInvoice, {
 		expand: ["discounts"],
 	});
+
 	if (!invoice) {
 		return res.status(404).json({
 			error: "invoiceId provided did not have any results.",
@@ -102,61 +79,43 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	try {
 		let discounts: PaymentIntentItemDiscount[] = [];
-		for (
-			let i = 0;
-			i <
-			(
-				invoice.discounts as unknown as
-					| Stripe.Discount[]
-					| Stripe.DeletedDiscount[]
-			)?.length;
-			i++
-		) {
-			const discount = invoice.discounts![i] as unknown as
-				| Stripe.Discount
-				| Stripe.DeletedDiscount;
+		for (let i = 0; i < (invoice.discounts as Stripe.Discount[] | Stripe.DeletedDiscount[])?.length; i++) {
+			const discount = invoice.discounts![i] as Stripe.Discount | Stripe.DeletedDiscount;
 			const { data: coupon } = await stripe.promotionCodes.list({
 				coupon: discount.coupon?.id,
 			});
+
 			discounts.push({
 				id: discount.id,
 				code: coupon[0].code,
 				name: coupon[0].coupon.name || "N/A",
 				discountDecimal: discount.coupon.percent_off!,
-				discountPercentage: `${parseFloat(
-					discount.coupon.percent_off as unknown as string
-				)}%`,
+				discountPercentage: `${discount.coupon.percent_off}%`,
 			});
 		}
-		const items = invoice.lines.data.map(
-			(lineItem: Stripe.InvoiceLineItem) => {
-				if (lineItem.description !== null) {
-					const usedDiscounts =
-						lineItem.discount_amounts
-							?.filter((discount) => discount.amount > 0)
-							.map((discount) => discount.discount) || [];
+		const items = invoice.lines.data.map((lineItem: Stripe.InvoiceLineItem) => {
+			if (lineItem.description !== null) {
+				const usedDiscounts =
+					lineItem.discount_amounts
+						?.filter((discount) => discount.amount > 0)
+						.map((discount) => discount.discount) ?? [];
 
-					return {
-						id: lineItem.price?.product,
-						name: lineItem.description,
-						price: lineItem.amount / 100,
-						quantity: lineItem.quantity!,
-						type: lineItem.price?.type!,
-						discounts: usedDiscounts.map((usedDiscount) => ({
-							...discounts.find(
-								(discount) => discount.id === usedDiscount
-							),
-						})) as PaymentIntentItemDiscount[],
-					};
-				}
+				return {
+					id: lineItem.price?.product,
+					name: lineItem.description,
+					price: lineItem.amount / 100,
+					quantity: lineItem.quantity!,
+					type: lineItem.price?.type!,
+					discounts: usedDiscounts.map((usedDiscount) => ({
+						...discounts.find((discount) => discount.id === usedDiscount),
+					})),
+				};
 			}
-		) as PaymentIntentItemResult[];
+		}) as PaymentIntentItemResult[];
 
 		if (subscription) {
 			const paypal = new PayPal();
-			const subscriptionInfo = await paypal.subscriptions.get(
-				subscription
-			);
+			const subscriptionInfo = await paypal.subscriptions.get(subscription);
 			await db.collection("customers").updateOne(
 				{
 					discordId: isGift ? giftFor : user.id,
@@ -169,9 +128,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 							gifted: isGift,
 							...(isGift && { giftedBy: user.id }),
 							purchaseTime: new Date().getTime(),
-							expiryTime: new Date(
-								subscriptionInfo.billing_info?.next_billing_time!
-							).getTime(),
+							expiryTime: new Date(subscriptionInfo.billing_info?.next_billing_time!).getTime(),
 							automaticRenewal: true,
 						},
 					},
@@ -180,32 +137,33 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			);
 		}
 
-		await db.collection("customers").updateOne(
-			{
-				discordId: user.id,
-			},
-			{
-				$push: {
-					purchases: {
-						type: "paypal",
-						id: orderID,
-					},
+		await Promise.all([
+			db.collection("customers").updateOne(
+				{
+					discordId: user.id,
 				},
-			}
-		);
-
-		await db.collection("purchases").insertOne({
-			_id: orderID as unknown as ObjectId,
-			isGift,
-			giftFor,
-			items: items.filter((item) => item !== undefined),
-			purchaseTime: new Date().getTime(),
-			...(subscription && { subscriptionId: subscription }),
-		});
+				{
+					$push: {
+						purchases: {
+							type: "paypal",
+							id: orderID,
+						},
+					},
+				}
+			),
+			db.collection("purchases").insertOne({
+				_id: orderID as unknown as ObjectId,
+				isGift,
+				giftFor,
+				items: items.filter((item) => item !== undefined),
+				purchaseTime: new Date().getTime(),
+				...(subscription && { subscriptionId: subscription }),
+			}),
+		]);
 
 		await stripe.invoices.update(invoice.id, { metadata });
-
 		await stripe.invoices.voidInvoice(invoice.id);
+
 		req.session.unset("cart");
 		req.session.unset("discountCode");
 
@@ -213,10 +171,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		return res.status(200).json({ orderID });
 	} catch (e: any) {
 		console.error(
-			`Error updating purchase records data after paypal purchase completion: ${e.message.replace(
-				/"/g,
-				""
-			)}`
+			`Error updating purchase records data after paypal purchase completion: ${e.message.replace(/"/g, "")}`
 		);
 		return res.status(200).json({
 			orderID,
