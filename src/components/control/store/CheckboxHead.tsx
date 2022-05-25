@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import Checkbox from "src/components/ui/Checkbox";
 
-export default function CheckboxHead({ change }: any) {
+interface Props {
+	change: Dispatch<SetStateAction<boolean>>;
+}
+
+export default function CheckboxHead({ change }: Props) {
 	const [selectedAll, setSelectedAll] = useState(false);
 
 	const selectAll = () => {
@@ -9,14 +13,5 @@ export default function CheckboxHead({ change }: any) {
 		setSelectedAll(!selectedAll);
 	};
 
-	return (
-		<Checkbox
-			className="mt-0"
-			state={selectedAll}
-			style="fill"
-			callback={selectAll}
-		>
-			<></>
-		</Checkbox>
-	);
+	return <Checkbox className="mt-0" state={selectedAll} style="fill" callback={selectAll} />;
 }
