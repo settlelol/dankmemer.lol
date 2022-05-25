@@ -62,27 +62,21 @@ interface UnfilterableColumnData {
 export default function ManageProducts({ user }: PageProps) {
 	const [salesData, setSalesData] = useState<SalesData | null>(null);
 	const [products, setProducts] = useState<AnyProduct[]>([]);
-	const [displayedProducts, setDisplayedProducts] = useState<AnyProduct[]>(
-		[]
-	);
+	const [displayedProducts, setDisplayedProducts] = useState<AnyProduct[]>([]);
 	const [editing, setEditing] = useState(false);
 	const [editorContent, setEditorContent] = useState<ReactNode>();
 	const [productToEdit, setProductToEdit] = useState<AnyProduct | null>(null);
 
 	const [filterSearch, setFilterSearch] = useState("");
-	const [filterTableHeaders, setFilterTableHeaders] =
-		useState<TableHeaders | null>();
-	const [filterTableHeadersState, setFilterTableHeadersState] =
-		useState<TableHeadersState>(TableHeadersState.BOTTOM);
+	const [filterTableHeaders, setFilterTableHeaders] = useState<TableHeaders | null>();
+	const [filterTableHeadersState, setFilterTableHeadersState] = useState<TableHeadersState>(TableHeadersState.BOTTOM);
 
 	const [filterSelectAll, setFilterSelectAll] = useState(false);
 	const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
 	const [showOptionsFor, setShowOptionsFor] = useState<string>("");
 
-	const [tableHeads, setTableHeads] = useState<
-		(FilterableColumnData | UnfilterableColumnData)[]
-	>([
+	const [tableHeads, setTableHeads] = useState<(FilterableColumnData | UnfilterableColumnData)[]>([
 		{
 			type: "Unsortable",
 			content: <CheckboxHead change={setFilterSelectAll} />,
@@ -145,10 +139,7 @@ export default function ManageProducts({ user }: PageProps) {
 			baseURL: "/api/store/products",
 		});
 		axios
-			.all([
-				StoreAPI.get("/subscriptions/list"),
-				StoreAPI.get("/one-time/list"),
-			])
+			.all([StoreAPI.get("/subscriptions/list"), StoreAPI.get("/one-time/list")])
 			.then(
 				axios.spread(({ data: subscriptions }, { data: onetime }) => {
 					const receivedProducts = [...subscriptions, ...onetime];
@@ -172,13 +163,10 @@ export default function ManageProducts({ user }: PageProps) {
 
 	useEffect(() => {
 		if (filterSelectAll) {
-			return setSelectedProducts(
-				displayedProducts.map((product) => product.id)
-			);
+			return setSelectedProducts(displayedProducts.map((product) => product.id));
 		} else {
 			return setSelectedProducts(
-				selectedProducts.length >= 1 &&
-					selectedProducts.length !== displayedProducts.length
+				selectedProducts.length >= 1 && selectedProducts.length !== displayedProducts.length
 					? selectedProducts
 					: []
 			);
@@ -186,18 +174,11 @@ export default function ManageProducts({ user }: PageProps) {
 	}, [filterSelectAll]);
 
 	useEffect(() => {
-		setDisplayedProducts(
-			products.filter((prod) =>
-				prod.name.toLowerCase().includes(filterSearch.toLowerCase())
-			)
-		);
+		setDisplayedProducts(products.filter((prod) => prod.name.toLowerCase().includes(filterSearch.toLowerCase())));
 	}, [filterSearch]);
 
 	useEffect(() => {
-		if (
-			filterSelectAll &&
-			selectedProducts.length !== displayedProducts.length
-		) {
+		if (filterSelectAll && selectedProducts.length !== displayedProducts.length) {
 			setFilterSelectAll(false);
 		}
 	}, [selectedProducts]);
@@ -217,44 +198,27 @@ export default function ManageProducts({ user }: PageProps) {
 		}
 	}, [productToEdit]);
 
-	const changeSorting = (
-		selector: TableHeaders,
-		state: TableHeadersState
-	) => {
+	const changeSorting = (selector: TableHeaders, state: TableHeadersState) => {
 		setFilterTableHeaders(selector);
 		setFilterTableHeadersState(state);
 
 		switch (selector) {
 			case TableHeaders.NAME:
 				if (state === TableHeadersState.TOP) {
-					setDisplayedProducts((products) =>
-						products.sort((a, b) => a.name.localeCompare(b.name))
-					);
+					setDisplayedProducts((products) => products.sort((a, b) => a.name.localeCompare(b.name)));
 				} else {
-					setDisplayedProducts((products) =>
-						products.sort((a, b) => b.name.localeCompare(a.name))
-					);
+					setDisplayedProducts((products) => products.sort((a, b) => b.name.localeCompare(a.name)));
 				}
 				break;
 			case TableHeaders.PRICES:
 				if (state === TableHeadersState.TOP) {
-					setDisplayedProducts((products) =>
-						products.sort(
-							(a, b) => a.prices[0].price - b.prices[0].price
-						)
-					);
+					setDisplayedProducts((products) => products.sort((a, b) => a.prices[0].price - b.prices[0].price));
 				} else {
 					setDisplayedProducts((products) =>
 						products.sort(
 							(a, b) =>
-								b.prices.reduce(
-									(prev, { price: curr }) => prev + curr,
-									0
-								) -
-								a.prices.reduce(
-									(prev, { price: curr }) => prev + curr,
-									0
-								)
+								b.prices.reduce((prev, { price: curr }) => prev + curr, 0) -
+								a.prices.reduce((prev, { price: curr }) => prev + curr, 0)
 						)
 					);
 				}
@@ -263,17 +227,13 @@ export default function ManageProducts({ user }: PageProps) {
 				if (state === TableHeadersState.TOP) {
 					setDisplayedProducts((products) =>
 						products.sort(
-							(a, b) =>
-								(parseInt(b.metadata.lastUpdated) || 0) -
-								(parseInt(a.metadata.lastUpdated) || 0)
+							(a, b) => (parseInt(b.metadata.lastUpdated) || 0) - (parseInt(a.metadata.lastUpdated) || 0)
 						)
 					);
 				} else {
 					setDisplayedProducts((products) =>
 						products.sort(
-							(a, b) =>
-								(parseInt(a.metadata.lastUpdated) || 0) -
-								(parseInt(b.metadata.lastUpdated) || 0)
+							(a, b) => (parseInt(a.metadata.lastUpdated) || 0) - (parseInt(b.metadata.lastUpdated) || 0)
 						)
 					);
 				}
@@ -283,24 +243,16 @@ export default function ManageProducts({ user }: PageProps) {
 					setDisplayedProducts((products) =>
 						products.sort(
 							(a, b) =>
-								(salesData?.productSales.find(
-									(prod) => prod._id === a.id
-								)?.sales || 0) -
-								(salesData?.productSales.find(
-									(prod) => prod._id === b.id
-								)?.sales || 0)
+								(salesData?.productSales.find((prod) => prod._id === a.id)?.sales || 0) -
+								(salesData?.productSales.find((prod) => prod._id === b.id)?.sales || 0)
 						)
 					);
 				} else {
 					setDisplayedProducts((products) =>
 						products.sort(
 							(a, b) =>
-								(salesData?.productSales.find(
-									(prod) => prod._id === b.id
-								)?.sales || 0) -
-								(salesData?.productSales.find(
-									(prod) => prod._id === a.id
-								)?.sales || 0)
+								(salesData?.productSales.find((prod) => prod._id === b.id)?.sales || 0) -
+								(salesData?.productSales.find((prod) => prod._id === a.id)?.sales || 0)
 						)
 					);
 				}
@@ -310,24 +262,16 @@ export default function ManageProducts({ user }: PageProps) {
 					setDisplayedProducts((products) =>
 						products.sort(
 							(a, b) =>
-								(salesData?.productSales.find(
-									(prod) => prod._id === a.id
-								)?.revenue || 0) -
-								(salesData?.productSales.find(
-									(prod) => prod._id === b.id
-								)?.revenue || 0)
+								(salesData?.productSales.find((prod) => prod._id === a.id)?.revenue || 0) -
+								(salesData?.productSales.find((prod) => prod._id === b.id)?.revenue || 0)
 						)
 					);
 				} else {
 					setDisplayedProducts((products) =>
 						products.sort(
 							(a, b) =>
-								(salesData?.productSales.find(
-									(prod) => prod._id === b.id
-								)?.revenue || 0) -
-								(salesData?.productSales.find(
-									(prod) => prod._id === a.id
-								)?.revenue || 0)
+								(salesData?.productSales.find((prod) => prod._id === b.id)?.revenue || 0) -
+								(salesData?.productSales.find((prod) => prod._id === a.id)?.revenue || 0)
 						)
 					);
 				}
@@ -343,9 +287,7 @@ export default function ManageProducts({ user }: PageProps) {
 	};
 
 	const createProduct = () => {
-		setEditorContent(
-			<ProductCreator forceHide={() => setEditing(false)} />
-		);
+		setEditorContent(<ProductCreator forceHide={() => setEditing(false)} />);
 		setEditing(true);
 	};
 
@@ -353,11 +295,7 @@ export default function ManageProducts({ user }: PageProps) {
 		<ControlPanelContainer
 			title={"Manage Products"}
 			hideRightPane={() => {
-				if (
-					confirm(
-						"Are you sure you want to close the editor? All unsaved changes will be lost."
-					)
-				) {
+				if (confirm("Are you sure you want to close the editor? All unsaved changes will be lost.")) {
 					setEditing(false);
 					setTimeout(() => {
 						setProductToEdit(null);
@@ -370,9 +308,7 @@ export default function ManageProducts({ user }: PageProps) {
 		>
 			<main>
 				<div className="flex min-h-screen flex-col">
-					<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">
-						Products
-					</div>
+					<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">Products</div>
 					<div className="flex w-full items-center justify-between space-x-10">
 						<div className="order-1 grow">
 							<Input
@@ -382,9 +318,7 @@ export default function ManageProducts({ user }: PageProps) {
 								placeholder="Search for a product name"
 								type={"search"}
 								value={filterSearch}
-								onChange={(e) =>
-									setFilterSearch(e.target.value)
-								}
+								onChange={(e) => setFilterSearch(e.target.value)}
 							/>
 						</div>
 						<div className="order-2 mt-8 flex items-center justify-center space-x-4">
@@ -400,11 +334,7 @@ export default function ManageProducts({ user }: PageProps) {
 											)}
 										>
 											<p>Visible columns</p>
-											<Iconify
-												icon="ic:baseline-expand-more"
-												height={15}
-												className="ml-1"
-											/>
+											<Iconify icon="ic:baseline-expand-more" height={15} className="ml-1" />
 										</div>
 									}
 									options={tableHeads.map((column, i) => {
@@ -413,21 +343,12 @@ export default function ManageProducts({ user }: PageProps) {
 												label: (
 													<div className="flex items-center justify-start">
 														<Checkbox
-															state={
-																!column.hidden
-															}
+															state={!column.hidden}
 															style={"fill"}
 															className="!mt-0"
-															callback={() =>
-																changeColumnVisibility(
-																	i,
-																	!column.hidden
-																)
-															}
+															callback={() => changeColumnVisibility(i, !column.hidden)}
 														>
-															<p className="text-sm">
-																{column.name}
-															</p>
+															<p className="text-sm">{column.name}</p>
 														</Checkbox>
 													</div>
 												),
@@ -440,11 +361,7 @@ export default function ManageProducts({ user }: PageProps) {
 									requireScroll={false}
 								/>
 							</div>
-							<Button
-								variant="primary"
-								className="w-max"
-								onClick={createProduct}
-							>
+							<Button variant="primary" className="w-max" onClick={createProduct}>
 								Add product
 							</Button>
 						</div>
@@ -465,27 +382,17 @@ export default function ManageProducts({ user }: PageProps) {
 													type={data.type}
 													name={data.name}
 													width={data.width}
-													state={
-														filterTableHeadersState
-													}
-													active={
-														filterTableHeaders ===
-														data.selector
-													}
+													state={filterTableHeadersState}
+													active={filterTableHeaders === data.selector}
 													rtl={data.rtl}
 													className={clsx(
-														i === 0 &&
-															"rounded-l-lg",
-														i ===
-															tableHeads.length &&
-															"rounded-r-lg"
+														i === 0 && "rounded-l-lg",
+														i === tableHeads.length && "rounded-r-lg"
 													)}
 													onClick={() =>
 														changeSorting(
 															data.selector,
-															TableHeadersState.opposite(
-																filterTableHeadersState
-															)
+															TableHeadersState.opposite(filterTableHeadersState)
 														)
 													}
 												/>
@@ -493,12 +400,8 @@ export default function ManageProducts({ user }: PageProps) {
 												<TableHead
 													key={i}
 													className={clsx(
-														i === 0 &&
-															"rounded-l-lg",
-														i ===
-															tableHeads.length -
-																1 &&
-															"rounded-r-lg",
+														i === 0 && "rounded-l-lg",
+														i === tableHeads.length - 1 && "rounded-r-lg",
 														"px-5"
 													)}
 													type={data.type}
@@ -515,71 +418,35 @@ export default function ManageProducts({ user }: PageProps) {
 								{displayedProducts.map((product, i) => (
 									<ProductRow
 										id={product.id}
-										hiddenColumns={tableHeads.map(
-											(c) => c.hidden
-										)}
-										reverseOptions={
-											displayedProducts.length - 2 <= i
-										}
-										selected={selectedProducts.includes(
-											product.id
-										)}
+										hiddenColumns={tableHeads.map((c) => c.hidden)}
+										reverseOptions={displayedProducts.length - 2 <= i}
+										selected={selectedProducts.includes(product.id)}
 										name={product.name}
 										image={product.images[0]}
 										lastUpdated={
 											product.updated
-												? formatDistance(
-														new Date(
-															product.updated *
-																1000
-														),
-														new Date(),
-														{
-															addSuffix: true,
-														}
-												  )
+												? formatDistance(new Date(product.updated * 1000), new Date(), {
+														addSuffix: true,
+												  })
 												: "Unknown"
 										}
 										price={product.prices
 											.sort((a, b) => a.price - b.price)
-											.map(
-												(price) =>
-													"$" +
-													(price.price / 100).toFixed(
-														2
-													)
-											)
+											.map((price) => "$" + (price.price / 100).toFixed(2))
 											.join(" or ")}
 										type={product.prices[0].interval}
-										sales={
-											salesData?.productSales.find(
-												(prod) =>
-													prod._id === product.id
-											)?.sales!
-										}
+										sales={salesData?.productSales.find((prod) => prod._id === product.id)?.sales!}
 										revenue={
-											salesData?.productSales.find(
-												(prod) =>
-													prod._id === product.id
-											)?.revenue!
+											salesData?.productSales.find((prod) => prod._id === product.id)?.revenue!
 										}
-										select={() =>
-											setSelectedProducts((products) => [
-												...products,
-												product.id,
-											])
-										}
+										select={() => setSelectedProducts((products) => [...products, product.id])}
 										deselect={() =>
 											setSelectedProducts((products) =>
-												products.filter(
-													(id) => id !== product.id
-												)
+												products.filter((id) => id !== product.id)
 											)
 										}
 										showOptionsFor={setShowOptionsFor}
-										showOptions={
-											showOptionsFor === product.id
-										}
+										showOptions={showOptionsFor === product.id}
 										editProduct={() => {
 											setShowOptionsFor("");
 											setProductToEdit(product);
@@ -595,5 +462,4 @@ export default function ManageProducts({ user }: PageProps) {
 	);
 }
 
-export const getServerSideProps: GetServerSideProps =
-	withSession(developerRoute);
+export const getServerSideProps: GetServerSideProps = withSession(developerRoute);
