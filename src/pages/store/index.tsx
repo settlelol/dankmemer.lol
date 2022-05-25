@@ -14,6 +14,7 @@ import { withSession } from "src/util/session";
 import { authenticatedRoute } from "src/util/redirects";
 import Modal from "src/components/store/Modal";
 import ShoppingCart from "src/components/store/ShoppingCart";
+import { toast } from "react-toastify";
 
 export interface Product extends Stripe.Product {
 	price: number;
@@ -118,38 +119,36 @@ export default function StoreHome({ user }: PageProps) {
 	};
 
 	const addToCart = async (item: CartItem) => {
-		if (
-			item.metadata?.type === "subscription" &&
-			cartItems.filter(
-				(_item: CartItem) => _item.metadata?.type === "subscription"
-			).length >= 1
-		)
-			return alert(
-				"Only one subscription should be added to the cart. Remove the current subscription item to add this one."
-			);
+		let toastMessage: string | undefined;
+		const typeToAdd = item.metadata!.type;
+		const cartHasSubscription =
+			cartItems.filter((i) => i.metadata?.type === "subscription")
+				.length >= 1;
+		const cartHasSingle =
+			cartItems.filter((i) => i.metadata?.type === "single").length >= 1;
+
+		if (typeToAdd === "subscription" && cartHasSubscription) {
+			toastMessage =
+				"Only one subscription should be added your cart at a time.";
+		} else if (typeToAdd === "subscription" && cartHasSingle) {
+			toastMessage =
+				"You cannot combine subscription and single-purchase products.";
+		} else if (typeToAdd == "single" && cartHasSubscription) {
+			toastMessage =
+				"You cannot combine subscription and single-purchase products.";
+		}
+
+		if (toastMessage) {
+			return toast.info(toastMessage, {
+				position: "top-center",
+				theme: "colored",
+				hideProgressBar: true,
+				autoClose: 3000,
+			});
+		}
 
 		if (
-			item.metadata?.type === "subscription" &&
-			cartItems.filter(
-				(_item: CartItem) => _item.metadata?.type === "subscription"
-			).length >= 1
-		)
-			return alert(
-				"Only one subscription should be added to the cart. Remove the current subscription item to add this one."
-			);
-
-		if (
-			item.metadata?.type !== "subscription" &&
-			cartItems.filter(
-				(_item: CartItem) => _item.metadata?.type === "subscription"
-			).length >= subscriptions.length
-		)
-			return alert(
-				"If you are purchasing a subscription-modal based item, you may not also checkout with any other item during the same checkout session."
-			);
-
-		if (
-			item.metadata?.type === "subscription" &&
+			typeToAdd === "subscription" &&
 			item.selectedPrice.interval!.length < 1
 		)
 			item.selectedPrice.interval = annualPricing ? "year" : "month";

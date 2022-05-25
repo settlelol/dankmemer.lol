@@ -225,17 +225,41 @@ export default function Cart({ cartData, user }: Props) {
 	}, [discountData, subtotalCost]);
 
 	const addToCart = async (item: CartItems) => {
-		if (
-			item.metadata?.type === "subscription" &&
-			cart.filter(
-				(_item: CartItems) => _item.metadata?.type === "subscription"
-			).length >= 1
-		)
-			return alert(
-				"Only one subscription should be added to the cart. Remove the current subscription item to add this one."
-			);
+		let toastMessage: string | undefined;
+		const typeToAdd = item.metadata!.type;
+		const cartHasSubscription =
+			cart.filter((i) => i.metadata?.type === "subscription").length >= 1;
+		const cartHasSingle =
+			cart.filter((i) => i.metadata?.type === "single").length >= 1;
 
-		setCart((_items) => [..._items, item]);
+		if (typeToAdd === "subscription" && cartHasSubscription) {
+			toastMessage =
+				"Only one subscription should be added your cart at a time.";
+		} else if (typeToAdd === "subscription" && cartHasSingle) {
+			toastMessage =
+				"You cannot combine subscription and single-purchase products.";
+		} else if (typeToAdd == "single" && cartHasSubscription) {
+			toastMessage =
+				"You cannot combine subscription and single-purchase products.";
+		}
+
+		if (toastMessage) {
+			return toast.info(toastMessage, {
+				position: "top-center",
+				theme: "colored",
+				hideProgressBar: true,
+				autoClose: 3000,
+			});
+		}
+
+		const alreadyExists = cart.findIndex((i) => i.id === item.id);
+		if (alreadyExists !== -1) {
+			let _cart = cart.slice();
+			_cart[alreadyExists].quantity += 1;
+			setCart(_cart);
+		} else {
+			setCart((i) => [...i, item]);
+		}
 	};
 
 	return (
