@@ -392,7 +392,9 @@ export default function ManageProducts({ user }: PageProps) {
 													onClick={() =>
 														changeSorting(
 															data.selector,
-															TableHeadersState.opposite(filterTableHeadersState)
+															filterTableHeadersState === TableHeadersState.TOP
+																? TableHeadersState.BOTTOM
+																: TableHeadersState.TOP
 														)
 													}
 												/>

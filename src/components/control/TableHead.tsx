@@ -5,6 +5,7 @@ import TableSortIcon, { TableHeadersState } from "./TableSortIcon";
 interface Column {
 	key: string | number;
 	className?: string;
+	rtl?: boolean;
 }
 
 export interface SortableColumn extends Column {
@@ -14,19 +15,16 @@ export interface SortableColumn extends Column {
 	width: string;
 	state: TableHeadersState;
 	active: boolean;
-	rtl?: boolean;
 	onClick: MouseEventHandler<HTMLParagraphElement>;
 }
 
 export interface UnsortableColumn extends Column {
-	key: string | number;
 	type: "Unsortable";
 	name?: never;
 	content: ReactNode;
 	width: string;
 	state?: never;
 	active?: never;
-	rtl?: boolean;
 	onClick?: never;
 }
 
@@ -56,9 +54,7 @@ export default function TableHead({
 		>
 			<p className={clsx("flex", rtl && "float-right")} onClick={onClick}>
 				{content ?? name}
-				{type === "Sortable" && (
-					<TableSortIcon active={active!} current={state} />
-				)}
+				{type === "Sortable" && <TableSortIcon active={active} current={state} />}
 			</p>
 		</th>
 	);
