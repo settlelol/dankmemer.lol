@@ -6,10 +6,11 @@ import GoBack from "../../components/ui/GoBack";
 import { PageProps } from "../../types";
 import { developerRoute } from "../../util/redirects";
 import { withSession } from "../../util/session";
+import ControlLinks from "src/components/control/ControlLinks";
 
 export default function ControlStorePage({ user }: PageProps) {
 	return (
-		<Container title="Control" user={user}>
+		<Container title="Control" links={<ControlLinks user={user!} />}>
 			<div className="mx-8">
 				<div className="my-10 flex flex-col">
 					<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">
