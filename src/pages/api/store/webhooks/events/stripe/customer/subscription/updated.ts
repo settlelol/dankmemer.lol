@@ -90,9 +90,9 @@ export default async function (
 	} else {
 		fields.push({
 			name: "Subscription",
-			value: `${product.name} ($${subscription.plan.amount! / 100}/${
-				subscription.plan.interval
-			})`,
+			value: `${product.name} ($${(
+				subscription.plan.amount! / 100
+			).toFixed(2)}/${subscription.plan.interval})`,
 			inline: true,
 		});
 	}
@@ -120,6 +120,12 @@ export default async function (
 			inline: true,
 		});
 	}
+
+	fields.push({
+		name: subscription.cancel_at_period_end ? "Will end at" : "Renewal",
+		value: `<t:${subscription.current_period_end}>`,
+		inline: true,
+	});
 
 	if (updatedFields.includes("collection_method")) {
 		fields.push({
