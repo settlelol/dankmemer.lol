@@ -12,10 +12,10 @@ export default function StoreOverview({ user }: PageProps) {
 			title="Store Overview"
 			links={<ControlLinks user={user!} />}
 		>
-			<div className="my-10">
+			<main>
 				<Title size="big">Store Overview</Title>
 				<div className="h-14 w-full dark:bg-dank-500"></div>
-			</div>
+			</main>
 		</ControlPanelContainer>
 	);
 }

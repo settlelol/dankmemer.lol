@@ -86,7 +86,7 @@ export default function ControlPanelContainer({
 					</div>
 					<div
 						className={clsx(
-							"pointer-events-none ml-80 flex justify-start"
+							"pointer-events-none my-10 ml-[22rem] mr-16 flex justify-start"
 						)}
 					>
 						<div className="relative w-full">{children}</div>
@@ -112,7 +112,7 @@ export default function ControlPanelContainer({
 					</div>
 					<div
 						className={clsx(
-							"ml-80 flex justify-start",
+							"my-10 ml-[22rem] mr-16 flex justify-start",
 							rightPaneVisible && "pointer-events-none"
 						)}
 					>
