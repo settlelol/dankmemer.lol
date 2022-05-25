@@ -11,6 +11,15 @@ export default async function (
 	stripe: Stripe
 ): Promise<EventResponse> {
 	let paymentIntent = event.data.object as Stripe.PaymentIntent;
+	if (
+		paymentIntent.description === "Subscription created" ||
+		paymentIntent.description === "Subscription update"
+	) {
+		return {
+			result: null,
+		};
+	}
+
 	paymentIntent = await stripe.paymentIntents.retrieve(paymentIntent.id);
 	const invoice = await stripe.invoices.retrieve(
 		paymentIntent.invoice!.toString(),
