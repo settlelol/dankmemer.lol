@@ -51,9 +51,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	const db: Db = await dbConnect();
-	const _customer = (await db
-		.collection("customers")
-		.findOne({ discordId: req.query.id })) as Customer;
+	const _customer = (await db.collection("customers").findOne({ discordId: req.query.id })) as Customer;
 
 	const stripe = stripeConnect();
 
@@ -63,19 +61,28 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			isSubscribed: _customer && _customer.subscription ? true : false,
 		});
 	} else if (sensitive && user.id !== req.query.id) {
-		return res
-			.status(401)
-			.json({ error: "You cannot access this information." });
+		return res.status(401).json({ error: "You cannot access this information." });
 	} else if (sensitive && user.id === req.query.id) {
+		let customer: Stripe.Customer | undefined;
 		if (!_customer) {
-			return res.status(404).json({
-				error: "Requested user was not found in the database.",
-			});
-		}
+			const unrecordedCustomer = (
+				await stripe.customers.search({
+					query: `metadata['discordId']: '${user.id}' OR email:'${user.email}'`,
+				})
+			).data[0];
 
-		const customer = (await stripe.customers.retrieve(_customer._id, {
-			expand: ["invoice_settings.default_payment_method"],
-		})) as Stripe.Customer;
+			if (unrecordedCustomer) {
+				customer = unrecordedCustomer;
+			} else {
+				return res.status(404).json({
+					error: "Requested user was not found in the database.",
+				});
+			}
+		} else {
+			customer = (await stripe.customers.retrieve(_customer._id, {
+				expand: ["invoice_settings.default_payment_method"],
+			})) as Stripe.Customer;
+		}
 
 		let defaultPaymentMethod: Stripe.PaymentMethod | null = null;
 		if (customer.invoice_settings.default_payment_method !== null) {
@@ -84,15 +91,15 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			);
 		}
 
-		const { data: paymentMethods } =
-			await stripe.customers.listPaymentMethods(customer.id, {
-				type: "card",
-			});
+		const { data: paymentMethods } = await stripe.customers.listPaymentMethods(customer.id, {
+			type: "card",
+		});
 
 		return res.status(200).json({
-			...(_customer.subscription && {
-				activeSubscription: _customer.subscription,
-			}),
+			...(_customer &&
+				_customer.subscription && {
+					activeSubscription: _customer.subscription,
+				}),
 			cards: {
 				default: defaultPaymentMethod
 					? {
@@ -106,12 +113,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 								},
 								last4: defaultPaymentMethod.card?.last4,
 								expired:
-									defaultPaymentMethod.card?.exp_year! <=
-										new Date().getFullYear() ||
-									(defaultPaymentMethod.card?.exp_year! <=
-										new Date().getFullYear() &&
-										defaultPaymentMethod.card?.exp_month! <
-											new Date().getMonth() + 1),
+									defaultPaymentMethod.card?.exp_year! <= new Date().getFullYear() ||
+									(defaultPaymentMethod.card?.exp_year! <= new Date().getFullYear() &&
+										defaultPaymentMethod.card?.exp_month! < new Date().getMonth() + 1),
 							},
 					  }
 					: null,
@@ -127,12 +131,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 							},
 							last4: pm.card?.last4,
 							expired:
-								pm.card?.exp_year! <=
-									new Date().getFullYear() ||
-								(pm.card?.exp_year! <=
-									new Date().getFullYear() &&
-									pm.card?.exp_month! <
-										new Date().getMonth() + 1),
+								pm.card?.exp_year! <= new Date().getFullYear() ||
+								(pm.card?.exp_year! <= new Date().getFullYear() &&
+									pm.card?.exp_month! < new Date().getMonth() + 1),
 						},
 					};
 				}),

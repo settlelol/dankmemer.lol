@@ -29,7 +29,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	} else if (!dbCustomer) {
 		try {
 			const unrecordedCustomer = await stripe.customers.search({
-				query: `metadata['discordId']:'${user.id}'`,
+				query: `metadata['discordId']: '${user.id}' OR email:'${user.email}'`,
 			});
 
 			if (unrecordedCustomer) {
@@ -41,38 +41,18 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					purchases: [],
 				});
 			} else {
-				const emailCustomer = (
-					await stripe.customers.list({
-						email: user.email,
-					})
-				).data[0];
-				if (emailCustomer) {
-					await db.collection("customers").insertOne({
-						_id: emailCustomer.id as unknown as ObjectId,
+				customer = await stripe.customers.create({
+					email: user.email,
+					metadata: {
 						discordId: user.id,
-						purchases: [],
-					});
+					},
+				});
 
-					const updatedCustomer = await stripe.customers.update(emailCustomer.id, {
-						metadata: {
-							discordId: user.id,
-						},
-					});
-					customer = updatedCustomer;
-				} else {
-					customer = await stripe.customers.create({
-						email: user.email,
-						metadata: {
-							discordId: user.id,
-						},
-					});
-
-					await db.collection("customers").insertOne({
-						_id: customer.id as unknown as ObjectId,
-						discordId: user.id,
-						purchases: [],
-					});
-				}
+				await db.collection("customers").insertOne({
+					_id: customer.id as unknown as ObjectId,
+					discordId: user.id,
+					purchases: [],
+				});
 			}
 		} catch (e: any) {
 			console.error(`Error while creating Stripe customer: ${e.message.split(/"/g, "")}`);
