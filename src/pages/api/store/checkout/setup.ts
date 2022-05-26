@@ -41,6 +41,26 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					purchases: [],
 				});
 			} else {
+				const emailCustomer = (
+					await stripe.customers.list({
+						email: user.email,
+					})
+				).data[0];
+				if (emailCustomer) {
+					await db.collection("customers").insertOne({
+						_id: emailCustomer.id as unknown as ObjectId,
+						discordId: user.id,
+						purchases: [],
+					});
+
+					const updatedCustomer = await stripe.customers.update(emailCustomer.id, {
+						metadata: {
+							discordId: user.id,
+						},
+					});
+					customer = updatedCustomer;
+				}
+
 				customer = await stripe.customers.create({
 					email: user.email,
 					metadata: {
