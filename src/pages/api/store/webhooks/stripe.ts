@@ -37,6 +37,7 @@ export const config = {
 };
 
 export interface PaymentIntentItemResult {
+	id: string;
 	name: string;
 	price: number;
 	quantity: number;
@@ -76,18 +77,12 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		console.error(`Missing environment variable 'STRIPE_WEBHOOK_SECRET'`);
 		return res.status(400).json({ error: "Invalid request." });
 	} else if (!signature) {
-		console.error(
-			"No Stripe-Signature header was provided during webhook request."
-		);
+		console.error("No Stripe-Signature header was provided during webhook request.");
 		return res.status(400).json({ error: "Invalid request." });
 	}
 
 	try {
-		event = stripe.webhooks.constructEvent(
-			requestBuffer.toString(),
-			signature,
-			signingSecret
-		);
+		event = stripe.webhooks.constructEvent(requestBuffer.toString(), signature, signingSecret);
 	} catch (e: any) {
 		console.error(e.message.replace(/"/g, ""));
 		result = {
@@ -100,9 +95,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				},
 			],
 		};
-		return res
-			.status(500)
-			.json({ error: "Failed Stripe signature verification" });
+		return res.status(500).json({ error: "Failed Stripe signature verification" });
 	}
 
 	switch (event.type) {
