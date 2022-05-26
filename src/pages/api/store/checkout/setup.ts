@@ -59,20 +59,20 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						},
 					});
 					customer = updatedCustomer;
-				}
+				} else {
+					customer = await stripe.customers.create({
+						email: user.email,
+						metadata: {
+							discordId: user.id,
+						},
+					});
 
-				customer = await stripe.customers.create({
-					email: user.email,
-					metadata: {
+					await db.collection("customers").insertOne({
+						_id: customer.id as unknown as ObjectId,
 						discordId: user.id,
-					},
-				});
-
-				await db.collection("customers").insertOne({
-					_id: customer.id as unknown as ObjectId,
-					discordId: user.id,
-					purchases: [],
-				});
+						purchases: [],
+					});
+				}
 			}
 		} catch (e: any) {
 			console.error(`Error while creating Stripe customer: ${e.message.split(/"/g, "")}`);
