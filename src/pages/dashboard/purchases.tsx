@@ -10,9 +10,9 @@ import { withSession } from "src/util/session";
 
 export default function PurchaseHistory({ user }: PageProps) {
 	useEffect(() => {
-		axios(`/api/customers/history?id=${user}`)
+		axios(`/api/customers/history?id=${user!.id}`)
 			.then(({ data }) => {
-				console.log(data);
+				console.log(data.purchases);
 			})
 			.catch(() => {
 				console.error("no history");
@@ -24,8 +24,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 			<main>
 				<Title size="big">Purchase history</Title>
 				<p className="text-neutral-600 dark:text-neutral-400">
-					View and manage all previously purchased goods from our
-					store which are linked to your account.
+					View and manage all previously purchased goods from our store which are linked to your account.
 				</p>
 				<section className=""></section>
 			</main>
@@ -33,5 +32,4 @@ export default function PurchaseHistory({ user }: PageProps) {
 	);
 }
 
-export const getServerSideProps: GetServerSideProps =
-	withSession(authenticatedRoute);
+export const getServerSideProps: GetServerSideProps = withSession(authenticatedRoute);
