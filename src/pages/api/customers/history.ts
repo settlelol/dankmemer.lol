@@ -36,6 +36,13 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					},
 				},
 				{
+					$addFields: {
+						"data.gateway": {
+							$arrayElemAt: ["$purchases.type", 0],
+						},
+					},
+				},
+				{
 					$project: {
 						discordId: req.query.id,
 						purchases: "$data",
