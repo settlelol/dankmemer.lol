@@ -31,7 +31,6 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 	for (let lineItem of invoice.lines.data) {
 		if (lineItem.description === null) {
 			items.push({
-				id: lineItem.id,
 				name: "SALESTAX",
 				price: lineItem.amount / 100,
 				quantity: 1,
@@ -42,7 +41,6 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 			const usedDiscounts =
 				lineItem.discount_amounts?.filter((da) => da.amount > 0).map((discount) => discount.discount) || [];
 			items.push({
-				id: lineItem.id,
 				name: productName,
 				price: lineItem.amount / 100,
 				quantity: lineItem.quantity!,
