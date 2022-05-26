@@ -4,10 +4,18 @@ import { dbConnect } from "src/util/mongodb";
 import { NextIronRequest, withSession } from "src/util/session";
 import { stripeConnect } from "src/util/stripe";
 import { PurchaseRecord } from "../store/checkout/finalize/paypal";
+import { PaymentIntentItemResult } from "../store/webhooks/stripe";
+import type { Merge } from "type-fest";
 
-interface AggregatedData {
+export interface AggregatedPurchaseRecord {
 	discordId: string;
-	purchases: PurchaseRecord[];
+	purchases: Merge<
+		PurchaseRecord,
+		{
+			gateway: "stripe" | "paypal";
+			items: Array<PaymentIntentItemResult & { image: string }>;
+		}
+	>[];
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
@@ -53,7 +61,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				},
 			])
 			.toArray()
-	)[0] as AggregatedData;
+	)[0] as AggregatedPurchaseRecord;
 
 	for (let purchase of purchaseHistory.purchases) {
 		for (let item of purchase.items) {
@@ -61,7 +69,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		}
 	}
 
-	return res.status(200).json({ purchases: purchaseHistory });
+	return res.status(200).json({ history: purchaseHistory });
 };
 
 export default withSession(handler);
