@@ -6,16 +6,6 @@ export enum TableHeadersState {
 	BOTTOM = 1,
 }
 
-export namespace TableHeadersState {
-	export function opposite(_of: TableHeadersState) {
-		if (_of === TableHeadersState.TOP) {
-			return TableHeadersState.BOTTOM;
-		} else {
-			return TableHeadersState.TOP;
-		}
-	}
-}
-
 interface Props {
 	active: boolean;
 	current?: TableHeadersState;
@@ -28,9 +18,7 @@ export default function TableSortIcon({ active, current }: Props) {
 				icon="carbon:chevron-sort-up"
 				className={clsx(
 					"absolute",
-					active && current === TableHeadersState.TOP
-						? "text-black dark:text-white"
-						: "dark:text-neutral-500"
+					active && current === TableHeadersState.TOP ? "text-black dark:text-white" : "dark:text-neutral-500"
 				)}
 			/>
 			<Iconify

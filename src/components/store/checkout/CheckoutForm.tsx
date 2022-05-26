@@ -13,20 +13,15 @@ import {
 	StripeCardNumberElementChangeEvent,
 } from "@stripe/stripe-js";
 import axios from "axios";
-import Amex from "public/img/store/cards/Amex.svg";
-import Discover from "public/img/store/cards/Discover.svg";
-import Mastercard from "public/img/store/cards/Mastercard.svg";
-import Visa from "public/img/store/cards/Visa.svg";
 import { useEffect, useRef, useState } from "react";
 import { Title } from "src/components/Title";
 import { CartItem } from "src/pages/store";
 import { DiscountItem } from "src/pages/store/checkout";
 import Input from "../Input";
 import PaymentOption from "./PaymentOption";
-
 import router from "next/router";
 import Checkbox from "src/components/ui/Checkbox";
-import ApplyPay from "public/img/store/ApplePay.svg";
+import ApplyPaySvg from "public/img/store/apple-pay.svg";
 import PaymentMethods from "./PaymentMethods";
 import AccountInformation from "./AccountInformation";
 import Tooltip from "src/components/ui/Tooltip";
@@ -34,6 +29,7 @@ import { Icon as Iconify } from "@iconify/react";
 import clsx from "clsx";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Props {
 	clientSecret: string;
@@ -315,13 +311,31 @@ export default function CheckoutForm({
 					<div className="mt-3 flex flex-wrap justify-start gap-y-3">
 						<PaymentOption
 							icons={[
-								<Visa key="visa" className="mr-1" />,
-								<Mastercard
-									key="mastercard"
+								<Image
+									src={"/img/store/cards/visa.svg"}
+									key="visa"
 									className="mr-1"
+									width={30}
+									height={30}
 								/>,
-								<Amex key="amex" className="mr-1" />,
-								<Discover key="discover" />,
+								<Image
+									src={"/img/store/cards/mastercard.svg"}
+									key="mastercard"
+									width={30}
+									height={30}
+								/>,
+								<Image
+									src={"/img/store/cards/amex.svg"}
+									key="amex"
+									width={30}
+									height={30}
+								/>,
+								<Image
+									src={"/img/store/cards/discover.svg"}
+									key="discover"
+									width={30}
+									height={30}
+								/>,
 							]}
 							selected={selectedPaymentOption === "Card"}
 							select={() => setSelectedPaymentOption("Card")}
@@ -330,7 +344,7 @@ export default function CheckoutForm({
 							icons={[
 								<img
 									key="paypal"
-									src="/img/store/PayPal.png"
+									src="/img/store/pay-pal.png"
 									width={70}
 								/>,
 							]}
@@ -339,7 +353,7 @@ export default function CheckoutForm({
 						/>
 						{integratedWalletType === "apple" && (
 							<PaymentOption
-								icons={[<ApplyPay />]}
+								icons={[<ApplyPaySvg />]}
 								selected={selectedPaymentOption === "ApplePay"}
 								select={() =>
 									setSelectedPaymentOption("ApplePay")

@@ -1,6 +1,5 @@
-import Money from "/public/img/store/Money.svg";
-import Grid from "/public/img/store/Grid.png";
 import clsx from "clsx";
+import Image from "next/image";
 
 interface Props {
 	color: keyof typeof boxColors;
@@ -27,10 +26,17 @@ export default function MarketingBox({
 				boxColors[color]
 			)}
 			style={{
-				backgroundImage: `url("${Grid.src}")`,
+				backgroundImage: `url("/img/store/grid.png")`,
 			}}
 		>
-			<Money className="absolute top-[-45px] right-[-40px]" />
+			<div className="absolute top-[-45px] right-[-40px]">
+				<Image
+					src={"/img/store/money.svg"}
+					key="money"
+					width="123"
+					height="135"
+				/>
+			</div>
 			<div className="grid h-9 w-40 place-items-center rounded-md bg-white/40">
 				<h4 className="text-sm font-medium uppercase">{title}</h4>
 			</div>

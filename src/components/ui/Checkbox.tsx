@@ -6,25 +6,13 @@ interface Props {
 	state: any;
 	style?: "border" | "fill";
 	callback: any;
-	children: ReactNode; // Checkbox label
+	children?: ReactNode; // Checkbox label
 	className?: string;
 }
 
-export default function Checkbox({
-	state,
-	style = "border",
-	callback,
-	children,
-	className,
-}: Props) {
+export default function Checkbox({ state, style = "border", callback, children, className }: Props) {
 	return (
-		<div
-			className={clsx(
-				"mt-2 flex flex-row items-center justify-start",
-				className
-			)}
-			onClick={callback}
-		>
+		<div className={clsx("mt-2 flex flex-row items-center justify-start", className)} onClick={callback}>
 			<div
 				className={clsx(
 					!state ? "border-[#3C3C3C]" : "border-dank-300",
@@ -43,9 +31,7 @@ export default function Checkbox({
 					/>
 				)}
 			</div>
-			<p className="text-xs text-neutral-600 dark:text-neutral-300">
-				{children}
-			</p>
+			<p className="text-xs text-neutral-600 dark:text-neutral-300">{children}</p>
 		</div>
 	);
 }
