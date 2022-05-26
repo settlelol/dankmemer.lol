@@ -5,17 +5,11 @@ import { NextIronRequest, withSession } from "src/util/session";
 import { stripeConnect } from "src/util/stripe";
 import { PurchaseRecord } from "../store/checkout/finalize/paypal";
 import { PaymentIntentItemResult } from "../store/webhooks/stripe";
-import type { Merge } from "type-fest";
 
 export interface AggregatedPurchaseRecord {
 	discordId: string;
-	purchases: Merge<
-		PurchaseRecord,
-		{
-			gateway: "stripe" | "paypal";
-			items: Array<PaymentIntentItemResult & { image: string }>;
-		}
-	>[];
+	purchases: Omit<PurchaseRecord & { gateway: "stripe" | "paypal" }, "items"> &
+		{ items: PaymentIntentItemResult[] & { image: string } }[];
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
