@@ -1,44 +1,20 @@
 import { APIEmbedField } from "discord-api-types/v10";
 import Stripe from "stripe";
-import {
-	EventResponse,
-	PaymentIntentItemDiscount,
-	PaymentIntentItemResult,
-} from "../../../stripe";
+import { EventResponse, PaymentIntentItemDiscount, PaymentIntentItemResult } from "../../../stripe";
 
-export default async function (
-	event: Stripe.Event,
-	stripe: Stripe
-): Promise<EventResponse> {
+export default async function (event: Stripe.Event, stripe: Stripe): Promise<EventResponse> {
 	let paymentIntent = event.data.object as Stripe.PaymentIntent;
-	if (
-		paymentIntent.description === "Subscription created" ||
-		paymentIntent.description === "Subscription update"
-	) {
+	if (paymentIntent.description === "Subscription created" || paymentIntent.description === "Subscription update") {
 		return {
 			result: null,
 		};
 	}
 
 	paymentIntent = await stripe.paymentIntents.retrieve(paymentIntent.id);
-	const invoice = await stripe.invoices.retrieve(
-		paymentIntent.invoice!.toString(),
-		{ expand: ["discounts"] }
-	);
+	const invoice = await stripe.invoices.retrieve(paymentIntent.invoice!.toString(), { expand: ["discounts"] });
 	let discounts: PaymentIntentItemDiscount[] = [];
-	for (
-		let i = 0;
-		i <
-		(
-			invoice.discounts as unknown as
-				| Stripe.Discount[]
-				| Stripe.DeletedDiscount[]
-		)?.length;
-		i++
-	) {
-		const discount = invoice.discounts![i] as unknown as
-			| Stripe.Discount
-			| Stripe.DeletedDiscount;
+	for (let i = 0; i < (invoice.discounts as unknown as Stripe.Discount[] | Stripe.DeletedDiscount[])?.length; i++) {
+		const discount = invoice.discounts![i] as unknown as Stripe.Discount | Stripe.DeletedDiscount;
 		const { data: coupon } = await stripe.promotionCodes.list({
 			coupon: discount.coupon?.id,
 		});
@@ -47,9 +23,7 @@ export default async function (
 			code: coupon[0].code,
 			name: coupon[0].coupon.name || "N/A",
 			discountDecimal: discount.coupon.percent_off!,
-			discountPercentage: `${parseFloat(
-				discount.coupon.percent_off as unknown as string
-			)}%`,
+			discountPercentage: `${parseFloat(discount.coupon.percent_off as unknown as string)}%`,
 		});
 	}
 
@@ -57,30 +31,24 @@ export default async function (
 	for (let lineItem of invoice.lines.data) {
 		if (lineItem.description === null) {
 			items.push({
+				id: lineItem.id,
 				name: "SALESTAX",
 				price: lineItem.amount / 100,
 				quantity: 1,
 				type: lineItem.price?.type!,
 			});
 		} else {
-			const productName = (
-				await stripe.products.retrieve(
-					lineItem.price!.product as string
-				)
-			).name;
+			const productName = (await stripe.products.retrieve(lineItem.price!.product as string)).name;
 			const usedDiscounts =
-				lineItem.discount_amounts
-					?.filter((da) => da.amount > 0)
-					.map((discount) => discount.discount) || [];
+				lineItem.discount_amounts?.filter((da) => da.amount > 0).map((discount) => discount.discount) || [];
 			items.push({
+				id: lineItem.id,
 				name: productName,
 				price: lineItem.amount / 100,
 				quantity: lineItem.quantity!,
 				type: lineItem.price?.type!,
 				discounts: usedDiscounts.map((usedDiscount) => ({
-					...discounts.find(
-						(discount) => discount.id === usedDiscount
-					),
+					...discounts.find((discount) => discount.id === usedDiscount),
 				})) as PaymentIntentItemDiscount[],
 			});
 		}
@@ -90,9 +58,7 @@ export default async function (
 	if (invoice.metadata && invoice.metadata.boughtByDiscordId) {
 		payee = invoice.metadata!.boughtByDiscordId;
 	} else {
-		const customer = (await stripe.customers.retrieve(
-			paymentIntent.customer as string
-		)) as Stripe.Customer;
+		const customer = (await stripe.customers.retrieve(paymentIntent.customer as string)) as Stripe.Customer;
 		payee = customer.metadata.discordId;
 	}
 
@@ -100,21 +66,14 @@ export default async function (
 		{
 			name: "Purchased by",
 			value: `<@!${payee}> (${payee})`,
-			inline:
-				paymentIntent.metadata?.isGift &&
-				JSON.parse(paymentIntent.metadata.isGift),
+			inline: paymentIntent.metadata?.isGift && JSON.parse(paymentIntent.metadata.isGift),
 		},
 	];
 
-	if (
-		paymentIntent.metadata?.isGift &&
-		JSON.parse(paymentIntent.metadata.isGift)
-	) {
+	if (paymentIntent.metadata?.isGift && JSON.parse(paymentIntent.metadata.isGift)) {
 		fields.push({
 			name: "(Gift) Purchased for",
-			value: `<@!${invoice!.metadata!.giftFor}> (${
-				paymentIntent.metadata.giftFor
-			})`,
+			value: `<@!${invoice!.metadata!.giftFor}> (${paymentIntent.metadata.giftFor})`,
 			inline: true,
 		});
 		fields.push({ name: "_ _", value: "_ _", inline: true }); // Add an invisible embed field
@@ -136,18 +95,12 @@ export default async function (
 			name: "Discounts applied",
 			value: `${discounts
 				.map((discount) => {
-					const discountedItems = items.filter(
-						(item: PaymentIntentItemResult) =>
-							item.discounts?.find((d) => d.id === discount.id)
+					const discountedItems = items.filter((item: PaymentIntentItemResult) =>
+						item.discounts?.find((d) => d.id === discount.id)
 					);
-					const itemsText = discountedItems.map(
-						(item: PaymentIntentItemResult) => {
-							return `> ${item?.name} (-$${(
-								item?.price! *
-								(discount.discountDecimal / 100)
-							).toFixed(2)})`;
-						}
-					);
+					const itemsText = discountedItems.map((item: PaymentIntentItemResult) => {
+						return `> ${item?.name} (-$${(item?.price! * (discount.discountDecimal / 100)).toFixed(2)})`;
+					});
 					return `**${discount.name}** (\`${discount.code}\`) - ${
 						discount.discountPercentage
 					}\n${itemsText.join("\n")}`;
@@ -167,9 +120,7 @@ export default async function (
 					color: 6777310,
 					fields,
 					footer: {
-						text: `Total purchase value: $${(
-							invoice.amount_paid / 100
-						).toFixed(2)} (incl. sales tax)`,
+						text: `Total purchase value: $${(invoice.amount_paid / 100).toFixed(2)} (incl. sales tax)`,
 					},
 				},
 			],
