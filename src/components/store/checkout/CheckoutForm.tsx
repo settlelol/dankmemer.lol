@@ -1,10 +1,4 @@
-import {
-	CardCvcElement,
-	CardExpiryElement,
-	CardNumberElement,
-	useElements,
-	useStripe,
-} from "@stripe/react-stripe-js";
+import { CardCvcElement, CardExpiryElement, CardNumberElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import {
 	CanMakePaymentResult,
 	PaymentRequest,
@@ -80,18 +74,12 @@ export default function CheckoutForm({
 	const [selectedPaymentOption, setSelectedPaymentOption] = useState<
 		"Card" | "PayPal" | "ApplePay" | "GooglePay" | "MicrosoftPay"
 	>("Card");
-	const [acceptsIntegratedWallet, setAcceptsIntegratedWallet] =
-		useState(false);
-	const [integratedWalletType, setIntegratedWalletType] = useState<
-		"apple" | "google" | "microsoft" | null
-	>(null);
-	const [integratedWallet, setIntegratedWallet] =
-		useState<PaymentRequest | null>(null);
+	const [acceptsIntegratedWallet, setAcceptsIntegratedWallet] = useState(false);
+	const [integratedWalletType, setIntegratedWalletType] = useState<"apple" | "google" | "microsoft" | null>(null);
+	const [integratedWallet, setIntegratedWallet] = useState<PaymentRequest | null>(null);
 
-	const [defaultPaymentMethod, setDefaultPaymentMethod] =
-		useState<CardData>();
-	const [savedPaymentMethods, setSavedPaymentMethods] =
-		useState<CardData[]>();
+	const [defaultPaymentMethod, setDefaultPaymentMethod] = useState<CardData>();
+	const [savedPaymentMethods, setSavedPaymentMethods] = useState<CardData[]>();
 	const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(""); // Payment method ID
 
 	const [nameOnCard, setNameOnCard] = useState("");
@@ -99,18 +87,13 @@ export default function CheckoutForm({
 	const stripeElements = useElements();
 
 	// Stripe input states
-	const [cardNumberInput, setCardNumberInput] =
-		useState<StripeCardNumberElementChangeEvent>();
-	const [cardExpiryInput, setCardExpiryInput] =
-		useState<StripeCardExpiryElementChangeEvent>();
-	const [cardCvcInput, setCardCvcInput] =
-		useState<StripeCardCvcElementChangeEvent>();
+	const [cardNumberInput, setCardNumberInput] = useState<StripeCardNumberElementChangeEvent>();
+	const [cardExpiryInput, setCardExpiryInput] = useState<StripeCardExpiryElementChangeEvent>();
+	const [cardCvcInput, setCardCvcInput] = useState<StripeCardCvcElementChangeEvent>();
 
 	const [saveCardAsDefault, setSaveCardAsDefault] = useState(false);
 
-	const [thresholdDiscount, setThresholdDiscount] = useState(
-		parseFloat(subtotalCost) >= 20
-	);
+	const [thresholdDiscount, setThresholdDiscount] = useState(parseFloat(subtotalCost) >= 20);
 	const [appliedDiscountCode, setAppliedDiscountCode] = useState("");
 	const [discountedItems, setDiscountedItems] = useState<DiscountItem[]>([]);
 	const [appliedSavings, setAppliedSavings] = useState(0);
@@ -135,15 +118,13 @@ export default function CheckoutForm({
 				return;
 			});
 
-		axios(`/api/customers/get?id=${userId}&sensitive=true`).then(
-			({ data }) => {
-				if (data.cards.default) {
-					setDefaultPaymentMethod(data.cards.default);
-					setSelectedPaymentMethod(data.cards.default);
-				}
-				if (data.cards.other) setSavedPaymentMethods(data.cards.other);
+		axios(`/api/customers/get?id=${userId}&sensitive=true`).then(({ data }) => {
+			if (data.cards.default) {
+				setDefaultPaymentMethod(data.cards.default);
+				setSelectedPaymentMethod(data.cards.default);
 			}
-		);
+			if (data.cards.other) setSavedPaymentMethods(data.cards.other);
+		});
 	}, []);
 
 	useEffect(() => {
@@ -162,12 +143,7 @@ export default function CheckoutForm({
 		const numSubCost = parseFloat(subtotalCost);
 		const totalAfterSavings = numSubCost - appliedSavings;
 		setThresholdDiscount(totalAfterSavings >= 20);
-		setTotalCost(
-			(
-				totalAfterSavings -
-				(totalAfterSavings >= 20 ? totalAfterSavings * 0.1 : 0)
-			).toFixed(2)
-		);
+		setTotalCost((totalAfterSavings - (totalAfterSavings >= 20 ? totalAfterSavings * 0.1 : 0)).toFixed(2));
 	}, [subtotalCost, appliedSavings]);
 
 	useEffect(() => {
@@ -180,13 +156,7 @@ export default function CheckoutForm({
 		)
 			setCanCheckout(true);
 		else setCanCheckout(false);
-	}, [
-		nameOnCard,
-		cardNumberInput,
-		cardExpiryInput,
-		cardCvcInput,
-		selectedPaymentMethod,
-	]);
+	}, [nameOnCard, cardNumberInput, cardExpiryInput, cardCvcInput, selectedPaymentMethod]);
 
 	useEffect(() => {
 		if (selectedPaymentMethod !== "") setSelectedPaymentMethod("");
@@ -210,8 +180,7 @@ export default function CheckoutForm({
 			requestPayerName: true,
 		});
 
-		const canMakePayment: CanMakePaymentResult | null =
-			await paymentRequest.canMakePayment();
+		const canMakePayment: CanMakePaymentResult | null = await paymentRequest.canMakePayment();
 
 		if (!canMakePayment) return;
 		setAcceptsIntegratedWallet(true);
@@ -220,30 +189,22 @@ export default function CheckoutForm({
 		setIntegratedWallet(paymentRequest);
 	};
 
-	const confirmPayment = async (
-		isGift: Boolean,
-		giftFor: string,
-		receiptEmail: string
-	) => {
+	const confirmPayment = async (isGift: Boolean, giftFor: string, receiptEmail: string) => {
 		if (!stripe || !stripeElements || !canCheckout) return;
 		setProcessingPayment(true);
 
-		const { data: res } = await axios(
-			`/api/customers/get?id=${isGift ? giftFor : userId}`
-		);
+		const { data: res } = await axios(`/api/customers/get?id=${isGift ? giftFor : userId}`);
 
 		if (res.isSubscribed) {
 			setProcessingPayment(false);
 			return toast.info(
 				<p>
-					{isGift ? <>That user</> : <>You</>} already{" "}
-					{isGift ? <>has</> : <>have</>} an active subscription.{" "}
+					{isGift ? <>That user</> : <>You</>} already {isGift ? <>has</> : <>have</>} an active subscription.{" "}
 					{isGift ? (
 						<></>
 					) : (
 						<>
-							If you wish to manage your subscription, you can do
-							so{" "}
+							If you wish to manage your subscription, you can do so{" "}
 							<Link href="/dashboard/account">
 								<a className="underline">here</a>
 							</Link>
@@ -297,9 +258,7 @@ export default function CheckoutForm({
 				setProcessingPayment(false);
 			})
 			.finally(() => {
-				router.push(
-					`/store/checkout/success?gateway=stripe&id=${invoiceId}`
-				);
+				router.push(`/store/checkout/success?gateway=stripe&id=${invoiceId}`);
 			});
 	};
 
@@ -315,39 +274,23 @@ export default function CheckoutForm({
 									src={"/img/store/cards/visa.svg"}
 									key="visa"
 									className="mr-1"
-									width={30}
-									height={30}
+									width={26}
+									height={20}
 								/>,
 								<Image
 									src={"/img/store/cards/mastercard.svg"}
 									key="mastercard"
-									width={30}
-									height={30}
+									width={26}
+									height={20}
 								/>,
-								<Image
-									src={"/img/store/cards/amex.svg"}
-									key="amex"
-									width={30}
-									height={30}
-								/>,
-								<Image
-									src={"/img/store/cards/discover.svg"}
-									key="discover"
-									width={30}
-									height={30}
-								/>,
+								<Image src={"/img/store/cards/amex.svg"} key="amex" width={26} height={20} />,
+								<Image src={"/img/store/cards/discover.svg"} key="discover" width={26} height={20} />,
 							]}
 							selected={selectedPaymentOption === "Card"}
 							select={() => setSelectedPaymentOption("Card")}
 						/>
 						<PaymentOption
-							icons={[
-								<img
-									key="paypal"
-									src="/img/store/pay-pal.png"
-									width={70}
-								/>,
-							]}
+							icons={[<img key="paypal" src="/img/store/pay-pal.png" width={70} />]}
 							selected={selectedPaymentOption === "PayPal"}
 							select={() => setSelectedPaymentOption("PayPal")}
 						/>
@@ -355,21 +298,18 @@ export default function CheckoutForm({
 							<PaymentOption
 								icons={[<ApplyPaySvg />]}
 								selected={selectedPaymentOption === "ApplePay"}
-								select={() =>
-									setSelectedPaymentOption("ApplePay")
-								}
+								select={() => setSelectedPaymentOption("ApplePay")}
 							/>
 						)}
 					</div>
-					{selectedPaymentOption === "Card" &&
-						(!defaultPaymentMethod || !savedPaymentMethods) && (
-							<PaymentMethods
-								savedPaymentMethods={savedPaymentMethods}
-								defaultPaymentMethod={defaultPaymentMethod}
-								select={setSelectedPaymentMethod}
-								selected={selectedPaymentMethod}
-							/>
-						)}
+					{selectedPaymentOption === "Card" && (!defaultPaymentMethod || !savedPaymentMethods) && (
+						<PaymentMethods
+							savedPaymentMethods={savedPaymentMethods}
+							defaultPaymentMethod={defaultPaymentMethod}
+							select={setSelectedPaymentMethod}
+							selected={selectedPaymentMethod}
+						/>
+					)}
 				</div>
 				{selectedPaymentOption === "Card" && (
 					<>
@@ -386,29 +326,21 @@ export default function CheckoutForm({
 									label="Name on card"
 									defaultValue={nameOnCard}
 									disabled={processingPayment}
-									onChange={(e: any) =>
-										setNameOnCard(e.target.value)
-									}
+									onChange={(e: any) => setNameOnCard(e.target.value)}
 									placeholder="John doe"
 								/>
 								<div className="mt-2 flex flex-col justify-start phone:flex-row phone:items-center">
 									<div className="mr-0 w-48 phone:mr-7">
-										<label className="text-neutral-600 dark:text-neutral-300">
-											Card number
-										</label>
+										<label className="text-neutral-600 dark:text-neutral-300">Card number</label>
 										<CardNumberElement
-											onChange={(data) =>
-												setCardNumberInput(data)
-											}
+											onChange={(data) => setCardNumberInput(data)}
 											options={{
 												disabled: processingPayment,
-												placeholder:
-													"4024 0071 1411 4951",
+												placeholder: "4024 0071 1411 4951",
 												style: {
 													base: {
 														color: "#ffffff",
-														fontFamily:
-															"Inter, sans-serif",
+														fontFamily: "Inter, sans-serif",
 														fontWeight: "400",
 														fontSize: "14px",
 														"::placeholder": {
@@ -417,10 +349,7 @@ export default function CheckoutForm({
 													},
 												},
 												classes: {
-													base: clsx(
-														"w-[200px]",
-														StripeInputBaseStyles
-													),
+													base: clsx("w-[200px]", StripeInputBaseStyles),
 													focus: "border-[#199532] outline-none",
 													invalid: "border-[#F84A4A]",
 												},
@@ -429,76 +358,56 @@ export default function CheckoutForm({
 									</div>
 									<div className="mt-2 flex items-center justify-start phone:mt-0">
 										<div className="mr-5 w-max">
-											<label className="text-neutral-600 dark:text-neutral-300">
-												Expiry
-											</label>
+											<label className="text-neutral-600 dark:text-neutral-300">Expiry</label>
 											<div className="w-20">
 												<CardExpiryElement
-													onChange={(data) =>
-														setCardExpiryInput(data)
-													}
+													onChange={(data) => setCardExpiryInput(data)}
 													options={{
-														disabled:
-															processingPayment,
+														disabled: processingPayment,
 														placeholder: "04 / 25",
 														style: {
 															base: {
 																color: "#ffffff",
-																fontFamily:
-																	"Inter, sans-serif",
-																fontWeight:
-																	"400",
-																fontSize:
-																	"14px",
-																"::placeholder":
-																	{
-																		color: "#9ca3af",
-																	},
+																fontFamily: "Inter, sans-serif",
+																fontWeight: "400",
+																fontSize: "14px",
+																"::placeholder": {
+																	color: "#9ca3af",
+																},
 															},
 														},
 														classes: {
 															base: StripeInputBaseStyles,
 															focus: "border-[#199532]",
-															invalid:
-																"border-[#F84A4A]",
+															invalid: "border-[#F84A4A]",
 														},
 													}}
 												/>
 											</div>
 										</div>
 										<div className="w-max">
-											<label className="text-neutral-600 dark:text-neutral-300">
-												CVC
-											</label>
+											<label className="text-neutral-600 dark:text-neutral-300">CVC</label>
 											<div className="w-14">
 												<CardCvcElement
-													onChange={(data) =>
-														setCardCvcInput(data)
-													}
+													onChange={(data) => setCardCvcInput(data)}
 													options={{
-														disabled:
-															processingPayment,
+														disabled: processingPayment,
 														placeholder: "964",
 														style: {
 															base: {
 																color: "#ffffff",
-																fontFamily:
-																	"Inter, sans-serif",
-																fontWeight:
-																	"400",
-																fontSize:
-																	"14px",
-																"::placeholder":
-																	{
-																		color: "#9ca3af",
-																	},
+																fontFamily: "Inter, sans-serif",
+																fontWeight: "400",
+																fontSize: "14px",
+																"::placeholder": {
+																	color: "#9ca3af",
+																},
 															},
 														},
 														classes: {
 															base: StripeInputBaseStyles,
 															focus: "border-[#199532]",
-															invalid:
-																"border-[#F84A4A]",
+															invalid: "border-[#F84A4A]",
 														},
 													}}
 												/>
@@ -509,9 +418,7 @@ export default function CheckoutForm({
 								<Checkbox
 									className="!mt-4"
 									state={saveCardAsDefault}
-									callback={() =>
-										setSaveCardAsDefault(!saveCardAsDefault)
-									}
+									callback={() => setSaveCardAsDefault(!saveCardAsDefault)}
 								>
 									{defaultPaymentMethod === null
 										? "Save payment method to use it again easily in the future."
@@ -544,38 +451,21 @@ export default function CheckoutForm({
 											<ul className="pl-3">
 												{discountedItems.length >= 1 &&
 													cart.length >= 1 &&
-													discountedItems.map(
-														(item) => (
-															<li className="flex list-decimal justify-between text-sm">
-																<p className="dark:text-[#b4b4b4]">
-																	•{" "}
-																	{
-																		cart.filter(
-																			(
-																				_item
-																			) =>
-																				_item.id ===
-																				item.id
-																		)[0]
-																			.name
-																	}
-																</p>
-																<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
-																	-$
-																	{item.savings.toFixed(
-																		2
-																	)}
-																</p>
-															</li>
-														)
-													)}
+													discountedItems.map((item) => (
+														<li className="flex list-decimal justify-between text-sm">
+															<p className="dark:text-[#b4b4b4]">
+																• {cart.filter((_item) => _item.id === item.id)[0].name}
+															</p>
+															<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
+																-$
+																{item.savings.toFixed(2)}
+															</p>
+														</li>
+													))}
 												{thresholdDiscount && (
 													<li className="flex list-decimal justify-between text-sm">
 														<p className="flex items-center justify-center space-x-1 dark:text-[#b4b4b4]">
-															<span>
-																• Threshold
-																discount
-															</span>
+															<span>• Threshold discount</span>
 															<Tooltip content="10% Discount applied because base cart value exceeds $20">
 																<Iconify icon="ant-design:question-circle-filled" />
 															</Tooltip>
@@ -583,10 +473,7 @@ export default function CheckoutForm({
 														<p className="text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
 															-$
 															{(
-																(parseFloat(
-																	subtotalCost
-																) -
-																	appliedSavings) *
+																(parseFloat(subtotalCost) - appliedSavings) *
 																0.1
 															).toFixed(2)}
 														</p>
@@ -625,31 +512,22 @@ export default function CheckoutForm({
 							discountsUsed: [
 								{
 									code: appliedDiscountCode ?? "",
-									items:
-										appliedDiscountCode.length >= 1
-											? discountedItems.map((di) => di.id)
-											: [],
+									items: appliedDiscountCode.length >= 1 ? discountedItems.map((di) => di.id) : [],
 								},
 								{
 									code: thresholdDiscount ? "THRESHOLD" : "",
-									items: thresholdDiscount
-										? cart.map((item) => item.id)
-										: [],
+									items: thresholdDiscount ? cart.map((item) => item.id) : [],
 								},
 							],
 							discountedItemsTotalSavings: discountedItems.reduce(
-								(acc: number, item: DiscountItem) =>
-									acc + item.savings,
+								(acc: number, item: DiscountItem) => acc + item.savings,
 								0
 							),
 							thresholdDiscount: thresholdDiscount
 								? (
 										(parseFloat(subtotalCost) -
 											discountedItems.reduce(
-												(
-													acc: number,
-													item: DiscountItem
-												) => acc + item.savings,
+												(acc: number, item: DiscountItem) => acc + item.savings,
 												0
 											)) *
 										0.1
@@ -657,9 +535,7 @@ export default function CheckoutForm({
 								: "0.00",
 						}}
 						integratedWalletButtonType={
-							cart[0].selectedPrice.type === "recurring"
-								? "subscribe"
-								: "check-out"
+							cart[0].selectedPrice.type === "recurring" ? "subscribe" : "check-out"
 						}
 					/>
 				</div>
