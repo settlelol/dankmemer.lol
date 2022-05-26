@@ -37,7 +37,6 @@ export const config = {
 };
 
 export interface PaymentIntentItemResult {
-	id: string;
 	name: string;
 	price: number;
 	quantity: number;

@@ -9,7 +9,7 @@ import { PaymentIntentItemResult } from "../store/webhooks/stripe";
 export interface AggregatedPurchaseRecord {
 	discordId: string;
 	purchases: Omit<PurchaseRecord & { gateway: "stripe" | "paypal" }, "items"> &
-		{ items: PaymentIntentItemResult[] & { image: string } }[];
+		{ items: (PaymentIntentItemResult & { id: string; image: string })[] }[];
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
