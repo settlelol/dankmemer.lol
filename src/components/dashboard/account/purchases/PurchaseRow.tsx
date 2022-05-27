@@ -3,14 +3,18 @@ import Tooltip from "src/components/ui/Tooltip";
 import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/history";
 import { Icon as Iconify } from "@iconify/react";
 import { format, formatRelative } from "date-fns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
 	purchase: AggregatedPurchaseRecordPurchases;
 }
 
 export default function PurchaseRow({ purchase }: Props) {
-	const [subtotal] = useState(purchase.items.reduce((curr: number, item) => curr + item.price, 0));
+	const [subtotal, setSubtotal] = useState(purchase.items.reduce((curr: number, item) => curr + item.price, 0));
+
+	useEffect(() => {
+		setSubtotal(purchase.items.reduce((curr: number, item) => curr + item.price, 0));
+	}, [purchase.items]);
 
 	return (
 		<tr key={purchase._id} className="group relative h-12 text-sm">
