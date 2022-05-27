@@ -12,8 +12,9 @@ import { Title } from "src/components/Title";
 import { PageProps } from "src/types";
 import { authenticatedRoute } from "src/util/redirects";
 import { withSession } from "src/util/session";
-import { AggregatedPurchaseRecord, AggregatedPurchaseRecordPurchases } from "../api/customers/history";
+import { AggregatedPurchaseRecordPurchases } from "../api/customers/history";
 import { FilterableColumnData, UnfilterableColumnData } from "../control/store/products/manage";
+import Input from "src/components/store/Input";
 
 type ColumnData = (Omit<FilterableColumnData, "selector"> & { selector: TableHeaders }) | UnfilterableColumnData;
 enum TableHeaders {
@@ -27,6 +28,9 @@ export default function PurchaseHistory({ user }: PageProps) {
 	const [loading, setLoading] = useState(true);
 	const [purchases, setPurchases] = useState<AggregatedPurchaseRecordPurchases[]>([]);
 
+	const [displayedPurchases, setDisplayedPurchases] = useState<AggregatedPurchaseRecordPurchases[]>([]);
+
+	const [filterSearch, setFilterSearch] = useState("");
 	const [filterTableHeaders, setFilterTableHeaders] = useState<TableHeaders | null>();
 	const [filterTableHeadersState, setFilterTableHeadersState] = useState<TableHeadersState>(TableHeadersState.BOTTOM);
 	const [tableHeads, setTableHeads] = useState<ColumnData[]>([
@@ -90,6 +94,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 		axios(`/api/customers/history?id=${user!.id}`)
 			.then(({ data }) => {
 				setPurchases(data.history.purchases);
+				setDisplayedPurchases(data.history.purchases);
 			})
 			.catch(() => {
 				console.error("no history");
@@ -99,8 +104,70 @@ export default function PurchaseHistory({ user }: PageProps) {
 			});
 	}, []);
 
-	const changeSorting = (id: TableHeaders, state: TableHeadersState) => {
-		console.log(id, state);
+	useEffect(() => {
+		setDisplayedPurchases(
+			purchases.filter((purchase) => purchase._id.toLowerCase().includes(filterSearch.toLowerCase()))
+		);
+	}, [filterSearch]);
+
+	const changeSorting = (selector: TableHeaders, state: TableHeadersState) => {
+		setFilterTableHeaders(selector);
+		setFilterTableHeadersState(state);
+
+		switch (selector) {
+			case TableHeaders.ORDER:
+				if (state === TableHeadersState.TOP) {
+					setDisplayedPurchases((purchases) => purchases.sort((a, b) => a._id.localeCompare(b._id)));
+				} else {
+					setDisplayedPurchases((purchases) => purchases.sort((a, b) => b._id.localeCompare(a._id)));
+				}
+				break;
+			case TableHeaders.COST:
+				if (state === TableHeadersState.TOP) {
+					setDisplayedPurchases((purchases) =>
+						purchases.sort(
+							(a, b) =>
+								a.items.reduce((prev, curr) => prev + curr.price, 0) -
+								b.items.reduce((prev, curr) => prev + curr.price, 0)
+						)
+					);
+				} else {
+					setDisplayedPurchases((products) =>
+						products.sort(
+							(a, b) =>
+								b.items.reduce((prev, curr) => prev + curr.price, 0) -
+								a.items.reduce((prev, curr) => prev + curr.price, 0)
+						)
+					);
+				}
+				break;
+			case TableHeaders.DATE:
+				if (state === TableHeadersState.TOP) {
+					setDisplayedPurchases((purchases) => purchases.sort((a, b) => b.purchaseTime - a.purchaseTime));
+				} else {
+					setDisplayedPurchases((purchases) => purchases.sort((a, b) => a.purchaseTime - b.purchaseTime));
+				}
+				break;
+			case TableHeaders.GOODS:
+				if (state === TableHeadersState.TOP) {
+					setDisplayedPurchases((purchases) =>
+						purchases.sort(
+							(a, b) =>
+								a.items.reduce((prev, curr) => prev + curr.quantity, 0) -
+								b.items.reduce((prev, curr) => prev + curr.quantity, 0)
+						)
+					);
+				} else {
+					setDisplayedPurchases((purchases) =>
+						purchases.sort(
+							(a, b) =>
+								b.items.reduce((prev, curr) => prev + curr.quantity, 0) -
+								a.items.reduce((prev, curr) => prev + curr.quantity, 0)
+						)
+					);
+				}
+				break;
+		}
 	};
 
 	return (
@@ -110,7 +177,20 @@ export default function PurchaseHistory({ user }: PageProps) {
 				<p className="text-neutral-600 dark:text-neutral-400">
 					View and manage all previously purchased goods from our store which are linked to your account.
 				</p>
-				<section className="mt-10 flex flex-col space-y-5">
+				<div className="flex w-full items-center justify-between space-x-10">
+					<div className="order-1 grow">
+						<Input
+							icon="bx:search"
+							width="w-full"
+							className="mt-8 !bg-light-500 dark:!bg-dark-100"
+							placeholder="Search for an order's ID"
+							type={"search"}
+							value={filterSearch}
+							onChange={(e) => setFilterSearch(e.target.value)}
+						/>
+					</div>
+				</div>
+				<section className="flex flex-col space-y-5">
 					{loading ? (
 						<LoadingPepe />
 					) : purchases.length >= 1 ? (
@@ -164,7 +244,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 							{/* Required to add additional spacing between the thead and tbody elements */}
 							<div className="h-4" />
 							<tbody>
-								{purchases.map((purchase) => (
+								{displayedPurchases.map((purchase) => (
 									<PurchaseRow purchase={purchase} />
 								))}
 							</tbody>
