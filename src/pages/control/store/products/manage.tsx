@@ -40,7 +40,7 @@ enum TableHeaders {
 	TOTAL_REVENUE = 4,
 }
 
-interface FilterableColumnData {
+export interface FilterableColumnData {
 	type: "Sortable";
 	name: string;
 	selector: TableHeaders;
@@ -50,7 +50,7 @@ interface FilterableColumnData {
 	hidden: boolean;
 }
 
-interface UnfilterableColumnData {
+export interface UnfilterableColumnData {
 	type: "Unsortable";
 	name?: never;
 	selector?: never;

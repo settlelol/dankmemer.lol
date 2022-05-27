@@ -1,15 +1,20 @@
 import { Db } from "mongodb";
 import { NextApiResponse } from "next";
+import { Metadata } from "src/pages/store";
 import { dbConnect } from "src/util/mongodb";
 import { NextIronRequest, withSession } from "src/util/session";
 import { stripeConnect } from "src/util/stripe";
 import { PurchaseRecord } from "../store/checkout/finalize/paypal";
 import { PaymentIntentItemResult } from "../store/webhooks/stripe";
 
+export type AggregatedPurchaseRecordPurchases = Omit<PurchaseRecord & { gateway: "stripe" | "paypal" }, "items"> & {
+	items: (PaymentIntentItemResult & { id: string; image: string })[];
+	type: "single" | "subscription";
+};
+
 export interface AggregatedPurchaseRecord {
 	discordId: string;
-	purchases: Omit<PurchaseRecord & { gateway: "stripe" | "paypal" }, "items"> &
-		{ items: (PaymentIntentItemResult & { id: string; image: string })[] }[];
+	purchases: AggregatedPurchaseRecordPurchases[];
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
@@ -59,7 +64,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	for (let purchase of purchaseHistory.purchases) {
 		for (let item of purchase.items) {
-			item = Object.assign(item, { image: (await stripe.products.retrieve(item.id)).images[0] });
+			const product = await stripe.products.retrieve(item.id);
+			purchase.type = (product.metadata as Metadata).type!;
+			item = Object.assign(item, { image: product.images[0] });
 		}
 	}
 

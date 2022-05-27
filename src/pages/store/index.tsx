@@ -34,7 +34,7 @@ type PriceInformation = {
 	metadata: any;
 };
 
-interface Metadata {
+export interface Metadata {
 	type?: "subscription" | "single";
 	hidden?: boolean;
 }
@@ -83,16 +83,12 @@ export default function StoreHome({ user }: PageProps) {
 	const [modalProps, setModalProps] = useState<ModalProps>();
 
 	const getProducts = async () => {
-		const { data: products } = await axios(
-			"/api/store/products/one-time/list"
-		);
+		const { data: products } = await axios("/api/store/products/one-time/list");
 		setProducts(products);
 	};
 
 	const getSubscriptions = async () => {
-		let { data: subscriptions } = await axios(
-			"/api/store/products/subscriptions/list"
-		);
+		let { data: subscriptions } = await axios("/api/store/products/subscriptions/list");
 		setSubscriptions(subscriptions);
 	};
 
@@ -103,39 +99,24 @@ export default function StoreHome({ user }: PageProps) {
 		if (cartContents.cart.length < 1) return;
 		setTotalCost(
 			cartContents.cart
-				.reduce(
-					(acc: number, item: CartItem) =>
-						acc + (item.selectedPrice.price / 100) * item.quantity,
-					0
-				)
+				.reduce((acc: number, item: CartItem) => acc + (item.selectedPrice.price / 100) * item.quantity, 0)
 				.toFixed(2)
 		);
-		setCartQuantities(
-			cartContents.cart.reduce(
-				(acc: number, item: CartItem) => acc + item.quantity,
-				0
-			)
-		);
+		setCartQuantities(cartContents.cart.reduce((acc: number, item: CartItem) => acc + item.quantity, 0));
 	};
 
 	const addToCart = async (item: CartItem) => {
 		let toastMessage: string | undefined;
 		const typeToAdd = item.metadata!.type;
-		const cartHasSubscription =
-			cartItems.filter((i) => i.metadata?.type === "subscription")
-				.length >= 1;
-		const cartHasSingle =
-			cartItems.filter((i) => i.metadata?.type === "single").length >= 1;
+		const cartHasSubscription = cartItems.filter((i) => i.metadata?.type === "subscription").length >= 1;
+		const cartHasSingle = cartItems.filter((i) => i.metadata?.type === "single").length >= 1;
 
 		if (typeToAdd === "subscription" && cartHasSubscription) {
-			toastMessage =
-				"Only one subscription should be added your cart at a time.";
+			toastMessage = "Only one subscription should be added your cart at a time.";
 		} else if (typeToAdd === "subscription" && cartHasSingle) {
-			toastMessage =
-				"You cannot combine subscription and single-purchase products.";
+			toastMessage = "You cannot combine subscription and single-purchase products.";
 		} else if (typeToAdd == "single" && cartHasSubscription) {
-			toastMessage =
-				"You cannot combine subscription and single-purchase products.";
+			toastMessage = "You cannot combine subscription and single-purchase products.";
 		}
 
 		if (toastMessage) {
@@ -147,15 +128,10 @@ export default function StoreHome({ user }: PageProps) {
 			});
 		}
 
-		if (
-			typeToAdd === "subscription" &&
-			item.selectedPrice.interval!.length < 1
-		)
+		if (typeToAdd === "subscription" && item.selectedPrice.interval!.length < 1)
 			item.selectedPrice.interval = annualPricing ? "year" : "month";
 
-		const alreadyExists = cartItems.findIndex(
-			(_item) => _item.id === item.id
-		);
+		const alreadyExists = cartItems.findIndex((_item) => _item.id === item.id);
 		if (alreadyExists !== -1) {
 			let _cartItems = cartItems.slice();
 			_cartItems[alreadyExists].quantity += 1;
@@ -213,18 +189,11 @@ export default function StoreHome({ user }: PageProps) {
 		} else {
 			setTotalCost(
 				cartItems
-					.map(
-						(item: CartItem) =>
-							(item.selectedPrice.price / 100) * item.quantity
-					)
+					.map((item: CartItem) => (item.selectedPrice.price / 100) * item.quantity)
 					.reduce((a: number, b: number) => a + b)
 					.toFixed(2)
 			);
-			setCartQuantities(
-				cartItems
-					.map((item: CartItem) => item.quantity)
-					.reduce((a: number, b: number) => a + b)
-			);
+			setCartQuantities(cartItems.map((item: CartItem) => item.quantity).reduce((a: number, b: number) => a + b));
 		}
 	}, [cartItems]);
 
@@ -241,9 +210,7 @@ export default function StoreHome({ user }: PageProps) {
 						setCart={setCartItems}
 						label={
 							cartQuantities >= 1
-								? `${cartQuantities} item${
-										cartQuantities === 1 ? "" : "s"
-								  } for $${totalCost}`
+								? `${cartQuantities} item${cartQuantities === 1 ? "" : "s"} for $${totalCost}`
 								: "Shopping cart"
 						}
 					/>
@@ -252,9 +219,7 @@ export default function StoreHome({ user }: PageProps) {
 					<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 						<Title size="small">Subscriptions</Title>
 						<div className="flex items-center justify-end">
-							<p className="mr-2 text-sm text-neutral-900 dark:text-neutral-100">
-								Annual pricing
-							</p>
+							<p className="mr-2 text-sm text-neutral-900 dark:text-neutral-100">Annual pricing</p>
 							<label
 								htmlFor="annualPricing"
 								onClick={() => setAnnualPricing(!annualPricing)}
@@ -263,9 +228,7 @@ export default function StoreHome({ user }: PageProps) {
 								<span
 									className={clsx(
 										"h-4 w-4 rounded-full",
-										annualPricing
-											? "bg-dank-300"
-											: "bg-gray-400 dark:bg-dank-400"
+										annualPricing ? "bg-dank-300" : "bg-gray-400 dark:bg-dank-400"
 									)}
 								/>
 							</label>
@@ -274,8 +237,7 @@ export default function StoreHome({ user }: PageProps) {
 					<div
 						className="mt-4 grid justify-between gap-x-8 gap-y-7"
 						style={{
-							gridTemplateColumns:
-								"repeat(auto-fit, minmax(208px, auto))", // 208px is the width of the product card
+							gridTemplateColumns: "repeat(auto-fit, minmax(208px, auto))", // 208px is the width of the product card
 						}}
 					>
 						{subscriptions.map((product) => (
@@ -295,13 +257,10 @@ export default function StoreHome({ user }: PageProps) {
 					<div
 						className={clsx(
 							"mt-4 grid gap-x-8 gap-y-7",
-							products.length < 5
-								? "justify-start"
-								: "justify-between"
+							products.length < 5 ? "justify-start" : "justify-between"
 						)}
 						style={{
-							gridTemplateColumns:
-								"repeat(auto-fit, minmax(208px, auto))", // 208px is the width of the product card
+							gridTemplateColumns: "repeat(auto-fit, minmax(208px, auto))", // 208px is the width of the product card
 						}}
 					>
 						{products.map((product) => (
@@ -321,5 +280,4 @@ export default function StoreHome({ user }: PageProps) {
 	);
 }
 
-export const getServerSideProps: GetServerSideProps =
-	withSession(authenticatedRoute);
+export const getServerSideProps: GetServerSideProps = withSession(authenticatedRoute);
