@@ -28,12 +28,14 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		customer = await stripe.customers.retrieve(dbCustomer._id);
 	} else if (!dbCustomer) {
 		try {
-			const unrecordedCustomer = await stripe.customers.search({
-				query: `metadata['discordId']: '${user.id}' OR email:'${user.email}'`,
-			});
+			const unrecordedCustomer = (
+				await stripe.customers.search({
+					query: `metadata['discordId']: '${user.id}' OR email:'${user.email}'`,
+				})
+			).data[0];
 
 			if (unrecordedCustomer) {
-				customer = unrecordedCustomer.data[0];
+				customer = unrecordedCustomer;
 
 				await db.collection("customers").insertOne({
 					_id: customer.id as unknown as ObjectId,
@@ -55,6 +57,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				});
 			}
 		} catch (e: any) {
+			console.error(e);
 			console.error(`Error while creating Stripe customer: ${e.message.split(/"/g, "")}`);
 			return res.status(500).json({ error: "Unable to create new customer" });
 		}
