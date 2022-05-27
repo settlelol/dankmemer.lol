@@ -5,14 +5,25 @@ import "react-toastify/dist/ReactToastify.css";
 import Head from "next/head";
 import clsx from "clsx";
 
-interface Props {
+interface PropsWithNoRightPane {
 	children: ReactNode;
 	links: ReactNode;
 	title: string;
-	hideRightPane?: () => void;
-	rightPaneVisible?: boolean;
-	rightPaneContent?: ReactNode;
+	hideRightPane?: () => never;
+	rightPaneVisible?: never;
+	rightPaneContent?: never;
 }
+
+interface PropsWithRightPane {
+	children: ReactNode;
+	links: ReactNode;
+	title: string;
+	hideRightPane: () => void;
+	rightPaneVisible: boolean;
+	rightPaneContent: ReactNode;
+}
+
+type Props = PropsWithNoRightPane | PropsWithRightPane;
 
 export default function ControlPanelContainer({
 	children,
