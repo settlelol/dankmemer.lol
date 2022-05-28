@@ -118,13 +118,17 @@ export default function CheckoutForm({
 				return;
 			});
 
-		axios(`/api/customers/get?id=${userId}&sensitive=true`).then(({ data }) => {
-			if (data.cards.default) {
-				setDefaultPaymentMethod(data.cards.default);
-				setSelectedPaymentMethod(data.cards.default);
-			}
-			if (data.cards.other) setSavedPaymentMethods(data.cards.other);
-		});
+		axios(`/api/customers/get?id=${userId}&sensitive=true`)
+			.then(({ data }) => {
+				if (data.cards.default) {
+					setDefaultPaymentMethod(data.cards.default);
+					setSelectedPaymentMethod(data.cards.default);
+				}
+				if (data.cards.other) setSavedPaymentMethods(data.cards.other);
+			})
+			.catch(() => {
+				return;
+			});
 	}, []);
 
 	useEffect(() => {
