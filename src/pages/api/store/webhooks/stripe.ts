@@ -37,11 +37,14 @@ export const config = {
 };
 
 export interface PaymentIntentItemResult {
+	id?: string;
 	name: string;
 	price: number;
 	quantity: number;
 	type: Stripe.Price.Type;
 	discounts?: PaymentIntentItemDiscount[];
+	interval?: Stripe.Price.Recurring.Interval;
+	intervalCount?: number;
 }
 
 export interface PaymentIntentItemDiscount {
