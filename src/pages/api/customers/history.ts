@@ -11,12 +11,14 @@ export interface AggregatedDiscountData {
 	id: string;
 	appliesTo: string[];
 	name: string;
+	code: string;
 	decimal: number;
+	percent: string;
 }
 
 export type AggregatedPurchaseRecordPurchases = Omit<PurchaseRecord & { gateway: "stripe" | "paypal" }, "items"> & {
 	items: (PaymentIntentItemResult & { id: string; image: string })[];
-	discounts: AggregatedDiscountData;
+	discounts: AggregatedDiscountData[];
 	type: "single" | "subscription";
 };
 
@@ -117,7 +119,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 													id: { $first: "$$discount.id" },
 													appliesTo: "$data.items.id",
 													name: { $first: "$$discount.name" },
+													code: { $first: "$$discount.code" },
 													decimal: { $first: "$$discount.discountDecimal" },
+													percent: { $first: "$$discount.discountPercentage" },
 												},
 												else: {
 													ignore: true,
