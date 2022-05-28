@@ -63,29 +63,22 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 				<div className="mt-12 mb-3 flex w-2/5 flex-col">
 					<Title size="big">Purchase Summary</Title>
 					<p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-						Thank you for your purchase! You should receive your
-						purchased goods within 5 minutes of purchase.
+						Thank you for your purchase! You should receive your purchased goods within 5 minutes of
+						purchase.
 					</p>
 					<p className="my-2 text-sm text-neutral-700 dark:text-neutral-300">
 						If you have yet to receive your purchased goods, join{" "}
 						<Link href="https://discord.gg/meme">
-							<a
-								className="text-dank-300 underline"
-								target="_blank"
-							>
+							<a className="text-dank-300 underline" target="_blank">
 								our support server
 							</a>
 						</Link>{" "}
 						and let our staff know of your purchase id:{" "}
 						<span
 							className="group inline-flex cursor-pointer items-center"
-							onClick={() =>
-								navigator.clipboard.writeText(invoice.id)
-							}
+							onClick={() => navigator.clipboard.writeText(invoice.id)}
 						>
-							<span className="text-dank-300 underline decoration-dotted">
-								{invoice.id}
-							</span>
+							<span className="text-dank-300 underline decoration-dotted">{invoice.id}</span>
 							<span className="ml-1 text-dank-300 opacity-0 transition-opacity duration-100 group-hover:opacity-100">
 								<Iconify icon="carbon:copy" hFlip={true} />
 							</span>
@@ -101,11 +94,7 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 										<div
 											className={clsx(
 												"flex flex-col",
-												JSON.parse(
-													invoice.metadata.isGift
-												)
-													? "w-1/2"
-													: "w-full"
+												JSON.parse(invoice.metadata.isGift) ? "w-1/2" : "w-full"
 											)}
 										>
 											<h3 className="font-montserrat text-base font-bold text-black dark:text-white">
@@ -113,20 +102,13 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 											</h3>
 											<p className="text-sm text-light-600 dark:text-neutral-200">
 												Account:{" "}
-												<span className="text-dank-200">
-													{invoice.buyer.discordId}
-												</span>
+												<span className="text-dank-200">{invoice.buyer.discordId}</span>
 											</p>
 											<p className="text-sm text-light-600 dark:text-neutral-200">
-												Email:{" "}
-												<span className="text-dank-200">
-													{invoice.buyer.email}
-												</span>
+												Email: <span className="text-dank-200">{invoice.buyer.email}</span>
 											</p>
 										</div>
-										{JSON.parse(
-											invoice.metadata.isGift
-										) && (
+										{JSON.parse(invoice.metadata.isGift) && (
 											<div className="flex w-2/5 flex-col">
 												<h3 className="font-montserrat text-base font-bold text-black dark:text-white">
 													Purchased for
@@ -134,12 +116,7 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 												<p className="text-sm text-neutral-200">
 													Account ID:
 													<br />
-													<span className="text-dank-200">
-														{
-															invoice.metadata
-																.giftFor
-														}
-													</span>
+													<span className="text-dank-200">{invoice.metadata.giftFor}</span>
 												</p>
 											</div>
 										)}
@@ -158,9 +135,7 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 														interval: item.interval,
 													}}
 													unit_cost={item.price / 100}
-													quantity={
-														item.quantity || 1
-													}
+													quantity={item.quantity || 1}
 													metadata={item.metadata}
 													image={item.image}
 												/>
@@ -172,18 +147,14 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 									<div className="mt-3">
 										<p className="text-right text-sm text-neutral-600 dark:text-neutral-300/50">
 											Added sales tax: $
-											{(invoice.salesTax / 100).toFixed(
-												2
-											)}
+											{(invoice.salesTax >= 1
+												? invoice.salesTax
+												: (invoice.total * 0.0675) / 100
+											).toFixed(2)}
 										</p>
 										<div className="mt-1 flex w-full min-w-[260px] justify-between rounded-lg bg-neutral-300 px-4 py-3 dark:bg-dank-500">
 											<Title size="small">Total:</Title>
-											<Title size="small">
-												$
-												{(invoice.total / 100).toFixed(
-													2
-												)}
-											</Title>
+											<Title size="small">${(invoice.total / 100).toFixed(2)}</Title>
 										</div>
 									</div>
 									<div className="mt-2 flex w-full items-center justify-end">
@@ -197,9 +168,7 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 												Go to store
 											</a>
 										</Link>
-										<Button size="medium">
-											Return home
-										</Button>
+										<Button size="medium">Return home</Button>
 									</div>
 								</div>
 							</div>
@@ -208,8 +177,7 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 				</div>
 				<div className="mt-3 rounded-full bg-dank-300/40 px-3 py-1 dark:bg-dank-400/50">
 					<p className="text-xs text-neutral-800 dark:text-neutral-300">
-						Your payment was securely processed by{" "}
-						{paymentGateway === "stripe" ? "Stripe" : "PayPal"}
+						Your payment was securely processed by {paymentGateway === "stripe" ? "Stripe" : "PayPal"}
 					</p>
 				</div>
 			</div>
@@ -224,9 +192,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 		if (!user) {
 			return {
 				redirect: {
-					destination: `/api/auth/login?redirect=${encodeURIComponent(
-						ctx.resolvedUrl
-					)}`,
+					destination: `/api/auth/login?redirect=${encodeURIComponent(ctx.resolvedUrl)}`,
 					permanent: false,
 				},
 			};
@@ -247,14 +213,9 @@ export const getServerSideProps: GetServerSideProps = withSession(
 		const paypal = new PayPal();
 
 		if (paymentGateway === "stripe") {
-			const invoice = await stripe.invoices.retrieve(
-				ctx.query.id.toString(),
-				{ expand: ["payment_intent"] }
-			);
+			const invoice = await stripe.invoices.retrieve(ctx.query.id.toString(), { expand: ["payment_intent"] });
 
-			const { data: invoiceItems } = await stripe.invoices.listLineItems(
-				invoice.id
-			);
+			const { data: invoiceItems } = await stripe.invoices.listLineItems(invoice.id);
 			let items: InvoiceItems[] | InvoiceSubscription[] = [];
 
 			const paymentIntent = await stripe.paymentIntents.retrieve(
@@ -280,9 +241,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 
 			for (let i = 0; i < invoiceItems.length; i++) {
 				const item = invoiceItems[i];
-				const product = await stripe.products.retrieve(
-					item.price?.product as string
-				);
+				const product = await stripe.products.retrieve(item.price?.product as string);
 
 				if (product.name.includes("Product for invoice item ")) {
 					salesTax = item.amount;
@@ -300,12 +259,9 @@ export const getServerSideProps: GetServerSideProps = withSession(
 						items.push({
 							type: item.type,
 							name: product.name,
-							price: subscription!.items.data[0].price
-								.unit_amount!,
+							price: subscription!.items.data[0].price.unit_amount!,
 							quantity: 1,
-							interval:
-								subscription!.items.data[0].price.recurring
-									?.interval!,
+							interval: subscription!.items.data[0].price.recurring?.interval!,
 							endsAt: subscription!.current_period_end,
 							metadata: product.metadata,
 							image: product.images[0],
@@ -332,20 +288,13 @@ export const getServerSideProps: GetServerSideProps = withSession(
 					user,
 				},
 			};
-		} else if (
-			paymentGateway === "paypal" &&
-			ctx.query.invoice &&
-			ctx.query.id
-		) {
+		} else if (paymentGateway === "paypal" && ctx.query.invoice && ctx.query.id) {
 			const order = await paypal.orders.retrieve(ctx.query.id.toString());
-			const invoice = await stripe.invoices.retrieve(
-				ctx.query.invoice.toString(),
-				{ expand: ["payment_intent"] }
-			);
+			const invoice = await stripe.invoices.retrieve(ctx.query.invoice.toString(), {
+				expand: ["payment_intent"],
+			});
 
-			const { data: invoiceItems } = await stripe.invoices.listLineItems(
-				invoice.id
-			);
+			const { data: invoiceItems } = await stripe.invoices.listLineItems(invoice.id);
 			let items: InvoiceItems[] | InvoiceSubscription[] = [];
 
 			const paymentIntent = await stripe.paymentIntents.retrieve(
@@ -371,9 +320,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 
 			for (let i = 0; i < invoiceItems.length; i++) {
 				const item = invoiceItems[i];
-				const product = await stripe.products.retrieve(
-					item.price?.product as string
-				);
+				const product = await stripe.products.retrieve(item.price?.product as string);
 
 				if (product.name.includes("Product for invoice item ")) {
 					salesTax = item.amount;
@@ -391,12 +338,9 @@ export const getServerSideProps: GetServerSideProps = withSession(
 						items.push({
 							type: item.type,
 							name: product.name,
-							price: subscription!.items.data[0].price
-								.unit_amount!,
+							price: subscription!.items.data[0].price.unit_amount!,
 							quantity: 1,
-							interval:
-								subscription!.items.data[0].price.recurring
-									?.interval!,
+							interval: subscription!.items.data[0].price.recurring?.interval!,
 							endsAt: subscription!.current_period_end,
 							metadata: product.metadata,
 							image: product.images[0],
@@ -412,8 +356,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 						id: ctx.query.id,
 						buyer: {
 							discordId: invoice.metadata!.boughtByDiscordId,
-							email: (order as OrdersRetrieveResponse).payer
-								.email_address,
+							email: (order as OrdersRetrieveResponse).payer.email_address,
 						},
 						items,
 						subtotal: invoice.subtotal,
@@ -425,9 +368,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 				},
 			};
 		} else {
-			const order = (await paypal.orders.retrieve(
-				ctx.query.id.toString()
-			)) as OrdersRetrieveResponse;
+			const order = (await paypal.orders.retrieve(ctx.query.id.toString())) as OrdersRetrieveResponse;
 
 			let items: InvoiceItems[] | InvoiceSubscription[] = [];
 
@@ -437,9 +378,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 				if (item.name === "Sales tax") {
 					salesTax = parseFloat(item.unit_amount.value) * 100;
 				} else {
-					const product = await stripe.products.retrieve(
-						item.sku.split(":")[0]
-					);
+					const product = await stripe.products.retrieve(item.sku.split(":")[0]);
 					items.push({
 						type: "invoiceitem", // TODO: Paypal subscriptions
 						name: item.name,
@@ -457,25 +396,15 @@ export const getServerSideProps: GetServerSideProps = withSession(
 					invoice: {
 						id: ctx.query.id,
 						buyer: {
-							discordId:
-								order.purchase_units[0].custom_id!.split(
-									":"
-								)[0],
+							discordId: order.purchase_units[0].custom_id!.split(":")[0],
 							email: order.payer.email_address,
 						},
 						items,
 						subtotal: order.purchase_units[0].amount.value,
-						total:
-							parseFloat(order.purchase_units[0].amount.value!) *
-							100,
+						total: parseFloat(order.purchase_units[0].amount.value!) * 100,
 						metadata: {
-							isGift: JSON.parse(
-								order.purchase_units[0].custom_id!.split(":")[2]
-							),
-							giftFor:
-								order.purchase_units[0].custom_id!.split(
-									":"
-								)[1],
+							isGift: JSON.parse(order.purchase_units[0].custom_id!.split(":")[2]),
+							giftFor: order.purchase_units[0].custom_id!.split(":")[1],
 						},
 						salesTax,
 					},

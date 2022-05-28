@@ -45,7 +45,10 @@ export default function Cart({ cartData, user }: Props) {
 	const [appliedDiscount, setAppliedDiscount] = useState(false);
 
 	useEffect(() => {
-		const cartTotal = cart.reduce((acc: number, item: CartItems) => acc + (item.selectedPrice.price / 100) * item.quantity, 0);
+		const cartTotal = cart.reduce(
+			(acc: number, item: CartItems) => acc + (item.selectedPrice.price / 100) * item.quantity,
+			0
+		);
 
 		setSubtotalCost(cartTotal);
 	}, []);
@@ -57,7 +60,10 @@ export default function Cart({ cartData, user }: Props) {
 				method: "PUT",
 				data: { cartData: cart },
 			}).then(() => {
-				const cartTotal = cart.reduce((acc: number, item: CartItems) => acc + (item.selectedPrice.price / 100) * item.quantity, 0);
+				const cartTotal = cart.reduce(
+					(acc: number, item: CartItems) => acc + (item.selectedPrice.price / 100) * item.quantity,
+					0
+				);
 				setSubtotalCost(cartTotal);
 
 				if (discountInput.length >= 1) {
@@ -72,7 +78,7 @@ export default function Cart({ cartData, user }: Props) {
 						.catch(() => {
 							const _salesTax = cartTotal * 0.0675;
 
-							setThresholdDiscount(cartTotal >= 20);
+							setThresholdDiscount(cartTotal >= 20 && cart[0].metadata?.type !== "subscription");
 							setSalesTax(_salesTax);
 							setTotalCost(cartTotal + _salesTax);
 						});
@@ -204,7 +210,7 @@ export default function Cart({ cartData, user }: Props) {
 		setAppliedSavings(data.totalSavings ?? 0);
 		setSalesTax(_salesTax);
 		setTotalCost(total);
-		setThresholdDiscount(total >= 20);
+		setThresholdDiscount(total >= 20 && cart[0].metadata?.type !== "subscription");
 	}, [discountData, subtotalCost]);
 
 	const addToCart = async (item: CartItems) => {
@@ -253,7 +259,15 @@ export default function Cart({ cartData, user }: Props) {
 						<Title size="small">Your items</Title>
 						<div className="mt-2">
 							{cart.map((item, i) => (
-								<CartItem size="large" index={i} {...item} updateQuantity={updateQuantity} changeInterval={changeInterval} deleteItem={deleteItem} disabled={processingChange} />
+								<CartItem
+									size="large"
+									index={i}
+									{...item}
+									updateQuantity={updateQuantity}
+									changeInterval={changeInterval}
+									deleteItem={deleteItem}
+									disabled={processingChange}
+								/>
 							))}
 						</div>
 					</div>
@@ -288,10 +302,13 @@ export default function Cart({ cartData, user }: Props) {
 					<div className="my-5 h-max w-full rounded-lg bg-light-500 px-8 py-7 dark:bg-dark-200">
 						<Title size="small">Details</Title>
 						<p className="mt-2 font-inter text-sm leading-tight text-neutral-700/80 dark:text-light-600">
-							Checkout is completed in USD, bank or card fees may apply to international payments. The total below is what is required to be paid upon checkout.
+							Checkout is completed in USD, bank or card fees may apply to international payments. The
+							total below is what is required to be paid upon checkout.
 						</p>
 						<div className="mt-3 mr-9 w-full">
-							<h3 className="font-montserrat text-base font-bold text-black dark:text-white">Apply a discount code</h3>
+							<h3 className="font-montserrat text-base font-bold text-black dark:text-white">
+								Apply a discount code
+							</h3>
 							<div className="group mt-2">
 								<div className="flex flex-col justify-between text-black dark:text-white">
 									<div>
@@ -309,16 +326,22 @@ export default function Cart({ cartData, user }: Props) {
 													size="medium"
 													className={clsx(
 														"w-full rounded-md",
-														discountInput?.length < 1 || processingChange ? "!bg-[#7F847F] text-[#333533]" : "",
+														discountInput?.length < 1 || processingChange
+															? "!bg-[#7F847F] text-[#333533]"
+															: "",
 														appliedDiscount && appliedCode === discountInput && "bg-red-500"
 													)}
 													onClick={appliedDiscount ? removeDiscount : submitDiscountCode}
 													disabled={processingChange}
 												>
-													{appliedDiscount && appliedCode === discountInput ? "Clear" : "Submit"}
+													{appliedDiscount && appliedCode === discountInput
+														? "Clear"
+														: "Submit"}
 												</Button>
 											</div>
-											{discountError.length > 1 && <p className="text-right text-sm text-red-500">{discountError}</p>}
+											{discountError.length > 1 && (
+												<p className="text-right text-sm text-red-500">{discountError}</p>
+											)}
 										</div>
 										{(appliedDiscount || thresholdDiscount) && (
 											<div>
@@ -329,14 +352,19 @@ export default function Cart({ cartData, user }: Props) {
 													) : (
 														<h3 className="font-montserrat text-base font-bold text-[#0FA958] drop-shadow-[0px_0px_4px_#0FA95898]">
 															-$
-															{(appliedSavings + (thresholdDiscount ? totalCost * 0.1 : 0)).toFixed(2)}
+															{(
+																appliedSavings +
+																(thresholdDiscount ? totalCost * 0.1 : 0)
+															).toFixed(2)}
 														</h3>
 													)}
 												</div>
 												<div>
 													<ul className="pl-3">
 														{discountedItems?.map((item) => {
-															const cartItem = cart.filter((_item) => _item.id === item.id)[0];
+															const cartItem = cart.filter(
+																(_item) => _item.id === item.id
+															)[0];
 															return (
 																<li className="flex list-decimal justify-between text-sm">
 																	<p className="dark:text-[#b4b4b4]">
@@ -376,13 +404,17 @@ export default function Cart({ cartData, user }: Props) {
 							</div>
 						</div>
 						<div className="mt-3">
-							<p className="text-right text-sm text-neutral-600 dark:text-neutral-300/50">Added sales tax: ${salesTax.toFixed(2)}</p>
+							<p className="text-right text-sm text-neutral-600 dark:text-neutral-300/50">
+								Added sales tax: ${salesTax.toFixed(2)}
+							</p>
 							<div className="flex w-full items-center justify-between rounded-lg bg-neutral-300 px-4 py-3 dark:bg-dank-500">
 								<Title size="small">Total:</Title>
 								{processingChange ? (
 									<div className="h-5 w-16 animate-[pulse_0.5s_ease-in-out_infinite] rounded bg-dank-400"></div>
 								) : (
-									<Title size="small">${(totalCost - (thresholdDiscount ? totalCost * 0.1 : 0)).toFixed(2)}</Title>
+									<Title size="small">
+										${(totalCost - (thresholdDiscount ? totalCost * 0.1 : 0)).toFixed(2)}
+									</Title>
 								)}
 							</div>
 						</div>
@@ -402,28 +434,30 @@ export default function Cart({ cartData, user }: Props) {
 	);
 }
 
-export const getServerSideProps: GetServerSideProps = withSession(async (ctx: GetServerSidePropsContext & { req: { session: Session } }) => {
-	const user = await ctx.req.session.get("user");
+export const getServerSideProps: GetServerSideProps = withSession(
+	async (ctx: GetServerSidePropsContext & { req: { session: Session } }) => {
+		const user = await ctx.req.session.get("user");
 
-	if (!user) {
+		if (!user) {
+			return {
+				redirect: {
+					destination: `/api/auth/login?redirect=${encodeURIComponent(ctx.resolvedUrl)}`,
+					permanent: false,
+				},
+			};
+		}
+
+		const cart = await ctx.req.session.get("cart");
+		if (!cart)
+			return {
+				redirect: {
+					destination: `/store`,
+					permanent: false,
+				},
+			};
+
 		return {
-			redirect: {
-				destination: `/api/auth/login?redirect=${encodeURIComponent(ctx.resolvedUrl)}`,
-				permanent: false,
-			},
+			props: { cartData: cart, user },
 		};
 	}
-
-	const cart = await ctx.req.session.get("cart");
-	if (!cart)
-		return {
-			redirect: {
-				destination: `/store`,
-				permanent: false,
-			},
-		};
-
-	return {
-		props: { cartData: cart, user },
-	};
-});
+);

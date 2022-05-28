@@ -93,7 +93,9 @@ export default function CheckoutForm({
 
 	const [saveCardAsDefault, setSaveCardAsDefault] = useState(false);
 
-	const [thresholdDiscount, setThresholdDiscount] = useState(parseFloat(subtotalCost) >= 20);
+	const [thresholdDiscount, setThresholdDiscount] = useState(
+		parseFloat(subtotalCost) >= 20 && cart[0].metadata?.type !== "subscription"
+	);
 	const [appliedDiscountCode, setAppliedDiscountCode] = useState("");
 	const [discountedItems, setDiscountedItems] = useState<DiscountItem[]>([]);
 	const [appliedSavings, setAppliedSavings] = useState(0);
@@ -146,8 +148,13 @@ export default function CheckoutForm({
 	useEffect(() => {
 		const numSubCost = parseFloat(subtotalCost);
 		const totalAfterSavings = numSubCost - appliedSavings;
-		setThresholdDiscount(totalAfterSavings >= 20);
-		setTotalCost((totalAfterSavings - (totalAfterSavings >= 20 ? totalAfterSavings * 0.1 : 0)).toFixed(2));
+		setThresholdDiscount(totalAfterSavings >= 20 && cart[0].metadata?.type !== "subscription");
+		setTotalCost(
+			(
+				totalAfterSavings -
+				(totalAfterSavings >= 20 && cart[0].metadata?.type !== "subscription" ? totalAfterSavings * 0.1 : 0)
+			).toFixed(2)
+		);
 	}, [subtotalCost, appliedSavings]);
 
 	useEffect(() => {

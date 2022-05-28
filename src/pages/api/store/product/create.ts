@@ -93,24 +93,14 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		}
 
 		try {
-			await redis.set(
-				`webhooks:product-created:${stripeProduct.id}:creator`,
-				user.id,
-				"PX",
-				TIME.minute * 5
-			);
+			await redis.set(`webhooks:product-created:${stripeProduct.id}:creator`, user.id, "PX", TIME.minute * 5);
 			await redis.set(
 				`webhooks:product-created:${stripeProduct.id}:prices:expected`,
 				productData.prices.length,
 				"PX",
 				TIME.minute * 5
 			);
-			await redis.set(
-				`webhooks:product-created:${stripeProduct.id}:prices:received`,
-				0,
-				"PX",
-				TIME.minute * 5
-			);
+			await redis.set(`webhooks:product-created:${stripeProduct.id}:prices:received`, 0, "PX", TIME.minute * 5);
 		} catch (e: any) {
 			return res.status(500).json({
 				message: "Failed to add product to redis cache",
@@ -121,11 +111,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		if (productData.type === "single") {
 			// Change provided price to cents
 			const priceInCents = parseInt(
-				(
-					parseFloat(
-						productData.prices[0].value as unknown as string
-					) * 100
-				).toString()
+				(parseFloat(productData.prices[0].value as unknown as string) * 100).toString()
 			);
 			await stripe.prices.create({
 				currency: "USD",
@@ -139,11 +125,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			for (let i = 0; i < productData.prices.length; i++) {
 				// Change provided price to cents
 				const priceInCents = parseInt(
-					(
-						parseFloat(
-							productData.prices[i].value as unknown as string
-						) * 100
-					).toString()
+					(parseFloat(productData.prices[i].value as unknown as string) * 100).toString()
 				);
 				let intervalCount =
 					parseInt(productData.prices[i].intervalCount || "1") === 0
@@ -151,6 +133,8 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						: parseInt(productData.prices[i].intervalCount!);
 
 				try {
+					const priceWithTax =
+						parseInt(productData.prices[i].value) + parseInt(productData.prices[i].value) * 0.0675;
 					const plan = await paypal.plans.create({
 						product_id: paypalProduct.id!,
 						name: productData.name,
@@ -162,9 +146,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						billing_cycles: [
 							{
 								frequency: {
-									interval_unit: ProductIntervals[
-										productData.prices[i].interval!
-									].toUpperCase() as
+									interval_unit: ProductIntervals[productData.prices[i].interval!].toUpperCase() as
 										| "DAY"
 										| "WEEK"
 										| "MONTH"
@@ -176,9 +158,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 								total_cycles: 0,
 								pricing_scheme: {
 									fixed_price: {
-										value: productData.prices[
-											i
-										].value.toString(),
+										value: priceWithTax.toFixed(2),
 										currency_code: "USD",
 									},
 								},
@@ -197,14 +177,8 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						unit_amount: priceInCents,
 						tax_behavior: "exclusive",
 						recurring: {
-							interval:
-								ProductIntervals[
-									productData.prices[i].interval!
-								],
-							interval_count:
-								parseInt(
-									productData.prices[i].intervalCount!
-								) || 1,
+							interval: ProductIntervals[productData.prices[i].interval!],
+							interval_count: parseInt(productData.prices[i].intervalCount!) || 1,
 						},
 						metadata: {
 							paypalPlan: plan.id,
@@ -252,9 +226,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			product: stripeProduct.id,
 		});
 	} catch (e: any) {
-		return res
-			.status(500)
-			.json({ message: "Product could not be added.", error: e.message });
+		return res.status(500).json({ message: "Product could not be added.", error: e.message });
 	}
 };
 
