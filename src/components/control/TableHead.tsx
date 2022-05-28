@@ -3,7 +3,6 @@ import { MouseEventHandler, ReactNode } from "react";
 import TableSortIcon, { TableHeadersState } from "./TableSortIcon";
 
 interface Column {
-	key: string | number;
 	className?: string;
 	rtl?: boolean;
 }
@@ -31,7 +30,6 @@ export interface UnsortableColumn extends Column {
 type TableHeadProps = SortableColumn | UnsortableColumn;
 
 export default function TableHead({
-	key,
 	type,
 	width,
 	name,
@@ -44,7 +42,6 @@ export default function TableHead({
 }: TableHeadProps) {
 	return (
 		<th
-			key={key}
 			className={clsx(
 				width,
 				className,

@@ -419,6 +419,7 @@ export default function ManageProducts({ user }: PageProps) {
 							<tbody>
 								{displayedProducts.map((product, i) => (
 									<ProductRow
+										key={product.id}
 										id={product.id}
 										hiddenColumns={tableHeads.map((c) => c.hidden)}
 										reverseOptions={displayedProducts.length - 2 <= i}

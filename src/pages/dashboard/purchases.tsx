@@ -259,7 +259,11 @@ export default function PurchaseHistory({ user }: PageProps) {
 							<div className="h-4" />
 							<tbody>
 								{displayedPurchases.map((purchase) => (
-									<PurchaseRow purchase={purchase} viewDetails={() => showPurchase(purchase)} />
+									<PurchaseRow
+										key={purchase._id}
+										purchase={purchase}
+										viewDetails={() => showPurchase(purchase)}
+									/>
 								))}
 							</tbody>
 						</table>
