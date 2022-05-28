@@ -51,7 +51,16 @@ export default function PurchaseViewer({ purchase }: Props) {
 									{item.quantity}x {item.name}
 								</span>
 							</div>
-							<p>${item.price.toFixed(2)}</p>
+							<p className="min-w-max">
+								${item.price.toFixed(2)}
+								{item.type === "recurring" && (
+									<>
+										{" "}
+										/ {item.intervalCount! > 1 ? item.intervalCount : ""} {item.interval}
+										{item.intervalCount! > 1 ? "s" : ""}
+									</>
+								)}
+							</p>
 						</div>
 					))}
 				</div>
@@ -68,10 +77,7 @@ export default function PurchaseViewer({ purchase }: Props) {
 							{(purchase.discounts as AggregatedDiscountData[]).map((discount) =>
 								!discount.ignore ? (
 									<div className="mb-1" key={discount.id}>
-										<p
-											className="text-sm dark:text-neutral-200
-									"
-										>
+										<p className="text-sm dark:text-neutral-200">
 											{discount.name} <span className="font-bold">-{discount.percent}</span> (-$
 											{(subtotal * (discount.decimal / 100)).toFixed(2)})
 										</p>
