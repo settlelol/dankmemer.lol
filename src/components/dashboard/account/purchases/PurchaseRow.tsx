@@ -7,9 +7,10 @@ import { useEffect, useState } from "react";
 
 interface Props {
 	purchase: AggregatedPurchaseRecordPurchases;
+	viewDetails: () => void;
 }
 
-export default function PurchaseRow({ purchase }: Props) {
+export default function PurchaseRow({ purchase, viewDetails }: Props) {
 	const [subtotal, setSubtotal] = useState(purchase.items.reduce((curr: number, item) => curr + item.price, 0));
 
 	useEffect(() => {
@@ -56,7 +57,13 @@ export default function PurchaseRow({ purchase }: Props) {
 				<p className="text-right">{purchase.items.reduce((curr: number, item) => curr + item.quantity, 0)}</p>
 			</td>
 			<td className="px-5 last:rounded-r-lg group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
-				<Iconify icon="fluent:expand-up-left-16-filled" hFlip={true} height={18} />
+				<Iconify
+					icon="fluent:expand-up-left-16-filled"
+					hFlip={true}
+					height={18}
+					className="cursor-pointer"
+					onClick={viewDetails}
+				/>
 			</td>
 		</tr>
 	);
