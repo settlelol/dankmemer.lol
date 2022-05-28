@@ -7,8 +7,16 @@ import { stripeConnect } from "src/util/stripe";
 import { PurchaseRecord } from "../store/checkout/finalize/paypal";
 import { PaymentIntentItemResult } from "../store/webhooks/stripe";
 
+export interface AggregatedDiscountData {
+	id: string;
+	appliesTo: string[];
+	name: string;
+	decimal: number;
+}
+
 export type AggregatedPurchaseRecordPurchases = Omit<PurchaseRecord & { gateway: "stripe" | "paypal" }, "items"> & {
 	items: (PaymentIntentItemResult & { id: string; image: string })[];
+	discounts: AggregatedDiscountData;
 	type: "single" | "subscription";
 };
 
@@ -44,13 +52,15 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				},
 				// Stage one:
 				// Unwind the "data" field giving us the ability to independently
-				// manipulate each element in this array so we can get the id of
-				// the purchase
+				// manipulate each element in this array
 				{
 					$unwind: "$data",
 				},
 				{
 					$addFields: {
+						// Stage two:
+						// Add the payment processor type to the purchase data so that
+						// it can be guaranteed which was used during checkout
 						"data.gateway": {
 							// Add a 'gateway' field to each element
 							$getField: {
@@ -84,10 +94,54 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 								},
 							},
 						},
+						// Stage three:
+						// Get the discounts used on each product during checkout
+						// and add them to an array in the purchase.
+						"data.discounts": {
+							$reduce: {
+								input: {
+									$map: {
+										input: "$data.items.discounts",
+										as: "discount",
+										in: {
+											$cond: {
+												if: {
+													$gte: [
+														{
+															$size: "$$discount",
+														},
+														1,
+													],
+												},
+												then: {
+													id: { $first: "$$discount.id" },
+													appliesTo: "$data.items.id",
+													name: { $first: "$$discount.name" },
+													decimal: { $first: "$$discount.discountDecimal" },
+												},
+												else: {
+													ignore: true,
+												},
+											},
+										},
+									},
+								},
+								initialValue: [],
+								in: {
+									$cond: [
+										{
+											$in: ["$$this.id", "$$value.id"],
+										},
+										"$$value",
+										{ $concatArrays: ["$$value", ["$$this"]] },
+									],
+								},
+							},
+						},
 					},
 				},
 
-				// Stage two:
+				// Stage four:
 				// Recoup the data array elements and create a new
 				// array, the 'purchases' array
 				{
@@ -104,9 +158,11 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					},
 				},
 
-				// Remove their stripe customer id
+				// Remove their stripe customer id and discounts directly
+				// in the items purchased in favour of a combined array
+				// within the purchase object
 				{
-					$unset: ["_id"],
+					$unset: ["_id", "purchases.items.discounts"],
 				},
 			])
 			.toArray()
