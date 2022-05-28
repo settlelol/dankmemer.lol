@@ -33,7 +33,10 @@ export default function PurchaseViewer({ purchase }: Props) {
 				<Title size="small">Goods purchased</Title>
 				<div className="mt-2 flex flex-col space-y-3">
 					{purchase.items.map((item) => (
-						<div className="flex items-center justify-between rounded-lg px-3 py-2 dark:bg-dank-500">
+						<div
+							className="flex items-center justify-between rounded-lg px-3 py-2 dark:bg-dank-500"
+							key={"items-" + item.id}
+						>
 							<div className="flex w-full items-center justify-start space-x-4">
 								<div
 									className={clsx(
@@ -52,27 +55,50 @@ export default function PurchaseViewer({ purchase }: Props) {
 						</div>
 					))}
 				</div>
-				<div className="mt-2 text-right">
+				<div className="mt-2">
 					{purchase.discounts.length >= 1 && (
 						<>
 							{purchase.discounts.length === 1 ? (
-								!purchase.discounts[0].ignore && <p>Discounts applied</p>
+								!purchase.discounts[0].ignore && (
+									<h3 className="font-montserrat text-base font-bold">Discounts applied</h3>
+								)
 							) : (
-								<p>Discounts applied</p>
+								<h3 className="font-montserrat text-base font-bold">Discount applied</h3>
 							)}
 							{(purchase.discounts as AggregatedDiscountData[]).map((discount) =>
 								!discount.ignore ? (
-									<p>
-										{discount.name} -{discount.percent} (-$
-										{(subtotal * (discount.decimal / 100)).toFixed(2)})
-									</p>
+									<div className="mb-1" key={discount.id}>
+										<p
+											className="text-sm dark:text-neutral-200
+									"
+										>
+											{discount.name} <span className="font-bold">-{discount.percent}</span> (-$
+											{(subtotal * (discount.decimal / 100)).toFixed(2)})
+										</p>
+										<div className="text-sm dark:text-neutral-400">
+											{discount.appliesTo.map((itemId) => {
+												const prod = purchase.items.find((prod) => prod.id === itemId)!;
+												return (
+													<p key={prod.id}>
+														{prod.quantity}x {prod.name} (-$
+														{((prod.price * discount.decimal) / 100).toFixed(2)})
+													</p>
+												);
+											})}
+										</div>
+									</div>
 								) : (
 									<></>
 								)
 							)}
 						</>
 					)}
-					<p>Total: ${Math.floor(total * 100) / 100}</p>
+					<div className="mt-3 w-60">
+						<div className="flex w-full justify-between rounded-lg bg-neutral-300 px-4 py-3 dark:bg-dank-500">
+							<Title size="small">Total:</Title>
+							<Title size="small">${Math.floor(total * 100) / 100}</Title>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
