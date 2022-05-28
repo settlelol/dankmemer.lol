@@ -100,7 +100,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				// Add the user's discord id
 				{
 					$addFields: {
-						discordId: req.query,
+						discordId: req.query.id,
 					},
 				},
 
