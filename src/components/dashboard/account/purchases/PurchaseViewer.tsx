@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { Title } from "src/components/Title";
-import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/history";
+import { AggregatedDiscountData, AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/history";
 
 interface Props {
 	purchase: AggregatedPurchaseRecordPurchases;
@@ -16,7 +16,10 @@ export default function PurchaseViewer({ purchase }: Props) {
 		const _subtotal = itemsTotal + itemsTotal * 0.0675;
 		setSubtotal(_subtotal);
 		setTotal(
-			_subtotal - _subtotal * (purchase.discounts.reduce((prev: number, curr) => prev + curr.decimal, 0) / 100)
+			_subtotal -
+				_subtotal *
+					(purchase.discounts.reduce((prev: number, curr) => (curr.ignore ? 0 : prev + curr.decimal), 0) /
+						100 || 0)
 		);
 	}, [purchase.items]);
 
@@ -50,12 +53,25 @@ export default function PurchaseViewer({ purchase }: Props) {
 					))}
 				</div>
 				<div className="mt-2 text-right">
-					<p>Discounts applied</p>
-					{purchase.discounts.map((discount) => (
-						<p>
-							{discount.name} -{discount.percent} (-${(subtotal * (discount.decimal / 100)).toFixed(2)})
-						</p>
-					))}
+					{purchase.discounts.length >= 1 && (
+						<>
+							{purchase.discounts.length === 1 ? (
+								!purchase.discounts[0].ignore && <p>Discounts applied</p>
+							) : (
+								<p>Discounts applied</p>
+							)}
+							{(purchase.discounts as AggregatedDiscountData[]).map((discount) =>
+								!discount.ignore ? (
+									<p>
+										{discount.name} -{discount.percent} (-$
+										{(subtotal * (discount.decimal / 100)).toFixed(2)})
+									</p>
+								) : (
+									<></>
+								)
+							)}
+						</>
+					)}
 					<p>Total: ${Math.floor(total * 100) / 100}</p>
 				</div>
 			</div>

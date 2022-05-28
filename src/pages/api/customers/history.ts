@@ -14,6 +14,7 @@ export interface AggregatedDiscountData {
 	code: string;
 	decimal: number;
 	percent: string;
+	ignore?: boolean;
 }
 
 export type AggregatedPurchaseRecordPurchases = Omit<PurchaseRecord & { gateway: "stripe" | "paypal" }, "items"> & {

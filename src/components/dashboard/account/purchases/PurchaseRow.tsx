@@ -2,7 +2,7 @@ import clsx from "clsx";
 import Tooltip from "src/components/ui/Tooltip";
 import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/history";
 import { Icon as Iconify } from "@iconify/react";
-import { format, formatRelative } from "date-fns";
+import { formatRelative } from "date-fns";
 import { useEffect, useState } from "react";
 
 interface Props {
