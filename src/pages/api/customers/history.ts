@@ -43,16 +43,44 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					},
 				},
 				{
+					$unwind: "$data",
+				},
+				{
 					$addFields: {
 						"data.gateway": {
-							$arrayElemAt: ["$purchases.type", 0],
+							$getField: {
+								field: "type",
+								input: {
+									$arrayElemAt: [
+										"$purchases",
+										{
+											$indexOfArray: [
+												{
+													$map: {
+														input: "$purchases",
+														in: {
+															$eq: ["$$this.id", "$data._id"],
+														},
+													},
+												},
+												true,
+											],
+										},
+									],
+								},
+							},
 						},
 					},
 				},
 				{
-					$project: {
-						discordId: req.query.id,
-						purchases: "$data",
+					$group: {
+						_id: "$purchases.id",
+						purchases: { $push: "$data" },
+					},
+				},
+				{
+					$addFields: {
+						discordId: req.query,
 					},
 				},
 				{
