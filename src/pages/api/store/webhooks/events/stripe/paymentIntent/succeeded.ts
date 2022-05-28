@@ -82,7 +82,7 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 		value: `• ${items
 			.filter((item) => item.name !== "SALESTAX")
 			.map((item) => {
-				return `${item.quantity}x ${item.name} ($${item.price})`;
+				return `${item.quantity}x ${item.name} ($${item.price.toFixed(2)})`;
 			})
 			.join("\n• ")}`,
 		inline: true,
