@@ -42,24 +42,38 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						as: "data",
 					},
 				},
+				// Stage one:
+				// Unwind the "data" field giving us the ability to independently
+				// manipulate each element in this array so we can get the id of
+				// the purchase
 				{
 					$unwind: "$data",
 				},
 				{
 					$addFields: {
 						"data.gateway": {
+							// Add a 'gateway' field to each element
 							$getField: {
-								field: "type",
+								// Properly get a field from an object
+								field: "type", // The field of the object we want
 								input: {
+									// The object we are getting it from
 									$arrayElemAt: [
-										"$purchases",
+										// Get an an object from
+										"$purchases", // the purchases array
 										{
 											$indexOfArray: [
+												// Select the index which we want to get
 												{
 													$map: {
-														input: "$purchases",
+														// Create a temporary array of either true or false
+														input: "$purchases", // based on the purchases array
 														in: {
-															$eq: ["$$this.id", "$data._id"],
+															$eq: [
+																// comparing the ids between
+																"$$this.id", // the current purchase object
+																"$data._id", // and the current data object
+															],
 														},
 													},
 												},
@@ -72,17 +86,25 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						},
 					},
 				},
+
+				// Stage two:
+				// Recoup the data array elements and create a new
+				// array, the 'purchases' array
 				{
 					$group: {
 						_id: "$purchases.id",
 						purchases: { $push: "$data" },
 					},
 				},
+
+				// Add the user's discord id
 				{
 					$addFields: {
 						discordId: req.query,
 					},
 				},
+
+				// Remove their stripe customer id
 				{
 					$unset: ["_id"],
 				},
