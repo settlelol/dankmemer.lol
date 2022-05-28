@@ -15,6 +15,7 @@ import { withSession } from "src/util/session";
 import { AggregatedPurchaseRecordPurchases } from "../api/customers/history";
 import { FilterableColumnData, UnfilterableColumnData } from "../control/store/products/manage";
 import Input from "src/components/store/Input";
+import PurchaseViewer from "src/components/dashboard/account/purchases/PurchaseViewer";
 
 type ColumnData = (Omit<FilterableColumnData, "selector"> & { selector: TableHeaders }) | UnfilterableColumnData;
 enum TableHeaders {
@@ -26,6 +27,8 @@ enum TableHeaders {
 
 export default function PurchaseHistory({ user }: PageProps) {
 	const [loading, setLoading] = useState(true);
+	const [viewing, setViewing] = useState(false);
+	const [viewingPurchase, setViewingPurchase] = useState<AggregatedPurchaseRecordPurchases | undefined>();
 	const [purchases, setPurchases] = useState<AggregatedPurchaseRecordPurchases[]>([]);
 
 	const [displayedPurchases, setDisplayedPurchases] = useState<AggregatedPurchaseRecordPurchases[]>([]);
@@ -170,8 +173,19 @@ export default function PurchaseHistory({ user }: PageProps) {
 		}
 	};
 
+	const showPurchase = (purchase: AggregatedPurchaseRecordPurchases) => {
+		setViewingPurchase(purchase);
+		setViewing(true);
+	};
+
 	return (
-		<Container title="Purchase History" links={<DashboardLinks user={user!} />}>
+		<Container
+			title="Purchase History"
+			links={<DashboardLinks user={user!} />}
+			hideRightPane={() => setViewing(false)}
+			rightPaneVisible={viewing}
+			rightPaneContent={<PurchaseViewer purchase={viewingPurchase!} />}
+		>
 			<main>
 				<Title size="big">Purchase history</Title>
 				<p className="text-neutral-600 dark:text-neutral-400">
@@ -245,7 +259,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 							<div className="h-4" />
 							<tbody>
 								{displayedPurchases.map((purchase) => (
-									<PurchaseRow purchase={purchase} />
+									<PurchaseRow purchase={purchase} viewDetails={() => showPurchase(purchase)} />
 								))}
 							</tbody>
 						</table>
