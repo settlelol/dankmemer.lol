@@ -36,7 +36,7 @@ interface Props {
 	showWarning: any;
 }
 
-interface Card {
+export interface Card {
 	brand: string;
 	type: string;
 	expiry: {

@@ -1,112 +1,85 @@
+import axios from "axios";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
+import LoadingPepe from "src/components/LoadingPepe";
 import { Title } from "src/components/Title";
-import { AggregatedDiscountData, AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/history";
+import Button from "src/components/ui/Button";
+import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/history";
+import { StripePurchaseDetails } from "src/pages/api/customers/purchases/stripe/[id]";
+import DisputeCreator from "./DisputeCreator";
+import PaymentMethod from "./PaymentMethod";
+import PurchasedGoods from "./PurchasedGoods";
 
 interface Props {
 	purchase: AggregatedPurchaseRecordPurchases;
 }
 
 export default function PurchaseViewer({ purchase }: Props) {
-	const [subtotal, setSubtotal] = useState(0);
-	const [total, setTotal] = useState(0);
+	const [loading, setLoading] = useState(true);
+	const [paymentMethod, setPaymentMethod] = useState<StripePurchaseDetails["paymentMethod"] | null>(null);
+	const [disputing, setDisputing] = useState(false);
 
 	useEffect(() => {
-		const itemsTotal = purchase.items.reduce((prev: number, curr) => prev + curr.price, 0);
-		const _subtotal = itemsTotal + itemsTotal * 0.0675;
-		setSubtotal(_subtotal);
-		setTotal(
-			_subtotal -
-				_subtotal *
-					(purchase.discounts.reduce((prev: number, curr) => (curr.ignore ? 0 : prev + curr.decimal), 0) /
-						100 || 0)
-		);
-	}, [purchase.items]);
+		if (loading && paymentMethod) {
+			setLoading(false);
+		}
+	}, [paymentMethod]);
 
-	return (
+	useEffect(() => {
+		axios(`/api/customers/purchases/${purchase.gateway}/${purchase._id}`)
+			.then(({ data }) => {
+				if (purchase.gateway === "stripe") {
+					const details = data as StripePurchaseDetails;
+					setPaymentMethod(details.paymentMethod);
+				}
+			})
+			.catch(() => {
+				return;
+			});
+	}, []);
+
+	const closeDispute = () => {
+		if (
+			confirm(
+				"Returning to the previous screen will close this dispute window and all information that has been entered will be forgotten. Are you sure you want to continue?"
+			)
+		) {
+			setDisputing(false);
+		}
+	};
+
+	return disputing ? (
+		<DisputeCreator close={closeDispute} purchase={purchase} />
+	) : (
 		<div>
 			<Title size="big">Viewing order</Title>
 			<p className="text-neutral-600 dark:text-neutral-400">
 				In-depth details on a previous order that you have placed.
 			</p>
-			<div className="mt-3">
-				<Title size="small">Goods purchased</Title>
-				<div className="mt-2 flex flex-col space-y-3">
-					{purchase.items.map((item) => (
-						<div
-							className="flex items-center justify-between rounded-lg px-3 py-2 dark:bg-dank-500"
-							key={"items-" + item.id}
-						>
-							<div className="flex w-full items-center justify-start space-x-4">
-								<div
-									className={clsx(
-										"rounded-md bg-black/10 bg-light-500 bg-center bg-no-repeat dark:bg-dark-200",
-										"h-12 w-12 bg-[length:33px_33px]"
-									)}
-									style={{
-										backgroundImage: `url('${item.image}')`,
-									}}
-								/>
-								<span>
-									{item.quantity}x {item.name}
-								</span>
-							</div>
-							<p className="min-w-max">
-								${item.price.toFixed(2)}
-								{item.type === "recurring" && (
-									<>
-										{" "}
-										/ {item.intervalCount! > 1 ? item.intervalCount : ""} {item.interval}
-										{item.intervalCount! > 1 ? "s" : ""}
-									</>
-								)}
-							</p>
-						</div>
-					))}
-				</div>
-				<div className="mt-2">
-					{purchase.discounts.length >= 1 && (
-						<>
-							{purchase.discounts.length === 1 ? (
-								!purchase.discounts[0].ignore && (
-									<h3 className="font-montserrat text-base font-bold">Discounts applied</h3>
-								)
-							) : (
-								<h3 className="font-montserrat text-base font-bold">Discount applied</h3>
-							)}
-							{(purchase.discounts as AggregatedDiscountData[]).map((discount) =>
-								!discount.ignore ? (
-									<div className="mb-1" key={discount.id}>
-										<p className="text-sm dark:text-neutral-200">
-											{discount.name} <span className="font-bold">-{discount.percent}</span> (-$
-											{(subtotal * (discount.decimal / 100)).toFixed(2)})
-										</p>
-										<div className="text-sm dark:text-neutral-400">
-											{discount.appliesTo.map((itemId) => {
-												const prod = purchase.items.find((prod) => prod.id === itemId)!;
-												return (
-													<p key={prod.id}>
-														{prod.quantity}x {prod.name} (-$
-														{((prod.price * discount.decimal) / 100).toFixed(2)})
-													</p>
-												);
-											})}
-										</div>
-									</div>
-								) : (
-									<></>
-								)
-							)}
-						</>
-					)}
-					<div className="mt-3 w-60">
-						<div className="flex w-full justify-between rounded-lg bg-neutral-300 px-4 py-3 dark:bg-dank-500">
-							<Title size="small">Total:</Title>
-							<Title size="small">${Math.floor(total * 100) / 100}</Title>
+			{loading ? (
+				<LoadingPepe />
+			) : (
+				<div className="mt-3">
+					{purchase.gateway === "stripe" && paymentMethod && <PaymentMethod paymentMethod={paymentMethod} />}
+					<PurchasedGoods purchase={purchase} />
+					<div className="mt-5">
+						<Title size="small" className="font-semibold">
+							Actions
+						</Title>
+						<div className="flex space-x-5">
+							<Button
+								variant="primary"
+								onClick={() => (window.location.href = "https://discord.gg/dankmemerbot")}
+							>
+								Need support
+							</Button>
+							<Button variant="danger" size="medium" onClick={() => setDisputing(true)}>
+								Request a refund
+							</Button>
 						</div>
 					</div>
 				</div>
-			</div>
+			)}
 		</div>
 	);
 }
