@@ -6,7 +6,7 @@ import { Title } from "src/components/Title";
 import Button from "src/components/ui/Button";
 import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/history";
 import { StripePurchaseDetails } from "src/pages/api/customers/purchases/stripe/[id]";
-import DisputeCreator from "./DisputeCreator";
+import DisputeCreator from "./RefundRequester";
 import PaymentMethod from "./PaymentMethod";
 import PurchasedGoods from "./PurchasedGoods";
 

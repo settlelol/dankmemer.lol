@@ -6,6 +6,7 @@ import Dropdown from "src/components/ui/Dropdown";
 import clsx from "clsx";
 import { toTitleCase } from "src/util/string";
 import Link from "src/components/ui/Link";
+import { useEffect, useRef, useState } from "react";
 
 interface Props {
 	purchase: AggregatedPurchaseRecordPurchases;
@@ -13,6 +14,42 @@ interface Props {
 }
 
 export default function DisputeCreator({ purchase, close }: Props) {
+	const [reason, setReason] = useState("");
+
+	const [dropdownOptions, setDropdownOptions] = useState([
+		{
+			label: "Fraud/Unauthorized",
+			value: "unauthorized",
+		},
+		{
+			label: "Did not receive goods",
+			value: "undelivered",
+		},
+		{
+			label: "Other",
+			value: "other",
+		},
+	]);
+
+	useEffect(() => {
+		const options = [...dropdownOptions];
+		switch (purchase.type) {
+			case "subscription":
+				options.splice(1, 0, {
+					label: "Unexpected renewal",
+					value: "unexpected-renewal",
+				});
+				break;
+			case "single":
+				options.splice(1, 0, {
+					label: "Duplicate charge",
+					value: "double-charge",
+				});
+				break;
+		}
+		setDropdownOptions(options);
+	}, [purchase.type]);
+
 	return (
 		<div>
 			<p
@@ -22,7 +59,7 @@ export default function DisputeCreator({ purchase, close }: Props) {
 				<Iconify icon="akar-icons:arrow-left" />
 				<span>Go back to purchase details</span>
 			</p>
-			<Title size="big">Open a Dispute</Title>
+			<Title size="big">Request a Refund</Title>
 			<p className="text-neutral-600 dark:text-neutral-400">
 				If you believe that you have been mischarged for this order you are able to fill out this form to
 				request a refund. Please ensure you have read our{" "}
@@ -83,19 +120,12 @@ export default function DisputeCreator({ purchase, close }: Props) {
 									<Iconify icon="ic:baseline-expand-more" height={15} className="ml-1" />
 								</div>
 							}
-							options={[
-								{
-									label: "Fraud/Unauthorized",
-									// onClick: () => setProductType("single"),
-								},
-								{
-									label: "Did not receive goods",
-									// onClick: () => setProductType("subscription"),
-								},
-								{
-									label: "Other",
-								},
-							]}
+							options={dropdownOptions.map((option) => {
+								return {
+									label: option.label,
+									onClick: () => setReason(option.value),
+								};
+							})}
 							isInput={false}
 							requireScroll={false}
 						/>
