@@ -148,7 +148,7 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 										<p className="text-right text-sm text-neutral-600 dark:text-neutral-300/50">
 											Added sales tax: $
 											{(invoice.salesTax >= 1
-												? invoice.salesTax
+												? invoice.salesTax / 100
 												: (invoice.total * 0.0675) / 100
 											).toFixed(2)}
 										</p>
