@@ -11,16 +11,12 @@ const sizes = {
 interface Props {
 	size: keyof typeof sizes;
 	children: ReactNode;
+	className?: string;
 }
 
-export function Title({ size, children }: Props) {
+export function Title({ size, children, className }: Props) {
 	return (
-		<h1
-			className={clsx(
-				"font-montserrat font-bold text-dank-300 dark:text-light-100",
-				sizes[size]
-			)}
-		>
+		<h1 className={clsx("font-montserrat font-bold text-dank-300 dark:text-light-100", sizes[size], className)}>
 			{children}
 		</h1>
 	);
