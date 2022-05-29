@@ -7,16 +7,28 @@ import clsx from "clsx";
 import { toTitleCase } from "src/util/string";
 import Link from "src/components/ui/Link";
 import { useEffect, useRef, useState } from "react";
+import Checkbox from "src/components/ui/Checkbox";
+import Button from "src/components/ui/Button";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 interface Props {
 	purchase: AggregatedPurchaseRecordPurchases;
-	close: () => void;
+	close: (bypass: boolean) => void;
+}
+
+interface DropdownOptions {
+	label: string;
+	value: string;
 }
 
 export default function DisputeCreator({ purchase, close }: Props) {
-	const [reason, setReason] = useState("");
+	const [reason, setReason] = useState<DropdownOptions>();
+	const [refundBody, setRefundBody] = useState("");
+	const [acknowledgement, setAcknowledgement] = useState(false);
+	const [canSubmit, setCanSubmit] = useState(false);
 
-	const [dropdownOptions, setDropdownOptions] = useState([
+	const [dropdownOptions, setDropdownOptions] = useState<DropdownOptions[]>([
 		{
 			label: "Fraud/Unauthorized",
 			value: "unauthorized",
@@ -50,11 +62,45 @@ export default function DisputeCreator({ purchase, close }: Props) {
 		setDropdownOptions(options);
 	}, [purchase.type]);
 
+	useEffect(() => {
+		if (refundBody.length >= 100 && refundBody.length <= 2000 && reason && acknowledgement) {
+			setCanSubmit(true);
+		}
+	});
+
+	const submit = async () => {
+		if (canSubmit) {
+			try {
+				await axios({
+					url: `/api/customers/purchases/${purchase.gateway}/${purchase._id}/refund`,
+					method: "POST",
+					data: {
+						gateway: purchase.gateway,
+						orderId: purchase._id,
+						type: purchase.type,
+						reason,
+						content: refundBody,
+					},
+				});
+				toast.success("Your refund request has been submitted. Please allow us time to review your request.", {
+					theme: "colored",
+					position: "top-center",
+				});
+				close(true);
+			} catch (e) {
+				toast.error("Unable to submit refund request at this time. Please try again later.", {
+					theme: "colored",
+					position: "top-center",
+				});
+			}
+		}
+	};
+
 	return (
 		<div>
 			<p
 				className="absolute top-4 flex cursor-pointer items-center justify-start space-x-1 text-sm transition-colors dark:text-neutral-400 hover:dark:text-neutral-200"
-				onClick={close}
+				onClick={() => close(false)}
 			>
 				<Iconify icon="akar-icons:arrow-left" />
 				<span>Go back to purchase details</span>
@@ -62,11 +108,7 @@ export default function DisputeCreator({ purchase, close }: Props) {
 			<Title size="big">Request a Refund</Title>
 			<p className="text-neutral-600 dark:text-neutral-400">
 				If you believe that you have been mischarged for this order you are able to fill out this form to
-				request a refund. Please ensure you have read our{" "}
-				<Link href="/refunds" className="!text-dank-300 underline hover:!text-dank-200">
-					refund policy
-				</Link>{" "}
-				before completion.
+				request a refund.
 			</p>
 			<div className="mt-5">
 				<div className="flex justify-between space-x-5">
@@ -116,20 +158,50 @@ export default function DisputeCreator({ purchase, close }: Props) {
 										"w-full px-3 py-2 text-sm"
 									)}
 								>
-									<p>{"Select one"}</p>
+									<p>{reason ? reason.label : "Select one"}</p>
 									<Iconify icon="ic:baseline-expand-more" height={15} className="ml-1" />
 								</div>
 							}
 							options={dropdownOptions.map((option) => {
 								return {
 									label: option.label,
-									onClick: () => setReason(option.value),
+									onClick: () => setReason(option),
 								};
 							})}
 							isInput={false}
 							requireScroll={false}
 						/>
 					</div>
+				</div>
+				<div className="mt-3">
+					<label className="mb-1 text-neutral-600 dark:text-neutral-300">
+						Reasoning behind your request<sup className="text-red-500">*</sup>
+					</label>
+					<textarea
+						value={refundBody}
+						onChange={(e) => setRefundBody(e.target.value)}
+						placeholder={
+							"Please explain as in-depth as possible the reasoning for your refund request. Keep in mind that the nicer you are, the more likely we are to give you a full refund."
+						}
+						className="h-48 max-h-[450px] min-h-[50px] w-full resize-y rounded-md border-[1px] border-neutral-300 px-3 py-2 font-inter text-sm focus-visible:border-dank-300 focus-visible:outline-none dark:border-neutral-700 dark:bg-black/30 placeholder:dark:text-neutral-400"
+					/>
+				</div>
+				<div className="mt-3">
+					<Checkbox state={acknowledgement} callback={() => setAcknowledgement((state) => !state)}>
+						By submitting this request you acknowledge that you have read and understand our{" "}
+						<Link href="/refunds" className="!text-dank-300 underline hover:!text-dank-200">
+							refund policy
+						</Link>
+						.
+					</Checkbox>
+					<Button
+						variant={canSubmit ? "primary" : "dark"}
+						disabled={!canSubmit}
+						className="mt-2 w-full"
+						onClick={submit}
+					>
+						Submit refund request
+					</Button>
 				</div>
 			</div>
 		</div>

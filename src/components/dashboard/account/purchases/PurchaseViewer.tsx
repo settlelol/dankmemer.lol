@@ -38,8 +38,9 @@ export default function PurchaseViewer({ purchase }: Props) {
 			});
 	}, []);
 
-	const closeDispute = () => {
+	const closeDispute = (bypass = false) => {
 		if (
+			bypass ||
 			confirm(
 				"Returning to the previous screen will close this dispute window and all information that has been entered will be forgotten. Are you sure you want to continue?"
 			)
