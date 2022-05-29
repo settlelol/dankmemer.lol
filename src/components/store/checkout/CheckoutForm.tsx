@@ -206,7 +206,7 @@ export default function CheckoutForm({
 
 		const { data: res } = await axios(`/api/customers/get?id=${isGift ? giftFor : userId}`);
 
-		if (res.isSubscribed) {
+		if (res.isSubscribed && cart[0].metadata?.type === "subscription") {
 			setProcessingPayment(false);
 			return toast.info(
 				<p>
