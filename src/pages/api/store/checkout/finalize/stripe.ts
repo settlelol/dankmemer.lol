@@ -84,25 +84,25 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					quantity: 1,
 					type: lineItem.price?.type!,
 				});
+			} else {
+				const product = await stripe.products.retrieve(lineItem.price!.product as string);
+				const usedDiscounts =
+					lineItem.discount_amounts?.filter((da) => da.amount > 0).map((discount) => discount.discount) ?? [];
+				items.push({
+					id: product.id,
+					name: product.name,
+					price: lineItem.amount / 100,
+					quantity: lineItem.quantity!,
+					type: lineItem.price?.type!,
+					discounts: usedDiscounts.map((usedDiscount) => ({
+						...discounts.find((discount) => discount.id === usedDiscount),
+					})) as PaymentIntentItemDiscount[],
+					...(lineItem.price?.recurring && {
+						interval: lineItem.price?.recurring?.interval,
+						intervalCount: lineItem.price?.recurring?.interval_count,
+					}),
+				});
 			}
-
-			const product = await stripe.products.retrieve(lineItem.price!.product as string);
-			const usedDiscounts =
-				lineItem.discount_amounts?.filter((da) => da.amount > 0).map((discount) => discount.discount) ?? [];
-			items.push({
-				id: product.id,
-				name: product.name,
-				price: lineItem.amount / 100,
-				quantity: lineItem.quantity!,
-				type: lineItem.price?.type!,
-				discounts: usedDiscounts.map((usedDiscount) => ({
-					...discounts.find((discount) => discount.id === usedDiscount),
-				})) as PaymentIntentItemDiscount[],
-				...(lineItem.price?.recurring && {
-					interval: lineItem.price?.recurring?.interval,
-					intervalCount: lineItem.price?.recurring?.interval_count,
-				}),
-			});
 		}
 
 		await stripe.customers.update(customer.id, customerData);
