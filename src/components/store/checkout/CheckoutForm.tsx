@@ -33,7 +33,6 @@ interface Props {
 	itemsTotal: string;
 	subtotalCost: string;
 	cart: CartItem[];
-	showWarning: any;
 }
 
 export interface Card {
@@ -63,7 +62,6 @@ export default function CheckoutForm({
 	itemsTotal,
 	subtotalCost,
 	cart,
-	showWarning,
 }: Props) {
 	const _invoiceId = useRef(invoiceId);
 	const _clientSecret = useRef(clientSecret);
@@ -535,7 +533,6 @@ export default function CheckoutForm({
 						itemsTotal={itemsTotal}
 						subtotalCost={subtotalCost}
 						totalCost={totalCost}
-						showWarning={showWarning}
 						discounts={{
 							discountsUsed: [
 								{

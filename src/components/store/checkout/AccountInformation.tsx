@@ -6,7 +6,7 @@ import Button from "src/components/ui/Button";
 import Link from "next/link";
 import { PaymentRequest, Stripe } from "@stripe/stripe-js";
 import { PaymentRequestButtonElement } from "@stripe/react-stripe-js";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { PayPalButton } from "react-paypal-button-v2";
 import { CartItem } from "src/pages/store";
 import { useRouter } from "next/router";
@@ -33,7 +33,6 @@ interface Props {
 	itemsTotal: string;
 	totalCost: string;
 	discounts: DiscountsApplied;
-	showWarning: any;
 	integratedWalletButtonType: "check-out" | "subscribe";
 }
 
@@ -66,7 +65,6 @@ export default function AccountInformation({
 	subtotalCost,
 	totalCost,
 	discounts,
-	showWarning,
 	integratedWalletButtonType,
 }: Props) {
 	const router = useRouter();

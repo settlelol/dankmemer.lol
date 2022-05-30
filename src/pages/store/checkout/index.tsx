@@ -14,13 +14,10 @@ import CartItemImmutable from "src/components/store/checkout/CartItemImmutable";
 import CheckoutForm from "src/components/store/checkout/CheckoutForm";
 import StoreBreadcrumb from "src/components/store/StoreBreadcrumb";
 import { Session } from "next-iron-session";
-import Link from "next/link";
 
 const _stripeElementsOptions: StripeElementsOptions = {};
 
-const stripePromise = loadStripe(
-	process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-);
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export interface DiscountItem {
 	id: string;
@@ -38,20 +35,14 @@ export default function Checkout({ cartData, user }: Props) {
 	const [clientSecret, setClientSecret] = useState("");
 	const [invoiceId, setInvoiceId] = useState("");
 
-	const [stripeElementsOptions, setStripeElementsOptions] =
-		useState<StripeElementsOptions>();
+	const [stripeElementsOptions, setStripeElementsOptions] = useState<StripeElementsOptions>();
 
 	const [subtotalCost, setSubtotalCost] = useState<string>("");
-	const [displayWarning, setDisplayWarning] = useState(false);
 
 	useEffect(() => {
 		setSubtotalCost(
 			cartData
-				.reduce(
-					(acc: number, item: CartItems) =>
-						acc + (item.selectedPrice.price / 100) * item.quantity,
-					0
-				)
+				.reduce((acc: number, item: CartItems) => acc + (item.selectedPrice.price / 100) * item.quantity, 0)
 				.toFixed(2)
 		);
 
@@ -77,29 +68,6 @@ export default function Checkout({ cartData, user }: Props) {
 						<Title size="big">Checkout</Title>
 					</div>
 					<StoreBreadcrumb currentPage="checkout" />
-					{displayWarning && (
-						<div className="my-5 grid w-full place-items-center rounded-lg border-2 border-red-500 bg-red-500/50 py-2 text-black dark:bg-red-500/25 dark:text-white">
-							<p className="max-w-3xl text-center">
-								Due to specific limitations, we are unable to
-								offer discounts for subscriptions, nor the
-								ability to gift subscriptions to other users
-								through PayPal. We encourage you to{" "}
-								<Link href="#">
-									<a
-										className="underline"
-										onClick={() =>
-											alert(
-												"Go to a blog post or something"
-											)
-										}
-									>
-										read more about it here
-									</a>
-								</Link>
-								.
-							</p>
-						</div>
-					)}
 					<div className="flex flex-1 flex-col justify-between lg:flex-row">
 						<CheckoutForm
 							clientSecret={clientSecret}
@@ -107,11 +75,7 @@ export default function Checkout({ cartData, user }: Props) {
 							userId={user!.id}
 							userEmail={user!.email}
 							itemsTotal={subtotalCost}
-							subtotalCost={(
-								parseFloat(subtotalCost) +
-								parseFloat(subtotalCost) * 0.0675
-							).toFixed(2)}
-							showWarning={setDisplayWarning}
+							subtotalCost={(parseFloat(subtotalCost) + parseFloat(subtotalCost) * 0.0675).toFixed(2)}
 							cart={cartData}
 						/>
 						<div className="relative hidden w-full lg:ml-5 lg:block">
@@ -120,31 +84,20 @@ export default function Checkout({ cartData, user }: Props) {
 								<div className="flex h-full flex-col items-end justify-between pb-7">
 									<div className="w-full">
 										{cartData.map((item, i) => (
-											<CartItemImmutable
-												index={i}
-												{...item}
-											/>
+											<CartItemImmutable index={i} {...item} />
 										))}
 									</div>
 									<div>
 										<p className="text-right text-sm text-neutral-600 dark:text-neutral-300/50">
-											Added sales tax: $
-											{(
-												parseFloat(subtotalCost) *
-												0.0675
-											).toFixed(2)}
+											Added sales tax: ${(parseFloat(subtotalCost) * 0.0675).toFixed(2)}
 										</p>
 										<div className="flex w-full max-w-[260px] justify-between space-x-2 rounded-lg bg-neutral-300 px-4 py-3 dark:bg-dank-500">
-											<Title size="small">
-												Subtotal:
-											</Title>
+											<Title size="small">Subtotal:</Title>
 											<Title size="small">
 												$
-												{(
-													parseFloat(subtotalCost) +
-													parseFloat(subtotalCost) *
-														0.0675
-												).toFixed(2)}
+												{(parseFloat(subtotalCost) + parseFloat(subtotalCost) * 0.0675).toFixed(
+													2
+												)}
 											</Title>
 										</div>
 									</div>
@@ -165,9 +118,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 		if (!user) {
 			return {
 				redirect: {
-					destination: `/api/auth/login?redirect=${encodeURIComponent(
-						ctx.resolvedUrl
-					)}`,
+					destination: `/api/auth/login?redirect=${encodeURIComponent(ctx.resolvedUrl)}`,
 					permanent: false,
 				},
 			};
