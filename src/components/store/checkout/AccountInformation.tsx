@@ -223,8 +223,8 @@ export default function AccountInformation({
 	useEffect(() => {
 		axios("/api/store/config/get")
 			.then(({ data }) => {
-				setIsGift(data.isGift);
-				setGiftRecipient(data.giftRecipient || "");
+				setIsGift(data.config.isGift);
+				setGiftRecipient(data.config.giftFor || "");
 			})
 			.catch((e) => {
 				console.error(e);
