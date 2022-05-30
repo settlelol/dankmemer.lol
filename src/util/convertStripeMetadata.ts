@@ -7,10 +7,10 @@ interface ConvertedMetadata {
 }
 
 export default function convertStripeMetadata(metadata: Stripe.Metadata): ConvertedMetadata {
-	let obj = {} as any;
+	let obj: Partial<ConvertedMetadata> = {};
 	const keys = Object.keys(metadata);
 	keys.map((k: string, i: number) => {
-		obj[k] = JSON.parse(`"${Object.values(metadata)[i]}"`);
+		obj[k as keyof ConvertedMetadata] = JSON.parse(`"${Object.values(metadata)[i]}"`);
 	});
 	return obj;
 }

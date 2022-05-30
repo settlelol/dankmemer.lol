@@ -9,7 +9,7 @@ interface PropsWithNoRightPane {
 	children: ReactNode;
 	links: ReactNode;
 	title: string;
-	hideRightPane?: () => never;
+	hideRightPane?: never;
 	rightPaneVisible?: never;
 	rightPaneContent?: never;
 }
