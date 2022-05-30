@@ -1,3 +1,4 @@
+import { ObjectID } from "bson";
 import { ObjectId } from "mongodb";
 import { NextApiResponse } from "next";
 import { dbConnect } from "src/util/mongodb";
@@ -23,6 +24,12 @@ interface RequestBody {
 	giftFor: string;
 	subscription?: string;
 	customId?: string;
+	giftSubscription?: GiftSubscription;
+}
+
+interface GiftSubscription {
+	product: string;
+	price: string;
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
@@ -44,7 +51,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		return res.status(401).json({ error: "You are not logged in." });
 	}
 
-	const { stripeInvoice, status, isGift, giftFor, subscription }: RequestBody = req.body;
+	const { stripeInvoice, status, isGift, giftFor, subscription, giftSubscription }: RequestBody = req.body;
 
 	if (status !== "COMPLETED" && status !== "ACTIVE") {
 		return res.status(425).json({ error: "Payment has not completed processing." });
@@ -116,25 +123,38 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		if (subscription) {
 			const paypal = new PayPal();
 			const subscriptionInfo = await paypal.subscriptions.get(subscription);
-			await db.collection("customers").updateOne(
-				{
-					discordId: isGift ? giftFor : user.id,
-				},
-				{
-					$set: {
-						subscription: {
-							provider: "paypal",
-							id: subscription,
-							gifted: isGift,
-							...(isGift && { giftedBy: user.id }),
-							purchaseTime: new Date().getTime(),
-							expiryTime: new Date(subscriptionInfo.billing_info?.next_billing_time!).getTime(),
-							automaticRenewal: true,
+			if (!isGift) {
+				await db.collection("customers").updateOne(
+					{
+						discordId: user.id,
+					},
+					{
+						$set: {
+							subscription: {
+								provider: "paypal",
+								id: subscription,
+								purchaseTime: new Date().getTime(),
+								expiryTime: new Date(subscriptionInfo.billing_info?.next_billing_time!).getTime(),
+								automaticRenewal: true,
+							},
 						},
 					},
+					{ upsert: true }
+				);
+			}
+		} else if (giftSubscription) {
+			await db.collection("gifts").insertOne({
+				_id: orderID as unknown as ObjectID,
+				code: Math.random().toString(36).substring(2),
+				from: user.id,
+				to: giftFor,
+				redeemed: false,
+				purchasedAt: new Date().getTime(),
+				product: {
+					id: giftSubscription.product,
+					price: giftSubscription.price,
 				},
-				{ upsert: true }
-			);
+			});
 		}
 
 		await Promise.all([

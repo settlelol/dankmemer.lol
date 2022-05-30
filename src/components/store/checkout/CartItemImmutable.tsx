@@ -1,20 +1,23 @@
-import { Icon as Iconify } from "@iconify/react";
-import { useEffect } from "react";
-import Dropdown from "src/components/ui/Dropdown";
-import { CartItem as CartItems } from "src/pages/store";
+import { Metadata } from "src/pages/store";
+import { SelectedPrice } from "src/pages/store/checkout/success";
 
 import { toTitleCase } from "src/util/string";
 
-interface Props extends CartItems {
-	index: number;
+interface Props {
+	index?: number;
+	name: string;
+	gifted?: string;
+	selectedPrice: SelectedPrice;
+	metadata?: Metadata;
+	unit_cost: number;
+	quantity: number;
+	image?: string;
 }
 
 export default function CartItemImmutable({
-	index,
-	id,
 	name,
+	gifted,
 	selectedPrice,
-	prices,
 	unit_cost,
 	quantity,
 	metadata,
@@ -31,10 +34,9 @@ export default function CartItemImmutable({
 						}}
 					></div>
 					<div className="ml-5 flex flex-col justify-center">
-						<h4 className="font-bold leading-none text-gray-800 dark:text-white">
-							{name}
-						</h4>
+						<h4 className="font-bold leading-none text-gray-800 dark:text-white">{name}</h4>
 						<p className="text-sm leading-none text-light-600">
+							{gifted && JSON.parse(gifted) && "(Gifted) "}
 							{metadata?.type && toTitleCase(metadata?.type)}
 						</p>
 					</div>
@@ -49,14 +51,18 @@ export default function CartItemImmutable({
 							: (unit_cost * quantity).toFixed(2)}
 					</p>
 					{metadata?.type === "subscription" ? (
-						<p className="text-sm leading-none text-light-600">
-							Billing period:{" "}
-							{toTitleCase(selectedPrice.interval!)}ly
-						</p>
+						selectedPrice.interval ? (
+							<p className="text-sm leading-none text-light-600">
+								Billing period: {toTitleCase(selectedPrice.interval)}ly
+							</p>
+						) : (
+							<p className="text-sm leading-none text-light-600">
+								Duration: {selectedPrice.duration!.count}{" "}
+								{toTitleCase(selectedPrice.duration!.interval)}
+							</p>
+						)
 					) : (
-						<p className="text-sm leading-none text-light-600">
-							Quantity: {quantity}
-						</p>
+						<p className="text-sm leading-none text-light-600">Quantity: {quantity}</p>
 					)}
 				</div>
 			</div>

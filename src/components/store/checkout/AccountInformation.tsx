@@ -23,12 +23,7 @@ interface Props {
 	invoiceId: string;
 	acceptsIntegratedWallet: Boolean;
 	integratedWallet: PaymentRequest | null;
-	selectedPaymentOption:
-		| "Card"
-		| "PayPal"
-		| "ApplePay"
-		| "GooglePay"
-		| "MicrosoftPay";
+	selectedPaymentOption: "Card" | "PayPal" | "ApplePay" | "GooglePay" | "MicrosoftPay";
 
 	userEmail: string;
 	processingPayment: Boolean;
@@ -77,39 +72,18 @@ export default function AccountInformation({
 	const router = useRouter();
 	const { theme } = useTheme();
 
-	const [validGiftRecipient, setValidGiftRecipient] = useState(false);
 	const [giftRecipient, setGiftRecipient] = useState("");
 	const [isGift, setIsGift] = useState(false);
 
 	const [receiptEmail, setReceiptEmail] = useState(userEmail);
 	const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-	useEffect(() => {
-		if (
-			selectedPaymentOption === "PayPal" &&
-			isGift &&
-			cartData[0].selectedPrice.type === "recurring"
-		) {
-			setIsGift(false);
-		}
-
-		if (
-			selectedPaymentOption === "PayPal" &&
-			cartData[0].selectedPrice.type === "recurring"
-		) {
-			showWarning(true);
-		} else {
-			showWarning(false);
-		}
-	}, [selectedPaymentOption, isGift]);
-
 	// Remade to fit new store!
 	const createPayment = () => {
 		const totalWithTax = (
 			parseFloat(itemsTotal) +
 			parseFloat(itemsTotal) * 0.0675 -
-			(parseFloat(discounts.thresholdDiscount) +
-				discounts.discountedItemsTotalSavings)
+			(parseFloat(discounts.thresholdDiscount) + discounts.discountedItemsTotalSavings)
 		).toFixed(2);
 		return {
 			intent: "CAPTURE", // Capture a payment, no pre-authorization,
@@ -126,48 +100,31 @@ export default function AccountInformation({
 							discount: {
 								currency_code: "USD",
 								value: (
-									parseFloat(discounts.thresholdDiscount) +
-									discounts.discountedItemsTotalSavings
+									parseFloat(discounts.thresholdDiscount) + discounts.discountedItemsTotalSavings
 								).toFixed(2),
 							},
 						},
 					},
 					description: "Dank Memer Store",
-					custom_id: `${userId}:${
-						isGift ? giftRecipient : userId
-					}:${isGift}:${discounts.discountsUsed.map((discount) => {
-						if (
-							discount.code.length < 1 ||
-							discount.items.length < 1
-						) {
-							return;
-						}
-						return `${discount.code}|${discount.items.join("|")}`;
-					})}`,
+					custom_id: `${userId}:${isGift ? giftRecipient : userId}:${isGift}`,
 					items: [
 						...cartData.map((item) => {
 							return {
 								name: item.name,
 								unit_amount: {
 									currency_code: "USD",
-									value: (
-										item.selectedPrice.price / 100
-									).toFixed(2),
+									value: (item.selectedPrice.price / 100).toFixed(2),
 								},
 								quantity: item.quantity.toString(),
 								category: "DIGITAL_GOODS",
-								sku: `${item.id}:${
-									item.selectedPrice.interval || "single"
-								}`,
+								sku: `${item.id}:${item.selectedPrice.interval || "single"}`,
 							};
 						}),
 						{
 							name: "Sales tax",
 							unit_amount: {
 								currency_code: "USD",
-								value: (
-									parseFloat(itemsTotal) * 0.0675
-								).toFixed(2),
+								value: (parseFloat(itemsTotal) * 0.0675).toFixed(2),
 							},
 							quantity: "1",
 							category: "DIGITAL_GOODS",
@@ -184,12 +141,49 @@ export default function AccountInformation({
 		};
 	};
 
+	const createPayPalSubscription = async (actions: any) => {
+		const { data: res } = await axios(`/api/customers/get?id=${isGift ? giftRecipient : userId}`);
+
+		if (res.isSubscribed && cartData[0].metadata?.type === "subscription") {
+			return toast.info(
+				<p>
+					{isGift ? <>That user</> : <>You</>} already {isGift ? <>has</> : <>have</>} an active subscription.{" "}
+					{isGift ? (
+						<></>
+					) : (
+						<>
+							If you wish to manage your subscription, you can do so{" "}
+							<Link href="/dashboard/account">
+								<a className="underline">here</a>
+							</Link>
+							.
+						</>
+					)}
+				</p>,
+				{
+					theme: "colored",
+					position: "top-center",
+					hideProgressBar: true,
+				}
+			);
+		} else {
+			return actions.subscription.create({
+				plan_id: cartData[0].selectedPrice.metadata.paypalPlan,
+				custom_id: `${cartData[0].selectedPrice.metadata.paypalPlan}:${userId}:${
+					giftRecipient || userId
+				}:${new Date().getTime()}`,
+			});
+		}
+	};
+
 	const approvePayPalSubscription = async (data: any, actions: any) => {
 		const subscriptionDetails = await actions.subscription.get();
 		paypalSubscriptionSuccess(subscriptionDetails, data);
 	};
 
 	const paypalSuccess = (details: OrdersRetrieveResponse, data: any) => {
+		const subscriptionGift = isGift && cartData[0].metadata!.type === "subscription";
+
 		axios({
 			method: "PATCH",
 			url: `/api/store/checkout/finalize/paypal?orderID=${data.orderID}`,
@@ -198,16 +192,19 @@ export default function AccountInformation({
 				status: details.status,
 				isGift,
 				giftFor: giftRecipient,
+				...(subscriptionGift && {
+					giftSubscription: {
+						product: cartData[0].id,
+						price: cartData[0].selectedPrice.id,
+					},
+				}),
 			},
 		}).then(() => {
-			router.push(
-				`/store/checkout/success?gateway=paypal&id=${data.orderID}`
-			);
+			router.push(`/store/checkout/success?gateway=paypal&id=${data.orderID}`);
 		});
 	};
 
 	const paypalSubscriptionSuccess = (details: any, data: any) => {
-		console.log(data);
 		axios({
 			method: "PATCH",
 			url: `/api/store/checkout/finalize/paypal?orderID=${data.orderID}`,
@@ -219,38 +216,36 @@ export default function AccountInformation({
 				subscription: data.subscriptionID,
 			},
 		}).then(() => {
-			router.push(
-				`/store/checkout/success?gateway=paypal&id=${data.orderID}&invoice=${invoiceId}`
-			);
+			router.push(`/store/checkout/success?gateway=paypal&id=${data.orderID}&invoice=${invoiceId}`);
 		});
 	};
 
 	useEffect(() => {
-		setValidGiftRecipient(
-			/^[0-9]*$/.test(giftRecipient) &&
-				giftRecipient.length >= 16 &&
-				giftRecipient.length <= 20 &&
-				giftRecipient !== userId
-		);
-	}, [giftRecipient]);
+		axios("/api/store/config/get")
+			.then(({ data }) => {
+				setIsGift(data.isGift);
+				setGiftRecipient(data.giftRecipient || "");
+			})
+			.catch((e) => {
+				console.error(e);
+			});
+	}, []);
 
 	useEffect(() => {
 		if (!integratedWallet || !stripe || !clientSecret) return;
 		integratedWallet.once("paymentmethod", async (e) => {
-			const { paymentIntent, error: confirmPaymentError } =
-				await stripe.confirmCardPayment(
-					clientSecret,
-					{ payment_method: e.paymentMethod.id },
-					{ handleActions: false }
-				);
+			const { paymentIntent, error: confirmPaymentError } = await stripe.confirmCardPayment(
+				clientSecret,
+				{ payment_method: e.paymentMethod.id },
+				{ handleActions: false }
+			);
 
 			if (confirmPaymentError) {
 				e.complete("fail"); // Inform browser that the payment failed prompting to re-show the payment modal
 			} else {
 				e.complete("success"); // Payment was successful, let browser close payment modal
 				if (paymentIntent?.status === "requires_action") {
-					const { error: actionError } =
-						await stripe.confirmCardPayment(clientSecret);
+					const { error: actionError } = await stripe.confirmCardPayment(clientSecret);
 					if (actionError) {
 						toast.error(
 							"There was an issue processing your payment. If you wish to continue, try again using a different payment method.",
@@ -274,75 +269,9 @@ export default function AccountInformation({
 			<h3 className="font-montserrat text-base font-bold text-neutral-700 dark:text-white">
 				Account information
 			</h3>
-			<div className="">
-				<p className="text-sm text-neutral-600 dark:text-neutral-300">
-					This purchase is being made for
-				</p>
-				<div className="mt-2 flex flex-col justify-start phone:flex-row phone:items-center">
-					<div className="mr-4 flex cursor-pointer select-none text-sm">
-						<p
-							className={clsx(
-								!isGift
-									? "bg-dank-300 text-white"
-									: "bg-black/10 text-neutral-600 dark:bg-black/30 dark:text-neutral-400",
-								"rounded-l-md border-[1px] border-transparent px-3 py-1"
-							)}
-							onClick={() => setIsGift(false)}
-						>
-							Myself
-						</p>
-						<p
-							className={clsx(
-								isGift
-									? "bg-dank-300 text-white"
-									: "bg-black/10 text-neutral-600 dark:bg-black/30 dark:text-neutral-400",
-								selectedPaymentOption === "PayPal" &&
-									cartData[0].selectedPrice.type ===
-										"recurring" &&
-									"cursor-not-allowed text-neutral-400 dark:text-neutral-600",
-								"rounded-r-md border-[1px] border-transparent px-3 py-1"
-							)}
-							onClick={() => {
-								if (
-									selectedPaymentOption === "PayPal" &&
-									cartData[0].selectedPrice.type ===
-										"recurring"
-								)
-									return;
-								setIsGift(true);
-							}}
-						>
-							Someone else
-						</p>
-					</div>
-					{isGift &&
-						!(
-							selectedPaymentOption === "PayPal" &&
-							cartData[0].selectedPrice.type === "recurring"
-						) && (
-							<div className="mt-2 phone:mt-0">
-								<Input
-									width="large"
-									type="text"
-									placeholder="270904126974590976"
-									className={clsx(
-										"!py-1",
-										validGiftRecipient
-											? ""
-											: "border-red-500"
-									)}
-									onChange={(e: any) =>
-										setGiftRecipient(e.target.value)
-									}
-								/>
-							</div>
-						)}
-				</div>
-			</div>
 			<div className="mt-3">
 				<p className="text-sm text-neutral-600 dark:text-neutral-500">
-					The following email will receive the purchase receipt once
-					the payment has been processed.
+					The following email will receive the purchase receipt once the payment has been processed.
 				</p>
 				<Input
 					width="w-60"
@@ -352,15 +281,10 @@ export default function AccountInformation({
 					onChange={(e: any) => setReceiptEmail(e.target.value)}
 					className="mt-2 !py-1"
 				/>
-				<Checkbox
-					state={acceptedTerms}
-					callback={() => setAcceptedTerms(!acceptedTerms)}
-				>
+				<Checkbox state={acceptedTerms} callback={() => setAcceptedTerms(!acceptedTerms)}>
 					I agree to Dank Memer's{" "}
 					<Link href="/terms">
-						<a className="text-dank-300 underline">
-							Terms of Serivce
-						</a>
+						<a className="text-dank-300 underline">Terms of Serivce</a>
 					</Link>{" "}
 					and{" "}
 					<Link href="/refunds">
@@ -380,10 +304,7 @@ export default function AccountInformation({
 									style: {
 										paymentRequestButton: {
 											type: integratedWalletButtonType,
-											theme:
-												theme === "dark"
-													? "dark"
-													: "light",
+											theme: theme === "dark" ? "dark" : "light",
 										},
 									},
 								}}
@@ -395,45 +316,22 @@ export default function AccountInformation({
 				) : selectedPaymentOption === "PayPal" ? (
 					<div className="mt-3 h-[50px] w-full overflow-hidden dark:text-white">
 						{acceptedTerms ? (
-							cartData[0].metadata!.type! === "subscription" ? (
+							cartData[0].metadata!.type! === "subscription" && !isGift ? (
 								<PayPalButton
 									options={{
 										vault: true,
-										clientId:
-											process.env
-												.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+										clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
 									}}
 									style={{
 										height: 40,
 										fontFamily: "'Inter', sans-serif",
 										layout: "horizontal",
-										color:
-											theme === "dark"
-												? "black"
-												: "silver",
+										color: theme === "dark" ? "black" : "silver",
 										tagline: false,
 									}}
-									createSubscription={(
-										_: any,
-										actions: any
-									) =>
-										actions.subscription.create({
-											plan_id:
-												cartData[0].selectedPrice
-													.metadata.paypalPlan,
-											custom_id: `${
-												cartData[0].selectedPrice
-													.metadata.paypalPlan
-											}:${userId}:${
-												giftRecipient || userId
-											}:${new Date().getTime()}`,
-										})
-									}
+									createSubscription={(_: any, actions: any) => createPayPalSubscription(actions)}
 									onApprove={(data: any, actions: any) => {
-										approvePayPalSubscription(
-											data,
-											actions
-										);
+										approvePayPalSubscription(data, actions);
 									}}
 									catchError={(err: any) => {
 										console.error(err);
@@ -443,32 +341,37 @@ export default function AccountInformation({
 										console.error(err);
 									}}
 								/>
-							) : (
+							) : cartData[0].metadata!.type! === "subscription" && isGift ? (
 								<PayPalButton
 									options={{
-										clientId:
-											process.env
-												.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+										clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
 									}}
 									style={{
 										height: 40,
 										fontFamily: "'Inter', sans-serif",
 										layout: "horizontal",
-										color:
-											theme === "dark"
-												? "black"
-												: "silver",
+										color: theme === "dark" ? "black" : "silver",
 										tagline: false,
 									}}
-									createOrder={(_: any, actions: any) =>
-										actions.order.create(createPayment())
-									}
-									onApprove={(_: any, actions: any) =>
-										actions.order.capture()
-									}
-									onSuccess={(details: any, data: any) =>
-										paypalSuccess(details, data)
-									}
+									createOrder={(_: any, actions: any) => actions.order.create(createPayment())}
+									onApprove={(_: any, actions: any) => actions.order.capture()}
+									onSuccess={(details: any, data: any) => paypalSuccess(details, data)}
+								/>
+							) : (
+								<PayPalButton
+									options={{
+										clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+									}}
+									style={{
+										height: 40,
+										fontFamily: "'Inter', sans-serif",
+										layout: "horizontal",
+										color: theme === "dark" ? "black" : "silver",
+										tagline: false,
+									}}
+									createOrder={(_: any, actions: any) => actions.order.create(createPayment())}
+									onApprove={(_: any, actions: any) => actions.order.capture()}
+									onSuccess={(details: any, data: any) => paypalSuccess(details, data)}
 								/>
 							)
 						) : (
@@ -480,58 +383,22 @@ export default function AccountInformation({
 						size="medium-large"
 						className={clsx(
 							"mt-3 w-full",
-							!(
-								canCheckout &&
-								receiptEmail.length >= 5 &&
-								acceptedTerms &&
-								(isGift ? validGiftRecipient : true)
-							)
+							!(canCheckout && receiptEmail.length >= 5 && acceptedTerms)
 								? "bg-neutral-400 text-neutral-600 dark:bg-neutral-500 dark:text-neutral-800"
 								: ""
 						)}
-						disabled={
-							!(
-								canCheckout &&
-								receiptEmail.length >= 5 &&
-								acceptedTerms &&
-								(isGift ? validGiftRecipient : true)
-							)
-						}
-						onClick={() =>
-							confirmPayment(isGift, giftRecipient, receiptEmail)
-						}
+						disabled={!(canCheckout && receiptEmail.length >= 5 && acceptedTerms)}
+						onClick={() => confirmPayment(isGift, giftRecipient, receiptEmail)}
 					>
 						{processingPayment ? (
 							<p className="flex">
 								<span className="mr-3">
-									<svg
-										width="23"
-										height="23"
-										viewBox="0 0 38 38"
-										xmlns="http://www.w3.org/2000/svg"
-									>
+									<svg width="23" height="23" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
 										<defs>
-											<linearGradient
-												x1="8.042%"
-												y1="0%"
-												x2="65.682%"
-												y2="23.865%"
-												id="a"
-											>
-												<stop
-													stopColor="#fff"
-													stopOpacity="0"
-													offset="0%"
-												/>
-												<stop
-													stopColor="#fff"
-													stopOpacity=".631"
-													offset="63.146%"
-												/>
-												<stop
-													stopColor="#fff"
-													offset="100%"
-												/>
+											<linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a">
+												<stop stopColor="#fff" stopOpacity="0" offset="0%" />
+												<stop stopColor="#fff" stopOpacity=".631" offset="63.146%" />
+												<stop stopColor="#fff" offset="100%" />
 											</linearGradient>
 										</defs>
 										<g fill="none" fill-rule="evenodd">
@@ -551,12 +418,7 @@ export default function AccountInformation({
 														repeatCount="indefinite"
 													/>
 												</path>
-												<circle
-													fill="#fff"
-													cx="36"
-													cy="18"
-													r="1"
-												>
+												<circle fill="#fff" cx="36" cy="18" r="1">
 													<animateTransform
 														attributeName="transform"
 														type="rotate"

@@ -1,6 +1,8 @@
+import { ObjectID } from "bson";
 import { ObjectId } from "mongodb";
 import { NextApiResponse } from "next";
 import { dbConnect } from "src/util/mongodb";
+import { toTitleCase } from "src/util/string";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { NextIronRequest, withSession } from "../../../../../util/session";
@@ -58,6 +60,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		customerData.name = customerName;
 	}
 
+	if (!customer.email) {
+		customerData.email = user.email;
+	}
+
 	try {
 		let discounts: PaymentIntentItemDiscount[] = [];
 		for (let i = 0; i < (invoice.discounts as Stripe.Discount[] | Stripe.DeletedDiscount[])?.length; i++) {
@@ -110,25 +116,39 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 		if (subscription) {
 			const subscriptionInfo = await stripe.subscriptions.retrieve(invoice.subscription as string);
-			await db.collection("customers").updateOne(
-				{
-					discordId: isGift ? giftFor : user.id,
-				},
-				{
-					$set: {
-						subscription: {
-							provider: "stripe",
-							id: subscriptionInfo.id,
-							gifted: isGift,
-							...(isGift && { giftedBy: user.id }),
-							purchaseTime: subscriptionInfo.current_period_end,
-							expiryTime: invoice.period_end,
-							automaticRenewal: true,
+			if (!isGift) {
+				await db.collection("customers").updateOne(
+					{
+						discordId: user.id,
+					},
+					{
+						$set: {
+							subscription: {
+								provider: "stripe",
+								id: subscriptionInfo.id,
+								purchaseTime: subscriptionInfo.current_period_end,
+								expiryTime: invoice.period_end,
+								automaticRenewal: true,
+							},
 						},
 					},
+					{ upsert: true }
+				);
+			}
+		} else if (invoice.metadata?.giftSubscription && JSON.parse(invoice.metadata.giftSubscription)) {
+			const product = await stripe.products.retrieve(invoice.lines.data[0].price!.product as string);
+			await db.collection("gifts").insertOne({
+				_id: invoice.id as unknown as ObjectID,
+				code: Math.random().toString(36).substring(2),
+				from: user.id,
+				to: giftFor,
+				redeemed: false,
+				purchasedAt: new Date().getTime(),
+				product: {
+					id: product.id,
+					price: product.default_price,
 				},
-				{ upsert: true }
-			);
+			});
 		}
 
 		await Promise.all([

@@ -100,6 +100,15 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		return res.status(500).json({ error: "Failed Stripe signature verification" });
 	}
 
+	if (
+		(event.data.object as any).metadata.ignoreWebhook &&
+		JSON.parse((event.data.object as any).metadata.ignoreWebhook)
+	) {
+		return res.status(200).json({
+			message: "Instructed to skip sending webhook to Discord.",
+		});
+	}
+
 	switch (event.type) {
 		case "charge.refund.updated":
 			({ result } = await ChargeRefundUpdated(event, stripe));

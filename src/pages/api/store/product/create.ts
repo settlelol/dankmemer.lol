@@ -171,6 +171,27 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						},
 					});
 
+					// Create single-purchase products used for gifting subscriptions
+					const giftableProduct = await stripe.products.create({
+						name: productData.name,
+						active: true,
+						tax_code: "txcd_10000000", // General - Electronically Supplied Services
+						...(productData.description &&
+							productData.description.length >= 1 && {
+								description: productData.description,
+							}),
+						default_price_data: {
+							currency: "USD",
+							tax_behavior: "exclusive",
+							unit_amount: priceInCents,
+						},
+						metadata: {
+							type: "giftable",
+							hidden: "true",
+							ignoreWebhook: "true",
+						},
+					});
+
 					let price = await stripe.prices.create({
 						currency: "USD",
 						product: stripeProduct.id,
@@ -182,6 +203,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						},
 						metadata: {
 							paypalPlan: plan.id,
+							giftProduct: giftableProduct.id,
 						},
 					});
 

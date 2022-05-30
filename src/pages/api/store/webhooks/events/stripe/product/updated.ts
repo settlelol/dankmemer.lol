@@ -5,10 +5,12 @@ import { redisConnect } from "src/util/redis";
 import Stripe from "stripe";
 import { EventResponse } from "../../../stripe";
 
-export default async function (
-	event: Stripe.Event,
-	stripe: Stripe
-): Promise<EventResponse> {
+interface PriceMetadata {
+	paypalPlan?: string;
+	giftProduct?: string;
+}
+
+export default async function (event: Stripe.Event, stripe: Stripe): Promise<EventResponse> {
 	const redis = await redisConnect();
 	const product = event.data.object as Stripe.Product;
 
@@ -45,12 +47,15 @@ export default async function (
 			const updated = await stripe.products.update(product.id, {
 				metadata: metadata as Stripe.Emptyable<Stripe.MetadataParam>,
 			});
-			redis.set(
-				`webhooks:product-updated:${product.id}`,
-				JSON.stringify(updated),
-				"PX",
-				TIME.second * 10
-			);
+			if (metadata.type === "subscription") {
+				for (let price of prices) {
+					// Update each of the individual giftable products to have the same image as the base subscription
+					await stripe.products.update((price.metadata as PriceMetadata).giftProduct!, {
+						images: [updated.images[0]],
+					});
+				}
+			}
+			redis.set(`webhooks:product-updated:${product.id}`, JSON.stringify(updated), "PX", TIME.second * 10);
 			delete metadata.hidden; // Remove the field for the webhook
 		} catch (e: any) {
 			console.error(e);
@@ -81,9 +86,7 @@ export default async function (
 						`• $${(price.unit_amount! / 100).toFixed(2)} ${
 							prices.length > 1
 								? `every ${
-										price.recurring!.interval_count > 1
-											? price.recurring!.interval_count
-											: ""
+										price.recurring!.interval_count > 1 ? price.recurring!.interval_count : ""
 								  } ${price.recurring!.interval}`
 								: "each"
 						}`
@@ -106,9 +109,7 @@ export default async function (
 		title: "Product Updated",
 		color: 16767820,
 		thumbnail: {
-			url:
-				product.images[0] ||
-				"http://brentapac.com/wp-content/uploads/2017/03/transparent-square.png",
+			url: product.images[0] || "http://brentapac.com/wp-content/uploads/2017/03/transparent-square.png",
 		},
 		...(product.description && {
 			description: product.description,

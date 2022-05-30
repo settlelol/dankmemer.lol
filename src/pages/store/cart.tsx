@@ -34,6 +34,10 @@ export default function Cart({ cartData, user }: Props) {
 	const [subtotalCost, setSubtotalCost] = useState<number>(0);
 	const [totalCost, setTotalCost] = useState<number>(0);
 
+	const [isGift, setIsGift] = useState(false);
+	const [giftRecipient, setGiftRecipient] = useState("");
+	const [validGiftRecipient, setValidGiftRecipient] = useState(false);
+
 	const [discountData, setDiscountData] = useState<AppliedDiscount | null>(null);
 
 	const [thresholdDiscount, setThresholdDiscount] = useState<Boolean>();
@@ -246,6 +250,32 @@ export default function Cart({ cartData, user }: Props) {
 		}
 	};
 
+	useEffect(() => {
+		setValidGiftRecipient(
+			/^[0-9]*$/.test(giftRecipient) &&
+				giftRecipient.length >= 16 &&
+				giftRecipient.length <= 20 &&
+				giftRecipient !== user!.id
+		);
+	}, [giftRecipient]);
+
+	const goToCheckout = () => {
+		axios({
+			url: "/api/store/config/set",
+			method: "POST",
+			data: {
+				isGift,
+				giftFor: giftRecipient,
+			},
+		})
+			.then(() => {
+				return router.push("/store/checkout");
+			})
+			.catch((e) => {
+				console.error(e);
+			});
+	};
+
 	return (
 		<Container title="Shopping Cart" user={user}>
 			<div className="mt-12 mb-5 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
@@ -306,7 +336,52 @@ export default function Cart({ cartData, user }: Props) {
 							total below is what is required to be paid upon checkout.
 						</p>
 						<div className="mt-3 mr-9 w-full">
-							<h3 className="font-montserrat text-base font-bold text-black dark:text-white">
+							<div className="">
+								<h3 className="font-montserrat text-base font-semibold text-black dark:text-white">
+									Purchase recipient
+								</h3>
+								<div className="my-2 flex flex-col">
+									<div className="mr-4 flex cursor-pointer select-none text-sm">
+										<p
+											className={clsx(
+												!isGift
+													? "bg-dank-300 text-white"
+													: "bg-black/10 text-neutral-600 dark:bg-black/30 dark:text-neutral-400",
+												"rounded-l-md border-[1px] border-transparent px-3 py-1"
+											)}
+											onClick={() => setIsGift(false)}
+										>
+											Myself
+										</p>
+										<p
+											className={clsx(
+												isGift
+													? "bg-dank-300 text-white"
+													: "bg-black/10 text-neutral-600 dark:bg-black/30 dark:text-neutral-400",
+												"rounded-r-md border-[1px] border-transparent px-3 py-1"
+											)}
+											onClick={() => setIsGift(true)}
+										>
+											Someone else
+										</p>
+									</div>
+									{isGift && (
+										<div className="mt-2">
+											<Input
+												width="w-[190px]"
+												type="text"
+												placeholder="270904126974590976"
+												className={clsx(
+													"!py-1 dark:placeholder:text-neutral-500",
+													validGiftRecipient ? "" : "border-red-500"
+												)}
+												onChange={(e: any) => setGiftRecipient(e.target.value)}
+											/>
+										</div>
+									)}
+								</div>
+							</div>
+							<h3 className="font-montserrat text-base font-semibold text-black dark:text-white">
 								Apply a discount code
 							</h3>
 							<div className="group mt-2">
@@ -422,7 +497,7 @@ export default function Cart({ cartData, user }: Props) {
 						<Button
 							size="medium"
 							className={clsx("mt-3 w-full", processingChange ? "bg-[#7F847F] text-[#333533]" : "")}
-							onClick={() => router.push("/store/checkout")}
+							onClick={goToCheckout}
 							disabled={processingChange}
 						>
 							Continue to Checkout

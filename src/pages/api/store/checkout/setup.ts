@@ -6,6 +6,12 @@ import { CartItem } from "src/pages/store";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { AppliedDiscount } from "../discount/apply";
+import { toTitleCase } from "src/util/string";
+
+interface CartConfig {
+	isGift: boolean;
+	giftFor: string;
+}
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const stripe = stripeConnect();
@@ -16,6 +22,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		return res.status(401).json({ error: "You are not logged in." });
 	}
 
+	const config = (await req.session.get("store-config")) as CartConfig;
 	const cart: CartItem[] | undefined = await req.session.get("cart");
 	if (!cart) {
 		return res.status(400).json({ error: "You must have items in your cart." });
@@ -63,6 +70,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		}
 	}
 
+	if (!customer) {
+		return res.status(500).json({ message: "Unable to establish customer" });
+	}
+
 	let discount: Stripe.PromotionCode | null = null;
 	let discountCode: AppliedDiscount | undefined = await req.session.get("discountCode");
 
@@ -77,20 +88,64 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	try {
 		if (cart.length === 1 && cart[0].metadata?.type === "subscription") {
-			const subscription = await stripe.subscriptions.create({
-				customer: customer?.id!,
-				payment_behavior: "default_incomplete",
-				expand: ["latest_invoice.payment_intent"],
-				...(discount && { coupon: discount.coupon.id }),
-				items: [{ price: cart[0].selectedPrice.id }],
-			});
-			const invoice = subscription.latest_invoice as Stripe.Invoice;
+			if (!config.isGift) {
+				const subscription = await stripe.subscriptions.create({
+					customer: customer.id!,
+					payment_behavior: "default_incomplete",
+					expand: ["latest_invoice.payment_intent"],
+					...(discount && { coupon: discount.coupon.id }),
+					items: [{ price: cart[0].selectedPrice.id }],
+				});
+				const invoice = subscription.latest_invoice as Stripe.Invoice;
 
-			return res.status(200).json({
-				client_secret: (invoice?.payment_intent as Stripe.PaymentIntent)?.client_secret,
-				invoice: invoice?.id,
-				subscription: subscription.id,
-			});
+				return res.status(200).json({
+					client_secret: (invoice?.payment_intent as Stripe.PaymentIntent)?.client_secret,
+					invoice: invoice?.id,
+					subscription: subscription.id,
+				});
+			} else if (config.isGift) {
+				const giftProduct = await stripe.products.retrieve(
+					(
+						await stripe.prices.retrieve(cart[0].selectedPrice.id)
+					).metadata.giftProduct
+				);
+				// Gift subscription invoice item
+				await stripe.invoiceItems.create({
+					customer: customer.id,
+					currency: "usd",
+					price: giftProduct.default_price as string,
+					quantity: 1,
+				});
+				// Sales tax invoice item
+				await stripe.invoiceItems.create({
+					customer: customer?.id!,
+					currency: "usd",
+					unit_amount_decimal: (cart[0].selectedPrice.price * 0.0675).toFixed(0),
+				});
+				const giftInvoice = await stripe.invoices.create({
+					customer: customer.id,
+					auto_advance: false,
+					collection_method: "charge_automatically",
+					...(discount && { coupon: discount.coupon.id }),
+					metadata: {
+						boughtByDiscordId: user.id,
+						giftSubscription: "true",
+						giftSubscriptionFor: config.giftFor,
+					},
+				});
+
+				const finalizedInvoice = await stripe.invoices.finalizeInvoice(giftInvoice.id);
+				const paymentIntent = await stripe.paymentIntents.update(finalizedInvoice.payment_intent as string, {
+					description: `Payment for 1x ${giftProduct.name} gift subscription (${toTitleCase(
+						cart[0].selectedPrice.interval!
+					)})`,
+				});
+
+				return res.status(200).json({
+					client_secret: paymentIntent.client_secret,
+					invoice: finalizedInvoice.id,
+				});
+			}
 		}
 
 		for (let i = 0; i < cart.length; i++) {
@@ -141,12 +196,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		});
 
 		const finalizedInvoice = await stripe.invoices.finalizeInvoice(pendingInvoice.id);
-		const paymentIntent = await stripe.paymentIntents.update(
-			(finalizedInvoice.payment_intent as Stripe.PaymentIntent)?.toString(),
-			{
-				description: `Payment for ${cart.map((item) => `${item.quantity}x ${item.name}`).join(", ")}`,
-			}
-		);
+		const paymentIntent = await stripe.paymentIntents.update(finalizedInvoice.payment_intent as string, {
+			description: `Payment for ${cart.map((item) => `${item.quantity}x ${item.name}`).join(", ")}`,
+		});
 
 		return res.status(200).json({
 			client_secret: paymentIntent.client_secret,

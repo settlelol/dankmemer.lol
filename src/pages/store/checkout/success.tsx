@@ -15,7 +15,6 @@ import { Icon as Iconify } from "@iconify/react";
 import PayPal from "src/util/paypal";
 import { OrdersRetrieveResponse } from "src/util/paypal/classes/Orders";
 import clsx from "clsx";
-import { redisConnect } from "src/util/redis";
 
 interface BuyerDetails {
 	discordId: string;
@@ -29,6 +28,18 @@ interface InvoiceItems {
 	quantity: number;
 	metadata: any;
 	image: string;
+	duration?: InvoiceItemDuration;
+	interval?: Stripe.Price.Recurring.Interval;
+}
+
+export interface SelectedPrice {
+	interval?: Stripe.Price.Recurring.Interval;
+	duration?: InvoiceItemDuration;
+}
+
+interface InvoiceItemDuration {
+	interval: Stripe.Price.Recurring.Interval;
+	count: number;
 }
 
 interface InvoiceSubscription extends InvoiceItems {
@@ -129,10 +140,10 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 											{invoice.items.map((item) => (
 												<CartItemImmutable
 													name={item.name}
-													// @ts-ignore
+													gifted={invoice.metadata.isGift}
 													selectedPrice={{
-														// @ts-ignore
 														interval: item.interval,
+														duration: item.duration,
 													}}
 													unit_cost={item.price / 100}
 													quantity={item.quantity || 1}
@@ -379,13 +390,31 @@ export const getServerSideProps: GetServerSideProps = withSession(
 					salesTax = parseFloat(item.unit_amount.value) * 100;
 				} else {
 					const product = await stripe.products.retrieve(item.sku.split(":")[0]);
+					const prices = (
+						await stripe.prices.list({
+							product: item.sku.split(":")[0],
+							active: true,
+						})
+					).data;
 					items.push({
-						type: "invoiceitem", // TODO: Paypal subscriptions
+						type: "invoiceitem",
 						name: item.name,
 						price: parseFloat(item.unit_amount.value) * 100,
 						quantity: parseInt(item.quantity),
 						metadata: product.metadata,
 						image: product.images[0],
+						duration: {
+							interval: prices.find(
+								(price) =>
+									price.unit_amount! === parseInt(item.unit_amount.value) * 100 &&
+									price.recurring?.interval === item.sku.split(":")[1]
+							)?.recurring?.interval!,
+							count: prices.find(
+								(price) =>
+									price.unit_amount! === parseInt(item.unit_amount.value) * 100 &&
+									price.recurring?.interval === item.sku.split(":")[1]
+							)?.recurring?.interval_count!,
+						},
 					});
 				}
 			}

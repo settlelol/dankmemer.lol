@@ -37,6 +37,7 @@ type PriceInformation = {
 export interface Metadata {
 	type?: "subscription" | "single";
 	hidden?: boolean;
+	isGift?: string;
 }
 
 export type CartItem = {

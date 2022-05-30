@@ -2,13 +2,11 @@ import Stripe from "stripe";
 
 interface ConvertedMetadata {
 	hidden?: boolean | string;
-	paypalPlanId?: string;
-	purchaseType?: "subscription" | "one-time";
+	paypalPlan?: string;
+	type?: "subscription" | "one-time";
 }
 
-export default function convertStripeMetadata(
-	metadata: Stripe.Metadata
-): ConvertedMetadata {
+export default function convertStripeMetadata(metadata: Stripe.Metadata): ConvertedMetadata {
 	let obj = {} as any;
 	const keys = Object.keys(metadata);
 	keys.map((k: string, i: number) => {
