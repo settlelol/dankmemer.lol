@@ -22,7 +22,7 @@ interface BuyerDetails {
 }
 
 interface InvoiceItems {
-	type: Stripe.InvoiceLineItem.Type;
+	type: Stripe.InvoiceLineItem.Type | Stripe.Product.Type;
 	name: string;
 	price: number;
 	quantity: number;
@@ -252,20 +252,45 @@ export const getServerSideProps: GetServerSideProps = withSession(
 
 			for (let i = 0; i < invoiceItems.length; i++) {
 				const item = invoiceItems[i];
-				const product = await stripe.products.retrieve(item.price?.product as string);
+				let product = await stripe.products.retrieve(item.price?.product as string);
 
 				if (product.name.includes("Product for invoice item ")) {
 					salesTax = item.amount;
 				} else {
 					if (item.type === "invoiceitem") {
-						items.push({
-							type: item.type,
-							name: product.name,
-							price: item.price?.unit_amount!,
-							quantity: item.quantity!,
-							metadata: product.metadata,
-							image: product.images[0] || "",
-						});
+						if (product.metadata.type === "giftable") {
+							let _product = await stripe.products.retrieve(product.metadata.mainProduct as string);
+							const prices = (
+								await stripe.prices.list({
+									active: true,
+									product: _product.id,
+								})
+							).data;
+
+							items.push({
+								type: _product.type,
+								name: product.name,
+								price: item.price?.unit_amount!,
+								quantity: 1,
+								metadata: _product.metadata,
+								image: product.images[0],
+								duration: {
+									interval: product.metadata.mainInterval as Stripe.Price.Recurring.Interval,
+									count: prices!.find(
+										(price) => price.recurring?.interval === product.metadata.mainInterval
+									)?.recurring?.interval_count!,
+								},
+							});
+						} else {
+							items.push({
+								type: item.type,
+								name: product.name,
+								price: item.price?.unit_amount!,
+								quantity: item.quantity!,
+								metadata: product.metadata,
+								image: product.images[0] || "",
+							});
+						}
 					} else {
 						items.push({
 							type: item.type,
