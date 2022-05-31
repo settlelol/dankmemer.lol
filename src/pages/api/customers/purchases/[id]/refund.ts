@@ -1,19 +1,13 @@
 import axios from "axios";
 import { APIEmbed, RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10";
 import { NextApiResponse } from "next";
+import { RefundStatus } from "src/components/dashboard/account/purchases/PurchaseViewer";
 import { dbConnect } from "src/util/mongodb";
 import PayPal from "src/util/paypal";
 import { NextIronRequest, withSession } from "src/util/session";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { Customer } from "../../get";
-
-export enum RefundStatus {
-	OPEN_WAITING_FOR_SUPPORT = 0,
-	OPEN_WAITING_FOR_CUSTOMER = 1,
-	CLOSED_WON = 2,
-	CLOSED_LOSS = 3,
-}
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const user = await req.session.get("user");

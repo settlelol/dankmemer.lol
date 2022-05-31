@@ -39,6 +39,11 @@ export default function PurchaseRow({ purchase, viewDetails }: Props) {
 							<Iconify icon="bxs:gift" height={16} />
 						</Tooltip>
 					)}
+					{purchase.refundStatus !== undefined && (
+						<Tooltip content={"This purchase has a pending refund request"}>
+							<Iconify icon="gridicons:refund" height={16} className="text-red-500" />
+						</Tooltip>
+					)}
 				</p>
 			</td>
 			<td className="group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">

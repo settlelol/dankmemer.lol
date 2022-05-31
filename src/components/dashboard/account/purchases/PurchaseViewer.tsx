@@ -8,15 +8,38 @@ import { StripePurchaseDetails } from "src/pages/api/customers/purchases/[id]";
 import DisputeCreator from "./RefundRequester";
 import PaymentMethod from "./PaymentMethod";
 import PurchasedGoods from "./PurchasedGoods";
+import clsx from "clsx";
 
 interface Props {
 	purchase: AggregatedPurchaseRecordPurchases;
+}
+
+export enum RefundStatus {
+	OPEN_WAITING_FOR_SUPPORT = 0,
+	OPEN_WAITING_FOR_CUSTOMER = 1,
+	CLOSED_WON = 2,
+	CLOSED_LOSS = 3,
+}
+
+export interface Refund {
+	order: string;
+	gateway: "stripe" | "paypal";
+	purchasedBy: string;
+	emails: string[];
+	purchaseType: string;
+	reason: string;
+	content: string;
+	status: RefundStatus;
 }
 
 export default function PurchaseViewer({ purchase }: Props) {
 	const [loading, setLoading] = useState(true);
 	const [paymentMethod, setPaymentMethod] = useState<StripePurchaseDetails["paymentMethod"] | null>(null);
 	const [disputing, setDisputing] = useState(false);
+	const [activeDispute] = useState<boolean | null>(
+		purchase.refundStatus === RefundStatus.OPEN_WAITING_FOR_CUSTOMER ||
+			purchase.refundStatus === RefundStatus.OPEN_WAITING_FOR_SUPPORT
+	);
 
 	useEffect(() => {
 		if (loading && ((purchase.gateway === "stripe" && paymentMethod) || purchase.gateway === "paypal")) {
@@ -73,7 +96,16 @@ export default function PurchaseViewer({ purchase }: Props) {
 							>
 								Need support
 							</Button>
-							<Button variant="danger" size="medium" onClick={() => setDisputing(true)}>
+							<Button
+								variant={activeDispute ? "dark" : "danger"}
+								size="medium"
+								onClick={() => setDisputing(true)}
+								className={clsx(
+									activeDispute &&
+										"text-neutral-500 hover:bg-opacity-100 dark:text-neutral-500 dark:hover:bg-opacity-100"
+								)}
+								disabled={activeDispute!}
+							>
 								Request a refund
 							</Button>
 						</div>

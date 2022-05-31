@@ -1,5 +1,6 @@
 import { Db } from "mongodb";
 import { NextApiResponse } from "next";
+import { Refund, RefundStatus } from "src/components/dashboard/account/purchases/PurchaseViewer";
 import { TIME } from "src/constants";
 import { Metadata } from "src/pages/store";
 import { dbConnect } from "src/util/mongodb";
@@ -9,6 +10,8 @@ import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { PurchaseRecord } from "../store/checkout/finalize/paypal";
 import { PaymentIntentItemResult } from "../store/webhooks/stripe";
+
+// TODO: Optimize this entire path, very slow, 4 second initial load
 
 export interface AggregatedDiscountData {
 	id: string;
@@ -30,6 +33,7 @@ export type AggregatedPurchaseRecordPurchases = Omit<PurchaseRecord & { gateway:
 	discounts: AggregatedDiscountData[];
 	type: Metadata["type"];
 	metadata: Metadata;
+	refundStatus?: RefundStatus;
 };
 
 interface PriceObject {
@@ -72,6 +76,14 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						localField: "purchases.id",
 						foreignField: "_id",
 						as: "data",
+					},
+				},
+				{
+					$lookup: {
+						from: "refunds",
+						localField: "purchases.id",
+						foreignField: "order",
+						as: "refunds",
 					},
 				},
 				// Stage one:
@@ -166,7 +178,6 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						},
 					},
 				},
-
 				// Stage four:
 				// Recoup the data array elements and create a new
 				// array, the 'purchases' array
@@ -195,6 +206,11 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	)[0] as AggregatedPurchaseRecord;
 
 	for (let purchase of purchaseHistory.purchases) {
+		const refund = (await db.collection("refunds").findOne({ order: purchase._id })) as Refund;
+		if (refund) {
+			purchase.refundStatus = refund.status;
+		}
+
 		for (let item of purchase.items) {
 			const product = await stripe.products.retrieve(item.id);
 			purchase.type = (product.metadata as Metadata).type;
@@ -220,7 +236,6 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				).data;
 
 				const price = prices.find((price) => price.unit_amount! / 100 === item.price / item.quantity);
-				console.log(price);
 				item.priceObject = {
 					value: item.price,
 					interval: price!.recurring!.interval,
