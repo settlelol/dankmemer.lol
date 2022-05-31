@@ -25,16 +25,16 @@ export default function PurchaseViewer({ purchase }: Props) {
 	}, [paymentMethod]);
 
 	useEffect(() => {
-		axios(`/api/customers/purchases/${purchase.gateway}/${purchase._id}`)
-			.then(({ data }) => {
-				if (purchase.gateway === "stripe") {
+		if (purchase.gateway === "stripe") {
+			axios(`/api/customers/purchases/stripe/${purchase._id}`)
+				.then(({ data }) => {
 					const details = data as StripePurchaseDetails;
 					setPaymentMethod(details.paymentMethod);
-				}
-			})
-			.catch(() => {
-				return;
-			});
+				})
+				.catch(() => {
+					return;
+				});
+		}
 	}, []);
 
 	const closeDispute = (bypass = false) => {

@@ -53,11 +53,18 @@ export default function PurchasedGoods({ purchase }: Props) {
 							{item.type === "recurring" ? (
 								<>
 									{" "}
-									/ {item.intervalCount! > 1 ? item.intervalCount : ""} {item.interval}
-									{item.intervalCount! > 1 ? "s" : ""}
+									/ {item.priceObject!.interval_count! > 1
+										? item.priceObject!.interval_count
+										: ""}{" "}
+									{item.priceObject!.interval}
+									{item.priceObject!.interval_count! > 1 ? "s" : ""}
 								</>
 							) : purchase.type === "giftable" ? (
-								<> for 1 {item.metadata.mainInterval}</>
+								<>
+									{" "}
+									for {item.priceObject!.interval_count} {item.priceObject!.interval}
+									{item.priceObject!.interval_count !== 1 ? "s" : ""}
+								</>
 							) : (
 								<></>
 							)}

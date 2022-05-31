@@ -36,7 +36,6 @@ export default function PurchaseRow({ purchase, viewDetails }: Props) {
 					<span>{purchase._id}</span>
 					{purchase.isGift && (
 						<Tooltip content={`Gifted to: ${purchase.giftFor}`}>
-							{" "}
 							<Iconify icon="bxs:gift" height={16} />
 						</Tooltip>
 					)}

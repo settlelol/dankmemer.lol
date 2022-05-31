@@ -6,6 +6,7 @@ import { dbConnect } from "src/util/mongodb";
 import { redisConnect } from "src/util/redis";
 import { NextIronRequest, withSession } from "src/util/session";
 import { stripeConnect } from "src/util/stripe";
+import Stripe from "stripe";
 import { PurchaseRecord } from "../store/checkout/finalize/paypal";
 import { PaymentIntentItemResult } from "../store/webhooks/stripe";
 
@@ -20,11 +21,22 @@ export interface AggregatedDiscountData {
 }
 
 export type AggregatedPurchaseRecordPurchases = Omit<PurchaseRecord & { gateway: "stripe" | "paypal" }, "items"> & {
-	items: (PaymentIntentItemResult & { id: string; image: string; metadata: Metadata })[];
+	items: (PaymentIntentItemResult & {
+		id: string;
+		image: string;
+		metadata: Metadata;
+		priceObject?: PriceObject;
+	})[];
 	discounts: AggregatedDiscountData[];
 	type: Metadata["type"];
 	metadata: Metadata;
 };
+
+interface PriceObject {
+	value: number;
+	interval: Stripe.Price.Recurring.Interval;
+	interval_count: number;
+}
 
 export interface AggregatedPurchaseRecord {
 	discordId: string;
@@ -186,12 +198,43 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		for (let item of purchase.items) {
 			const product = await stripe.products.retrieve(item.id);
 			purchase.type = (product.metadata as Metadata).type;
-			item.metadata = {
-				...(product.metadata.type === "giftable" && {
-					mainInterval: product.metadata.mainInterval,
-				}),
-			};
-			item = Object.assign(item, { image: product.images[0], metadata: product.metadata });
+
+			if (product.metadata.type === "giftable") {
+				const price = (
+					await stripe.prices.search({
+						query: `metadata['giftProduct']:'${product.id}'`,
+					})
+				).data[0];
+
+				item.priceObject = {
+					value: item.price,
+					interval: price!.recurring!.interval,
+					interval_count: price!.recurring!.interval_count,
+				} as PriceObject;
+			} else if (product.metadata.type === "subscription") {
+				const prices = (
+					await stripe.prices.list({
+						active: true,
+						product: product.id,
+					})
+				).data;
+
+				const price = prices.find((price) => price.unit_amount! / 100 === item.price / item.quantity);
+				console.log(price);
+				item.priceObject = {
+					value: item.price,
+					interval: price!.recurring!.interval,
+					interval_count: price!.recurring!.interval_count,
+				} as PriceObject;
+			}
+			item = Object.assign(item, {
+				image: product.images[0],
+				metadata: {
+					...(product.metadata.type === "giftable" && {
+						mainInterval: product.metadata.mainInterval,
+					}),
+				},
+			});
 		}
 	}
 
