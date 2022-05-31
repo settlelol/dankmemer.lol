@@ -5,7 +5,7 @@ import { dbConnect } from "src/util/mongodb";
 import { NextIronRequest, withSession } from "src/util/session";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
-import { Customer } from "../../../get";
+import { Customer } from "../get";
 
 export enum RefundStatus {
 	OPEN_WAITING_FOR_SUPPORT = 0,

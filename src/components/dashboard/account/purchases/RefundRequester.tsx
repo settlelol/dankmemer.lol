@@ -72,7 +72,7 @@ export default function DisputeCreator({ purchase, close }: Props) {
 		if (canSubmit) {
 			try {
 				await axios({
-					url: `/api/customers/purchases/${purchase.gateway}/${purchase._id}/refund`,
+					url: `/api/customers/purchases/${purchase._id}/refund`,
 					method: "POST",
 					data: {
 						gateway: purchase.gateway,
