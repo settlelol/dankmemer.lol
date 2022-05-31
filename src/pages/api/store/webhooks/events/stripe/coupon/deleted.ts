@@ -22,9 +22,7 @@ export default async function (event: Stripe.Event): Promise<EventResponse> {
 		{
 			name: "Discount provided",
 			value: coupon.amount_off
-				? `$${
-						coupon.amount_off / 100
-				  } ${coupon.currency?.toUpperCase()}`
+				? `$${coupon.amount_off / 100} ${coupon.currency?.toUpperCase()}`
 				: `${coupon.percent_off}%`,
 			inline: true,
 		},
@@ -38,11 +36,7 @@ export default async function (event: Stripe.Event): Promise<EventResponse> {
 	if (coupon.max_redemptions) {
 		fields.push({
 			name: "Maximum redemptions",
-			value: `${
-				coupon.max_redemptions
-					? `• Maximum coupon redemptions: ${coupon.max_redemptions}\n`
-					: ""
-			}`,
+			value: `${coupon.max_redemptions ? `• Maximum coupon redemptions: ${coupon.max_redemptions}\n` : ""}`,
 			inline: true,
 		});
 	}
@@ -50,11 +44,7 @@ export default async function (event: Stripe.Event): Promise<EventResponse> {
 	if (coupon.redeem_by) {
 		fields.push({
 			name: "Expirations",
-			value: `${
-				coupon.redeem_by
-					? `Coupon expires at <t:${coupon.redeem_by}>\n`
-					: ""
-			}`,
+			value: `${coupon.redeem_by ? `Coupon expires at <t:${coupon.redeem_by}>\n` : ""}`,
 		});
 	}
 
@@ -67,7 +57,7 @@ export default async function (event: Stripe.Event): Promise<EventResponse> {
 
 	return {
 		result: {
-			avatar_url: "https://stripe.com/img/v3/home/twitter.png",
+			avatar_url: process.env.DOMAIN + "/img/store/gateways/stripe.png",
 			embeds: [
 				{
 					title: "Coupon Deleted",

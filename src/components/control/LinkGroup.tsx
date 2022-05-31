@@ -11,14 +11,9 @@ export default function LinkGroup({ title, children }: Props) {
 
 	return (
 		<div className="mb-4">
-			<div
-				className="flex cursor-pointer select-none items-center"
-				onClick={() => setCollapsed(!collapsed)}
-			>
-				<p className="font-inter font-semibold text-dark-300 dark:text-white">
-					{title}
-				</p>
-				<div className="order-1 mx-2 ml-3 h-[2px] flex-none grow bg-[#c0c0c0] dark:bg-[#6E756F]"></div>
+			<div className="flex cursor-pointer select-none items-center" onClick={() => setCollapsed(!collapsed)}>
+				<p className="font-inter font-semibold text-dark-300 dark:text-white">{title}</p>
+				<div className="order-1 mx-2 ml-3 h-0.5 flex-none grow bg-[#c0c0c0] dark:bg-[#6E756F]"></div>
 				<span
 					className={clsx(
 						"material-icons order-2 text-[#c0c0c0] transition-transform dark:text-[#6E756F]",

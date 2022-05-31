@@ -5,40 +5,23 @@ import { EventResponse } from "../../../../stripe";
 
 type SubscriptionEvent<T> = Partial<T> & { plan: Stripe.Plan };
 
-export default async function (
-	event: Stripe.Event,
-	stripe: Stripe
-): Promise<EventResponse> {
-	const subscription = event.data
-		.object as SubscriptionEvent<Stripe.Subscription>;
+export default async function (event: Stripe.Event, stripe: Stripe): Promise<EventResponse> {
+	const subscription = event.data.object as SubscriptionEvent<Stripe.Subscription>;
 
-	if (
-		subscription.status === "incomplete" ||
-		subscription.status === "incomplete_expired"
-	) {
+	if (subscription.status === "incomplete" || subscription.status === "incomplete_expired") {
 		return {
 			result: null,
 		};
 	}
 
-	const product = await stripe.products.retrieve(
-		subscription.plan.product as string
-	);
+	const product = await stripe.products.retrieve(subscription.plan.product as string);
 
-	const lastInvoice = await stripe.invoices.retrieve(
-		subscription.latest_invoice as string
-	);
+	const lastInvoice = await stripe.invoices.retrieve(subscription.latest_invoice as string);
 	let payee: string = "";
-	if (
-		lastInvoice &&
-		lastInvoice.metadata &&
-		Object.values(lastInvoice.metadata!).length >= 1
-	) {
+	if (lastInvoice && lastInvoice.metadata && Object.values(lastInvoice.metadata!).length >= 1) {
 		payee = lastInvoice.metadata!.boughtByDiscordId;
 	} else {
-		const customer = (await stripe.customers.retrieve(
-			subscription.customer as string
-		)) as Stripe.Customer;
+		const customer = (await stripe.customers.retrieve(subscription.customer as string)) as Stripe.Customer;
 		payee = customer.metadata.discordId;
 	}
 
@@ -46,9 +29,7 @@ export default async function (
 	let fields: APIEmbedField[] = [
 		{
 			name: "Customer",
-			value: `<@!${payee}> (${payee})\n> ${
-				subscription.customer as string
-			}`,
+			value: `<@!${payee}> (${payee})\n> ${subscription.customer as string}`,
 		},
 	];
 
@@ -59,12 +40,8 @@ export default async function (
 				.map(
 					(k) =>
 						`**${toTitleCase(k.replace(/_/g, " "))}**\n> \`${
-							event.data.previous_attributes![
-								k as keyof typeof event.data.previous_attributes
-							]
-						}\` -> \`${
-							subscription[k as keyof typeof subscription]
-						}\``
+							event.data.previous_attributes![k as keyof typeof event.data.previous_attributes]
+						}\` -> \`${subscription[k as keyof typeof subscription]}\``
 				)
 				.join("\n")}`,
 		});
@@ -74,25 +51,19 @@ export default async function (
 		const oldPlan = event.data.previous_attributes![
 			"plan" as keyof typeof event.data.previous_attributes
 		] as Stripe.Plan;
-		const oldProduct = await stripe.products.retrieve(
-			oldPlan.product as string
-		);
+		const oldProduct = await stripe.products.retrieve(oldPlan.product as string);
 
 		fields.push({
 			name: "Subscription",
-			value: `OLD: ${oldProduct.name} ($${(oldPlan.amount! / 100).toFixed(
-				2
-			)}/${oldPlan.interval})\nNEW: ${product.name} ($${(
-				subscription.plan.amount! / 100
-			).toFixed(2)}/${subscription.plan.interval})`,
+			value: `OLD: ${oldProduct.name} ($${(oldPlan.amount! / 100).toFixed(2)}/${oldPlan.interval})\nNEW: ${
+				product.name
+			} ($${(subscription.plan.amount! / 100).toFixed(2)}/${subscription.plan.interval})`,
 			inline: true,
 		});
 	} else {
 		fields.push({
 			name: "Subscription",
-			value: `${product.name} ($${(
-				subscription.plan.amount! / 100
-			).toFixed(2)}/${subscription.plan.interval})`,
+			value: `${product.name} ($${(subscription.plan.amount! / 100).toFixed(2)}/${subscription.plan.interval})`,
 			inline: true,
 		});
 	}
@@ -101,22 +72,14 @@ export default async function (
 		fields.push({
 			name: "Status",
 			value: `**${toTitleCase(
-				(
-					updatedFields[
-						"status" as keyof typeof event.data.previous_attributes
-					] || "unknown"
-				).replace(/_/g, " ")
-			)}** -> **${toTitleCase(
-				(subscription.status || "unknown").replace(/_/g, " ")
-			)}**`,
+				(updatedFields["status" as keyof typeof event.data.previous_attributes] || "unknown").replace(/_/g, " ")
+			)}** -> **${toTitleCase((subscription.status || "unknown").replace(/_/g, " "))}**`,
 			inline: true,
 		});
 	} else {
 		fields.push({
 			name: "Status",
-			value: toTitleCase(
-				(subscription.status || "unknown").replace(/_/g, " ")
-			),
+			value: toTitleCase((subscription.status || "unknown").replace(/_/g, " ")),
 			inline: true,
 		});
 	}
@@ -132,19 +95,15 @@ export default async function (
 			name: "Collection method",
 			value: `**${toTitleCase(
 				(
-					updatedFields[
-						"collection_method" as keyof typeof event.data.previous_attributes
-					] || "unknown"
+					updatedFields["collection_method" as keyof typeof event.data.previous_attributes] || "unknown"
 				).replace(/_/g, " ")
-			)}** -> **${toTitleCase(
-				(subscription.status || "unknown").replace(/_/g, " ")
-			)}**`,
+			)}** -> **${toTitleCase((subscription.status || "unknown").replace(/_/g, " "))}**`,
 		});
 	}
 
 	return {
 		result: {
-			avatar_url: "https://stripe.com/img/v3/home/twitter.png",
+			avatar_url: process.env.DOMAIN + "/img/store/gateways/stripe.png",
 			embeds: [
 				{
 					title: "Subscription updated",

@@ -12,7 +12,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		return res.status(410).json({ error: "No active discount code" });
 	}
 
-	return res.status(200).json({ ...discount });
+	return res.status(200).json(discount);
 };
 
 export default withSession(handler);

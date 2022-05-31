@@ -41,20 +41,13 @@ export default function CartItem({
 				<div
 					className={clsx(
 						"rounded-md bg-black/10 bg-center bg-no-repeat dark:bg-black/30",
-						size === "small"
-							? "h-[36px] min-w-[36px] bg-[length:20px_20px]"
-							: "h-12 w-12 bg-[length:33px_33px]"
+						size === "small" ? "h-9 min-w-[36px] bg-[length:20px_20px]" : "h-12 w-12 bg-[length:33px_33px]"
 					)}
 					style={{
 						backgroundImage: `url('${image}')`,
 					}}
 				></div>
-				<div
-					className={clsx(
-						"flex flex-col justify-center",
-						size === "small" ? "ml-2" : "ml-5"
-					)}
-				>
+				<div className={clsx("flex flex-col justify-center", size === "small" ? "ml-2" : "ml-5")}>
 					<h4
 						className={clsx(
 							"min-w-max font-bold leading-none text-gray-800 dark:text-white",
@@ -76,9 +69,7 @@ export default function CartItem({
 								<div
 									className={clsx(
 										"flex items-center justify-center rounded-md border-[1px] border-[#3C3C3C] bg-[#0C120D] transition-colors dark:text-[#707070] hover:dark:text-[#cccccc]",
-										size === "small"
-											? "px-2 py-1 text-xs"
-											: "px-3 py-[6px] text-sm"
+										size === "small" ? "px-2 py-1 text-xs" : "px-3 py-[6px] text-sm"
 									)}
 								>
 									<p>
@@ -102,29 +93,17 @@ export default function CartItem({
 									? [
 											{
 												onClick: () => {
-													changeInterval(
-														index,
-														"year"
-													);
+													changeInterval(index, "year");
 												},
-												label:
-													size === "small"
-														? "Annually"
-														: "Annual subscription",
+												label: size === "small" ? "Annually" : "Annual subscription",
 											},
 									  ]
 									: [
 											{
 												onClick: () => {
-													changeInterval(
-														index,
-														"month"
-													);
+													changeInterval(index, "month");
 												},
-												label:
-													size === "small"
-														? "Monthly"
-														: "Monthly subscription",
+												label: size === "small" ? "Monthly" : "Monthly subscription",
 											},
 									  ]
 							}
@@ -151,8 +130,7 @@ export default function CartItem({
 								className={clsx(
 									"w-10 rounded bg-transparent text-center text-black focus-visible:outline-none dark:text-white",
 									size === "small" ? "text-sm" : "text-base",
-									!disabled &&
-										"dark:focus-within:bg-white/10",
+									!disabled && "dark:focus-within:bg-white/10",
 									disabled && "cursor-not-allowed"
 								)}
 								value={quantity}
@@ -180,9 +158,7 @@ export default function CartItem({
 				<p
 					className={clsx(
 						"mr-7 text-right font-montserrat font-bold text-gray-800 dark:text-white",
-						size === "small"
-							? "min-w-[50px] text-sm"
-							: "min-w-[70px] text-base"
+						size === "small" ? "min-w-[50px] text-sm" : "min-w-[70px] text-base"
 					)}
 				>
 					${((selectedPrice.price / 100) * quantity).toFixed(2)}

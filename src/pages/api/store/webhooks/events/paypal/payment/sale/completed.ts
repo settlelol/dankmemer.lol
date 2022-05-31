@@ -5,6 +5,13 @@ import { redisConnect } from "src/util/redis";
 import { stripeConnect } from "src/util/stripe";
 import { EventResponse } from "../../../../paypal";
 
+const billingPeriod = {
+	day: "Daily",
+	week: "Weekly",
+	month: "Monthly",
+	year: "Annually",
+};
+
 export default async function (event: PayPalEvent, paypal: PayPal): Promise<EventResponse> {
 	let fields: APIEmbedField[] = [];
 	if (!event.data.custom) {
@@ -37,24 +44,6 @@ export default async function (event: PayPalEvent, paypal: PayPal): Promise<Even
 	}
 
 	const product = await stripe.products.retrieve(price.product as string);
-	let billingPeriod;
-	switch (price.recurring!.interval) {
-		case "day":
-			billingPeriod = "Daily";
-			break;
-		case "week":
-			billingPeriod = "Weekly";
-			break;
-		case "month":
-			billingPeriod = "Monthly";
-			break;
-		case "year":
-			billingPeriod = "Annually";
-			break;
-		default:
-			billingPeriod = "Unknown";
-			break;
-	}
 	fields = [
 		{
 			name: "Purchased by",
@@ -78,7 +67,7 @@ export default async function (event: PayPalEvent, paypal: PayPal): Promise<Even
 			name: "Subscription",
 			value: `${product.name} (${
 				price.recurring!.interval_count === 1
-					? billingPeriod
+					? billingPeriod[price.recurring!.interval]
 					: `every ${price.recurring!.interval_count} ${price.recurring!.interval}s`
 			})`,
 		},
@@ -95,7 +84,7 @@ export default async function (event: PayPalEvent, paypal: PayPal): Promise<Even
 
 	return {
 		result: {
-			avatar_url: "https://newsroom.uk.paypal-corp.com/image/PayPal_Logo_Thumbnail.jpg",
+			avatar_url: process.env.DOMAIN + "/img/store/gateways/paypal.png",
 			embeds: [
 				{
 					title: "Successful PayPal Purchase (Subscription)",

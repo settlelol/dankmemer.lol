@@ -26,12 +26,7 @@ export default function ProductCreatorPrice({
 }: Props) {
 	const [price, setPrice] = useState(value);
 	const [billingInterval, setBillingInterval] = useState(interval);
-	const [billingIntervalCount, setBillingIntervalCount] =
-		useState(intervalCount);
-
-	useEffect(() => {
-		console.log(new Date().getTime());
-	}, [value, interval, intervalCount]);
+	const [billingIntervalCount, setBillingIntervalCount] = useState(intervalCount);
 
 	useEffect(() => {
 		updatePrice(id, {
@@ -43,10 +38,7 @@ export default function ProductCreatorPrice({
 	}, [price, billingInterval, billingIntervalCount]);
 
 	return (
-		<div
-			className="relative rounded-lg py-5 px-4 dark:bg-dank-500"
-			key={id}
-		>
+		<div className="relative rounded-lg py-5 px-4 dark:bg-dank-500" key={id}>
 			<span
 				className="absolute right-3 top-2 cursor-pointer text-neutral-500 transition-colors hover:text-red-400"
 				onClick={() => deletePrice(id)}
@@ -98,40 +90,14 @@ export default function ProductCreatorPrice({
 											"w-full px-3 py-2 text-sm"
 										)}
 									>
-										<p>
-											{billingInterval.length >= 1
-												? billingInterval
-												: "Select one"}
-										</p>
-										<Iconify
-											icon="ic:baseline-expand-more"
-											height={15}
-											className="ml-1"
-										/>
+										<p>{billingInterval.length >= 1 ? billingInterval : "Select one"}</p>
+										<Iconify icon="ic:baseline-expand-more" height={15} className="ml-1" />
 									</div>
 								}
-								options={[
-									{
-										label: "Daily",
-										onClick: () =>
-											setBillingInterval("Daily"),
-									},
-									{
-										label: "Weekly",
-										onClick: () =>
-											setBillingInterval("Weekly"),
-									},
-									{
-										label: "Monthly",
-										onClick: () =>
-											setBillingInterval("Monthly"),
-									},
-									{
-										label: "Annually",
-										onClick: () =>
-											setBillingInterval("Annually"),
-									},
-								]}
+								options={["Daily", "Weekly", "Monthly", "Annually"].map((t) => ({
+									label: t,
+									onClick: () => setBillingInterval(t),
+								}))}
 								isInput={false}
 								requireScroll={false}
 							/>
@@ -143,11 +109,7 @@ export default function ProductCreatorPrice({
 									<p className="flex items-center space-x-1">
 										<span>#</span>
 										<Tooltip content="Number of intervals">
-											<Iconify
-												icon={
-													"ant-design:question-circle-filled"
-												}
-											/>
+											<Iconify icon={"ant-design:question-circle-filled"} />
 										</Tooltip>
 									</p>
 								}
@@ -157,9 +119,7 @@ export default function ProductCreatorPrice({
 								value={billingIntervalCount}
 								onChange={(e) =>
 									setBillingIntervalCount(
-										e.target.value.match(/\d+/)
-											? e.target.value.match(/\d+/)![0]
-											: ""
+										e.target.value.match(/\d+/) ? e.target.value.match(/\d+/)![0] : ""
 									)
 								}
 							/>
@@ -169,16 +129,13 @@ export default function ProductCreatorPrice({
 			</div>
 			{mode === "subscription" && (
 				<p className="mt-1 text-sm dark:text-neutral-500">
-					User will pay{" "}
-					<span className="text-dank-300">${value}</span>
+					User will pay <span className="text-dank-300">${value}</span>
 					{billingInterval !== "" && (
 						<>
 							{" "}
 							every{" "}
 							<span className="text-dank-300">
-								{parseInt(billingIntervalCount) > 1
-									? billingIntervalCount
-									: ""}{" "}
+								{parseInt(billingIntervalCount) > 1 ? billingIntervalCount : ""}{" "}
 								{billingInterval === "Daily"
 									? "day"
 									: billingInterval === "Weekly"

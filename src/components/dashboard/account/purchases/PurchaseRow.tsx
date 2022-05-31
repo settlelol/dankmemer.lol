@@ -56,7 +56,7 @@ export default function PurchaseRow({ purchase, viewDetails }: Props) {
 				</p>
 			</td>
 			<td className="group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
-				<p className="px-5">{purchase.isGift ? <>{purchase.giftFor!}</> : <>&mdash;</>}</p>
+				<p className="px-5">{purchase.isGift ? purchase.giftFor! : <>&mdash;</>}</p>
 			</td>
 			<td className="group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
 				<p>{formatRelative(new Date(purchase.purchaseTime), new Date())}</p>

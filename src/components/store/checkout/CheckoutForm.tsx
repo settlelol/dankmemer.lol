@@ -114,9 +114,7 @@ export default function CheckoutForm({
 				setAppliedSavings(totalSavings);
 				setAppliedDiscount(true);
 			})
-			.catch(() => {
-				return;
-			});
+			.catch(() => {});
 
 		axios(`/api/customers/get?id=${userId}&sensitive=true`)
 			.then(({ data }) => {
@@ -126,9 +124,7 @@ export default function CheckoutForm({
 				}
 				if (data.cards.other) setSavedPaymentMethods(data.cards.other);
 			})
-			.catch(() => {
-				return;
-			});
+			.catch(() => {});
 
 		window.addEventListener("beforeunload", (e) => {
 			e.preventDefault();

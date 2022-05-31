@@ -5,10 +5,7 @@ import { redisConnect } from "src/util/redis";
 import Stripe from "stripe";
 import { EventResponse } from "../../../stripe";
 
-export default async function (
-	event: Stripe.Event,
-	stripe: Stripe
-): Promise<EventResponse> {
+export default async function (event: Stripe.Event, stripe: Stripe): Promise<EventResponse> {
 	const redis = await redisConnect();
 	const product = event.data.object as Stripe.Product;
 	let metadata = convertStripeMetadata(product.metadata);
@@ -16,16 +13,9 @@ export default async function (
 	// When a product is created using the dashboard the prices
 	// are added separately, for that we wait until the prices
 	// have been added before creating and sending the webhook.
-	const pricesFinalized = await redis.get(
-		`webhooks:product-created:${product.id}`
-	);
+	const pricesFinalized = await redis.get(`webhooks:product-created:${product.id}`);
 	if (metadata.hidden && (!pricesFinalized || !JSON.parse(pricesFinalized))) {
-		await redis.set(
-			`webhooks:product-created:${product.id}:waiting`,
-			JSON.stringify(event),
-			"PX",
-			TIME.minute * 5
-		);
+		await redis.set(`webhooks:product-created:${product.id}:waiting`, JSON.stringify(event), "PX", TIME.minute * 5);
 		return {
 			result: null,
 		};
@@ -58,14 +48,8 @@ export default async function (
 						`• $${(price.unit_amount! / 100).toFixed(2)} ${
 							prices.length > 1
 								? `every ${
-										price.recurring!.interval_count > 1
-											? price.recurring!.interval_count
-											: ""
-								  } ${price.recurring!.interval}${
-										price.recurring!.interval_count > 1
-											? "s"
-											: ""
-								  }`
+										price.recurring!.interval_count > 1 ? price.recurring!.interval_count : ""
+								  } ${price.recurring!.interval}${price.recurring!.interval_count > 1 ? "s" : ""}`
 								: "each"
 						}`
 				)
@@ -89,7 +73,7 @@ export default async function (
 
 	return {
 		result: {
-			avatar_url: "https://stripe.com/img/v3/home/twitter.png",
+			avatar_url: process.env.DOMAIN + "/img/store/gateways/stripe.png",
 			embeds: [
 				{
 					title: "Product Created",

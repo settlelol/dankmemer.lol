@@ -157,7 +157,6 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			break;
 		default:
 			console.log(`Unhandled Stripe webhook event, '${event.type}'.`);
-			console.log(event.data.object);
 	}
 
 	if (result !== null) {

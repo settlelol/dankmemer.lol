@@ -5,47 +5,29 @@ import { EventResponse } from "../../../../stripe";
 
 type SubscriptionEvent<T> = Partial<T> & { plan: Stripe.Plan };
 
-export default async function (
-	event: Stripe.Event,
-	stripe: Stripe
-): Promise<EventResponse> {
+export default async function (event: Stripe.Event, stripe: Stripe): Promise<EventResponse> {
 	const db = await dbConnect();
-	const subscription = event.data
-		.object as SubscriptionEvent<Stripe.Subscription>;
+	const subscription = event.data.object as SubscriptionEvent<Stripe.Subscription>;
 
-	const product = await stripe.products.retrieve(
-		subscription.plan.product as string
-	);
-	const lastInvoice = await stripe.invoices.retrieve(
-		subscription.latest_invoice as string
-	);
+	const product = await stripe.products.retrieve(subscription.plan.product as string);
+	const lastInvoice = await stripe.invoices.retrieve(subscription.latest_invoice as string);
 
 	let payee: string = "";
-	if (
-		lastInvoice &&
-		lastInvoice.metadata &&
-		Object.values(lastInvoice.metadata!).length >= 1
-	) {
+	if (lastInvoice && lastInvoice.metadata && Object.values(lastInvoice.metadata!).length >= 1) {
 		payee = lastInvoice.metadata!.boughtByDiscordId;
 	} else {
-		const customer = (await stripe.customers.retrieve(
-			subscription.customer as string
-		)) as Stripe.Customer;
+		const customer = (await stripe.customers.retrieve(subscription.customer as string)) as Stripe.Customer;
 		payee = customer.metadata.discordId;
 	}
 
 	let fields: APIEmbedField[] = [
 		{
 			name: "Customer",
-			value: `<@!${payee}> (${payee})\n> ${
-				subscription.customer as string
-			}`,
+			value: `<@!${payee}> (${payee})\n> ${subscription.customer as string}`,
 		},
 		{
 			name: "Subscription",
-			value: `${product.name} ($${subscription.plan.amount! / 100}/${
-				subscription.plan.interval
-			})`,
+			value: `${product.name} ($${subscription.plan.amount! / 100}/${subscription.plan.interval})`,
 			inline: true,
 		},
 		{
@@ -66,16 +48,13 @@ export default async function (
 		);
 	} catch (e: any) {
 		console.error(
-			`Error while remove subscription from customer (${subscription.customer!}): ${e.message.replace(
-				/"/g,
-				""
-			)}`
+			`Error while remove subscription from customer (${subscription.customer!}): ${e.message.replace(/"/g, "")}`
 		);
 	}
 
 	return {
 		result: {
-			avatar_url: "https://stripe.com/img/v3/home/twitter.png",
+			avatar_url: process.env.DOMAIN + "/img/store/gateways/stripe.png",
 			embeds: [
 				{
 					title: "Subscription ended",

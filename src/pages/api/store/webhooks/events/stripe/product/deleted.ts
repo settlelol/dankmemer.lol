@@ -25,17 +25,16 @@ export default async function (event: Stripe.Event): Promise<EventResponse> {
 	}
 
 	if (product.metadata.category === "subscription") {
-		redis.del("store:products:subscriptions");
+		await redis.del("store:products:subscriptions");
 	} else if (product.metadata.category === "one-time") {
-		redis.del("store:products:one-time");
+		await redis.del("store:products:one-time");
 	} else {
-		redis.del("store:products:subscriptions");
-		redis.del("store:products:one-time");
+		await redis.del(["store:products:subscriptions", "store:products:one-time"]);
 	}
 
 	return {
 		result: {
-			avatar_url: "https://stripe.com/img/v3/home/twitter.png",
+			avatar_url: process.env.DOMAIN + "/img/store/gateways/stripe.png",
 			embeds: [
 				{
 					title: "Product Deleted",

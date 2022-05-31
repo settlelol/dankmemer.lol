@@ -9,10 +9,7 @@ interface EvidenceArray {
 	value: string;
 }
 
-export default async function (
-	event: Stripe.Event,
-	stripe: Stripe
-): Promise<EventResponse> {
+export default async function (event: Stripe.Event, stripe: Stripe): Promise<EventResponse> {
 	const dispute = event.data.object as Stripe.Dispute;
 	let metadata = convertStripeMetadata(dispute.metadata);
 
@@ -28,11 +25,7 @@ export default async function (
 		// },
 		{
 			name: "Current status",
-			value: toTitleCase(
-				dispute.status
-					.replace(/_/g, " ")
-					.replace("warning ", ":warning: ")
-			),
+			value: toTitleCase(dispute.status.replace(/_/g, " ").replace("warning ", ":warning: ")),
 			inline: true,
 		},
 		{
@@ -47,18 +40,14 @@ export default async function (
 		},
 		{
 			name: "Evidence details",
-			value: `• Due by: <t:${
-				dispute.evidence_details.due_by
-			}>\n• Already includes evidence: ${
+			value: `• Due by: <t:${dispute.evidence_details.due_by}>\n• Already includes evidence: ${
 				dispute.evidence_details.has_evidence ? "Yes" : "No"
 			}`,
 			inline: true,
 		},
 	];
 
-	const hasEvidence =
-		Object.values(dispute.evidence).filter((evidence) => evidence !== null)
-			.length >= 1;
+	const hasEvidence = Object.values(dispute.evidence).filter((evidence) => evidence !== null).length >= 1;
 	if (hasEvidence) {
 		const expectFile = [
 			"cancellation_policy",
@@ -97,10 +86,7 @@ export default async function (
 		fields.push({
 			name: "Provided Evidence",
 			value: evidence
-				.map(
-					({ name, value }) =>
-						`${toTitleCase(name.replace(/_/g, " "))}: **${value}**`
-				)
+				.map(({ name, value }) => `${toTitleCase(name.replace(/_/g, " "))}: **${value}**`)
 				.join("\n"),
 			inline: true,
 		});
@@ -108,9 +94,9 @@ export default async function (
 
 	fields.push({
 		name: "Disputed purchase",
-		value: `Value (${dispute.currency.toUpperCase()}): **$${(
-			dispute.amount / 100
-		).toFixed(2)}**\nDate: <t:${charge.created}>`,
+		value: `Value (${dispute.currency.toUpperCase()}): **$${(dispute.amount / 100).toFixed(2)}**\nDate: <t:${
+			charge.created
+		}>`,
 	});
 
 	if (Object.keys(metadata).length >= 1) {
@@ -122,7 +108,7 @@ export default async function (
 
 	return {
 		result: {
-			avatar_url: "https://stripe.com/img/v3/home/twitter.png",
+			avatar_url: process.env.DOMAIN + "/img/store/gateways/stripe.png",
 			embeds: [
 				{
 					title: "Charge dispute updated",

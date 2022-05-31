@@ -4,25 +4,17 @@ import { toTitleCase } from "src/util/string";
 import Stripe from "stripe";
 import { EventResponse } from "../../../../stripe";
 
-export default async function (
-	event: Stripe.Event,
-	stripe: Stripe
-): Promise<EventResponse> {
+export default async function (event: Stripe.Event, stripe: Stripe): Promise<EventResponse> {
 	const refund = event.data.object as Stripe.Refund;
 	let metadata = convertStripeMetadata(refund.metadata || {});
-	let payment: Stripe.Charge | Stripe.PaymentIntent =
-		"" as any as Stripe.Charge;
+	let payment: Stripe.Charge | Stripe.PaymentIntent = "" as any as Stripe.Charge;
 	if (refund.charge) {
 		payment = await stripe.charges.retrieve(refund.charge.toString());
 	} else if (refund.payment_intent) {
-		payment = await stripe.paymentIntents.retrieve(
-			refund.payment_intent.toString()
-		);
+		payment = await stripe.paymentIntents.retrieve(refund.payment_intent.toString());
 	}
 
-	const customer = (await stripe.customers.retrieve(
-		payment.customer!.toString()
-	)) as Stripe.Customer;
+	const customer = (await stripe.customers.retrieve(payment.customer!.toString())) as Stripe.Customer;
 
 	const fields: APIEmbedField[] = [
 		{
@@ -41,9 +33,9 @@ export default async function (
 		},
 		{
 			name: "Purchase information",
-			value: `Value (${refund.currency.toUpperCase()}): **$${(
-				refund.amount / 100
-			).toFixed(2)}**\nDate: <t:${refund.created}>`,
+			value: `Value (${refund.currency.toUpperCase()}): **$${(refund.amount / 100).toFixed(2)}**\nDate: <t:${
+				refund.created
+			}>`,
 		},
 	];
 
@@ -56,7 +48,7 @@ export default async function (
 
 	return {
 		result: {
-			avatar_url: "https://stripe.com/img/v3/home/twitter.png",
+			avatar_url: process.env.DOMAIN + "/img/store/gateways/stripe.png",
 			embeds: [
 				{
 					title: "Refund updated",

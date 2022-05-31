@@ -31,9 +31,7 @@ export default function ProductCreator({ forceHide }: Props) {
 			value: "",
 		},
 	]);
-	const [productType, setProductType] = useState<"single" | "subscription">(
-		"single"
-	);
+	const [productType, setProductType] = useState<"single" | "subscription">("single");
 
 	const [productDescription, setProductDescription] = useState("");
 
@@ -59,17 +57,12 @@ export default function ProductCreator({ forceHide }: Props) {
 			productDescription.length <= 250 &&
 			primaryTitle.length >= 1 &&
 			primaryBody.length >= 1 &&
-			(secondaryEnabled
-				? secondaryTitle.length >= 1 && secondaryBody.length >= 1
-				: true)
+			(secondaryEnabled ? secondaryTitle.length >= 1 && secondaryBody.length >= 1 : true)
 		) {
 			let allValid: boolean = true;
 			if (productType === "subscription") {
 				for (const i in productPrices) {
-					if (
-						parseFloat(productPrices[i].value.toString()) < 1 &&
-						productPrices[i].interval!.length < 1
-					) {
+					if (parseFloat(productPrices[i].value.toString()) < 1 && productPrices[i].interval!.length < 1) {
 						allValid = true;
 						break;
 					}
@@ -112,10 +105,7 @@ export default function ProductCreator({ forceHide }: Props) {
 	}, [productType]);
 
 	const removeSecondary = () => {
-		if (
-			!confirmDeleteSecondary &&
-			(secondaryTitle.length >= 1 || secondaryBody.length >= 1)
-		) {
+		if (!confirmDeleteSecondary && (secondaryTitle.length >= 1 || secondaryBody.length >= 1)) {
 			setConfirmDeleteSecondary(true);
 		} else {
 			setConfirmDeleteSecondary(false);
@@ -152,9 +142,7 @@ export default function ProductCreator({ forceHide }: Props) {
 					forceHide();
 				}
 			} catch (e) {
-				toast.error(
-					"Issue while creating product, check response in devtools."
-				);
+				toast.error("Issue while creating product, check response in devtools.");
 			}
 		}
 	};
@@ -187,9 +175,7 @@ export default function ProductCreator({ forceHide }: Props) {
 	return (
 		<>
 			<Title size="big">Add product</Title>
-			<p className="text-neutral-600 dark:text-neutral-400">
-				Create a new purchaseable product for the store.
-			</p>
+			<p className="text-neutral-600 dark:text-neutral-400">Create a new purchaseable product for the store.</p>
 			<div className="mt-4 space-y-5">
 				<div className="w-full space-y-3">
 					<div className="flex items-center justify-between space-x-4">
@@ -230,11 +216,7 @@ export default function ProductCreator({ forceHide }: Props) {
 												? "Subscription"
 												: "Select one"}
 										</p>
-										<Iconify
-											icon="ic:baseline-expand-more"
-											height={15}
-											className="ml-1"
-										/>
+										<Iconify icon="ic:baseline-expand-more" height={15} className="ml-1" />
 									</div>
 								}
 								options={[
@@ -244,8 +226,7 @@ export default function ProductCreator({ forceHide }: Props) {
 									},
 									{
 										label: "Subscription",
-										onClick: () =>
-											setProductType("subscription"),
+										onClick: () => setProductType("subscription"),
 									},
 								]}
 								isInput={false}
@@ -260,11 +241,7 @@ export default function ProductCreator({ forceHide }: Props) {
 									Prices
 									<sup className="text-red-500">*</sup>
 								</p>
-								<Button
-									variant="dark"
-									size="small"
-									onClick={addNewPrice}
-								>
+								<Button variant="dark" size="small" onClick={addNewPrice}>
 									Add new price
 								</Button>
 							</div>
@@ -275,9 +252,7 @@ export default function ProductCreator({ forceHide }: Props) {
 										id={price.id}
 										value={price.value.toString()}
 										interval={price.interval}
-										intervalCount={(
-											price.intervalCount || 0
-										).toString()}
+										intervalCount={(price.intervalCount || 0).toString()}
 										mode={productType}
 										updatePrice={updatePrice}
 										deletePrice={deletePrice}
@@ -299,28 +274,18 @@ export default function ProductCreator({ forceHide }: Props) {
 									if (!Number.isNaN(e.target.value)) {
 										setProductPrices([
 											{
-												id: Math.random()
-													.toString(36)
-													.slice(2, 7),
+												id: Math.random().toString(36).slice(2, 7),
 												value: e.target.value,
 											},
 										]);
 									}
 								}}
 								onBlur={(e) => {
-									if (
-										!Number.isNaN(
-											parseFloat(e.target.value)
-										)
-									) {
+									if (!Number.isNaN(parseFloat(e.target.value))) {
 										setProductPrices([
 											{
-												id: Math.random()
-													.toString(36)
-													.slice(2, 7),
-												value: parseFloat(
-													e.target.value
-												).toFixed(2),
+												id: Math.random().toString(36).slice(2, 7),
+												value: parseFloat(e.target.value).toFixed(2),
 											},
 										]);
 									}
@@ -336,14 +301,10 @@ export default function ProductCreator({ forceHide }: Props) {
 					)}
 
 					<div className="">
-						<label className="mb-1 text-neutral-600 dark:text-neutral-300">
-							Product description
-						</label>
+						<label className="mb-1 text-neutral-600 dark:text-neutral-300">Product description</label>
 						<textarea
 							value={productDescription}
-							onChange={(e) =>
-								setProductDescription(e.target.value)
-							}
+							onChange={(e) => setProductDescription(e.target.value)}
 							placeholder={
 								"This is purely for Stripe and will not be shown on the store page. It may appear on invoices."
 							}
@@ -367,18 +328,13 @@ export default function ProductCreator({ forceHide }: Props) {
 				/>
 				<div className="">
 					<label className="mb-1 text-neutral-600 dark:text-neutral-300">
-						Content for '
-						{primaryTitle.length >= 1
-							? primaryTitle
-							: "Exclusive benefits"}
-						'<sup className="text-red-500">*</sup>
+						Content for '{primaryTitle.length >= 1 ? primaryTitle : "Exclusive benefits"}'
+						<sup className="text-red-500">*</sup>
 					</label>
 					<textarea
 						value={primaryBody}
 						onChange={(e) => setPrimaryBody(e.target.value)}
-						placeholder={
-							"What is so special about this product? Markdown is supported in this field."
-						}
+						placeholder={"What is so special about this product? Markdown is supported in this field."}
 						className="min-h-[38px] w-full resize-y rounded-md border-[1px] border-neutral-300 px-3 py-2 font-inter text-sm focus-visible:border-dank-300 focus-visible:outline-none dark:border-neutral-700 dark:bg-black/30"
 					/>
 				</div>
@@ -402,31 +358,20 @@ export default function ProductCreator({ forceHide }: Props) {
 					>
 						<div
 							className="group flex cursor-pointer items-center"
-							onClick={() =>
-								setSecondaryCollapsed((curr) => !curr)
-							}
+							onClick={() => setSecondaryCollapsed((curr) => !curr)}
 						>
-							<div className="order-1 h-[2px] flex-none grow bg-[#c0c0c0] dark:bg-neutral-500 group-hover:dark:bg-white"></div>
+							<div className="order-1 h-0.5 flex-none grow bg-[#c0c0c0] dark:bg-neutral-500 group-hover:dark:bg-white"></div>
 							<p className="order-2 mx-3 select-none text-neutral-500 dark:text-neutral-400 group-hover:dark:text-white">
 								{secondaryCollapsed ? "Expand" : "Collapse"}
 							</p>
-							<div className="order-3 h-[2px] flex-none grow bg-[#c0c0c0] dark:bg-neutral-500"></div>
+							<div className="order-3 h-0.5 flex-none grow bg-[#c0c0c0] dark:bg-neutral-500"></div>
 						</div>
-						<div
-							className={clsx(
-								secondaryCollapsed ? "h-0" : "h-max ",
-								"space-y-4 overflow-hidden"
-							)}
-						>
+						<div className={clsx(secondaryCollapsed ? "h-0" : "h-max ", "space-y-4 overflow-hidden")}>
 							<div className="">
-								<Title size="xsmall">
-									Secondary product information
-								</Title>
+								<Title size="xsmall">Secondary product information</Title>
 								<p className="text-sm text-neutral-600 dark:text-neutral-400">
-									These fields are not required, this is would
-									most commonly be used for subscription
-									products with included benefits of previous
-									tiers.
+									These fields are not required, this is would most commonly be used for subscription
+									products with included benefits of previous tiers.
 								</p>
 							</div>
 							<Input
@@ -435,24 +380,16 @@ export default function ProductCreator({ forceHide }: Props) {
 								placeholder={"Also included"}
 								defaultValue={"Also included"}
 								value={secondaryTitle}
-								onChange={(e) =>
-									setSecondaryTitle(e.target.value)
-								}
+								onChange={(e) => setSecondaryTitle(e.target.value)}
 								label={"Secondary body title"}
 							/>
 							<div className="">
 								<label className="mb-1 text-neutral-600 dark:text-neutral-300">
-									Content for '
-									{secondaryTitle.length >= 1
-										? secondaryTitle
-										: "Also included"}
-									'
+									Content for '{secondaryTitle.length >= 1 ? secondaryTitle : "Also included"}'
 								</label>
 								<textarea
 									value={secondaryBody}
-									onChange={(e) =>
-										setSecondaryBody(e.target.value)
-									}
+									onChange={(e) => setSecondaryBody(e.target.value)}
 									placeholder={
 										"What else is so interesting about this product? Markdown is supported in this field."
 									}
@@ -465,11 +402,7 @@ export default function ProductCreator({ forceHide }: Props) {
 									className="flex w-full max-w-xs cursor-pointer items-center justify-center space-x-2 rounded-lg py-2 transition-colors dark:bg-black/30 dark:text-neutral-400 hover:dark:bg-red-500 hover:dark:text-white"
 								>
 									<Iconify icon="bx:minus" height={20} />
-									<p>
-										{confirmDeleteSecondary
-											? "Confirm removal"
-											: "Remove section"}
-									</p>
+									<p>{confirmDeleteSecondary ? "Confirm removal" : "Remove section"}</p>
 								</button>
 							</div>
 						</div>
@@ -480,43 +413,18 @@ export default function ProductCreator({ forceHide }: Props) {
 				<Button
 					size="medium-large"
 					variant={canSubmit ? "primary" : "dark"}
-					className={clsx(
-						!canSubmit && "cursor-not-allowed",
-						"w-full"
-					)}
+					className={clsx(!canSubmit && "cursor-not-allowed", "w-full")}
 					onClick={createProduct}
 				>
 					{creatingProduct ? (
 						<p className="flex">
 							<span className="mr-3">
-								<svg
-									width="23"
-									height="23"
-									viewBox="0 0 38 38"
-									xmlns="http://www.w3.org/2000/svg"
-								>
+								<svg width="23" height="23" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
 									<defs>
-										<linearGradient
-											x1="8.042%"
-											y1="0%"
-											x2="65.682%"
-											y2="23.865%"
-											id="a"
-										>
-											<stop
-												stopColor="#fff"
-												stopOpacity="0"
-												offset="0%"
-											/>
-											<stop
-												stopColor="#fff"
-												stopOpacity=".631"
-												offset="63.146%"
-											/>
-											<stop
-												stopColor="#fff"
-												offset="100%"
-											/>
+										<linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a">
+											<stop stopColor="#fff" stopOpacity="0" offset="0%" />
+											<stop stopColor="#fff" stopOpacity=".631" offset="63.146%" />
+											<stop stopColor="#fff" offset="100%" />
 										</linearGradient>
 									</defs>
 									<g fill="none" fill-rule="evenodd">
@@ -536,12 +444,7 @@ export default function ProductCreator({ forceHide }: Props) {
 													repeatCount="indefinite"
 												/>
 											</path>
-											<circle
-												fill="#fff"
-												cx="36"
-												cy="18"
-												r="1"
-											>
+											<circle fill="#fff" cx="36" cy="18" r="1">
 												<animateTransform
 													attributeName="transform"
 													type="rotate"
@@ -561,15 +464,9 @@ export default function ProductCreator({ forceHide }: Props) {
 						<p>Finalize product</p>
 					)}
 				</Button>
-				<Checkbox
-					state={redirectAfterSubmit}
-					callback={() => setRedirectAfterSubmit((curr) => !curr)}
-				>
-					Check this box to automatically be redirected to the Stripe
-					dashboard after finalization. <br />
-					<span className="text-dank-300">
-						Useful if you wish to upload an image for the product.
-					</span>
+				<Checkbox state={redirectAfterSubmit} callback={() => setRedirectAfterSubmit((curr) => !curr)}>
+					Check this box to automatically be redirected to the Stripe dashboard after finalization. <br />
+					<span className="text-dank-300">Useful if you wish to upload an image for the product.</span>
 				</Checkbox>
 			</div>
 		</>

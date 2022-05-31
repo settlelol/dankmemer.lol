@@ -24,7 +24,7 @@ export default async function (event: PayPalEvent, paypal: PayPal): Promise<Even
 
 	for (let i = 0; i < cartItems.length; i++) {
 		const id = cartItems[i].sku.split(":")[0];
-		const interval = cartItems[i].sku.split(":")[1] as "single" | "day" | "week" | "month" | "year";
+		const interval = cartItems[i].sku.split(":")[1] as Stripe.Price.Recurring.Interval & "single";
 		const stripeProduct = await stripe.products.retrieve(id);
 		if (!stripeProduct) {
 			return {
@@ -74,7 +74,7 @@ export default async function (event: PayPalEvent, paypal: PayPal): Promise<Even
 	fields.push({
 		name: "Goods purchased",
 		value: `• ${cartItems
-			?.map((item) => {
+			.map((item) => {
 				return `${item.quantity}x ${item.name} ($${item.unit_amount.value})`;
 			})
 			.join("\n• ")}`,
@@ -122,7 +122,7 @@ export default async function (event: PayPalEvent, paypal: PayPal): Promise<Even
 
 	return {
 		result: {
-			avatar_url: "https://newsroom.uk.paypal-corp.com/image/PayPal_Logo_Thumbnail.jpg",
+			avatar_url: process.env.DOMAIN + "/img/store/gateways/paypal.png",
 			embeds: [
 				{
 					title: "Successful PayPal Purchase",

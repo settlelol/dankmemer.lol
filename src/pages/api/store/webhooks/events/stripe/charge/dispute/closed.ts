@@ -4,10 +4,7 @@ import { toTitleCase } from "src/util/string";
 import Stripe from "stripe";
 import { EventResponse } from "../../../../stripe";
 
-export default async function (
-	event: Stripe.Event,
-	stripe: Stripe
-): Promise<EventResponse> {
+export default async function (event: Stripe.Event, stripe: Stripe): Promise<EventResponse> {
 	const dispute = event.data.object as Stripe.Dispute;
 	let metadata = convertStripeMetadata(dispute.metadata);
 
@@ -23,11 +20,7 @@ export default async function (
 		// },
 		{
 			name: "Current status",
-			value: toTitleCase(
-				dispute.status
-					.replace(/_/g, " ")
-					.replace("warning ", ":warning: ")
-			),
+			value: toTitleCase(dispute.status.replace(/_/g, " ").replace("warning ", ":warning: ")),
 			inline: true,
 		},
 		{
@@ -37,9 +30,7 @@ export default async function (
 		},
 	];
 
-	const hasEvidence =
-		Object.values(dispute.evidence).filter((evidence) => evidence !== null)
-			.length >= 1;
+	const hasEvidence = Object.values(dispute.evidence).filter((evidence) => evidence !== null).length >= 1;
 	if (hasEvidence) {
 		const evidence = Object.keys(dispute.evidence).map((k) => {
 			// @ts-ignore
@@ -60,9 +51,9 @@ export default async function (
 
 	fields.push({
 		name: "Disputed purchase",
-		value: `Value (${dispute.currency.toUpperCase()}): **$${(
-			dispute.amount / 100
-		).toFixed(2)}**\nDate: <t:${charge.created}>`,
+		value: `Value (${dispute.currency.toUpperCase()}): **$${(dispute.amount / 100).toFixed(2)}**\nDate: <t:${
+			charge.created
+		}>`,
 	});
 
 	if (Object.keys(metadata).length >= 1) {
@@ -74,7 +65,7 @@ export default async function (
 
 	return {
 		result: {
-			avatar_url: "https://stripe.com/img/v3/home/twitter.png",
+			avatar_url: process.env.DOMAIN + "/img/store/gateways/stripe.png",
 			embeds: [
 				{
 					title: "Charge dispute closed",

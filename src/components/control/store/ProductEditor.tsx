@@ -60,29 +60,16 @@ export default function ProductEditor({ id, name, description }: Props) {
 			productDescription.length <= 250 &&
 			primaryTitle.length >= 1 &&
 			primaryBody.length >= 1 &&
-			(secondaryEnabled
-				? secondaryTitle.length >= 1 && secondaryBody.length >= 1
-				: true)
+			(secondaryEnabled ? secondaryTitle.length >= 1 && secondaryBody.length >= 1 : true)
 		) {
 			setCanSubmit(true);
 		} else {
 			setCanSubmit(false);
 		}
-	}, [
-		productName,
-		productDescription,
-		primaryTitle,
-		primaryBody,
-		secondaryEnabled,
-		secondaryTitle,
-		secondaryBody,
-	]);
+	}, [productName, productDescription, primaryTitle, primaryBody, secondaryEnabled, secondaryTitle, secondaryBody]);
 
 	const removeSecondary = () => {
-		if (
-			!confirmDeleteSecondary &&
-			(secondaryTitle.length >= 1 || secondaryBody.length >= 1)
-		) {
+		if (!confirmDeleteSecondary && (secondaryTitle.length >= 1 || secondaryBody.length >= 1)) {
 			setConfirmDeleteSecondary(true);
 		} else {
 			setConfirmDeleteSecondary(false);
@@ -113,9 +100,8 @@ export default function ProductEditor({ id, name, description }: Props) {
 		<>
 			{noDbContent && (
 				<div className="mb-5 rounded-lg bg-red-500 py-2 px-10 text-center shadow shadow-red-500">
-					There currently isn't any store information stored for this
-					product. Add some now for content to be shown in the product
-					body on the store page.
+					There currently isn't any store information stored for this product. Add some now for content to be
+					shown in the product body on the store page.
 				</div>
 			)}
 			<Title size="big">Edit product</Title>
@@ -138,14 +124,10 @@ export default function ProductEditor({ id, name, description }: Props) {
 						}
 					/>
 					<div className="">
-						<label className="mb-1 text-neutral-600 dark:text-neutral-300">
-							Product description
-						</label>
+						<label className="mb-1 text-neutral-600 dark:text-neutral-300">Product description</label>
 						<textarea
 							value={productDescription}
-							onChange={(e) =>
-								setProductDescription(e.target.value)
-							}
+							onChange={(e) => setProductDescription(e.target.value)}
 							placeholder={
 								"This is purely for Stripe and will not be shown on the store page. It may appear on invoices."
 							}
@@ -169,18 +151,13 @@ export default function ProductEditor({ id, name, description }: Props) {
 				/>
 				<div className="">
 					<label className="mb-1 text-neutral-600 dark:text-neutral-300">
-						Content for '
-						{primaryTitle.length >= 1
-							? primaryTitle
-							: "Exclusive benefits"}
-						'<sup className="text-red-500">*</sup>
+						Content for '{primaryTitle.length >= 1 ? primaryTitle : "Exclusive benefits"}'
+						<sup className="text-red-500">*</sup>
 					</label>
 					<textarea
 						value={primaryBody}
 						onChange={(e) => setPrimaryBody(e.target.value)}
-						placeholder={
-							"What is so special about this product? Markdown is supported in this field."
-						}
+						placeholder={"What is so special about this product? Markdown is supported in this field."}
 						className="min-h-[38px] w-full resize-y rounded-md border-[1px] border-neutral-300 px-3 py-2 font-inter text-sm focus-visible:border-dank-300 focus-visible:outline-none dark:border-neutral-700 dark:bg-black/30"
 					/>
 				</div>
@@ -204,31 +181,20 @@ export default function ProductEditor({ id, name, description }: Props) {
 					>
 						<div
 							className="group flex cursor-pointer items-center"
-							onClick={() =>
-								setSecondaryCollapsed((curr) => !curr)
-							}
+							onClick={() => setSecondaryCollapsed((curr) => !curr)}
 						>
-							<div className="order-1 h-[2px] flex-none grow bg-[#c0c0c0] dark:bg-neutral-500 group-hover:dark:bg-white"></div>
+							<div className="order-1 h-0.5 flex-none grow bg-[#c0c0c0] dark:bg-neutral-500 group-hover:dark:bg-white"></div>
 							<p className="order-2 mx-3 select-none text-neutral-500 dark:text-neutral-400 group-hover:dark:text-white">
 								{secondaryCollapsed ? "Expand" : "Collapse"}
 							</p>
-							<div className="order-3 h-[2px] flex-none grow bg-[#c0c0c0] dark:bg-neutral-500"></div>
+							<div className="order-3 h-0.5 flex-none grow bg-[#c0c0c0] dark:bg-neutral-500"></div>
 						</div>
-						<div
-							className={clsx(
-								secondaryCollapsed ? "h-0" : "h-max ",
-								"space-y-4 overflow-hidden"
-							)}
-						>
+						<div className={clsx(secondaryCollapsed ? "h-0" : "h-max ", "space-y-4 overflow-hidden")}>
 							<div className="">
-								<Title size="xsmall">
-									Secondary product information
-								</Title>
+								<Title size="xsmall">Secondary product information</Title>
 								<p className="text-sm text-neutral-600 dark:text-neutral-400">
-									These fields are not required, this is would
-									most commonly be used for subscription
-									products with included benefits of previous
-									tiers.
+									These fields are not required, this is would most commonly be used for subscription
+									products with included benefits of previous tiers.
 								</p>
 							</div>
 							<Input
@@ -237,24 +203,16 @@ export default function ProductEditor({ id, name, description }: Props) {
 								placeholder={"Also included"}
 								defaultValue={"Also included"}
 								value={secondaryTitle}
-								onChange={(e) =>
-									setSecondaryTitle(e.target.value)
-								}
+								onChange={(e) => setSecondaryTitle(e.target.value)}
 								label={"Secondary body title"}
 							/>
 							<div className="">
 								<label className="mb-1 text-neutral-600 dark:text-neutral-300">
-									Content for '
-									{secondaryTitle.length >= 1
-										? secondaryTitle
-										: "Also included"}
-									'
+									Content for '{secondaryTitle.length >= 1 ? secondaryTitle : "Also included"}'
 								</label>
 								<textarea
 									value={secondaryBody}
-									onChange={(e) =>
-										setSecondaryBody(e.target.value)
-									}
+									onChange={(e) => setSecondaryBody(e.target.value)}
 									placeholder={
 										"What else is so interesting about this product? Markdown is supported in this field."
 									}
@@ -267,11 +225,7 @@ export default function ProductEditor({ id, name, description }: Props) {
 									className="flex w-full max-w-xs items-center justify-center space-x-2 rounded-lg py-2 transition-colors dark:bg-black/30 dark:text-neutral-400 hover:dark:bg-red-500 hover:dark:text-white"
 								>
 									<Iconify icon="bx:minus" height={20} />
-									<p>
-										{confirmDeleteSecondary
-											? "Confirm removal"
-											: "Remove section"}
-									</p>
+									<p>{confirmDeleteSecondary ? "Confirm removal" : "Remove section"}</p>
 								</button>
 							</div>
 						</div>
@@ -291,10 +245,7 @@ export default function ProductEditor({ id, name, description }: Props) {
 				<Button
 					size="medium-large"
 					variant={canSubmit ? "primary" : "dark"}
-					className={clsx(
-						!canSubmit && "cursor-not-allowed",
-						"w-full"
-					)}
+					className={clsx(!canSubmit && "cursor-not-allowed", "w-full")}
 					onClick={submitChanges}
 				>
 					Submit changes

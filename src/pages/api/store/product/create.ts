@@ -93,14 +93,16 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		}
 
 		try {
-			await redis.set(`webhooks:product-created:${stripeProduct.id}:creator`, user.id, "PX", TIME.minute * 5);
-			await redis.set(
-				`webhooks:product-created:${stripeProduct.id}:prices:expected`,
-				productData.prices.length,
-				"PX",
-				TIME.minute * 5
-			);
-			await redis.set(`webhooks:product-created:${stripeProduct.id}:prices:received`, 0, "PX", TIME.minute * 5);
+			Promise.all([
+				redis.set(`webhooks:product-created:${stripeProduct.id}:creator`, user.id, "PX", TIME.minute * 5),
+				redis.set(`webhooks:product-created:${stripeProduct.id}:prices:received`, 0, "PX", TIME.minute * 5),
+				redis.set(
+					`webhooks:product-created:${stripeProduct.id}:prices:expected`,
+					productData.prices.length,
+					"PX",
+					TIME.minute * 5
+				),
+			]);
 		} catch (e: any) {
 			return res.status(500).json({
 				message: "Failed to add product to redis cache",
@@ -219,19 +221,21 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					});
 				}
 			}
-			await redis.set(
-				`webhooks:product-created:${paypalProduct.id}:billing-plans`,
-				JSON.stringify(billingPlans),
-				"PX",
-				TIME.minute * 15
-			);
-			await redis.set(
-				`webhooks:product-created:${paypalProduct.id}:billing-plans:received`,
-				0,
-				"PX",
-				TIME.minute * 15
-			);
-			await redis.del("store:products:subscriptions");
+			Promise.all([
+				redis.set(
+					`webhooks:product-created:${paypalProduct.id}:billing-plans`,
+					JSON.stringify(billingPlans),
+					"PX",
+					TIME.minute * 15
+				),
+				redis.set(
+					`webhooks:product-created:${paypalProduct.id}:billing-plans:received`,
+					0,
+					"PX",
+					TIME.minute * 15
+				),
+				redis.del("store:products:subscriptions"),
+			]);
 		}
 
 		// Add store modal data to database

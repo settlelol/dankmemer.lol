@@ -119,7 +119,7 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 
 	return {
 		result: {
-			avatar_url: "https://stripe.com/img/v3/home/twitter.png",
+			avatar_url: process.env.DOMAIN + "/img/store/gateways/stripe.png",
 			embeds,
 		},
 	};

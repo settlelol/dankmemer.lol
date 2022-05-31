@@ -12,9 +12,7 @@ interface BillingPlansCache {
 
 export default async function (event: PayPalEvent): Promise<EventResponse> {
 	const redis = await redisConnect();
-	const waiting = await redis.get(
-		`webhooks:product-created:${event.data.id}:paypal`
-	);
+	const waiting = await redis.get(`webhooks:product-created:${event.data.id}:paypal`);
 
 	if (!waiting) {
 		await redis.set(
@@ -31,24 +29,18 @@ export default async function (event: PayPalEvent): Promise<EventResponse> {
 	}
 
 	const stripe = stripeConnect();
-	const billingPlans = await redis.get(
-		`webhooks:product-created:${event.data.id}:billing-plans`
-	);
+	const billingPlans = await redis.get(`webhooks:product-created:${event.data.id}:billing-plans`);
 	const billingPlansArray: BillingPlansCache[] = JSON.parse(billingPlans!);
 
 	let fieldValue = "";
 
 	for (let i in billingPlansArray) {
-		const stripePrice = await stripe.prices.retrieve(
-			billingPlansArray[i].stripe
-		);
+		const stripePrice = await stripe.prices.retrieve(billingPlansArray[i].stripe);
 		fieldValue += `• $${(stripePrice.unit_amount! / 100).toFixed(2)} ${
-			stripePrice.recurring!.interval_count > 1
-				? stripePrice.recurring!.interval_count
-				: ""
-		} ${stripePrice.recurring!.interval}${
-			stripePrice.recurring!.interval_count > 1 ? "s" : ""
-		}\n> \`${stripePrice.id}\`\n`;
+			stripePrice.recurring!.interval_count > 1 ? stripePrice.recurring!.interval_count : ""
+		} ${stripePrice.recurring!.interval}${stripePrice.recurring!.interval_count > 1 ? "s" : ""}\n> \`${
+			stripePrice.id
+		}\`\n`;
 	}
 
 	const fields: APIEmbedField[] = [
@@ -59,9 +51,7 @@ export default async function (event: PayPalEvent): Promise<EventResponse> {
 		},
 		{
 			name: "Associated with",
-			value: `\`${
-				event.data.id
-			}\`\n[[Open on Stripe](https://dashboard.stripe.com/${
+			value: `\`${event.data.id}\`\n[[Open on Stripe](https://dashboard.stripe.com/${
 				process.env.NODE_ENV === "development" ? "test/" : ""
 			}products/${event.data.id})]`,
 			inline: true,
@@ -80,6 +70,7 @@ export default async function (event: PayPalEvent): Promise<EventResponse> {
 
 	return {
 		result: {
+			avatar_url: process.env.DOMAIN + "/img/store/gateways/paypal.png",
 			embeds: [
 				{
 					title: "Product Created",

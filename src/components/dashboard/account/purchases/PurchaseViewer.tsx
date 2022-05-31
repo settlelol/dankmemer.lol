@@ -54,9 +54,7 @@ export default function PurchaseViewer({ purchase }: Props) {
 					const details = data as StripePurchaseDetails;
 					setPaymentMethod(details.paymentMethod);
 				})
-				.catch(() => {
-					return;
-				});
+				.catch(() => {});
 		}
 	}, []);
 

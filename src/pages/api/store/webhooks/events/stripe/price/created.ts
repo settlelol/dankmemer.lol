@@ -4,15 +4,10 @@ import Stripe from "stripe";
 import { EventResponse } from "../../../stripe";
 import { default as ProductCreated } from "../product/created";
 
-export default async function (
-	event: Stripe.Event,
-	stripe: Stripe
-): Promise<EventResponse> {
+export default async function (event: Stripe.Event, stripe: Stripe): Promise<EventResponse> {
 	const price = event.data.object as Stripe.Price;
 	const redis = await redisConnect();
-	const expectingMultiple = await redis.get(
-		`webhooks:product-created:${price.product}:prices:expected`
-	);
+	const expectingMultiple = await redis.get(`webhooks:product-created:${price.product}:prices:expected`);
 	if (expectingMultiple) {
 		const numberExpected = parseInt(expectingMultiple);
 		let numberOfPricesReceived: string | number = (await redis.get(
@@ -27,23 +22,16 @@ export default async function (
 		}
 		numberOfPricesReceived = parseInt(numberOfPricesReceived as string);
 		if (numberOfPricesReceived + 1 === numberExpected) {
-			await redis.del([
-				`webhooks:product-created:${price.product}:prices:received`,
-				`webhooks:product-created:${price.product}:prices:expected`,
+			Promise.all([
+				redis.del([
+					`webhooks:product-created:${price.product}:prices:received`,
+					`webhooks:product-created:${price.product}:prices:expected`,
+				]),
+				redis.set(`webhooks:product-created:${price.product}`, JSON.stringify(true), "PX", TIME.minute * 5),
 			]);
-			await redis.set(
-				`webhooks:product-created:${price.product}`,
-				JSON.stringify(true),
-				"PX",
-				TIME.minute * 5
-			);
-			const productEvent = await redis.get(
-				`webhooks:product-created:${price.product}:waiting`
-			);
+			const productEvent = await redis.get(`webhooks:product-created:${price.product}:waiting`);
 			if (!productEvent) {
-				const createdBy = await redis.get(
-					`webhooks:product-created:${price.product}:creator`
-				);
+				const createdBy = await redis.get(`webhooks:product-created:${price.product}:creator`);
 				return {
 					result: {
 						...(createdBy && { content: `<@!${createdBy}>` }),
@@ -58,16 +46,11 @@ export default async function (
 				};
 			} else {
 				return {
-					result: (await ProductCreated(
-						JSON.parse(productEvent),
-						stripe
-					))!.result,
+					result: (await ProductCreated(JSON.parse(productEvent), stripe))!.result,
 				};
 			}
 		} else if (numberOfPricesReceived < numberExpected) {
-			await redis.incr(
-				`webhooks:product-created:${price.product}:prices:received`
-			);
+			await redis.incr(`webhooks:product-created:${price.product}:prices:received`);
 		}
 	}
 

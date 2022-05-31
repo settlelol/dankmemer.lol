@@ -18,16 +18,12 @@ export default function StoreBreadcrumb({ currentPage }: Props) {
 				<Iconify icon="bx:bxs-store" color="currentColor" />
 				<span className="ml-2">Home</span>
 			</p>
-			<p className="mx-2 mt-[2px]">
+			<p className="mx-2 mt-0.5">
 				<Iconify icon="ic:sharp-chevron-right" height={20} />
 			</p>
 			{currentPage === "cart" ? (
 				<p className="flex w-full items-center justify-start text-dank-300 dark:text-dank-100">
-					<Iconify
-						icon="akar-icons:cart"
-						color="currentColor"
-						height={20}
-					/>
+					<Iconify icon="akar-icons:cart" color="currentColor" height={20} />
 					<span className="ml-2">Shopping cart</span>
 				</p>
 			) : currentPage === "checkout" ? (
@@ -36,22 +32,14 @@ export default function StoreBreadcrumb({ currentPage }: Props) {
 						className="flex min-w-max cursor-pointer items-center justify-start transition-colors hover:dark:text-white"
 						onClick={() => router.push("/store/cart")}
 					>
-						<Iconify
-							icon="akar-icons:cart"
-							color="currentColor"
-							height={20}
-						/>
+						<Iconify icon="akar-icons:cart" color="currentColor" height={20} />
 						<span className="ml-2">Shopping cart</span>
 					</p>
-					<p className="mx-2 mt-[2px]">
+					<p className="mx-2 mt-0.5">
 						<Iconify icon="ic:sharp-chevron-right" height={20} />
 					</p>
 					<p className="flex items-center justify-start text-dank-100">
-						<Iconify
-							icon="fluent:payment-16-filled"
-							color="currentColor"
-							height={20}
-						/>
+						<Iconify icon="fluent:payment-16-filled" color="currentColor" height={20} />
 						<span className="ml-2">Checkout</span>
 					</p>
 				</>
