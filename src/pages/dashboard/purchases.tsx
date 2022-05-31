@@ -13,7 +13,7 @@ import { PageProps } from "src/types";
 import { authenticatedRoute } from "src/util/redirects";
 import { withSession } from "src/util/session";
 import { AggregatedPurchaseRecordPurchases } from "../api/customers/history";
-import { FilterableColumnData, UnfilterableColumnData } from "../control/store/products/manage";
+import { FilterableColumnData, UnfilterableColumnData } from "../control/store/products";
 import Input from "src/components/store/Input";
 import PurchaseViewer from "src/components/dashboard/account/purchases/PurchaseViewer";
 
