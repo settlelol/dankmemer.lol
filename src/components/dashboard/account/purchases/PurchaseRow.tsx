@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import Tooltip from "src/components/ui/Tooltip";
 import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/history";
 import { Icon as Iconify } from "@iconify/react";
@@ -20,8 +19,8 @@ export default function PurchaseRow({ purchase, viewDetails }: Props) {
 	return (
 		<tr key={purchase._id} className="group relative h-12 text-sm">
 			<td className="px-5 first:rounded-l-lg group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
-				<p className="grid h-max w-max place-items-center">
-					{purchase.type === "subscription" ? (
+				<p className="grid h-max w-full place-items-center">
+					{purchase.type === "subscription" || purchase.type === "giftable" ? (
 						<Tooltip content="Subscription">
 							<Iconify icon="wpf:recurring-appointment" className="text-green-500" />
 						</Tooltip>
@@ -33,7 +32,15 @@ export default function PurchaseRow({ purchase, viewDetails }: Props) {
 				</p>
 			</td>
 			<td className="group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
-				<p>{purchase._id}</p>
+				<p className="flex items-center justify-start space-x-2">
+					<span>{purchase._id}</span>
+					{purchase.isGift && (
+						<Tooltip content={`Gifted to: ${purchase.giftFor}`}>
+							{" "}
+							<Iconify icon="bxs:gift" height={16} />
+						</Tooltip>
+					)}
+				</p>
 			</td>
 			<td className="group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50">
 				<p className="grid h-max w-max place-items-center px-5">
