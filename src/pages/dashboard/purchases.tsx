@@ -96,8 +96,17 @@ export default function PurchaseHistory({ user }: PageProps) {
 	useEffect(() => {
 		axios(`/api/customers/history?id=${user!.id}`)
 			.then(({ data }) => {
-				setPurchases(data.history.purchases);
-				setDisplayedPurchases(data.history.purchases);
+				setPurchases(
+					(data.history.purchases as AggregatedPurchaseRecordPurchases[]).sort(
+						(a, b) => b.purchaseTime - a.purchaseTime
+					)
+				);
+				setDisplayedPurchases(
+					(data.history.purchases as AggregatedPurchaseRecordPurchases[]).sort(
+						(a, b) => b.purchaseTime - a.purchaseTime
+					)
+				);
+				changeSorting(TableHeaders.DATE, TableHeadersState.TOP);
 			})
 			.catch(() => {
 				console.error("no history");
