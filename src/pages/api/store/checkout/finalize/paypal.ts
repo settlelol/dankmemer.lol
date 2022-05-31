@@ -102,25 +102,29 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				discountPercentage: `${discount.coupon.percent_off}%`,
 			});
 		}
-		const items = invoice.lines.data.map((lineItem: Stripe.InvoiceLineItem) => {
+
+		let items: PaymentIntentItemResult[] = [];
+		for (let lineItem of invoice.lines.data) {
 			if (lineItem.description !== null) {
 				const usedDiscounts =
 					lineItem.discount_amounts
 						?.filter((discount) => discount.amount > 0)
 						.map((discount) => discount.discount) ?? [];
 
-				return {
-					id: lineItem.price?.product,
-					name: lineItem.description,
+				const product = await stripe.products.retrieve(lineItem.price?.product as string);
+
+				items.push({
+					id: product.id,
+					name: product.name,
 					price: lineItem.amount / 100,
 					quantity: lineItem.quantity!,
 					type: lineItem.price?.type!,
 					discounts: usedDiscounts.map((usedDiscount) => ({
-						...discounts.find((discount) => discount.id === usedDiscount),
+						...discounts.find((discount) => discount.id === usedDiscount)!,
 					})),
-				};
+				});
 			}
-		}) as PaymentIntentItemResult[];
+		}
 
 		if (subscription) {
 			const paypal = new PayPal();
