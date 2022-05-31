@@ -80,6 +80,7 @@ export default function DisputeCreator({ purchase, close }: Props) {
 						type: purchase.type,
 						reason,
 						content: refundBody,
+						...(purchase.subscriptionId && { subscriptionId: purchase.subscriptionId }),
 					},
 				});
 				toast.success("Your refund request has been submitted. Please allow us time to review your request.", {
