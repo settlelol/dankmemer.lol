@@ -1,5 +1,4 @@
 import axios from "axios";
-import clsx from "clsx";
 import { useEffect, useState } from "react";
 import LoadingPepe from "src/components/LoadingPepe";
 import { Title } from "src/components/Title";
@@ -20,7 +19,7 @@ export default function PurchaseViewer({ purchase }: Props) {
 	const [disputing, setDisputing] = useState(false);
 
 	useEffect(() => {
-		if (loading && paymentMethod) {
+		if (loading && ((purchase.gateway === "stripe" && paymentMethod) || purchase.gateway === "paypal")) {
 			setLoading(false);
 		}
 	}, [paymentMethod]);
