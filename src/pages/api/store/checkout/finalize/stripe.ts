@@ -138,7 +138,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				);
 			}
 		} else if (invoice.metadata?.giftSubscription && JSON.parse(invoice.metadata.giftSubscription)) {
-			const product = await stripe.products.retrieve(invoice.lines.data[0].price!.product as string);
+			const product = await stripe.products.retrieve(
+				items.filter((item) => item.name !== "SALESTAX")[0].id as string
+			);
 			await db.collection("gifts").insertOne({
 				_id: invoice.id as unknown as ObjectID,
 				code: Math.random().toString(36).substring(2),
