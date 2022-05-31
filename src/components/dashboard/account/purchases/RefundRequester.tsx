@@ -66,7 +66,7 @@ export default function DisputeCreator({ purchase, close }: Props) {
 		if (refundBody.length >= 100 && refundBody.length <= 2000 && reason && acknowledgement) {
 			setCanSubmit(true);
 		}
-	});
+	}, [reason, refundBody, acknowledgement]);
 
 	const submit = async () => {
 		if (canSubmit) {
