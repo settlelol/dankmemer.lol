@@ -4,6 +4,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Head from "next/head";
 import clsx from "clsx";
+import { NextSeo } from "next-seo";
 
 interface PropsWithNoRightPane {
 	children: ReactNode;
@@ -63,9 +64,7 @@ export default function ControlPanelContainer({
 
 	return (
 		<>
-			<Head>
-				<title>Dank Memer {title.length >= 1 ? `| ${title}` : ""}</title>
-			</Head>
+			<Head>{title && <NextSeo title={`Dank Memer | ${title}`} />}</Head>
 			<ToastContainer position="top-center" theme="colored" />
 			{rightPaneVisible ? (
 				<div

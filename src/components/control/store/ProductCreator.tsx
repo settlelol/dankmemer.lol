@@ -48,6 +48,14 @@ export default function ProductCreator({ forceHide }: Props) {
 	const [creatingProduct, setCreatingProduct] = useState(false);
 	const [redirectAfterSubmit, setRedirectAfterSubmit] = useState(false);
 
+	const generateId = (): string => {
+		const id = Math.random().toString(36).slice(2, 7);
+		if (productPrices.find((price) => price.id === id)) {
+			return generateId();
+		}
+		return id;
+	};
+
 	useEffect(() => {
 		if (
 			productName.length >= 1 &&
@@ -88,7 +96,7 @@ export default function ProductCreator({ forceHide }: Props) {
 		if (productType === "subscription") {
 			setProductPrices([
 				{
-					id: Math.random().toString(36).slice(2, 7),
+					id: generateId(),
 					value: "",
 					interval: "Monthly",
 					intervalCount: "1",
@@ -97,7 +105,7 @@ export default function ProductCreator({ forceHide }: Props) {
 		} else if (productType === "single") {
 			setProductPrices([
 				{
-					id: Math.random().toString(36).slice(2, 7),
+					id: generateId(),
 					value: "",
 				},
 			]);
@@ -150,7 +158,7 @@ export default function ProductCreator({ forceHide }: Props) {
 	const addNewPrice = () => {
 		const _prices = [...productPrices];
 		_prices.push({
-			id: Math.random().toString(36).slice(2, 7),
+			id: generateId(),
 			value: "",
 			interval: "Monthly",
 			intervalCount: "",
@@ -274,7 +282,7 @@ export default function ProductCreator({ forceHide }: Props) {
 									if (!Number.isNaN(e.target.value)) {
 										setProductPrices([
 											{
-												id: Math.random().toString(36).slice(2, 7),
+												id: generateId(),
 												value: e.target.value,
 											},
 										]);
@@ -284,7 +292,7 @@ export default function ProductCreator({ forceHide }: Props) {
 									if (!Number.isNaN(parseFloat(e.target.value))) {
 										setProductPrices([
 											{
-												id: Math.random().toString(36).slice(2, 7),
+												id: generateId(),
 												value: parseFloat(e.target.value).toFixed(2),
 											},
 										]);
