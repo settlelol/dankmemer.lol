@@ -1,7 +1,9 @@
 import { Db } from "mongodb";
 import { NextApiResponse } from "next";
+import { TIME } from "src/constants";
 import { Metadata } from "src/pages/store";
 import { dbConnect } from "src/util/mongodb";
+import { redisConnect } from "src/util/redis";
 import { NextIronRequest, withSession } from "src/util/session";
 import { stripeConnect } from "src/util/stripe";
 import { PurchaseRecord } from "../store/checkout/finalize/paypal";
@@ -20,7 +22,7 @@ export interface AggregatedDiscountData {
 export type AggregatedPurchaseRecordPurchases = Omit<PurchaseRecord & { gateway: "stripe" | "paypal" }, "items"> & {
 	items: (PaymentIntentItemResult & { id: string; image: string })[];
 	discounts: AggregatedDiscountData[];
-	type: "single" | "subscription";
+	type: "single" | "subscription" | "giftable";
 };
 
 export interface AggregatedPurchaseRecord {
@@ -35,6 +37,12 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 	const db: Db = await dbConnect();
 	const stripe = stripeConnect();
+	const redis = await redisConnect();
+
+	const cached = await redis.get(`customer:purchase-history:${req.query.id}`);
+	if (cached) {
+		return res.status(200).json({ history: JSON.parse(cached) });
+	}
 
 	const purchaseHistory = (
 		await db
@@ -180,6 +188,8 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			item = Object.assign(item, { image: product.images[0] });
 		}
 	}
+
+	await redis.set(`customer:purchase-history:${req.query.id}`, JSON.stringify(purchaseHistory), "PX", TIME.month);
 
 	return res.status(200).json({ history: purchaseHistory });
 };

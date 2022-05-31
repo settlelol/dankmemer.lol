@@ -1,4 +1,5 @@
 import { APIEmbedField } from "discord-api-types/v10";
+import { redisConnect } from "src/util/redis";
 import Stripe from "stripe";
 import { EventResponse, PaymentIntentItemDiscount, PaymentIntentItemResult } from "../../../stripe";
 
@@ -108,6 +109,9 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 		});
 		fields.push({ name: "_ _", value: "_ _", inline: true }); // Add an invisible embed field
 	}
+
+	const redis = await redisConnect();
+	await redis.del(`customer:purchase-history:${payee}`);
 
 	return {
 		result: {

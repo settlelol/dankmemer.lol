@@ -2,6 +2,7 @@ import { ObjectID } from "bson";
 import { ObjectId } from "mongodb";
 import { NextApiResponse } from "next";
 import { dbConnect } from "src/util/mongodb";
+import { redisConnect } from "src/util/redis";
 import { toTitleCase } from "src/util/string";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
@@ -31,6 +32,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	const db = await dbConnect();
 	const stripe = stripeConnect();
+	const redis = await redisConnect();
 
 	const dbCustomer = await db.collection("customers").findOne({ discordId: user.id });
 
@@ -170,6 +172,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				items: items.filter((item) => item.name !== "SALESTAX"),
 				purchaseTime: new Date().getTime(),
 			}),
+			redis.del(`customer:purchase-history:${user.id}`),
 		]);
 		req.session.unset("cart");
 		req.session.unset("discountCode");

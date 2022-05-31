@@ -3,6 +3,7 @@ import { ObjectId } from "mongodb";
 import { NextApiResponse } from "next";
 import { dbConnect } from "src/util/mongodb";
 import PayPal from "src/util/paypal";
+import { redisConnect } from "src/util/redis";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { NextIronRequest, withSession } from "../../../../../util/session";
@@ -59,6 +60,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	const db = await dbConnect();
 	const stripe = stripeConnect();
+	const redis = await redisConnect();
 	const customer = await db.collection("customers").findOne({ discordId: user.id });
 
 	if (!customer) {
@@ -179,6 +181,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				purchaseTime: new Date().getTime(),
 				...(subscription && { subscriptionId: subscription }),
 			}),
+			redis.del(`customer:purchase-history:${user.id}`),
 		]);
 
 		await stripe.invoices.update(invoice.id, { metadata });

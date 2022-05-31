@@ -2,46 +2,29 @@ import { APIEmbedField } from "discord-api-types/v10";
 import { dbConnect } from "src/util/mongodb";
 import PayPal from "src/util/paypal";
 import { LinkDescription } from "src/util/paypal/classes/Products";
-import {
-	PayPalEvent,
-	PayPalWebhookResource,
-} from "src/util/paypal/classes/Webhooks";
+import { PayPalEvent, PayPalWebhookResource } from "src/util/paypal/classes/Webhooks";
 import { createPayPal } from "src/util/paypal/PayPalEndpoint";
 import { PayPalCartItem } from "src/util/paypal/types";
+import { redisConnect } from "src/util/redis";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { EventResponse } from "../../../../paypal";
-import {
-	PaymentIntentItemDiscount,
-	PaymentIntentItemResult,
-} from "../../../../stripe";
+import { PaymentIntentItemDiscount, PaymentIntentItemResult } from "../../../../stripe";
 
-export default async function (
-	event: PayPalEvent,
-	paypal: PayPal
-): Promise<EventResponse> {
+export default async function (event: PayPalEvent, paypal: PayPal): Promise<EventResponse> {
 	const httpClient = await createPayPal();
 	const stripe = stripeConnect();
 
-	const orderUrl: LinkDescription = event.data.links.find(
-		(link: LinkDescription) => link.rel === "up"
-	)!;
+	const orderUrl: LinkDescription = event.data.links.find((link: LinkDescription) => link.rel === "up")!;
 
-	const { data }: { data: PayPalWebhookResource } = await httpClient(
-		orderUrl.href
-	);
+	const { data }: { data: PayPalWebhookResource } = await httpClient(orderUrl.href);
 	const cartItems: PayPalCartItem[] = data.purchase_units![0].items.filter(
 		(item: PayPalCartItem) => item.sku.split(":")[0] !== "SALESTAX"
 	);
 
 	for (let i = 0; i < cartItems.length; i++) {
 		const id = cartItems[i].sku.split(":")[0];
-		const interval = cartItems[i].sku.split(":")[1] as
-			| "single"
-			| "day"
-			| "week"
-			| "month"
-			| "year";
+		const interval = cartItems[i].sku.split(":")[1] as "single" | "day" | "week" | "month" | "year";
 		const stripeProduct = await stripe.products.retrieve(id);
 		if (!stripeProduct) {
 			return {
@@ -57,10 +40,7 @@ export default async function (
 				  }
 				: { product: stripeProduct.id };
 		const { data: prices } = await stripe.prices.list(query);
-		if (
-			(prices[0].unit_amount! / 100).toFixed(2) !==
-			cartItems[i].unit_amount.value
-		) {
+		if ((prices[0].unit_amount! / 100).toFixed(2) !== cartItems[i].unit_amount.value) {
 			return {
 				result: null,
 				error: `Mismatched price of ${cartItems[i].name} (id: ${cartItems[i].sku}).`,
@@ -121,18 +101,12 @@ export default async function (
 			name: "Discounts applied",
 			value: `${discounts
 				.map((discount) => {
-					const discountedItems = items.filter(
-						(item: PaymentIntentItemResult) =>
-							item.discounts?.find((d) => d.id === discount.id)
+					const discountedItems = items.filter((item: PaymentIntentItemResult) =>
+						item.discounts?.find((d) => d.id === discount.id)
 					);
-					const itemsText = discountedItems.map(
-						(item: PaymentIntentItemResult) => {
-							return `> ${item?.name} (-$${(
-								item?.price! *
-								(discount.discountDecimal / 100)
-							).toFixed(2)})`;
-						}
-					);
+					const itemsText = discountedItems.map((item: PaymentIntentItemResult) => {
+						return `> ${item?.name} (-$${(item?.price! * (discount.discountDecimal / 100)).toFixed(2)})`;
+					});
 					return `**${discount.name}** (\`${discount.code}\`) - ${
 						discount.discountPercentage
 					}\n${itemsText.join("\n")}`;
@@ -143,10 +117,12 @@ export default async function (
 		fields.push({ name: "_ _", value: "_ _", inline: true }); // Add an invisible embed field
 	}
 
+	const redis = await redisConnect();
+	await redis.del(`customer:purchase-history:${purchasedBy}`);
+
 	return {
 		result: {
-			avatar_url:
-				"https://newsroom.uk.paypal-corp.com/image/PayPal_Logo_Thumbnail.jpg",
+			avatar_url: "https://newsroom.uk.paypal-corp.com/image/PayPal_Logo_Thumbnail.jpg",
 			embeds: [
 				{
 					title: "Successful PayPal Purchase",
