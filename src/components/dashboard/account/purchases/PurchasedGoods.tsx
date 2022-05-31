@@ -45,17 +45,21 @@ export default function PurchasedGoods({ purchase }: Props) {
 								}}
 							/>
 							<span>
-								{item.quantity}x {item.name}
+								{purchase.type === "single" ? item.quantity + "x" : ""} {item.name}
 							</span>
 						</div>
 						<p className="min-w-max">
 							${item.price.toFixed(2)}
-							{item.type === "recurring" && (
+							{item.type === "recurring" ? (
 								<>
 									{" "}
 									/ {item.intervalCount! > 1 ? item.intervalCount : ""} {item.interval}
 									{item.intervalCount! > 1 ? "s" : ""}
 								</>
+							) : purchase.type === "giftable" ? (
+								<> for 1 {item.metadata.mainInterval}</>
+							) : (
+								<></>
 							)}
 						</p>
 					</div>

@@ -20,9 +20,10 @@ export interface AggregatedDiscountData {
 }
 
 export type AggregatedPurchaseRecordPurchases = Omit<PurchaseRecord & { gateway: "stripe" | "paypal" }, "items"> & {
-	items: (PaymentIntentItemResult & { id: string; image: string })[];
+	items: (PaymentIntentItemResult & { id: string; image: string; metadata: Metadata })[];
 	discounts: AggregatedDiscountData[];
-	type: "single" | "subscription" | "giftable";
+	type: Metadata["type"];
+	metadata: Metadata;
 };
 
 export interface AggregatedPurchaseRecord {
@@ -184,8 +185,13 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	for (let purchase of purchaseHistory.purchases) {
 		for (let item of purchase.items) {
 			const product = await stripe.products.retrieve(item.id);
-			purchase.type = (product.metadata as Metadata).type!;
-			item = Object.assign(item, { image: product.images[0] });
+			purchase.type = (product.metadata as Metadata).type;
+			item.metadata = {
+				...(product.metadata.type === "giftable" && {
+					mainInterval: product.metadata.mainInterval,
+				}),
+			};
+			item = Object.assign(item, { image: product.images[0], metadata: product.metadata });
 		}
 	}
 

@@ -34,11 +34,18 @@ type PriceInformation = {
 	metadata: any;
 };
 
-export interface Metadata {
-	type?: "subscription" | "single";
-	hidden?: boolean;
-	isGift?: string;
+interface PossibleMetadata {
+	type: "single" | "subscription" | "giftable";
+	hidden: boolean;
+	isGift: string;
+	paypalPlan: string;
+	giftProduct: string;
+	mainProduct: string;
+	mainInterval: string;
+	ignoreWebhook: boolean;
 }
+
+export type Metadata = Partial<PossibleMetadata>;
 
 export type CartItem = {
 	id: string;
