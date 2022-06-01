@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { MouseEventHandler, ReactNode } from "react";
-import TableSortIcon, { TableHeadersState } from "./TableSortIcon";
+import TableSortIcon, { TableHeadersState } from "./SortIcon";
 
 interface Column {
 	className?: string;

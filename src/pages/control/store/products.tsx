@@ -11,8 +11,6 @@ import { AnyProduct } from "src/pages/store";
 import Checkbox from "src/components/ui/Checkbox";
 import Input from "src/components/store/Input";
 import ProductRow from "src/components/control/store/ProductRow";
-import { TableHeadersState } from "src/components/control/TableSortIcon";
-import TableHead from "src/components/control/TableHead";
 import clsx from "clsx";
 import ProductEditor from "src/components/control/store/ProductEditor";
 import CheckboxHead from "src/components/control/store/CheckboxHead";
@@ -21,6 +19,7 @@ import { Icon as Iconify } from "@iconify/react";
 import Button from "src/components/ui/Button";
 import ProductCreator from "src/components/control/store/ProductCreator";
 import ControlLinks from "src/components/control/ControlLinks";
+import Table, { ColumnData, SortingState } from "src/components/control/Table";
 
 interface SalesData {
 	productSales: ProductSales[];
@@ -40,43 +39,24 @@ enum TableHeaders {
 	TOTAL_REVENUE = 4,
 }
 
-export interface FilterableColumnData {
-	type: "Sortable";
-	name: string;
-	selector: TableHeaders;
-	content?: never;
-	width: string;
-	rtl?: boolean;
-	hidden: boolean;
-}
-
-export interface UnfilterableColumnData {
-	type: "Unsortable";
-	name?: never;
-	selector?: never;
-	content: ReactNode;
-	width: string;
-	hidden: boolean;
-}
-
 export default function ManageProducts({ user }: PageProps) {
-	const [salesData, setSalesData] = useState<SalesData | null>(null);
+	const [salesData, setSalesData] = useState<SalesData>();
 	const [products, setProducts] = useState<AnyProduct[]>([]);
 	const [displayedProducts, setDisplayedProducts] = useState<AnyProduct[]>([]);
 	const [editing, setEditing] = useState(false);
 	const [editorContent, setEditorContent] = useState<ReactNode>();
-	const [productToEdit, setProductToEdit] = useState<AnyProduct | null>(null);
+	const [productToEdit, setProductToEdit] = useState<AnyProduct>();
 
 	const [filterSearch, setFilterSearch] = useState("");
-	const [filterTableHeaders, setFilterTableHeaders] = useState<TableHeaders | null>();
-	const [filterTableHeadersState, setFilterTableHeadersState] = useState<TableHeadersState>(TableHeadersState.BOTTOM);
+	const [filterTableHeaders, setFilterTableHeaders] = useState<TableHeaders>();
+	const [filterTableHeadersState, setFilterTableHeadersState] = useState<SortingState>(SortingState.DESCENDING);
 
 	const [filterSelectAll, setFilterSelectAll] = useState(false);
 	const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
 	const [showOptionsFor, setShowOptionsFor] = useState<string>("");
 
-	const [tableHeads, setTableHeads] = useState<(FilterableColumnData | UnfilterableColumnData)[]>([
+	const [tableHeads, setTableHeads] = useState<ColumnData[]>([
 		{
 			type: "Unsortable",
 			content: <CheckboxHead change={setFilterSelectAll} />,
@@ -87,14 +67,12 @@ export default function ManageProducts({ user }: PageProps) {
 			type: "Sortable",
 			name: "Name",
 			width: "w-4/12",
-			selector: TableHeaders.NAME,
 			hidden: false,
 		},
 		{
 			type: "Sortable",
 			name: "Prices",
 			width: "w-max",
-			selector: TableHeaders.PRICES,
 			hidden: false,
 		},
 		{
@@ -107,14 +85,12 @@ export default function ManageProducts({ user }: PageProps) {
 			type: "Sortable",
 			name: "Last updated",
 			width: "min-w-[156px]",
-			selector: TableHeaders.LAST_UPDATED,
 			hidden: false,
 		},
 		{
 			type: "Sortable",
 			name: "Total sales",
 			width: "min-w-[110px]",
-			selector: TableHeaders.TOTAL_SALES,
 			rtl: true,
 			hidden: false,
 		},
@@ -122,7 +98,6 @@ export default function ManageProducts({ user }: PageProps) {
 			type: "Sortable",
 			name: "Total revenue",
 			width: "w-52",
-			selector: TableHeaders.TOTAL_REVENUE,
 			rtl: true,
 			hidden: false,
 		},
@@ -198,20 +173,20 @@ export default function ManageProducts({ user }: PageProps) {
 		}
 	}, [productToEdit]);
 
-	const changeSorting = (selector: TableHeaders, state: TableHeadersState) => {
+	const changeSorting = (selector: TableHeaders, state: SortingState) => {
 		setFilterTableHeaders(selector);
 		setFilterTableHeadersState(state);
 
 		switch (selector) {
 			case TableHeaders.NAME:
-				if (state === TableHeadersState.TOP) {
+				if (state === SortingState.ASCENDING) {
 					setDisplayedProducts((products) => products.sort((a, b) => a.name.localeCompare(b.name)));
 				} else {
 					setDisplayedProducts((products) => products.sort((a, b) => b.name.localeCompare(a.name)));
 				}
 				break;
 			case TableHeaders.PRICES:
-				if (state === TableHeadersState.TOP) {
+				if (state === SortingState.ASCENDING) {
 					setDisplayedProducts((products) => products.sort((a, b) => a.prices[0].price - b.prices[0].price));
 				} else {
 					setDisplayedProducts((products) =>
@@ -224,7 +199,7 @@ export default function ManageProducts({ user }: PageProps) {
 				}
 				break;
 			case TableHeaders.LAST_UPDATED:
-				if (state === TableHeadersState.TOP) {
+				if (state === SortingState.ASCENDING) {
 					setDisplayedProducts((products) =>
 						products.sort(
 							(a, b) => (parseInt(b.metadata.lastUpdated) || 0) - (parseInt(a.metadata.lastUpdated) || 0)
@@ -239,7 +214,7 @@ export default function ManageProducts({ user }: PageProps) {
 				}
 				break;
 			case TableHeaders.TOTAL_SALES:
-				if (state === TableHeadersState.TOP) {
+				if (state === SortingState.ASCENDING) {
 					setDisplayedProducts((products) =>
 						products.sort(
 							(a, b) =>
@@ -258,7 +233,7 @@ export default function ManageProducts({ user }: PageProps) {
 				}
 				break;
 			case TableHeaders.TOTAL_REVENUE:
-				if (state === TableHeadersState.TOP) {
+				if (state === SortingState.ASCENDING) {
 					setDisplayedProducts((products) =>
 						products.sort(
 							(a, b) =>
@@ -298,7 +273,7 @@ export default function ManageProducts({ user }: PageProps) {
 				if (confirm("Are you sure you want to close the editor? All unsaved changes will be lost.")) {
 					setEditing(false);
 					setTimeout(() => {
-						setProductToEdit(null);
+						setProductToEdit(undefined);
 					}, 400);
 				}
 			}}
@@ -366,99 +341,45 @@ export default function ManageProducts({ user }: PageProps) {
 							</Button>
 						</div>
 					</div>
-					<div>
-						<table
-							style={{ borderSpacing: "0 0.3rem" }}
-							className="relative mt-4 w-full border-separate overflow-hidden rounded-lg border-none text-left text-neutral-600 dark:text-neutral-300"
-						>
-							<thead>
-								<tr className="select-none font-inter">
-									{tableHeads.map(
-										(data, i) =>
-											!data.hidden &&
-											(data.type === "Sortable" ? (
-												<TableHead
-													key={i}
-													type={data.type}
-													name={data.name}
-													width={data.width}
-													state={filterTableHeadersState}
-													active={filterTableHeaders === data.selector}
-													rtl={data.rtl}
-													className={clsx(
-														i === 0 && "rounded-l-lg",
-														i === tableHeads.length && "rounded-r-lg"
-													)}
-													onClick={() =>
-														changeSorting(
-															data.selector,
-															filterTableHeadersState === TableHeadersState.TOP
-																? TableHeadersState.BOTTOM
-																: TableHeadersState.TOP
-														)
-													}
-												/>
-											) : (
-												<TableHead
-													key={i}
-													className={clsx(
-														i === 0 && "rounded-l-lg",
-														i === tableHeads.length - 1 && "rounded-r-lg",
-														"px-5"
-													)}
-													type={data.type}
-													content={data.content}
-													width={data.width}
-												/>
-											))
-									)}
-								</tr>
-							</thead>
-							{/* Required to add additional spacing between the thead and tbody elements */}
-							<div className="h-4" />
-							<tbody>
-								{displayedProducts.map((product, i) => (
-									<ProductRow
-										key={product.id}
-										id={product.id}
-										hiddenColumns={tableHeads.map((c) => c.hidden)}
-										reverseOptions={displayedProducts.length - 2 <= i}
-										selected={selectedProducts.includes(product.id)}
-										name={product.name}
-										image={product.images[0]}
-										lastUpdated={
-											product.updated
-												? formatDistance(new Date(product.updated * 1000), new Date(), {
-														addSuffix: true,
-												  })
-												: "Unknown"
-										}
-										price={product.prices
-											.sort((a, b) => a.price - b.price)
-											.map((price) => "$" + (price.price / 100).toFixed(2))
-											.join(" or ")}
-										type={product.prices[0].interval}
-										sales={salesData?.productSales.find((prod) => prod._id === product.id)?.sales!}
-										revenue={
-											salesData?.productSales.find((prod) => prod._id === product.id)?.revenue!
-										}
-										select={() => setSelectedProducts((products) => [...products, product.id])}
-										deselect={() =>
-											setSelectedProducts((products) =>
-												products.filter((id) => id !== product.id)
-											)
-										}
-										showOptionsFor={setShowOptionsFor}
-										showOptions={showOptionsFor === product.id}
-										editProduct={() => {
-											setShowOptionsFor("");
-											setProductToEdit(product);
-										}}
-									/>
-								))}
-							</tbody>
-						</table>
-					</div>
+					<Table
+						heads={tableHeads}
+						sort={changeSorting}
+						body={displayedProducts.map((product, i) => (
+							<ProductRow
+								key={product.id}
+								id={product.id}
+								hiddenColumns={tableHeads.map((c) => c.hidden)}
+								reverseOptions={displayedProducts.length - 2 <= i}
+								selected={selectedProducts.includes(product.id)}
+								name={product.name}
+								image={product.images[0]}
+								lastUpdated={
+									product.updated
+										? formatDistance(new Date(product.updated * 1000), new Date(), {
+												addSuffix: true,
+										  })
+										: "Unknown"
+								}
+								price={product.prices
+									.sort((a, b) => a.price - b.price)
+									.map((price) => "$" + (price.price / 100).toFixed(2))
+									.join(" or ")}
+								type={product.prices[0].interval}
+								sales={salesData?.productSales.find((prod) => prod._id === product.id)?.sales!}
+								revenue={salesData?.productSales.find((prod) => prod._id === product.id)?.revenue!}
+								select={() => setSelectedProducts((products) => [...products, product.id])}
+								deselect={() =>
+									setSelectedProducts((products) => products.filter((id) => id !== product.id))
+								}
+								showOptionsFor={setShowOptionsFor}
+								showOptions={showOptionsFor === product.id}
+								editProduct={() => {
+									setShowOptionsFor("");
+									setProductToEdit(product);
+								}}
+							/>
+						))}
+					/>
 				</div>
 			</main>
 		</ControlPanelContainer>
