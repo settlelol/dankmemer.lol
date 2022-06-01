@@ -27,7 +27,7 @@ export default function ControlLinks({ user }: Props) {
 			</LinkGroup>
 			<LinkGroup title="Store">
 				<Navlink icon="bx:bx-store" text="Store overview" href="/control/store/overview" />
-				<Navlink icon="akar-icons:shipping-box-01" text="Products" href="/control/store/products/" />
+				<Navlink icon="akar-icons:shipping-box-01" text="Products" href="/control/store/products" />
 				<Navlink icon="gg:math-percent" size={30} text="Discounts" href="/control/store/discounts" />
 				<Navlink
 					icon="fluent:clipboard-bullet-list-rtl-16-regular"
