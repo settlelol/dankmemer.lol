@@ -48,9 +48,6 @@ export default function ManageProducts({ user }: PageProps) {
 	const [productToEdit, setProductToEdit] = useState<AnyProduct>();
 
 	const [filterSearch, setFilterSearch] = useState("");
-	const [filterTableHeaders, setFilterTableHeaders] = useState<TableHeaders>();
-	const [filterTableHeadersState, setFilterTableHeadersState] = useState<SortingState>(SortingState.DESCENDING);
-
 	const [filterSelectAll, setFilterSelectAll] = useState(false);
 	const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
@@ -174,9 +171,6 @@ export default function ManageProducts({ user }: PageProps) {
 	}, [productToEdit]);
 
 	const changeSorting = (selector: TableHeaders, state: SortingState) => {
-		setFilterTableHeaders(selector);
-		setFilterTableHeadersState(state);
-
 		switch (selector) {
 			case TableHeaders.NAME:
 				if (state === SortingState.ASCENDING) {
