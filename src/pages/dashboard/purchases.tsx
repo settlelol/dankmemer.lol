@@ -4,7 +4,7 @@ import { GetServerSideProps } from "next";
 import { useEffect, useState } from "react";
 import Container from "src/components/control/Container";
 import DashboardLinks from "src/components/control/DashboardLinks";
-import PurchaseRow from "src/components/control/Table/PurchaseRow";
+import PurchaseRow from "src/components/control/Table/rows/Purchases";
 import LoadingPepe from "src/components/LoadingPepe";
 import { Title } from "src/components/Title";
 import { PageProps } from "src/types";
