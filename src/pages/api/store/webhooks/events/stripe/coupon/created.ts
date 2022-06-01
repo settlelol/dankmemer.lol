@@ -14,7 +14,7 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 	const fields: APIEmbedField[] = [
 		{
 			name: "Name",
-			value: `${coupon.name || "No name"} (\`${promotion.code}\`)`,
+			value: `${coupon.name || "No name"}${promotion ? ` (\`${promotion.code}\`)` : ""}`,
 			inline: true,
 		},
 		{
@@ -31,11 +31,13 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 		},
 	];
 
-	if (promotion.max_redemptions || coupon.max_redemptions) {
+	if ((promotion && promotion.max_redemptions) || coupon.max_redemptions) {
 		fields.push({
 			name: "Maximum redemptions",
 			value: `${coupon.max_redemptions ? `• Maximum coupon redemptions: ${coupon.max_redemptions}\n` : ""}${
-				promotion.max_redemptions ? `• Maximum code redemptions: ${promotion.max_redemptions}\n` : ""
+				promotion && promotion.max_redemptions
+					? `• Maximum code redemptions: ${promotion.max_redemptions}\n`
+					: ""
 			}`,
 			inline: true,
 		});
@@ -61,7 +63,7 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 		});
 	}
 
-	if (promotion.restrictions.first_time_transaction || promotion.restrictions.minimum_amount) {
+	if (promotion && (promotion.restrictions.first_time_transaction || promotion.restrictions.minimum_amount)) {
 		fields.push({
 			name: "Restrictions",
 			value: `${
@@ -79,16 +81,16 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 		});
 	}
 
-	if (promotion.expires_at || coupon.redeem_by) {
+	if ((promotion && promotion.expires_at) || coupon.redeem_by) {
 		fields.push({
 			name: "Expirations",
 			value: `${coupon.redeem_by ? `Coupon expires at <t:${coupon.redeem_by}>\n` : ""}${
-				promotion.expires_at ? `Code expires at <t:${promotion.expires_at}>` : ""
+				promotion && promotion.expires_at ? `Code expires at <t:${promotion.expires_at}>` : ""
 			}`,
 		});
 	}
 
-	if (promotion.customer) {
+	if (promotion && promotion.customer) {
 		const customer = (await stripe.customers.retrieve(promotion.customer as string)) as Stripe.Customer;
 		fields.push({
 			name: "Customer",
