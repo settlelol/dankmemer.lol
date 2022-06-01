@@ -64,7 +64,7 @@ export default function ControlPanelContainer({
 
 	return (
 		<>
-			<Head>{title && <NextSeo title={`Dank Memer | ${title}`} />}</Head>
+			{title && <NextSeo title={`Dank Memer | ${title}`} />}
 			<ToastContainer position="top-center" theme="colored" />
 			{rightPaneVisible ? (
 				<div
