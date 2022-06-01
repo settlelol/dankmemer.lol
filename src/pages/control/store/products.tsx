@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import { AnyProduct } from "src/pages/store";
 import Checkbox from "src/components/ui/Checkbox";
 import Input from "src/components/store/Input";
-import ProductRow from "src/components/control/store/ProductRow";
+import ProductRow from "src/components/control/Table/ProductRow";
 import clsx from "clsx";
 import ProductEditor from "src/components/control/store/ProductEditor";
 import CheckboxHead from "src/components/control/store/CheckboxHead";
