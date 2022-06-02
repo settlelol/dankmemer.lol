@@ -39,10 +39,6 @@ export default function Table({ heads, sort, body }: Props) {
 	const [sortedColumn, setSortedColumn] = useState<number>();
 	const [sortingState, setSortingState] = useState<SortingState>(SortingState.DESCENDING);
 
-	useEffect(() => {
-		console.log(sortedColumn);
-	}, [sortedColumn]);
-
 	return (
 		<table
 			style={{ borderSpacing: "0 0.3rem" }}
@@ -55,8 +51,8 @@ export default function Table({ heads, sort, body }: Props) {
 							head.type === "Sortable"
 								? sortableHeads.current.findIndex((el) => el.name === head.name)
 								: null;
-
-						if (!head.hidden && head.type === "Sortable") {
+						if (head.hidden) return <></>;
+						if (head.type === "Sortable") {
 							return (
 								<Head
 									key={i}
