@@ -31,10 +31,10 @@ export type ColumnData = FilterableColumnData | UnfilterableColumnData;
 interface Props {
 	heads: ColumnData[];
 	sort(selector: number, state: SortingState): void;
-	body: ReactNode;
+	children: ReactNode;
 }
 
-export default function Table({ heads, sort, body }: Props) {
+export default function Table({ heads, sort, children }: Props) {
 	const sortableHeads = useRef(heads.filter((head) => head.type === "Sortable"));
 	const [sortedColumn, setSortedColumn] = useState<number>();
 	const [sortingState, setSortingState] = useState<SortingState>(SortingState.DESCENDING);
@@ -90,7 +90,7 @@ export default function Table({ heads, sort, body }: Props) {
 			</thead>
 			{/* Required to add additional spacing between the thead and tbody elements */}
 			<div className="h-4" />
-			<tbody>{body}</tbody>
+			<tbody>{children}</tbody>
 		</table>
 	);
 }

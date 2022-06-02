@@ -174,79 +174,84 @@ export default function ManageProducts({ user }: PageProps) {
 		switch (selector) {
 			case TableHeaders.NAME:
 				if (state === SortingState.ASCENDING) {
-					setDisplayedProducts((products) => products.sort((a, b) => a.name.localeCompare(b.name)));
+					setDisplayedProducts([...displayedProducts.sort((a, b) => a.name.localeCompare(b.name))]);
 				} else {
-					setDisplayedProducts((products) => products.sort((a, b) => b.name.localeCompare(a.name)));
+					setDisplayedProducts([...displayedProducts.sort((a, b) => b.name.localeCompare(a.name))]);
 				}
 				break;
 			case TableHeaders.PRICES:
 				if (state === SortingState.ASCENDING) {
-					setDisplayedProducts((products) => products.sort((a, b) => a.prices[0].price - b.prices[0].price));
+					setDisplayedProducts([...displayedProducts.sort((a, b) => a.prices[0].price - b.prices[0].price)]);
 				} else {
-					setDisplayedProducts((products) =>
-						products.sort(
+					setDisplayedProducts([
+						...displayedProducts.sort(
 							(a, b) =>
 								b.prices.reduce((prev, { price: curr }) => prev + curr, 0) -
 								a.prices.reduce((prev, { price: curr }) => prev + curr, 0)
-						)
-					);
+						),
+					]);
 				}
 				break;
 			case TableHeaders.LAST_UPDATED:
 				if (state === SortingState.ASCENDING) {
-					setDisplayedProducts((products) =>
-						products.sort(
+					setDisplayedProducts([
+						...displayedProducts.sort(
 							(a, b) => (parseInt(b.metadata.lastUpdated) || 0) - (parseInt(a.metadata.lastUpdated) || 0)
-						)
-					);
+						),
+					]);
 				} else {
-					setDisplayedProducts((products) =>
-						products.sort(
+					setDisplayedProducts([
+						...displayedProducts.sort(
 							(a, b) => (parseInt(a.metadata.lastUpdated) || 0) - (parseInt(b.metadata.lastUpdated) || 0)
-						)
-					);
+						),
+					]);
 				}
 				break;
 			case TableHeaders.TOTAL_SALES:
 				if (state === SortingState.ASCENDING) {
-					setDisplayedProducts((products) =>
-						products.sort(
+					setDisplayedProducts([
+						...displayedProducts.sort(
 							(a, b) =>
 								(salesData?.productSales.find((prod) => prod._id === a.id)?.sales || 0) -
 								(salesData?.productSales.find((prod) => prod._id === b.id)?.sales || 0)
-						)
-					);
+						),
+					]);
 				} else {
-					setDisplayedProducts((products) =>
-						products.sort(
+					setDisplayedProducts([
+						...displayedProducts.sort(
 							(a, b) =>
 								(salesData?.productSales.find((prod) => prod._id === b.id)?.sales || 0) -
 								(salesData?.productSales.find((prod) => prod._id === a.id)?.sales || 0)
-						)
-					);
+						),
+					]);
 				}
 				break;
 			case TableHeaders.TOTAL_REVENUE:
 				if (state === SortingState.ASCENDING) {
-					setDisplayedProducts((products) =>
-						products.sort(
+					setDisplayedProducts([
+						...displayedProducts.sort(
 							(a, b) =>
 								(salesData?.productSales.find((prod) => prod._id === a.id)?.revenue || 0) -
 								(salesData?.productSales.find((prod) => prod._id === b.id)?.revenue || 0)
-						)
-					);
+						),
+					]);
 				} else {
-					setDisplayedProducts((products) =>
-						products.sort(
+					setDisplayedProducts([
+						...displayedProducts.sort(
 							(a, b) =>
 								(salesData?.productSales.find((prod) => prod._id === b.id)?.revenue || 0) -
 								(salesData?.productSales.find((prod) => prod._id === a.id)?.revenue || 0)
-						)
-					);
+						),
+					]);
 				}
 				break;
 		}
 	};
+
+	useEffect(() => {
+		if (!displayedProducts[0] || !displayedProducts[0].name) return;
+		console.log(displayedProducts[0].name);
+	}, [displayedProducts]);
 
 	const changeColumnVisibility = (i: number, newState: boolean) => {
 		let _tableHeads = [...tableHeads];
@@ -335,10 +340,8 @@ export default function ManageProducts({ user }: PageProps) {
 							</Button>
 						</div>
 					</div>
-					<Table
-						heads={tableHeads}
-						sort={changeSorting}
-						body={displayedProducts.map((product, i) => (
+					<Table heads={tableHeads} sort={changeSorting}>
+						{displayedProducts.map((product, i) => (
 							<ProductRow
 								key={product.id}
 								id={product.id}
@@ -373,7 +376,7 @@ export default function ManageProducts({ user }: PageProps) {
 								}}
 							/>
 						))}
-					/>
+					</Table>
 				</div>
 			</main>
 		</ControlPanelContainer>

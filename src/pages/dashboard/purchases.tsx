@@ -16,10 +16,10 @@ import PurchaseViewer from "src/components/dashboard/account/purchases/PurchaseV
 import Table, { ColumnData, SortingState } from "src/components/control/Table";
 
 enum TableHeaders {
-	ORDER = 1,
-	DATE = 2,
-	COST = 3,
-	GOODS = 4,
+	ORDER = 0,
+	DATE = 1,
+	COST = 2,
+	GOODS = 3,
 }
 
 export default function PurchaseHistory({ user }: PageProps) {
@@ -99,7 +99,6 @@ export default function PurchaseHistory({ user }: PageProps) {
 						(a, b) => b.purchaseTime - a.purchaseTime
 					)
 				);
-				changeSorting(TableHeaders.DATE, SortingState.ASCENDING);
 			})
 			.catch(() => {
 				console.error("no history");
@@ -116,60 +115,57 @@ export default function PurchaseHistory({ user }: PageProps) {
 	}, [filterSearch]);
 
 	const changeSorting = (selector: TableHeaders, state: SortingState) => {
-		setFilterTableHeaders(selector);
-		setFilterTableHeadersState(state);
-
 		switch (selector) {
 			case TableHeaders.ORDER:
 				if (state === SortingState.ASCENDING) {
-					setDisplayedPurchases((purchases) => purchases.sort((a, b) => a._id.localeCompare(b._id)));
+					setDisplayedPurchases([...displayedPurchases.sort((a, b) => a._id.localeCompare(b._id))]);
 				} else {
-					setDisplayedPurchases((purchases) => purchases.sort((a, b) => b._id.localeCompare(a._id)));
+					setDisplayedPurchases([...displayedPurchases.sort((a, b) => b._id.localeCompare(a._id))]);
 				}
 				break;
 			case TableHeaders.COST:
 				if (state === SortingState.ASCENDING) {
-					setDisplayedPurchases((purchases) =>
-						purchases.sort(
+					setDisplayedPurchases([
+						...displayedPurchases.sort(
 							(a, b) =>
 								a.items.reduce((prev, curr) => prev + curr.price, 0) -
 								b.items.reduce((prev, curr) => prev + curr.price, 0)
-						)
-					);
+						),
+					]);
 				} else {
-					setDisplayedPurchases((products) =>
-						products.sort(
+					setDisplayedPurchases([
+						...displayedPurchases.sort(
 							(a, b) =>
 								b.items.reduce((prev, curr) => prev + curr.price, 0) -
 								a.items.reduce((prev, curr) => prev + curr.price, 0)
-						)
-					);
+						),
+					]);
 				}
 				break;
 			case TableHeaders.DATE:
 				if (state === SortingState.ASCENDING) {
-					setDisplayedPurchases((purchases) => purchases.sort((a, b) => b.purchaseTime - a.purchaseTime));
+					setDisplayedPurchases([...displayedPurchases.sort((a, b) => b.purchaseTime - a.purchaseTime)]);
 				} else {
-					setDisplayedPurchases((purchases) => purchases.sort((a, b) => a.purchaseTime - b.purchaseTime));
+					setDisplayedPurchases([...displayedPurchases.sort((a, b) => a.purchaseTime - b.purchaseTime)]);
 				}
 				break;
 			case TableHeaders.GOODS:
 				if (state === SortingState.ASCENDING) {
-					setDisplayedPurchases((purchases) =>
-						purchases.sort(
+					setDisplayedPurchases([
+						...displayedPurchases.sort(
 							(a, b) =>
 								a.items.reduce((prev, curr) => prev + curr.quantity, 0) -
 								b.items.reduce((prev, curr) => prev + curr.quantity, 0)
-						)
-					);
+						),
+					]);
 				} else {
-					setDisplayedPurchases((purchases) =>
-						purchases.sort(
+					setDisplayedPurchases([
+						...displayedPurchases.sort(
 							(a, b) =>
 								b.items.reduce((prev, curr) => prev + curr.quantity, 0) -
 								a.items.reduce((prev, curr) => prev + curr.quantity, 0)
-						)
-					);
+						),
+					]);
 				}
 				break;
 		}
@@ -210,17 +206,15 @@ export default function PurchaseHistory({ user }: PageProps) {
 					{loading ? (
 						<LoadingPepe />
 					) : purchases.length >= 1 ? (
-						<Table
-							heads={tableHeads}
-							sort={changeSorting}
-							body={displayedPurchases.map((purchase) => (
+						<Table heads={tableHeads} sort={changeSorting}>
+							{displayedPurchases.map((purchase) => (
 								<PurchaseRow
 									key={purchase._id}
 									purchase={purchase}
 									viewDetails={() => showPurchase(purchase)}
 								/>
 							))}
-						/>
+						</Table>
 					) : (
 						<p>No purchases made</p>
 					)}
