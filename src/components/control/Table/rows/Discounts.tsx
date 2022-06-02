@@ -151,7 +151,7 @@ export default function DiscountRow({
 							"group-hover:bg-neutral-100 dark:group-hover:bg-dark-100/50"
 						)}
 					>
-						<p>{toTitleCase(duration.label)}</p>
+						<p>{duration.months ? <>{duration.months} months</> : toTitleCase(duration.label)}</p>
 					</td>
 				)}
 				{!hiddenColumns![5] && (

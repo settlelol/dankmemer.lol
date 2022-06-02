@@ -76,7 +76,7 @@ export default function ManageDiscounts({ user }: PageProps) {
 		{
 			type: "Sortable",
 			name: "Redemptions",
-			width: "w-36",
+			width: "w-32",
 			rtl: true,
 			hidden: false,
 		},
@@ -90,7 +90,7 @@ export default function ManageDiscounts({ user }: PageProps) {
 		{
 			type: "Sortable",
 			name: "Expires",
-			width: "w-40",
+			width: "w-52",
 			rtl: true,
 			hidden: false,
 		},
