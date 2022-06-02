@@ -51,7 +51,7 @@ export default function TableHead({
 			)}
 		>
 			<p
-				className={clsx("flex items-center justify-start space-x-1", rtl && "float-right -mr-2")}
+				className={clsx("flex select-none items-center justify-start space-x-1", rtl && "float-right -mr-2")}
 				onClick={onClick}
 			>
 				<span>{content ?? name}</span>
