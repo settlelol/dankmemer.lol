@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { MouseEventHandler, ReactNode } from "react";
-import TableSortIcon, { TableHeadersState } from "./SortIcon";
+import { SortingState } from ".";
+import TableSortIcon from "./SortIcon";
 
 interface Column {
 	className?: string;
@@ -12,7 +13,7 @@ export interface SortableColumn extends Column {
 	name: ReactNode;
 	content?: never;
 	width: string;
-	state: TableHeadersState;
+	state: SortingState;
 	active: boolean;
 	onClick: MouseEventHandler<HTMLParagraphElement>;
 }
@@ -49,8 +50,11 @@ export default function TableHead({
 				"bg-light-500 py-3 font-normal dark:bg-dark-100"
 			)}
 		>
-			<p className={clsx("flex", rtl && "float-right")} onClick={onClick}>
-				{content ?? name}
+			<p
+				className={clsx("flex items-center justify-start space-x-1", rtl && "float-right -mr-2")}
+				onClick={onClick}
+			>
+				<span>{content ?? name}</span>
 				{type === "Sortable" && <TableSortIcon active={active} current={state} />}
 			</p>
 		</th>

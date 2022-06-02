@@ -9,7 +9,7 @@ interface Props {
 
 export default function TableSortIcon({ active, current }: Props) {
 	return (
-		<div className="ml-3 grid place-items-center">
+		<div className="grid h-4 w-4 place-items-center">
 			<Iconify
 				icon="carbon:chevron-sort-up"
 				className={clsx(
