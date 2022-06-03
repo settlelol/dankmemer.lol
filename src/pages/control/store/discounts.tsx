@@ -1,35 +1,24 @@
 import axios from "axios";
-import { formatDistance } from "date-fns";
+import { formatRelative } from "date-fns";
 import { GetServerSideProps } from "next";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import ControlPanelContainer from "src/components/control/Container";
 import { PageProps } from "src/types";
 import { developerRoute } from "src/util/redirects";
 import { withSession } from "src/util/session";
-import { toast } from "react-toastify";
-import { AnyProduct } from "src/pages/store";
 import Checkbox from "src/components/ui/Checkbox";
 import Input from "src/components/store/Input";
-import clsx from "clsx";
-import ProductEditor from "src/components/control/store/ProductEditor";
-import CheckboxHead from "src/components/control/store/CheckboxHead";
-import Dropdown from "src/components/ui/Dropdown";
-import { Icon as Iconify } from "@iconify/react";
 import Button from "src/components/ui/Button";
 import ProductCreator from "src/components/control/store/ProductCreator";
 import ControlLinks from "src/components/control/ControlLinks";
-import Table, { ColumnData, SortingState } from "src/components/control/Table";
-import DiscountRow, { Discount } from "src/components/control/Table/rows/Discounts";
-
-enum TableHeaders {
-	NAME = 0,
-	CODE = 1,
-	REDEMPTIONS = 2,
-	CREATED = 3,
-	EXPIRES = 4,
-}
+import Table from "src/components/control/Table";
+import { Discount } from "src/components/control/Table/rows/Discounts";
+import { toTitleCase } from "src/util/string";
+import { createTable, getCoreRowModel, getSortedRowModel, SortingState, useTableInstance } from "@tanstack/react-table";
+import ColumnVisibilty from "src/components/control/Table/ColumnSelector";
 
 export default function ManageDiscounts({ user }: PageProps) {
+	const { current: table } = useRef(createTable().setRowType<Discount>().setOptions({ enableSorting: true }));
 	const [discounts, setDiscounts] = useState<Discount[]>([]);
 	const [displayedDiscounts, setDisplayedDiscounts] = useState<Discount[]>([]);
 	const [editing, setEditing] = useState(false);
@@ -42,68 +31,116 @@ export default function ManageDiscounts({ user }: PageProps) {
 
 	const [showOptionsFor, setShowOptionsFor] = useState<string>("");
 
-	const [tableHeads, setTableHeads] = useState<ColumnData[]>([
-		{
-			type: "Unsortable",
-			content: <CheckboxHead change={setFilterSelectAll} />,
-			width: "w-10",
-			hidden: false,
+	const [columnVisibility, setColumnVisibility] = useState({});
+	const [sorting, setSorting] = useState<SortingState>([]);
+	const columns = useMemo(() => {
+		let index = 0;
+		return [
+			table.createDisplayColumn({
+				id: "select_boxes",
+				enableResizing: false,
+				enableHiding: false,
+				header: ({ instance }) => (
+					<Checkbox
+						className="mt-0"
+						state={instance.getIsAllRowsSelected()}
+						style="fill"
+						callback={instance.getToggleAllRowsSelectedHandler()}
+					>
+						<></>
+					</Checkbox>
+				),
+				cell: ({ row }) => (
+					<Checkbox
+						className="mt-0"
+						state={row.getIsSelected()}
+						style="fill"
+						callback={row.getToggleSelectedHandler()}
+					>
+						<></>
+					</Checkbox>
+				),
+				maxSize: 40,
+				size: 40,
+			}),
+			table.createDataColumn("name", {
+				header: "Name",
+				minSize: 320,
+			}),
+			table.createDataColumn("code", {
+				header: "Code",
+				size: 144,
+				cell: (code) => code.getValue() ?? <>&mdash;</>,
+			}),
+			table.createDataColumn("discountAmount", {
+				id: "discount_amount",
+				header: "Discount amount",
+				size: 240,
+				enableSorting: false,
+				cell: (amount) =>
+					amount.getValue().percent ? (
+						<>{amount.getValue().percent}% off</>
+					) : amount.getValue().dollars ? (
+						<>${(amount.getValue().dollars! / 100).toFixed(2)} off</>
+					) : (
+						<>&mdash;</>
+					),
+			}),
+			table.createDataColumn("duration", {
+				header: "Duration",
+				size: 144,
+				enableSorting: false,
+				cell: (duration) =>
+					duration.getValue().months ? (
+						<>{duration.getValue().months} months</>
+					) : (
+						toTitleCase(duration.getValue().label)
+					),
+			}),
+			table.createDataColumn("redemptions", {
+				id: `rtl_redemptions`,
+				header: "Redemptions",
+				size: 144,
+			}),
+			table.createDataColumn("created", {
+				id: `rtl_created`,
+				header: "Created",
+				size: 208,
+				cell: (created) =>
+					created.getValue() ? (
+						formatRelative(new Date(created.getValue() * 1000).getTime(), new Date().getTime())
+					) : (
+						<>&mdash;</>
+					),
+			}),
+			table.createDataColumn("expires", {
+				id: `rtl_expires`,
+				header: "Expires",
+				size: 208,
+				cell: (expires) =>
+					expires.getValue() ? (
+						formatRelative(new Date(expires.getValue()! * 1000).getTime(), new Date().getTime())
+					) : (
+						<>&mdash;</>
+					),
+			}),
+		];
+	}, []);
+
+	const instance = useTableInstance(table, {
+		data: displayedDiscounts,
+		columns,
+		state: {
+			sorting,
+			columnVisibility,
 		},
-		{
-			type: "Sortable",
-			name: "Name",
-			width: "w-80",
-			hidden: false,
-		},
-		{
-			type: "Sortable",
-			name: "Code",
-			width: "w-max",
-			hidden: false,
-		},
-		{
-			type: "Unsortable",
-			content: "Discount amount",
-			width: "w-60 !px-0",
-			hidden: false,
-		},
-		{
-			type: "Unsortable",
-			content: "Duration",
-			width: "w-36 !px-0",
-			hidden: false,
-		},
-		{
-			type: "Sortable",
-			name: "Redemptions",
-			width: "w-32",
-			rtl: true,
-			hidden: false,
-		},
-		{
-			type: "Sortable",
-			name: "Created",
-			width: "w-52",
-			rtl: true,
-			hidden: false,
-		},
-		{
-			type: "Sortable",
-			name: "Expires",
-			width: "w-52",
-			rtl: true,
-			hidden: false,
-		},
-		{
-			type: "Unsortable",
-			content: <></>,
-			width: "w-10",
-			hidden: false,
-		},
-	]);
+		onSortingChange: setSorting,
+		onColumnVisibilityChange: setColumnVisibility,
+		getCoreRowModel: getCoreRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+	});
 
 	useEffect(() => {
-		// Do api request for discount data
 		axios("/api/discounts/list").then(({ data }) => {
 			setDiscounts(data);
 			setDisplayedDiscounts(data);
@@ -140,57 +177,6 @@ export default function ManageDiscounts({ user }: PageProps) {
 			setEditing(true);
 		}
 	}, [discountToEdit]);
-
-	const changeSorting = (selector: number, state: SortingState) => {
-		switch (selector) {
-			case TableHeaders.NAME:
-				if (state === SortingState.ASCENDING) {
-					setDisplayedDiscounts([...displayedDiscounts.sort((a, b) => a.name.localeCompare(b.name))]);
-				} else {
-					setDisplayedDiscounts([...displayedDiscounts.sort((a, b) => b.name.localeCompare(a.name))]);
-				}
-				break;
-			case TableHeaders.CODE:
-				if (state === SortingState.ASCENDING) {
-					setDisplayedDiscounts([
-						...displayedDiscounts.sort((a, b) => (a.code ?? "").localeCompare(b.code ?? "")),
-					]);
-				} else {
-					setDisplayedDiscounts([
-						...displayedDiscounts.sort((a, b) => (b.code ?? "").localeCompare(a.code ?? "")),
-					]);
-				}
-				break;
-			case TableHeaders.REDEMPTIONS:
-				if (state === SortingState.ASCENDING) {
-					setDisplayedDiscounts([...displayedDiscounts.sort((a, b) => b.redemptions - a.redemptions)]);
-				} else {
-					setDisplayedDiscounts([...displayedDiscounts.sort((a, b) => a.redemptions - b.redemptions)]);
-				}
-				break;
-			case TableHeaders.CREATED:
-				if (state === SortingState.ASCENDING) {
-					setDisplayedDiscounts([...displayedDiscounts.sort((a, b) => (b.created || 0) - (a.created || 0))]);
-				} else {
-					setDisplayedDiscounts([...displayedDiscounts.sort((a, b) => (a.created || 0) - (b.created || 0))]);
-				}
-				break;
-			case TableHeaders.EXPIRES:
-				if (state === SortingState.ASCENDING) {
-					setDisplayedDiscounts([...discounts.sort((a, b) => (b.expires || 0) - (a.expires || 0))]);
-				} else {
-					setDisplayedDiscounts([...discounts.sort((a, b) => (a.expires || 0) - (b.expires || 0))]);
-				}
-				break;
-		}
-	};
-
-	const changeColumnVisibility = (i: number, newState: boolean) => {
-		let _tableHeads = [...tableHeads];
-		_tableHeads[i].hidden = newState;
-
-		setTableHeads(_tableHeads);
-	};
 
 	const createProduct = () => {
 		setEditorContent(<ProductCreator forceHide={() => setEditing(false)} />);
@@ -230,78 +216,13 @@ export default function ManageDiscounts({ user }: PageProps) {
 							/>
 						</div>
 						<div className="order-2 mt-8 flex items-center justify-center space-x-4">
-							<div className="">
-								<Dropdown
-									content={
-										<div
-											className={clsx(
-												"flex items-center justify-center",
-												"rounded-md border-[1px] border-[#3C3C3C]",
-												"bg-light-500 transition-colors dark:bg-dark-100 dark:text-neutral-400 hover:dark:text-neutral-200",
-												"w-40 px-3 py-2 text-sm"
-											)}
-										>
-											<p>Visible columns</p>
-											<Iconify icon="ic:baseline-expand-more" height={15} className="ml-1" />
-										</div>
-									}
-									options={tableHeads.map((column, i) => {
-										if (typeof column.name === "string") {
-											return {
-												label: (
-													<div className="flex items-center justify-start">
-														<Checkbox
-															state={!column.hidden}
-															style={"fill"}
-															className="!mt-0"
-															callback={() => changeColumnVisibility(i, !column.hidden)}
-														>
-															<p className="text-sm">{column.name}</p>
-														</Checkbox>
-													</div>
-												),
-											};
-										} else {
-											return null;
-										}
-									})}
-									isInput={false}
-									requireScroll={false}
-								/>
-							</div>
+							<ColumnVisibilty instance={instance} />
 							<Button variant="primary" className="w-max" onClick={createProduct}>
 								Create a Discount
 							</Button>
 						</div>
 					</div>
-					<Table heads={tableHeads} sort={changeSorting}>
-						{displayedDiscounts.map((discount, i) => (
-							<DiscountRow
-								key={discount.id}
-								id={discount.id}
-								hiddenColumns={tableHeads.map((c) => c.hidden)}
-								reverseOptions={displayedDiscounts.length - 2 <= i}
-								selected={selectedDiscounts.includes(discount.id)}
-								name={discount.name}
-								code={discount.code}
-								discountAmount={discount.discountAmount}
-								duration={discount.duration}
-								redemptions={discount.redemptions}
-								created={discount.created}
-								expires={discount.expires}
-								select={() => setSelectedDiscounts((discounts) => [...discounts, discount.id])}
-								deselect={() =>
-									setSelectedDiscounts((discounts) => discounts.filter((id) => id !== discount.id))
-								}
-								showOptionsFor={setShowOptionsFor}
-								showOptions={showOptionsFor === discount.id}
-								editProduct={() => {
-									setShowOptionsFor("");
-									setDiscountToEdit(discount);
-								}}
-							/>
-						))}
-					</Table>
+					<Table instance={instance} />
 				</div>
 			</main>
 		</ControlPanelContainer>

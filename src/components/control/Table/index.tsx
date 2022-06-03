@@ -1,11 +1,12 @@
 import clsx from "clsx";
-import { ReactNode, useEffect, useRef, useState } from "react";
-import Head from "./Head";
+import { ReactNode } from "react";
+import TableSortIcon from "./SortIcon";
+import { TableInstance } from "@tanstack/react-table";
 
 interface FilterableColumnData {
+	id: number;
 	type: "Sortable";
 	name: string;
-	// Instead of using this, create an array of "Sortable" columns and get the index of the clicked one
 	content?: never;
 	width: string;
 	rtl?: boolean;
@@ -13,11 +14,12 @@ interface FilterableColumnData {
 }
 
 interface UnfilterableColumnData {
+	id: number;
 	type: "Unsortable";
 	name?: never;
-	selector?: never;
 	content: ReactNode;
 	width: string;
+	rtl?: never;
 	hidden: boolean;
 }
 
@@ -29,68 +31,68 @@ export enum SortingState {
 export type ColumnData = FilterableColumnData | UnfilterableColumnData;
 
 interface Props {
-	heads: ColumnData[];
-	sort(selector: number, state: SortingState): void;
-	children: ReactNode;
+	instance: TableInstance<any>;
 }
 
-export default function Table({ heads, sort, children }: Props) {
-	const sortableHeads = useRef(heads.filter((head) => head.type === "Sortable"));
-	const [sortedColumn, setSortedColumn] = useState<number>();
-	const [sortingState, setSortingState] = useState<SortingState>(SortingState.DESCENDING);
-
+export default function Table({ instance }: Props) {
 	return (
-		<table
-			style={{ borderSpacing: "0 0.3rem" }}
-			className="relative mt-4 w-full border-separate overflow-hidden rounded-lg border-none text-left text-neutral-600 dark:text-neutral-300"
-		>
-			<thead>
-				<tr>
-					{heads.map((head, i) => {
-						const selector: number | null =
-							head.type === "Sortable"
-								? sortableHeads.current.findIndex((el) => el.name === head.name)
-								: null;
-						if (head.hidden) return <></>;
-						if (head.type === "Sortable") {
-							return (
-								<Head
-									key={i}
-									type={head.type}
-									name={head.name}
-									width={head.width}
-									state={sortingState}
-									active={sortedColumn === selector}
-									rtl={head.rtl}
-									className={clsx(i === 0 && "rounded-l-lg", i === heads.length && "rounded-r-lg")}
-									onClick={() => {
-										setSortedColumn(selector!);
-										setSortingState(+!sortingState);
-										sort(selector!, +!sortingState);
-									}}
-								/>
-							);
-						} else {
-							return (
-								<Head
-									key={i}
+		<div className="relative mt-4 w-full overflow-hidden text-neutral-600 dark:text-neutral-300">
+			<div className="flex h-12 w-full select-none items-center rounded-lg bg-light-500 px-5 py-3 font-normal dark:bg-dark-100">
+				{instance.getHeaderGroups().map((headerGroup) =>
+					headerGroup.headers.map((header) => {
+						const sortable = header.column.getCanSort();
+						return (
+							<div
+								style={{
+									width: header.getSize(),
+								}}
+								className={clsx(sortable && "cursor-pointer", header.column.id !== "select" && "grow")}
+								onClick={() => header.column.toggleSorting()}
+							>
+								<div
 									className={clsx(
-										i === 0 && "rounded-l-lg",
-										i === heads.length - 1 && "rounded-r-lg",
-										"px-5"
+										"flex grow items-center justify-start space-x-1",
+										header.column.id.includes("rtl") && "float-right",
+										sortable && "-mr-1"
 									)}
-									type={"Unsortable"}
-									content={head.content}
-									width={head.width}
-								/>
-							);
-						}
-					})}
-				</tr>
-			</thead>
-			{/* Required to add additional spacing between the thead and tbody elements */}
-			<div className="h-4" />
-			<tbody>{children}</tbody>
-		</table>
+								>
+									<p>{header.renderHeader()}</p>
+									{sortable && (
+										<TableSortIcon
+											active={header.column.getIsSorted() ? true : false}
+											current={header.column.getIsSorted() as "asc" | "desc" | undefined}
+										/>
+									)}
+								</div>
+							</div>
+						);
+					})
+				)}
+			</div>
+			<div className="mt-5 w-full text-sm">
+				{instance.getRowModel().rows.map((row) => (
+					<div
+						key={row.id}
+						className={clsx(
+							"mb-2 flex h-12 w-full grow items-center justify-between rounded-lg px-5 hover:bg-neutral-100 dark:hover:bg-dark-100/50",
+							row.getIsSelected() && "bg-neutral-100 dark:bg-dark-100/50"
+						)}
+					>
+						{row.getVisibleCells().map((cell) => (
+							<p
+								key={cell.id}
+								style={{ width: cell.column.getSize() }}
+								className={clsx(
+									cell.column.id.includes("rtl") && "text-right",
+									cell.column.id !== "select" && "grow"
+								)}
+							>
+								{cell.renderCell()}
+							</p>
+						))}
+					</div>
+				))}
+			</div>
+		</div>
 	);
 }
