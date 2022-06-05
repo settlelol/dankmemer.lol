@@ -14,28 +14,36 @@ import ControlLinks from "src/components/control/ControlLinks";
 import Table from "src/components/control/Table";
 import { Discount } from "src/components/control/Table/rows/Discounts";
 import { toTitleCase } from "src/util/string";
-import { createTable, getCoreRowModel, getSortedRowModel, SortingState, useTableInstance } from "@tanstack/react-table";
-import ColumnVisibilty from "src/components/control/Table/ColumnSelector";
+import {
+	createTable,
+	getCoreRowModel,
+	getFilteredRowModel,
+	getPaginationRowModel,
+	getSortedRowModel,
+	PaginationState,
+	SortingState,
+	useTableInstance,
+} from "@tanstack/react-table";
+import ColumnSelector from "src/components/control/Table/ColumnSelector";
 
 export default function ManageDiscounts({ user }: PageProps) {
 	const { current: table } = useRef(createTable().setRowType<Discount>().setOptions({ enableSorting: true }));
 	const [discounts, setDiscounts] = useState<Discount[]>([]);
-	const [displayedDiscounts, setDisplayedDiscounts] = useState<Discount[]>([]);
 	const [editing, setEditing] = useState(false);
 	const [editorContent, setEditorContent] = useState<ReactNode>();
 	const [discountToEdit, setDiscountToEdit] = useState<Discount | null>(null);
-
-	const [filterSearch, setFilterSearch] = useState("");
-	const [filterSelectAll, setFilterSelectAll] = useState(false);
-	const [selectedDiscounts, setSelectedDiscounts] = useState<string[]>([]);
 
 	const [showOptionsFor, setShowOptionsFor] = useState<string>("");
 
 	const [columnVisibility, setColumnVisibility] = useState({});
 	const [sorting, setSorting] = useState<SortingState>([]);
-	const columns = useMemo(() => {
-		let index = 0;
-		return [
+	const [pagination, setPagination] = useState<PaginationState>({
+		pageIndex: 0,
+		pageSize: 10,
+	});
+
+	const columns = useMemo(
+		() => [
 			table.createDisplayColumn({
 				id: "select_boxes",
 				enableResizing: false,
@@ -124,50 +132,32 @@ export default function ManageDiscounts({ user }: PageProps) {
 						<>&mdash;</>
 					),
 			}),
-		];
-	}, []);
+		],
+		[]
+	);
 
 	const instance = useTableInstance(table, {
-		data: displayedDiscounts,
+		data: discounts,
 		columns,
 		state: {
 			sorting,
+			pagination,
 			columnVisibility,
 		},
 		onSortingChange: setSorting,
+		onPaginationChange: setPagination,
 		onColumnVisibilityChange: setColumnVisibility,
 		getCoreRowModel: getCoreRowModel(),
 		getSortedRowModel: getSortedRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
 	});
 
 	useEffect(() => {
 		axios("/api/discounts/list").then(({ data }) => {
 			setDiscounts(data);
-			setDisplayedDiscounts(data);
 		});
 	}, []);
-
-	useEffect(() => {
-		if (filterSelectAll) {
-			return setSelectedDiscounts(displayedDiscounts.map((product) => product.id));
-		} else {
-			return setSelectedDiscounts(
-				selectedDiscounts.length >= 1 && selectedDiscounts.length !== displayedDiscounts.length
-					? selectedDiscounts
-					: []
-			);
-		}
-	}, [filterSelectAll]);
-
-	useEffect(() => {
-		setDisplayedDiscounts(discounts.filter((prod) => prod.name.toLowerCase().includes(filterSearch.toLowerCase())));
-	}, [filterSearch]);
-
-	useEffect(() => {
-		if (filterSelectAll && selectedDiscounts.length !== displayedDiscounts.length) {
-			setFilterSelectAll(false);
-		}
-	}, [selectedDiscounts]);
 
 	useEffect(() => {
 		if (!discountToEdit) {
@@ -211,12 +201,12 @@ export default function ManageDiscounts({ user }: PageProps) {
 								className="mt-8 !bg-light-500 dark:!bg-dark-100"
 								placeholder="Search for a discount"
 								type={"search"}
-								value={filterSearch}
-								onChange={(e) => setFilterSearch(e.target.value)}
+								value={(instance.getColumn("name").getFilterValue() ?? "") as string}
+								onChange={(e) => instance.getColumn("name").setFilterValue(e.target.value)}
 							/>
 						</div>
 						<div className="order-2 mt-8 flex items-center justify-center space-x-4">
-							<ColumnVisibilty instance={instance} />
+							<ColumnSelector instance={instance} />
 							<Button variant="primary" className="w-max" onClick={createProduct}>
 								Create a Discount
 							</Button>
