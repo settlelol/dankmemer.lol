@@ -50,7 +50,7 @@ export default function Table({ instance }: Props) {
 								}}
 								className={clsx(
 									sortable && "cursor-pointer",
-									header.column.id !== "select_boxes" && "grow"
+									header.column.id !== "select_boxes" && !header.column.id.startsWith("ng_") && "grow"
 								)}
 								{...(sortable && {
 									onClick: () => header.column.toggleSorting(),
@@ -91,7 +91,7 @@ export default function Table({ instance }: Props) {
 								style={{ width: cell.column.getSize() }}
 								className={clsx(
 									cell.column.id.includes("rtl") && "text-right",
-									cell.column.id !== "select_boxes" && "grow"
+									cell.column.id !== "select_boxes" && !cell.column.id.startsWith("ng_") && "grow"
 								)}
 							>
 								{cell.renderCell()}

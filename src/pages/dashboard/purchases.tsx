@@ -1,10 +1,8 @@
 import axios from "axios";
-import clsx from "clsx";
 import { GetServerSideProps } from "next";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Container from "src/components/control/Container";
 import DashboardLinks from "src/components/control/DashboardLinks";
-import PurchaseRow from "src/components/control/Table/rows/Purchases";
 import LoadingPepe from "src/components/LoadingPepe";
 import { Title } from "src/components/Title";
 import { PageProps } from "src/types";
@@ -13,88 +11,132 @@ import { withSession } from "src/util/session";
 import { AggregatedPurchaseRecordPurchases } from "../api/customers/history";
 import Input from "src/components/store/Input";
 import PurchaseViewer from "src/components/dashboard/account/purchases/PurchaseViewer";
-import Table, { ColumnData, SortingState } from "src/components/control/Table";
-
-enum TableHeaders {
-	ORDER = 0,
-	DATE = 1,
-	COST = 2,
-	GOODS = 3,
-}
+import Table from "src/components/control/Table";
+import {
+	createTable,
+	getCoreRowModel,
+	getFilteredRowModel,
+	getPaginationRowModel,
+	getSortedRowModel,
+	PaginationState,
+	SortingState,
+	useTableInstance,
+} from "@tanstack/react-table";
+import Tooltip from "src/components/ui/Tooltip";
+import { Icon as Iconify } from "@iconify/react";
+import { formatRelative } from "date-fns";
 
 export default function PurchaseHistory({ user }: PageProps) {
+	const { current: table } = useRef(
+		createTable().setRowType<AggregatedPurchaseRecordPurchases>().setOptions({ enableSorting: true })
+	);
+
 	const [loading, setLoading] = useState(true);
 	const [viewing, setViewing] = useState(false);
 	const [viewingPurchase, setViewingPurchase] = useState<AggregatedPurchaseRecordPurchases | undefined>();
 	const [purchases, setPurchases] = useState<AggregatedPurchaseRecordPurchases[]>([]);
 
-	const [displayedPurchases, setDisplayedPurchases] = useState<AggregatedPurchaseRecordPurchases[]>([]);
+	const [sorting, setSorting] = useState<SortingState>([]);
+	const [pagination, setPagination] = useState<PaginationState>({
+		pageIndex: 0,
+		pageSize: 10,
+	});
+	const columns = useMemo(
+		() => [
+			table.createDisplayColumn({
+				id: "ng_type",
+				header: "",
+				enableSorting: false,
+				cell: ({ row }) => (
+					<div className="-ml-3 grid w-full place-items-center">
+						{row.original!.type === "single" ? (
+							<Tooltip content="Single">
+								<Iconify icon="akar-icons:shipping-box-01" className="text-teal-600" height={18} />
+							</Tooltip>
+						) : (
+							<Tooltip content="Subscription">
+								<Iconify icon="wpf:recurring-appointment" className="text-green-500" />
+							</Tooltip>
+						)}
+					</div>
+				),
+				size: 40,
+				maxSize: 40,
+			}),
+			table.createDataColumn("_id", {
+				header: "Order ID",
+				cell: (id) => (
+					<p className="flex items-center justify-start space-x-2">
+						<span>{id.getValue()}</span>
+						{id.row.original?.isGift ? (
+							<Tooltip content={`Gifted to: ${id.row.original?.giftFor}`}>
+								<Iconify icon="bxs:gift" height={16} />
+							</Tooltip>
+						) : (
+							""
+						)}
+					</p>
+				),
+				size: 320,
+			}),
+			table.createDataColumn("purchaseTime", {
+				id: "rtl_date",
+				header: "Purchase date",
+				cell: (date) => <>{formatRelative(new Date(date.getValue()), new Date())}</>,
+			}),
+			table.createDataColumn("items", {
+				id: "rtl_cost",
+				header: `Cost before discounts`,
+				cell: (items) => {
+					const subtotal = items.getValue().reduce((curr: number, item) => curr + item.price, 0);
+					return <>${(subtotal + subtotal * 0.0675).toFixed(2)}</>;
+				},
+			}),
+			table.createDataColumn("items", {
+				id: "rtl_items",
+				header: "# of Goods",
+				cell: (items) => <>{items.getValue().reduce((prev, curr) => prev + curr.quantity, 0)}</>,
+			}),
+			table.createDisplayColumn({
+				id: "ng_actions",
+				header: "",
+				cell: ({ row }) => (
+					<div className="ml-3 grid w-full place-items-center">
+						<Iconify
+							icon="fluent:expand-up-left-16-filled"
+							hFlip={true}
+							height={18}
+							className="cursor-pointer"
+							onClick={() => showPurchase(row.original!)}
+						/>
+					</div>
+				),
+				size: 40,
+				maxSize: 40,
+			}),
+		],
+		[]
+	);
 
-	const [filterSearch, setFilterSearch] = useState("");
-	const [filterTableHeaders, setFilterTableHeaders] = useState<TableHeaders | null>();
-	const [filterTableHeadersState, setFilterTableHeadersState] = useState<SortingState>(SortingState.DESCENDING);
-	const [tableHeads, setTableHeads] = useState<ColumnData[]>([
-		{
-			type: "Unsortable",
-			content: <></>,
-			width: "w-10",
-			hidden: false,
+	const instance = useTableInstance(table, {
+		data: purchases,
+		columns,
+		state: {
+			sorting,
+			pagination,
 		},
-		{
-			type: "Sortable",
-			name: "Order ID",
-			width: "w-3/12",
-			hidden: false,
-		},
-		{
-			type: "Unsortable",
-			content: <>Gift</>,
-			width: "w-max",
-			hidden: false,
-		},
-		{
-			type: "Unsortable",
-			content: "Gifted to",
-			width: "w-3/12",
-			hidden: false,
-		},
-		{
-			type: "Sortable",
-			name: "Purchase date",
-			width: "min-w-[156px]",
-			hidden: false,
-		},
-		{
-			type: "Sortable",
-			name: "Cost",
-			width: "min-w-[110px]",
-			rtl: true,
-			hidden: false,
-		},
-		{
-			type: "Sortable",
-			name: "# of Goods",
-			width: "w-52",
-			rtl: true,
-			hidden: false,
-		},
-		{
-			type: "Unsortable",
-			content: <></>,
-			width: "w-10",
-			hidden: false,
-		},
-	]);
+		onSortingChange: setSorting,
+		onPaginationChange: setPagination,
+		getCoreRowModel: getCoreRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+	});
 
 	useEffect(() => {
 		axios(`/api/customers/history?id=${user!.id}`)
 			.then(({ data }) => {
 				setPurchases(
-					(data.history.purchases as AggregatedPurchaseRecordPurchases[]).sort(
-						(a, b) => b.purchaseTime - a.purchaseTime
-					)
-				);
-				setDisplayedPurchases(
 					(data.history.purchases as AggregatedPurchaseRecordPurchases[]).sort(
 						(a, b) => b.purchaseTime - a.purchaseTime
 					)
@@ -107,69 +149,6 @@ export default function PurchaseHistory({ user }: PageProps) {
 				setLoading(false);
 			});
 	}, []);
-
-	useEffect(() => {
-		setDisplayedPurchases(
-			purchases.filter((purchase) => purchase._id.toLowerCase().includes(filterSearch.toLowerCase()))
-		);
-	}, [filterSearch]);
-
-	const changeSorting = (selector: TableHeaders, state: SortingState) => {
-		switch (selector) {
-			case TableHeaders.ORDER:
-				if (state === SortingState.ASCENDING) {
-					setDisplayedPurchases([...displayedPurchases.sort((a, b) => a._id.localeCompare(b._id))]);
-				} else {
-					setDisplayedPurchases([...displayedPurchases.sort((a, b) => b._id.localeCompare(a._id))]);
-				}
-				break;
-			case TableHeaders.COST:
-				if (state === SortingState.ASCENDING) {
-					setDisplayedPurchases([
-						...displayedPurchases.sort(
-							(a, b) =>
-								a.items.reduce((prev, curr) => prev + curr.price, 0) -
-								b.items.reduce((prev, curr) => prev + curr.price, 0)
-						),
-					]);
-				} else {
-					setDisplayedPurchases([
-						...displayedPurchases.sort(
-							(a, b) =>
-								b.items.reduce((prev, curr) => prev + curr.price, 0) -
-								a.items.reduce((prev, curr) => prev + curr.price, 0)
-						),
-					]);
-				}
-				break;
-			case TableHeaders.DATE:
-				if (state === SortingState.ASCENDING) {
-					setDisplayedPurchases([...displayedPurchases.sort((a, b) => b.purchaseTime - a.purchaseTime)]);
-				} else {
-					setDisplayedPurchases([...displayedPurchases.sort((a, b) => a.purchaseTime - b.purchaseTime)]);
-				}
-				break;
-			case TableHeaders.GOODS:
-				if (state === SortingState.ASCENDING) {
-					setDisplayedPurchases([
-						...displayedPurchases.sort(
-							(a, b) =>
-								a.items.reduce((prev, curr) => prev + curr.quantity, 0) -
-								b.items.reduce((prev, curr) => prev + curr.quantity, 0)
-						),
-					]);
-				} else {
-					setDisplayedPurchases([
-						...displayedPurchases.sort(
-							(a, b) =>
-								b.items.reduce((prev, curr) => prev + curr.quantity, 0) -
-								a.items.reduce((prev, curr) => prev + curr.quantity, 0)
-						),
-					]);
-				}
-				break;
-		}
-	};
 
 	const showPurchase = (purchase: AggregatedPurchaseRecordPurchases) => {
 		setViewingPurchase(purchase);
@@ -197,8 +176,8 @@ export default function PurchaseHistory({ user }: PageProps) {
 							className="mt-8 !bg-light-500 dark:!bg-dark-100"
 							placeholder="Search for an order's ID"
 							type={"search"}
-							value={filterSearch}
-							onChange={(e) => setFilterSearch(e.target.value)}
+							value={(instance.getColumn("_id").getFilterValue() ?? "") as string}
+							onChange={(e) => instance.getColumn("_id").setFilterValue(e.target.value)}
 						/>
 					</div>
 				</div>
@@ -206,15 +185,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 					{loading ? (
 						<LoadingPepe />
 					) : purchases.length >= 1 ? (
-						<Table heads={tableHeads} sort={changeSorting}>
-							{displayedPurchases.map((purchase) => (
-								<PurchaseRow
-									key={purchase._id}
-									purchase={purchase}
-									viewDetails={() => showPurchase(purchase)}
-								/>
-							))}
-						</Table>
+						<Table instance={instance} />
 					) : (
 						<p>No purchases made</p>
 					)}
