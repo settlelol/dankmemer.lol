@@ -32,6 +32,7 @@ import Tooltip from "src/components/ui/Tooltip";
 import { Icon as Iconify } from "@iconify/react";
 import clsx from "clsx";
 import { formatRelative } from "date-fns";
+import LoadingPepe from "src/components/LoadingPepe";
 
 export interface ProductSales {
 	_id: string;
@@ -57,7 +58,7 @@ export interface ProductData {
 
 export default function ManageProducts({ user }: PageProps) {
 	const { current: table } = useRef(createTable().setRowType<ProductData>().setOptions({ enableSorting: true }));
-
+	const [loading, setLoading] = useState(true);
 	const [products, setProducts] = useState<ProductData[]>([]);
 	const [editing, setEditing] = useState(false);
 	const [editorContent, setEditorContent] = useState<ReactNode>();
@@ -198,6 +199,7 @@ export default function ManageProducts({ user }: PageProps) {
 		axios("/api/store/products/data")
 			.then(({ data }) => {
 				setProducts(data);
+				setLoading(false);
 			})
 			.catch((e) => {
 				console.error(e);
@@ -262,7 +264,15 @@ export default function ManageProducts({ user }: PageProps) {
 							</Button>
 						</div>
 					</div>
-					<Table instance={instance} />
+					<section className="flex flex-col space-y-5">
+						{loading ? (
+							<LoadingPepe />
+						) : products.length >= 1 ? (
+							<Table instance={instance} />
+						) : (
+							<p>No purchases made</p>
+						)}
+					</section>
 				</div>
 			</main>
 		</ControlPanelContainer>

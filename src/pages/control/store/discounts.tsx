@@ -24,6 +24,7 @@ import {
 	useTableInstance,
 } from "@tanstack/react-table";
 import ColumnSelector from "src/components/control/Table/ColumnSelector";
+import LoadingPepe from "src/components/LoadingPepe";
 
 export interface Discount {
 	id: string;
@@ -48,6 +49,7 @@ interface Duration {
 
 export default function ManageDiscounts({ user }: PageProps) {
 	const { current: table } = useRef(createTable().setRowType<Discount>().setOptions({ enableSorting: true }));
+	const [loading, setLoading] = useState(true);
 	const [discounts, setDiscounts] = useState<Discount[]>([]);
 	const [editing, setEditing] = useState(false);
 	const [editorContent, setEditorContent] = useState<ReactNode>();
@@ -176,6 +178,7 @@ export default function ManageDiscounts({ user }: PageProps) {
 	useEffect(() => {
 		axios("/api/discounts/list").then(({ data }) => {
 			setDiscounts(data);
+			setLoading(false);
 		});
 	}, []);
 
@@ -232,7 +235,15 @@ export default function ManageDiscounts({ user }: PageProps) {
 							</Button>
 						</div>
 					</div>
-					<Table instance={instance} />
+					<section className="flex flex-col space-y-5">
+						{loading ? (
+							<LoadingPepe />
+						) : discounts.length >= 1 ? (
+							<Table instance={instance} />
+						) : (
+							<p>No discounts exist</p>
+						)}
+					</section>
 				</div>
 			</main>
 		</ControlPanelContainer>

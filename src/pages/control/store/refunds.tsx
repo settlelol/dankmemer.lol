@@ -26,13 +26,13 @@ import { formatRelative } from "date-fns";
 import ControlLinks from "src/components/control/ControlLinks";
 import { toTitleCase } from "src/util/string";
 
-export default function PurchaseHistory({ user }: PageProps) {
+export default function Refunds({ user }: PageProps) {
 	const { current: table } = useRef(createTable().setRowType<Refund>().setOptions({ enableSorting: true }));
 
 	const [loading, setLoading] = useState(true);
 	const [viewing, setViewing] = useState(false);
 	const [viewingPurchase, setViewingPurchase] = useState<Refund>();
-	const [purchases, setPurchases] = useState<Refund[]>([]);
+	const [refunds, setRefunds] = useState<Refund[]>([]);
 
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [pagination, setPagination] = useState<PaginationState>({
@@ -116,7 +116,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 	);
 
 	const instance = useTableInstance(table, {
-		data: purchases,
+		data: refunds,
 		columns,
 		state: {
 			sorting,
@@ -133,7 +133,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 	useEffect(() => {
 		axios(`/api/customers/refunds`)
 			.then(({ data }) => {
-				setPurchases(data.refunds);
+				setRefunds(data.refunds);
 			})
 			.catch(() => {
 				console.error("no refunds");
@@ -177,7 +177,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 				<section className="flex flex-col space-y-5">
 					{loading ? (
 						<LoadingPepe />
-					) : purchases.length >= 1 ? (
+					) : refunds.length >= 1 ? (
 						<Table instance={instance} />
 					) : (
 						<p>No refunds have been made</p>
