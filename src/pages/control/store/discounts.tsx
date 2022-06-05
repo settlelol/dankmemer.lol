@@ -9,7 +9,6 @@ import { withSession } from "src/util/session";
 import Checkbox from "src/components/ui/Checkbox";
 import Input from "src/components/store/Input";
 import Button from "src/components/ui/Button";
-import ProductCreator from "src/components/control/store/ProductCreator";
 import ControlLinks from "src/components/control/ControlLinks";
 import Table from "src/components/control/Table";
 import { toTitleCase } from "src/util/string";
@@ -191,26 +190,20 @@ export default function ManageDiscounts({ user }: PageProps) {
 		}
 	}, [discountToEdit]);
 
-	const createProduct = () => {
-		setEditorContent(<ProductCreator forceHide={() => setEditing(false)} />);
-		setEditing(true);
+	const createDiscount = () => {
+		if (
+			confirm(
+				"Due to too many options being available when creating a discount, I made the decision to just redirect you to the Stripe dashboard.\n\nConfirm here to be redirected to the Stripe dashboard to create a coupon."
+			)
+		) {
+			window.location.href = `https://dashboard.stripe.com/${
+				process.env.NODE_ENV === "development" ? "test/" : "/"
+			}coupons/create`;
+		}
 	};
 
 	return (
-		<ControlPanelContainer
-			title={"Manage Discounts"}
-			hideRightPane={() => {
-				if (confirm("Are you sure you want to close the editor? All unsaved changes will be lost.")) {
-					setEditing(false);
-					setTimeout(() => {
-						setDiscountToEdit(null);
-					}, 400);
-				}
-			}}
-			rightPaneVisible={editing}
-			rightPaneContent={editorContent}
-			links={<ControlLinks user={user!} />}
-		>
+		<ControlPanelContainer title={"Manage Discounts"} links={<ControlLinks user={user!} />}>
 			<main>
 				<div className="flex min-h-screen flex-col">
 					<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">
@@ -230,7 +223,7 @@ export default function ManageDiscounts({ user }: PageProps) {
 						</div>
 						<div className="order-2 mt-8 flex items-center justify-center space-x-4">
 							<ColumnSelector instance={instance} />
-							<Button variant="primary" className="w-max" onClick={createProduct}>
+							<Button variant="primary" className="w-max" onClick={createDiscount}>
 								Create a Discount
 							</Button>
 						</div>
