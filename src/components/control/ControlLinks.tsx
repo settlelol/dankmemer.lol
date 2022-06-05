@@ -34,7 +34,7 @@ export default function ControlLinks({ user }: Props) {
 					text="Recent purchases"
 					href="/control/store/purchases"
 				/>
-				<Navlink icon="bx:bx-error" text="Disputed purchases" href="/control/store/purchases/disputes" />
+				<Navlink icon="bx:bx-error" text="Refund requests" href="/control/store/refunds" />
 			</LinkGroup>
 			<LinkGroup title="Miscellaneous">
 				<Navlink icon="ph:users-three" text="All staff" href="/control/staff" />
