@@ -8,17 +8,15 @@ import { withSession } from "src/util/session";
 
 export default function StoreOverview({ user }: PageProps) {
 	return (
-		<ControlPanelContainer
-			title="Store Overview"
-			links={<ControlLinks user={user!} />}
-		>
+		<ControlPanelContainer title="Store Overview" links={<ControlLinks user={user!} />}>
 			<main>
 				<Title size="big">Store Overview</Title>
-				<div className="h-14 w-full dark:bg-dank-500"></div>
+				<div className="h-14 w-full text-red-400 dark:bg-dank-500">
+					{"<<<<<"} this is not done pick some other store option on the left
+				</div>
 			</main>
 		</ControlPanelContainer>
 	);
 }
 
-export const getServerSideProps: GetServerSideProps =
-	withSession(developerRoute);
+export const getServerSideProps: GetServerSideProps = withSession(developerRoute);
