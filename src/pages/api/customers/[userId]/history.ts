@@ -78,14 +78,6 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						as: "data",
 					},
 				},
-				{
-					$lookup: {
-						from: "refunds",
-						localField: "purchases.id",
-						foreignField: "order",
-						as: "refunds",
-					},
-				},
 				// Stage one:
 				// Unwind the "data" field giving us the ability to independently
 				// manipulate each element in this array
