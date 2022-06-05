@@ -12,7 +12,6 @@ import Button from "src/components/ui/Button";
 import ProductCreator from "src/components/control/store/ProductCreator";
 import ControlLinks from "src/components/control/ControlLinks";
 import Table from "src/components/control/Table";
-import { Discount } from "src/components/control/Table/rows/Discounts";
 import { toTitleCase } from "src/util/string";
 import {
 	createTable,
@@ -25,6 +24,27 @@ import {
 	useTableInstance,
 } from "@tanstack/react-table";
 import ColumnSelector from "src/components/control/Table/ColumnSelector";
+
+export interface Discount {
+	id: string;
+	name: string;
+	code?: string | null;
+	discountAmount: DiscountAmount;
+	duration: Duration;
+	redemptions: number;
+	created: number;
+	expires?: number | null;
+}
+
+interface DiscountAmount {
+	percent?: number | null;
+	dollars?: number | null;
+}
+
+interface Duration {
+	label: string;
+	months?: number | null;
+}
 
 export default function ManageDiscounts({ user }: PageProps) {
 	const { current: table } = useRef(createTable().setRowType<Discount>().setOptions({ enableSorting: true }));
