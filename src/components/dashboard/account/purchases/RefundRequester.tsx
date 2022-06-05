@@ -1,6 +1,6 @@
 import { Title } from "src/components/Title";
 import { Icon as Iconify } from "@iconify/react";
-import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/history";
+import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/[userId]/history";
 import Input from "src/components/store/Input";
 import Dropdown from "src/components/ui/Dropdown";
 import clsx from "clsx";

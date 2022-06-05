@@ -8,8 +8,8 @@ import { redisConnect } from "src/util/redis";
 import { NextIronRequest, withSession } from "src/util/session";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
-import { PurchaseRecord } from "../store/checkout/finalize/paypal";
-import { PaymentIntentItemResult } from "../store/webhooks/stripe";
+import { PurchaseRecord } from "../../store/checkout/finalize/paypal";
+import { PaymentIntentItemResult } from "../../store/webhooks/stripe";
 
 // TODO: Optimize this entire path, very slow, 4 second initial load
 
@@ -56,7 +56,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const stripe = stripeConnect();
 	const redis = await redisConnect();
 
-	const cached = await redis.get(`customer:purchase-history:${req.query.id}`);
+	const cached = await redis.get(`customer:purchase-history:${req.query.userId}`);
 	if (cached) {
 		return res.status(200).json({ history: JSON.parse(cached) });
 	}
@@ -67,7 +67,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			.aggregate([
 				{
 					$match: {
-						discordId: req.query.id,
+						discordId: req.query.userId,
 					},
 				},
 				{
@@ -191,7 +191,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				// Add the user's discord id
 				{
 					$addFields: {
-						discordId: req.query.id,
+						discordId: req.query.userId,
 					},
 				},
 
@@ -253,7 +253,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		}
 	}
 
-	await redis.set(`customer:purchase-history:${req.query.id}`, JSON.stringify(purchaseHistory), "PX", TIME.month);
+	await redis.set(`customer:purchase-history:${req.query.userId}`, JSON.stringify(purchaseHistory), "PX", TIME.month);
 
 	return res.status(200).json({ history: purchaseHistory });
 };

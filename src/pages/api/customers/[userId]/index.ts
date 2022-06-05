@@ -3,7 +3,7 @@ import { NextApiResponse } from "next";
 import { dbConnect } from "src/util/mongodb";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
-import { NextIronRequest, withSession } from "../../../util/session";
+import { NextIronRequest, withSession } from "../../../../util/session";
 
 export interface Customer {
 	_id: string;
@@ -44,25 +44,25 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		sensitive = true;
 	}
 
-	if (sensitive && !req.query.id) {
+	if (sensitive && !req.query.userId) {
 		return res.status(406).json({
 			error: "Sensitive parameter can only be used in conjunction with id parameter.",
 		});
 	}
 
 	const db: Db = await dbConnect();
-	const _customer = (await db.collection("customers").findOne({ discordId: req.query.id })) as Customer;
+	const _customer = (await db.collection("customers").findOne({ discordId: req.query.userId })) as Customer;
 
 	const stripe = stripeConnect();
 
 	if (!sensitive) {
 		return res.status(200).json({
-			id: _customer ? _customer._id : req.query.id,
+			id: _customer ? _customer._id : req.query.userId,
 			isSubscribed: _customer && _customer.subscription ? true : false,
 		});
-	} else if (sensitive && user.id !== req.query.id) {
+	} else if (sensitive && user.id !== req.query.userId) {
 		return res.status(401).json({ error: "You cannot access this information." });
-	} else if (sensitive && user.id === req.query.id) {
+	} else if (sensitive && user.id === req.query.userId) {
 		let customer: Stripe.Customer | undefined;
 		if (!_customer) {
 			const unrecordedCustomer = (

@@ -116,7 +116,7 @@ export default function CheckoutForm({
 			})
 			.catch(() => {});
 
-		axios(`/api/customers/get?id=${userId}&sensitive=true`)
+		axios(`/api/customers/${userId}?sensitive=true`)
 			.then(({ data }) => {
 				if (data.cards.default) {
 					setDefaultPaymentMethod(data.cards.default);
@@ -215,7 +215,7 @@ export default function CheckoutForm({
 		if (!stripe || !stripeElements || !canCheckout) return;
 		setProcessingPayment(true);
 
-		const { data: res } = await axios(`/api/customers/get?id=${isGift ? giftFor : userId}`);
+		const { data: res } = await axios(`/api/customers/${isGift ? giftFor : userId}`);
 
 		if (res.isSubscribed && cart[0].metadata?.type === "subscription") {
 			setProcessingPayment(false);

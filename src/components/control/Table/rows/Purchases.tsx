@@ -1,5 +1,5 @@
 import Tooltip from "src/components/ui/Tooltip";
-import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/history";
+import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/[userId]/history";
 import { Icon as Iconify } from "@iconify/react";
 import { formatRelative } from "date-fns";
 import { useEffect, useState } from "react";

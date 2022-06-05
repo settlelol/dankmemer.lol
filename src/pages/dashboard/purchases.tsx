@@ -8,7 +8,7 @@ import { Title } from "src/components/Title";
 import { PageProps } from "src/types";
 import { authenticatedRoute } from "src/util/redirects";
 import { withSession } from "src/util/session";
-import { AggregatedPurchaseRecordPurchases } from "../api/customers/history";
+import { AggregatedPurchaseRecordPurchases } from "../api/customers/[userId]/history";
 import Input from "src/components/store/Input";
 import PurchaseViewer from "src/components/dashboard/account/purchases/PurchaseViewer";
 import Table from "src/components/control/Table";
@@ -134,7 +134,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 	});
 
 	useEffect(() => {
-		axios(`/api/customers/history?id=${user!.id}`)
+		axios(`/api/customers/${user!.id}/history`)
 			.then(({ data }) => {
 				setPurchases(
 					(data.history.purchases as AggregatedPurchaseRecordPurchases[]).sort(

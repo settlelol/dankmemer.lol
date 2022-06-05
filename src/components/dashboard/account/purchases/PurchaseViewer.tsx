@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import LoadingPepe from "src/components/LoadingPepe";
 import { Title } from "src/components/Title";
 import Button from "src/components/ui/Button";
-import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/history";
+import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/[userId]/history";
 import { StripePurchaseDetails } from "src/pages/api/customers/purchases/[id]";
 import DisputeCreator from "./RefundRequester";
 import PaymentMethod from "./PaymentMethod";

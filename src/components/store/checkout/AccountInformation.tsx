@@ -140,7 +140,7 @@ export default function AccountInformation({
 	};
 
 	const createPayPalSubscription = async (actions: any) => {
-		const { data: res } = await axios(`/api/customers/get?id=${isGift ? giftRecipient : userId}`);
+		const { data: res } = await axios(`/api/customers/${isGift ? giftRecipient : userId}`);
 
 		if (res.isSubscribed && cartData[0].metadata?.type === "subscription") {
 			return toast.info(
