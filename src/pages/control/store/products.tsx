@@ -1,7 +1,7 @@
 import axios from "axios";
 import { formatDistance } from "date-fns";
 import { GetServerSideProps } from "next";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import ControlPanelContainer from "src/components/control/Container";
 import { PageProps } from "src/types";
 import { developerRoute } from "src/util/redirects";
@@ -10,150 +10,200 @@ import { toast } from "react-toastify";
 import { AnyProduct } from "src/pages/store";
 import Checkbox from "src/components/ui/Checkbox";
 import Input from "src/components/store/Input";
-import ProductRow from "src/components/control/Table/rows/Products";
-import clsx from "clsx";
 import ProductEditor from "src/components/control/store/ProductEditor";
 import CheckboxHead from "src/components/control/store/CheckboxHead";
-import Dropdown from "src/components/ui/Dropdown";
-import { Icon as Iconify } from "@iconify/react";
 import Button from "src/components/ui/Button";
 import ProductCreator from "src/components/control/store/ProductCreator";
 import ControlLinks from "src/components/control/ControlLinks";
-import Table, { ColumnData, SortingState } from "src/components/control/Table";
+import Table, { ColumnData } from "src/components/control/Table";
+import ColumnSelector from "src/components/control/Table/ColumnSelector";
+import {
+	createTable,
+	getCoreRowModel,
+	getFilteredRowModel,
+	getPaginationRowModel,
+	getSortedRowModel,
+	PaginationState,
+	SortingState,
+	useTableInstance,
+} from "@tanstack/react-table";
+import Stripe from "stripe";
+import Tooltip from "src/components/ui/Tooltip";
+import { Icon as Iconify } from "@iconify/react";
+import clsx from "clsx";
+import { formatRelative } from "date-fns";
 
-interface SalesData {
-	productSales: ProductSales[];
-}
-
-interface ProductSales {
+export interface ProductSales {
 	_id: string;
 	sales: number;
 	revenue: number;
 }
 
-enum TableHeaders {
-	NAME = 0,
-	PRICES = 1,
-	LAST_UPDATED = 2,
-	TOTAL_SALES = 3,
-	TOTAL_REVENUE = 4,
+interface Price {
+	value: number;
+}
+
+export interface ProductData {
+	id: string;
+	image: string;
+	name: string;
+	prices: Price[];
+	activeSubscriptions: number;
+	type: Stripe.Price.Type;
+	lastUpdated: number;
+	totalSales: number;
+	totalRevenue: number;
 }
 
 export default function ManageProducts({ user }: PageProps) {
-	const [salesData, setSalesData] = useState<SalesData>();
-	const [products, setProducts] = useState<AnyProduct[]>([]);
-	const [displayedProducts, setDisplayedProducts] = useState<AnyProduct[]>([]);
+	const { current: table } = useRef(createTable().setRowType<ProductData>().setOptions({ enableSorting: true }));
+
+	const [products, setProducts] = useState<ProductData[]>([]);
 	const [editing, setEditing] = useState(false);
 	const [editorContent, setEditorContent] = useState<ReactNode>();
 	const [productToEdit, setProductToEdit] = useState<AnyProduct>();
 
-	const [filterSearch, setFilterSearch] = useState("");
-	const [filterSelectAll, setFilterSelectAll] = useState(false);
-	const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+	const [columnVisibility, setColumnVisibility] = useState({});
+	const [sorting, setSorting] = useState<SortingState>([]);
+	const [pagination, setPagination] = useState<PaginationState>({
+		pageIndex: 0,
+		pageSize: 10,
+	});
+	const columns = useMemo(
+		() => [
+			table.createDisplayColumn({
+				id: "select_boxes",
+				enableResizing: false,
+				enableHiding: false,
+				header: ({ instance }) => (
+					<Checkbox
+						className="mt-0"
+						state={instance.getIsAllRowsSelected()}
+						style="fill"
+						callback={instance.getToggleAllRowsSelectedHandler()}
+					>
+						<></>
+					</Checkbox>
+				),
+				cell: ({ row }) => (
+					<Checkbox
+						className="mt-0"
+						state={row.getIsSelected()}
+						style="fill"
+						callback={row.getToggleSelectedHandler()}
+					>
+						<></>
+					</Checkbox>
+				),
+				maxSize: 40,
+				size: 40,
+			}),
+			table.createDataColumn("name", {
+				header: "Name",
+				minSize: 320,
+				cell: (name) => (
+					<div className="flex items-center justify-start space-x-4">
+						<div
+							className={clsx(
+								"rounded-md bg-black/10 bg-light-500 bg-center bg-no-repeat dark:bg-dark-100",
+								"h-10 w-10 bg-[length:33px_33px]"
+							)}
+							style={{
+								backgroundImage: `url('${name.row.original!.image}')`,
+							}}
+						/>
+						<span>{name.getValue()}</span>
+					</div>
+				),
+			}),
+			table.createDataColumn("prices", {
+				header: "Prices",
+				size: 144,
+				cell: (prices) =>
+					prices.getValue() ? (
+						prices
+							.getValue()
+							.sort((a, b) => a.value - b.value)
+							.map((price) => "$" + (price.value / 100).toFixed(2).toLocaleString())
+							.join(" or ")
+					) : (
+						<>&mdash;</>
+					),
+			}),
+			table.createDataColumn("type", {
+				header: "Type",
+				size: 40,
+				enableSorting: false,
+				cell: (type) => (
+					<div className="px-4">
+						{type.getValue() === "recurring" ? (
+							<Tooltip content="Subscription">
+								<Iconify icon="wpf:recurring-appointment" className="text-green-500" />
+							</Tooltip>
+						) : (
+							<Tooltip content="One-time purchase">
+								<Iconify icon="akar-icons:shipping-box-01" className="text-teal-600" height={18} />
+							</Tooltip>
+						)}
+					</div>
+				),
+			}),
+			table.createDataColumn("lastUpdated", {
+				id: "rtl_last_updated",
+				header: "Last Updated",
+				size: 144,
+				cell: (date) => formatRelative(new Date(date.getValue() * 1000).getTime(), new Date().getTime()),
+			}),
+			table.createDataColumn("activeSubscriptions", {
+				id: `rtl_active_subscriptions`,
+				header: "Active subscriptions",
+				size: 208,
+				cell: (subs) => (subs.row.original!.type && subs.getValue() >= 1 ? subs.getValue() : <>&mdash;</>),
+			}),
+			table.createDataColumn("totalSales", {
+				id: `rtl_total_sales`,
+				header: "Total sales",
+				size: 144,
+				cell: (sales) => (sales.getValue() >= 1 ? sales.getValue() : <>&mdash;</>),
+			}),
+			table.createDataColumn("totalRevenue", {
+				id: `rtl_total_revenue`,
+				header: "Total revenue",
+				size: 208,
+				cell: (revenue) =>
+					revenue.getValue() >= 1 ? "$" + revenue.getValue().toFixed(2).toLocaleString() : <>&mdash;</>,
+			}),
+		],
+		[]
+	);
 
-	const [showOptionsFor, setShowOptionsFor] = useState<string>("");
-
-	const [tableHeads, setTableHeads] = useState<ColumnData[]>([
-		{
-			type: "Unsortable",
-			content: <CheckboxHead change={setFilterSelectAll} />,
-			width: "w-10",
-			hidden: false,
+	const instance = useTableInstance(table, {
+		data: products,
+		columns,
+		state: {
+			sorting,
+			pagination,
+			columnVisibility,
 		},
-		{
-			type: "Sortable",
-			name: "Name",
-			width: "w-4/12",
-			hidden: false,
-		},
-		{
-			type: "Sortable",
-			name: "Prices",
-			width: "w-max",
-			hidden: false,
-		},
-		{
-			type: "Unsortable",
-			content: "Type",
-			width: "w-13",
-			hidden: false,
-		},
-		{
-			type: "Sortable",
-			name: "Last updated",
-			width: "min-w-[156px]",
-			hidden: false,
-		},
-		{
-			type: "Sortable",
-			name: "Total sales",
-			width: "min-w-[110px]",
-			rtl: true,
-			hidden: false,
-		},
-		{
-			type: "Sortable",
-			name: "Total revenue",
-			width: "w-52",
-			rtl: true,
-			hidden: false,
-		},
-		{
-			type: "Unsortable",
-			content: <></>,
-			width: "w-10",
-			hidden: false,
-		},
-	]);
+		onSortingChange: setSorting,
+		onPaginationChange: setPagination,
+		onColumnVisibilityChange: setColumnVisibility,
+		getCoreRowModel: getCoreRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+	});
 
 	useEffect(() => {
-		const StoreAPI = axios.create({
-			baseURL: "/api/store/products",
-		});
-		axios
-			.all([StoreAPI.get("/subscriptions/list"), StoreAPI.get("/one-time/list")])
-			.then(
-				axios.spread(({ data: subscriptions }, { data: onetime }) => {
-					const receivedProducts = [...subscriptions, ...onetime];
-					setProducts(receivedProducts);
-					setDisplayedProducts(receivedProducts);
-				})
-			)
-			.catch(() => {
+		axios("/api/store/products/data")
+			.then(({ data }) => {
+				setProducts(data);
+			})
+			.catch((e) => {
+				console.error(e);
 				toast.error("Unable to get store products.");
 			});
 	}, []);
-
-	useEffect(() => {
-		if (products.length <= 1) return;
-		axios(`/api/store/products/data`)
-			.then(({ data }) => {
-				setSalesData(data);
-			})
-			.catch((e) => console.error(e));
-	}, [products]);
-
-	useEffect(() => {
-		if (filterSelectAll) {
-			return setSelectedProducts(displayedProducts.map((product) => product.id));
-		} else {
-			return setSelectedProducts(
-				selectedProducts.length >= 1 && selectedProducts.length !== displayedProducts.length
-					? selectedProducts
-					: []
-			);
-		}
-	}, [filterSelectAll]);
-
-	useEffect(() => {
-		setDisplayedProducts(products.filter((prod) => prod.name.toLowerCase().includes(filterSearch.toLowerCase())));
-	}, [filterSearch]);
-
-	useEffect(() => {
-		if (filterSelectAll && selectedProducts.length !== displayedProducts.length) {
-			setFilterSelectAll(false);
-		}
-	}, [selectedProducts]);
 
 	useEffect(() => {
 		if (!productToEdit) {
@@ -169,96 +219,6 @@ export default function ManageProducts({ user }: PageProps) {
 			setEditing(true);
 		}
 	}, [productToEdit]);
-
-	const changeSorting = (selector: TableHeaders, state: SortingState) => {
-		switch (selector) {
-			case TableHeaders.NAME:
-				if (state === SortingState.ASCENDING) {
-					setDisplayedProducts([...displayedProducts.sort((a, b) => a.name.localeCompare(b.name))]);
-				} else {
-					setDisplayedProducts([...displayedProducts.sort((a, b) => b.name.localeCompare(a.name))]);
-				}
-				break;
-			case TableHeaders.PRICES:
-				if (state === SortingState.ASCENDING) {
-					setDisplayedProducts([...displayedProducts.sort((a, b) => a.prices[0].price - b.prices[0].price)]);
-				} else {
-					setDisplayedProducts([
-						...displayedProducts.sort(
-							(a, b) =>
-								b.prices.reduce((prev, { price: curr }) => prev + curr, 0) -
-								a.prices.reduce((prev, { price: curr }) => prev + curr, 0)
-						),
-					]);
-				}
-				break;
-			case TableHeaders.LAST_UPDATED:
-				if (state === SortingState.ASCENDING) {
-					setDisplayedProducts([
-						...displayedProducts.sort(
-							(a, b) => (parseInt(b.metadata.lastUpdated) || 0) - (parseInt(a.metadata.lastUpdated) || 0)
-						),
-					]);
-				} else {
-					setDisplayedProducts([
-						...displayedProducts.sort(
-							(a, b) => (parseInt(a.metadata.lastUpdated) || 0) - (parseInt(b.metadata.lastUpdated) || 0)
-						),
-					]);
-				}
-				break;
-			case TableHeaders.TOTAL_SALES:
-				if (state === SortingState.ASCENDING) {
-					setDisplayedProducts([
-						...displayedProducts.sort(
-							(a, b) =>
-								(salesData?.productSales.find((prod) => prod._id === a.id)?.sales || 0) -
-								(salesData?.productSales.find((prod) => prod._id === b.id)?.sales || 0)
-						),
-					]);
-				} else {
-					setDisplayedProducts([
-						...displayedProducts.sort(
-							(a, b) =>
-								(salesData?.productSales.find((prod) => prod._id === b.id)?.sales || 0) -
-								(salesData?.productSales.find((prod) => prod._id === a.id)?.sales || 0)
-						),
-					]);
-				}
-				break;
-			case TableHeaders.TOTAL_REVENUE:
-				if (state === SortingState.ASCENDING) {
-					setDisplayedProducts([
-						...displayedProducts.sort(
-							(a, b) =>
-								(salesData?.productSales.find((prod) => prod._id === a.id)?.revenue || 0) -
-								(salesData?.productSales.find((prod) => prod._id === b.id)?.revenue || 0)
-						),
-					]);
-				} else {
-					setDisplayedProducts([
-						...displayedProducts.sort(
-							(a, b) =>
-								(salesData?.productSales.find((prod) => prod._id === b.id)?.revenue || 0) -
-								(salesData?.productSales.find((prod) => prod._id === a.id)?.revenue || 0)
-						),
-					]);
-				}
-				break;
-		}
-	};
-
-	useEffect(() => {
-		if (!displayedProducts[0] || !displayedProducts[0].name) return;
-		console.log(displayedProducts[0].name);
-	}, [displayedProducts]);
-
-	const changeColumnVisibility = (i: number, newState: boolean) => {
-		let _tableHeads = [...tableHeads];
-		_tableHeads[i].hidden = newState;
-
-		setTableHeads(_tableHeads);
-	};
 
 	const createProduct = () => {
 		setEditorContent(<ProductCreator forceHide={() => setEditing(false)} />);
@@ -291,92 +251,18 @@ export default function ManageProducts({ user }: PageProps) {
 								className="mt-8 !bg-light-500 dark:!bg-dark-100"
 								placeholder="Search for a product name"
 								type={"search"}
-								value={filterSearch}
-								onChange={(e) => setFilterSearch(e.target.value)}
+								value={(instance.getColumn("name").getFilterValue() ?? "") as string}
+								onChange={(e) => instance.getColumn("name").setFilterValue(e.target.value)}
 							/>
 						</div>
 						<div className="order-2 mt-8 flex items-center justify-center space-x-4">
-							<div className="">
-								<Dropdown
-									content={
-										<div
-											className={clsx(
-												"flex items-center justify-center",
-												"rounded-md border-[1px] border-[#3C3C3C]",
-												"bg-light-500 transition-colors dark:bg-dark-100 dark:text-neutral-400 hover:dark:text-neutral-200",
-												"w-40 px-3 py-2 text-sm"
-											)}
-										>
-											<p>Visible columns</p>
-											<Iconify icon="ic:baseline-expand-more" height={15} className="ml-1" />
-										</div>
-									}
-									options={tableHeads.map((column, i) => {
-										if (typeof column.name === "string") {
-											return {
-												label: (
-													<div className="flex items-center justify-start">
-														<Checkbox
-															state={!column.hidden}
-															style={"fill"}
-															className="!mt-0"
-															callback={() => changeColumnVisibility(i, !column.hidden)}
-														>
-															<p className="text-sm">{column.name}</p>
-														</Checkbox>
-													</div>
-												),
-											};
-										} else {
-											return null;
-										}
-									})}
-									isInput={false}
-									requireScroll={false}
-								/>
-							</div>
+							<ColumnSelector instance={instance} />
 							<Button variant="primary" className="w-max" onClick={createProduct}>
 								Add product
 							</Button>
 						</div>
 					</div>
-					<Table heads={tableHeads} sort={changeSorting}>
-						{displayedProducts.map((product, i) => (
-							<ProductRow
-								key={product.id}
-								id={product.id}
-								hiddenColumns={tableHeads.map((c) => c.hidden)}
-								reverseOptions={displayedProducts.length - 2 <= i}
-								selected={selectedProducts.includes(product.id)}
-								name={product.name}
-								image={product.images[0]}
-								lastUpdated={
-									product.updated
-										? formatDistance(new Date(product.updated * 1000), new Date(), {
-												addSuffix: true,
-										  })
-										: "Unknown"
-								}
-								price={product.prices
-									.sort((a, b) => a.price - b.price)
-									.map((price) => "$" + (price.price / 100).toFixed(2))
-									.join(" or ")}
-								type={product.prices[0].interval}
-								sales={salesData?.productSales.find((prod) => prod._id === product.id)?.sales!}
-								revenue={salesData?.productSales.find((prod) => prod._id === product.id)?.revenue!}
-								select={() => setSelectedProducts((products) => [...products, product.id])}
-								deselect={() =>
-									setSelectedProducts((products) => products.filter((id) => id !== product.id))
-								}
-								showOptionsFor={setShowOptionsFor}
-								showOptions={showOptionsFor === product.id}
-								editProduct={() => {
-									setShowOptionsFor("");
-									setProductToEdit(product);
-								}}
-							/>
-						))}
-					</Table>
+					<Table instance={instance} />
 				</div>
 			</main>
 		</ControlPanelContainer>

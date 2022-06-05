@@ -2,6 +2,8 @@ import clsx from "clsx";
 import { ReactNode } from "react";
 import TableSortIcon from "./SortIcon";
 import { TableInstance } from "@tanstack/react-table";
+import Button from "src/components/ui/Button";
+import { Icon as Iconify } from "@iconify/react";
 
 interface FilterableColumnData {
 	id: number;
@@ -46,8 +48,13 @@ export default function Table({ instance }: Props) {
 								style={{
 									width: header.getSize(),
 								}}
-								className={clsx(sortable && "cursor-pointer", header.column.id !== "select" && "grow")}
-								onClick={() => header.column.toggleSorting()}
+								className={clsx(
+									sortable && "cursor-pointer",
+									header.column.id !== "select_boxes" && "grow"
+								)}
+								{...(sortable && {
+									onClick: () => header.column.toggleSorting(),
+								})}
 							>
 								<div
 									className={clsx(
@@ -84,7 +91,7 @@ export default function Table({ instance }: Props) {
 								style={{ width: cell.column.getSize() }}
 								className={clsx(
 									cell.column.id.includes("rtl") && "text-right",
-									cell.column.id !== "select" && "grow"
+									cell.column.id !== "select_boxes" && "grow"
 								)}
 							>
 								{cell.renderCell()}
@@ -93,6 +100,34 @@ export default function Table({ instance }: Props) {
 					</div>
 				))}
 			</div>
+			{(instance.getCanNextPage() || instance.getCanPreviousPage()) && (
+				<div className="mt-5 grid w-full place-items-center">
+					<div className="flex items-center justify-center space-x-5">
+						<Button
+							variant={instance.getCanPreviousPage() ? "primary" : "dark"}
+							disabled={!instance.getCanPreviousPage()}
+							onClick={() => {
+								if (instance.getCanPreviousPage()) {
+									instance.previousPage();
+								}
+							}}
+						>
+							<Iconify icon="tabler:chevron-left" />
+						</Button>
+						<Button
+							variant={instance.getCanNextPage() ? "primary" : "dark"}
+							disabled={!instance.getCanNextPage()}
+							onClick={() => {
+								if (instance.getCanNextPage()) {
+									instance.nextPage();
+								}
+							}}
+						>
+							<Iconify icon="tabler:chevron-right" />
+						</Button>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }
