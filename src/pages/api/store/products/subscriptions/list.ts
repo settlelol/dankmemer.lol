@@ -39,6 +39,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const stripe: Stripe = stripeConnect();
 	const { data: products } = await stripe.products.list({
 		active: true,
+		limit: 100,
 	});
 
 	for (const i in products) {
