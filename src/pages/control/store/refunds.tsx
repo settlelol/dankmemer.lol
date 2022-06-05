@@ -25,13 +25,14 @@ import { Icon as Iconify } from "@iconify/react";
 import { formatRelative } from "date-fns";
 import ControlLinks from "src/components/control/ControlLinks";
 import { toTitleCase } from "src/util/string";
+import RefundViewer from "src/components/control/store/RefundViewer";
 
 export default function Refunds({ user }: PageProps) {
 	const { current: table } = useRef(createTable().setRowType<Refund>().setOptions({ enableSorting: true }));
 
 	const [loading, setLoading] = useState(true);
 	const [viewing, setViewing] = useState(false);
-	const [viewingPurchase, setViewingPurchase] = useState<Refund>();
+	const [viewingRefund, setViewingRefund] = useState<Refund>();
 	const [refunds, setRefunds] = useState<Refund[]>([]);
 
 	const [sorting, setSorting] = useState<SortingState>([]);
@@ -93,7 +94,7 @@ export default function Refunds({ user }: PageProps) {
 			table.createDataColumn("createdAt", {
 				id: "rtl_date",
 				header: "Date lodged",
-				cell: (date) => <>{formatRelative(new Date(date.getValue() * 1000), new Date())}</>,
+				cell: (date) => <>{formatRelative(new Date(date.getValue()), new Date())}</>,
 			}),
 			table.createDisplayColumn({
 				id: "ng_actions",
@@ -104,7 +105,7 @@ export default function Refunds({ user }: PageProps) {
 							icon="ic:round-manage-search"
 							height={20}
 							className="cursor-pointer"
-							onClick={() => showPurchase(row.original!)}
+							onClick={() => showRefund(row.original!)}
 						/>
 					</div>
 				),
@@ -143,8 +144,8 @@ export default function Refunds({ user }: PageProps) {
 			});
 	}, []);
 
-	const showPurchase = (purchase: Refund) => {
-		setViewingPurchase(purchase);
+	const showRefund = (refund: Refund) => {
+		setViewingRefund(refund);
 		setViewing(true);
 	};
 
@@ -154,7 +155,7 @@ export default function Refunds({ user }: PageProps) {
 			links={<ControlLinks user={user!} />}
 			hideRightPane={() => setViewing(false)}
 			rightPaneVisible={viewing}
-			rightPaneContent={<></>}
+			rightPaneContent={<RefundViewer refund={viewingRefund!} />}
 		>
 			<main>
 				<Title size="big">Refund requests</Title>

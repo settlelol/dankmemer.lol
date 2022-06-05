@@ -58,7 +58,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	const stripeCustomer = (await stripe.customers.retrieve(customerRecord._id)) as Stripe.Customer;
-	const hasPurchaseWithId = customerRecord.purchases.find((purchase) => purchase.id === orderId);
+	const hasPurchaseWithId = await db.collection("purchases").findOne({ _id: orderId, boughtBy: user.id });
 	if (!hasPurchaseWithId) {
 		return res.status(400).json({ message: "No order with the provided ID was found on the requesting user." });
 	}
@@ -74,7 +74,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			order: orderId,
 			gateway,
 			purchasedBy: user.id,
-			emails: new Set([user.email, stripeCustomer.email]),
+			emails: Array.from(new Set([user.email, stripeCustomer.email])),
 			purchaseType: type,
 			reason,
 			createdAt,
@@ -107,7 +107,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 							},
 							{
 								name: "Reason for Refund",
-								value: reason.label,
+								value: reason,
 								inline: true,
 							},
 							{
