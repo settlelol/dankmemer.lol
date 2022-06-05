@@ -75,6 +75,11 @@ export default function PurchaseHistory({ user }: PageProps) {
 						) : (
 							""
 						)}
+						{id.row.original?.refundStatus !== undefined && (
+							<Tooltip content={"This purchase has a pending refund request"}>
+								<Iconify icon="gridicons:refund" height={16} className="text-red-500" />
+							</Tooltip>
+						)}
 					</p>
 				),
 				size: 320,
