@@ -54,7 +54,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	const cached = await redis.get(`customer:purchase-history:${req.query.userId}`);
 	if (cached) {
-		return res.status(304).json({ history: JSON.parse(cached) });
+		return res.status(200).json({ history: JSON.parse(cached) });
 	}
 
 	const purchaseHistory = (await db
