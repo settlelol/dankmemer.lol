@@ -47,10 +47,12 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			type: "one_time",
 		});
 		if (price[0]) {
-			result.push({
-				...products[i],
-				prices: [{ id: price[0].id, price: price[0].unit_amount! }],
-			});
+			if (products[i].metadata.type !== "giftable") {
+				result.push({
+					...products[i],
+					prices: [{ id: price[0].id, price: price[0].unit_amount! }],
+				});
+			}
 		}
 	}
 
