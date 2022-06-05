@@ -15,7 +15,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		return res.status(403).json({ message: "You are unauthorized." });
 	}
 
-	const { gateway, orderId, type, reason, content, subscriptionId } = req.body;
+	const { gateway, orderId, type, reason, createdAt, content, subscriptionId } = req.body;
 
 	const db = await dbConnect();
 	const customerRecord = (await db.collection("customers").findOne({ discordId: user.id })) as Customer;
@@ -77,6 +77,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			emails: new Set([user.email, stripeCustomer.email]),
 			purchaseType: type,
 			reason,
+			createdAt,
 			content,
 			status: RefundStatus.OPEN_WAITING_FOR_SUPPORT,
 		});

@@ -29,6 +29,7 @@ export interface Refund {
 	purchasedBy: string;
 	emails: string[];
 	purchaseType: string;
+	createdAt: number;
 	reason: string;
 	content: string;
 	status: RefundStatus;
