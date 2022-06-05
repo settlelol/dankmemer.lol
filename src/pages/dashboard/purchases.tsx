@@ -91,7 +91,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 			}),
 			table.createDataColumn("items", {
 				id: "rtl_cost",
-				header: `Cost before discounts`,
+				header: `Cost (incl. tax) before discounts`,
 				cell: (items) => {
 					const subtotal = items.getValue().reduce((curr: number, item) => curr + item.price, 0);
 					return <>${(subtotal + subtotal * 0.0675).toFixed(2)}</>;
@@ -141,11 +141,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 	useEffect(() => {
 		axios(`/api/customers/${user!.id}/history`)
 			.then(({ data }) => {
-				setPurchases(
-					(data.history.purchases as AggregatedPurchaseRecordPurchases[]).sort(
-						(a, b) => b.purchaseTime - a.purchaseTime
-					)
-				);
+				setPurchases(data.history);
 			})
 			.catch(() => {
 				console.error("no history");

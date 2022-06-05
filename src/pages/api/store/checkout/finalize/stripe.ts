@@ -76,9 +76,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			discounts.push({
 				id: discount.id,
 				code: coupon[0].code,
+				appliesTo: [],
 				name: coupon[0].coupon.name || "N/A",
-				discountDecimal: discount.coupon.percent_off!,
-				discountPercentage: `${discount.coupon.percent_off}%`,
+				decimal: discount.coupon.percent_off!,
+				percent: `${discount.coupon.percent_off}%`,
 			});
 		}
 
@@ -96,15 +97,18 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				const product = await stripe.products.retrieve(lineItem.price!.product as string);
 				const usedDiscounts =
 					lineItem.discount_amounts?.filter((da) => da.amount > 0).map((discount) => discount.discount) ?? [];
+
+				usedDiscounts.forEach((usedDiscount) => {
+					const found = discounts.find((discount) => discount.id === usedDiscount)!;
+					found.appliesTo?.push(product.id);
+				});
+
 				items.push({
 					id: product.id,
 					name: product.name,
 					price: lineItem.amount / 100,
 					quantity: lineItem.quantity!,
 					type: lineItem.price?.type!,
-					discounts: usedDiscounts.map((usedDiscount) => ({
-						...discounts.find((discount) => discount.id === usedDiscount),
-					})) as PaymentIntentItemDiscount[],
 					...(lineItem.price?.recurring && {
 						interval: lineItem.price?.recurring?.interval,
 						intervalCount: lineItem.price?.recurring?.interval_count,
@@ -156,21 +160,13 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		}
 
 		await Promise.all([
-			db.collection("customers").updateOne(
-				{ discordId: user.id },
-				{
-					$push: {
-						purchases: {
-							type: "stripe",
-							id: invoice.id,
-						},
-					},
-				}
-			),
 			db.collection("purchases").insertOne({
 				_id: invoice.id as unknown as ObjectId,
+				boughtBy: user.id,
+				gateway: "stripe",
 				isGift,
 				giftFor,
+				discounts,
 				items: items.filter((item) => item.name !== "SALESTAX"),
 				purchaseTime: new Date().getTime(),
 			}),

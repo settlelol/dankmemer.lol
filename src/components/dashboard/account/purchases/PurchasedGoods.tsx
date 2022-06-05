@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { Title } from "src/components/Title";
-import { AggregatedDiscountData, AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/[userId]/history";
+import { DiscountData, AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/[userId]/history";
 
 interface Props {
 	purchase: AggregatedPurchaseRecordPurchases;
@@ -17,9 +17,7 @@ export default function PurchasedGoods({ purchase }: Props) {
 		setSubtotal(_subtotal);
 		setTotal(
 			_subtotal -
-				_subtotal *
-					(purchase.discounts.reduce((prev: number, curr) => (curr.ignore ? 0 : prev + curr.decimal), 0) /
-						100 || 0)
+				_subtotal * (purchase.discounts.reduce((prev: number, curr) => prev + curr.decimal, 0) / 100 || 0)
 		);
 	}, [purchase.items]);
 
@@ -82,7 +80,7 @@ export default function PurchasedGoods({ purchase }: Props) {
 						) : (
 							<h3 className="font-montserrat text-base font-semibold">Discount applied</h3>
 						)}
-						{(purchase.discounts as AggregatedDiscountData[]).map((discount) =>
+						{(purchase.discounts as DiscountData[]).map((discount) =>
 							!discount.ignore ? (
 								<div className="mb-1" key={discount.id}>
 									<p className="text-sm dark:text-neutral-200">

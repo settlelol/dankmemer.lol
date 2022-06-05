@@ -42,17 +42,17 @@ export interface PaymentIntentItemResult {
 	price: number;
 	quantity: number;
 	type: Stripe.Price.Type;
-	discounts?: PaymentIntentItemDiscount[];
 	interval?: Stripe.Price.Recurring.Interval;
 	intervalCount?: number;
 }
 
 export interface PaymentIntentItemDiscount {
 	id: string;
-	code: string;
 	name: string;
-	discountDecimal: number;
-	discountPercentage: string;
+	code: string;
+	appliesTo: string[];
+	decimal: number;
+	percent: string;
 }
 
 export interface EventResponse {

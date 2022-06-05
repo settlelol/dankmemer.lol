@@ -14,6 +14,7 @@ export interface PurchaseRecord {
 	isGift: boolean;
 	giftFor?: string;
 	items: PaymentIntentItemResult[];
+	discounts: PaymentIntentItemDiscount[];
 	purchaseTime: number;
 	subscriptionId?: string;
 }
@@ -87,7 +88,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	try {
-		let discounts: PaymentIntentItemDiscount[] = [];
+		let discounts: Partial<PaymentIntentItemDiscount>[] = [];
 		for (let i = 0; i < (invoice.discounts as Stripe.Discount[] | Stripe.DeletedDiscount[])?.length; i++) {
 			const discount = invoice.discounts![i] as Stripe.Discount | Stripe.DeletedDiscount;
 			const { data: coupon } = await stripe.promotionCodes.list({
@@ -97,9 +98,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			discounts.push({
 				id: discount.id,
 				code: coupon[0].code,
+				appliesTo: [],
 				name: coupon[0].coupon.name || "N/A",
-				discountDecimal: discount.coupon.percent_off!,
-				discountPercentage: `${discount.coupon.percent_off}%`,
+				decimal: discount.coupon.percent_off!,
+				percent: `${discount.coupon.percent_off}%`,
 			});
 		}
 
@@ -113,15 +115,16 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 				const product = await stripe.products.retrieve(lineItem.price?.product as string);
 
+				usedDiscounts.forEach((usedDiscount) => {
+					const found = discounts.find((discount) => discount.id === usedDiscount)!;
+					found.appliesTo?.push(product.id);
+				});
 				items.push({
 					id: product.id,
 					name: product.name,
 					price: lineItem.amount / 100,
 					quantity: lineItem.quantity!,
 					type: lineItem.price?.type!,
-					discounts: usedDiscounts.map((usedDiscount) => ({
-						...discounts.find((discount) => discount.id === usedDiscount)!,
-					})),
 				});
 			}
 		}
@@ -164,32 +167,21 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		}
 
 		await Promise.all([
-			db.collection("customers").updateOne(
-				{
-					discordId: user.id,
-				},
-				{
-					$push: {
-						purchases: {
-							type: "paypal",
-							id: orderID,
-						},
-					},
-				}
-			),
 			db.collection("purchases").insertOne({
 				_id: orderID as unknown as ObjectId,
+				boughtBy: user.id,
+				gateway: "paypal",
 				isGift,
 				giftFor,
 				items: items.filter((item) => item !== undefined),
+				discounts,
 				purchaseTime: new Date().getTime(),
 				...(subscription && { subscriptionId: subscription }),
 			}),
 			redis.del(`customer:purchase-history:${user.id}`),
+			stripe.invoices.update(invoice.id, { metadata }),
+			stripe.invoices.voidInvoice(invoice.id),
 		]);
-
-		await stripe.invoices.update(invoice.id, { metadata });
-		await stripe.invoices.voidInvoice(invoice.id);
 
 		req.session.unset("cart");
 		req.session.unset("discountCode");

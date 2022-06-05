@@ -14,41 +14,51 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 	paymentIntent = await stripe.paymentIntents.retrieve(paymentIntent.id);
 	const invoice = await stripe.invoices.retrieve(paymentIntent.invoice!.toString(), { expand: ["discounts"] });
 	let discounts: PaymentIntentItemDiscount[] = [];
-	for (let i = 0; i < (invoice.discounts as unknown as Stripe.Discount[] | Stripe.DeletedDiscount[])?.length; i++) {
-		const discount = invoice.discounts![i] as unknown as Stripe.Discount | Stripe.DeletedDiscount;
+	for (let i = 0; i < (invoice.discounts as Stripe.Discount[] | Stripe.DeletedDiscount[])?.length; i++) {
+		const discount = invoice.discounts![i] as Stripe.Discount | Stripe.DeletedDiscount;
 		const { data: coupon } = await stripe.promotionCodes.list({
 			coupon: discount.coupon?.id,
 		});
 		discounts.push({
 			id: discount.id,
 			code: coupon[0].code,
+			appliesTo: [],
 			name: coupon[0].coupon.name || "N/A",
-			discountDecimal: discount.coupon.percent_off!,
-			discountPercentage: `${parseFloat(discount.coupon.percent_off as unknown as string)}%`,
+			decimal: discount.coupon.percent_off!,
+			percent: `${discount.coupon.percent_off}%`,
 		});
 	}
 
-	const items: PaymentIntentItemResult[] = [];
+	let items: PaymentIntentItemResult[] = [];
 	for (let lineItem of invoice.lines.data) {
 		if (lineItem.description === null) {
 			items.push({
+				id: "SALESTAX",
 				name: "SALESTAX",
 				price: lineItem.amount / 100,
 				quantity: 1,
 				type: lineItem.price?.type!,
 			});
 		} else {
-			const productName = (await stripe.products.retrieve(lineItem.price!.product as string)).name;
+			const product = await stripe.products.retrieve(lineItem.price!.product as string);
 			const usedDiscounts =
-				lineItem.discount_amounts?.filter((da) => da.amount > 0).map((discount) => discount.discount) || [];
+				lineItem.discount_amounts?.filter((da) => da.amount > 0).map((discount) => discount.discount) ?? [];
+
+			usedDiscounts.forEach((usedDiscount) => {
+				const found = discounts.find((discount) => discount.id === usedDiscount)!;
+				found.appliesTo?.push(product.id);
+			});
+
 			items.push({
-				name: productName,
+				id: product.id,
+				name: product.name,
 				price: lineItem.amount / 100,
 				quantity: lineItem.quantity!,
 				type: lineItem.price?.type!,
-				discounts: usedDiscounts.map((usedDiscount) => ({
-					...discounts.find((discount) => discount.id === usedDiscount),
-				})) as PaymentIntentItemDiscount[],
+				...(lineItem.price?.recurring && {
+					interval: lineItem.price?.recurring?.interval,
+					intervalCount: lineItem.price?.recurring?.interval_count,
+				}),
 			});
 		}
 	}
@@ -94,15 +104,11 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 			name: "Discounts applied",
 			value: `${discounts
 				.map((discount) => {
-					const discountedItems = items.filter((item: PaymentIntentItemResult) =>
-						item.discounts?.find((d) => d.id === discount.id)
-					);
-					const itemsText = discountedItems.map((item: PaymentIntentItemResult) => {
-						return `> ${item?.name} (-$${(item?.price! * (discount.discountDecimal / 100)).toFixed(2)})`;
+					const itemsText = discount.appliesTo.map((itemId) => {
+						const item = items.find((i) => i.id === itemId);
+						return `> ${item?.name} (-$${(item?.price! * (discount.decimal / 100)).toFixed(2)})`;
 					});
-					return `**${discount.name}** (\`${discount.code}\`) - ${
-						discount.discountPercentage
-					}\n${itemsText.join("\n")}`;
+					return `**${discount.name}** (\`${discount.code}\`) - ${discount.percent}\n${itemsText.join("\n")}`;
 				})
 				.join("\n")}`,
 			inline: true,

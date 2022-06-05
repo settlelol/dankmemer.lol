@@ -1,4 +1,5 @@
 import { APIEmbedField } from "discord-api-types/v10";
+import { PurchaseRecord } from "src/pages/api/store/checkout/finalize/paypal";
 import { dbConnect } from "src/util/mongodb";
 import PayPal from "src/util/paypal";
 import { LinkDescription } from "src/util/paypal/classes/Products";
@@ -81,19 +82,11 @@ export default async function (event: PayPalEvent, paypal: PayPal): Promise<Even
 		inline: true,
 	});
 
-	const record = await db.collection("purchases").findOne({ _id: data.id });
+	const record = (await db.collection("purchases").findOne({ _id: data.id })) as PurchaseRecord;
 
 	if (record) {
-		let discounts: PaymentIntentItemDiscount[] = [];
+		let discounts: PaymentIntentItemDiscount[] = record.discounts;
 		const items: PaymentIntentItemResult[] = record.items;
-
-		for (let i in items) {
-			if (items[i].discounts && items[i].discounts!.length >= 1) {
-				for (let j in items[i].discounts) {
-					discounts = [...discounts, items[i].discounts![j as any]];
-				}
-			}
-		}
 
 		discounts = Array.from(new Set(discounts));
 
@@ -101,15 +94,11 @@ export default async function (event: PayPalEvent, paypal: PayPal): Promise<Even
 			name: "Discounts applied",
 			value: `${discounts
 				.map((discount) => {
-					const discountedItems = items.filter((item: PaymentIntentItemResult) =>
-						item.discounts?.find((d) => d.id === discount.id)
-					);
-					const itemsText = discountedItems.map((item: PaymentIntentItemResult) => {
-						return `> ${item?.name} (-$${(item?.price! * (discount.discountDecimal / 100)).toFixed(2)})`;
+					const itemsText = discount.appliesTo.map((itemId) => {
+						const item = items.find((i) => i.id === itemId);
+						return `> ${item?.name} (-$${(item?.price! * (discount.decimal / 100)).toFixed(2)})`;
 					});
-					return `**${discount.name}** (\`${discount.code}\`) - ${
-						discount.discountPercentage
-					}\n${itemsText.join("\n")}`;
+					return `**${discount.name}** (\`${discount.code}\`) - ${discount.percent}\n${itemsText.join("\n")}`;
 				})
 				.join("\n")}`,
 			inline: true,

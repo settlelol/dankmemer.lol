@@ -13,7 +13,7 @@ import { PaymentIntentItemResult } from "../../store/webhooks/stripe";
 
 // TODO: Optimize this entire path, very slow, 4 second initial load
 
-export interface AggregatedDiscountData {
+export interface DiscountData {
 	id: string;
 	appliesTo: string[];
 	name: string;
@@ -24,13 +24,14 @@ export interface AggregatedDiscountData {
 }
 
 export type AggregatedPurchaseRecordPurchases = Omit<PurchaseRecord & { gateway: "stripe" | "paypal" }, "items"> & {
+	_id: string;
 	items: (PaymentIntentItemResult & {
 		id: string;
 		image: string;
 		metadata: Metadata;
 		priceObject?: PriceObject;
 	})[];
-	discounts: AggregatedDiscountData[];
+	discounts: DiscountData[];
 	type: Metadata["type"];
 	metadata: Metadata;
 	refundStatus?: RefundStatus;
@@ -40,11 +41,6 @@ interface PriceObject {
 	value: number;
 	interval: Stripe.Price.Recurring.Interval;
 	interval_count: number;
-}
-
-export interface AggregatedPurchaseRecord {
-	discordId: string;
-	purchases: AggregatedPurchaseRecordPurchases[];
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
@@ -58,146 +54,15 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	const cached = await redis.get(`customer:purchase-history:${req.query.userId}`);
 	if (cached) {
-		return res.status(200).json({ history: JSON.parse(cached) });
+		return res.status(304).json({ history: JSON.parse(cached) });
 	}
 
-	const purchaseHistory = (
-		await db
-			.collection("customers")
-			.aggregate([
-				{
-					$match: {
-						discordId: req.query.userId,
-					},
-				},
-				{
-					$lookup: {
-						from: "purchases",
-						localField: "purchases.id",
-						foreignField: "_id",
-						as: "data",
-					},
-				},
-				// Stage one:
-				// Unwind the "data" field giving us the ability to independently
-				// manipulate each element in this array
-				{
-					$unwind: "$data",
-				},
-				{
-					$addFields: {
-						// Stage two:
-						// Add the payment processor type to the purchase data so that
-						// it can be guaranteed which was used during checkout
-						"data.gateway": {
-							// Add a 'gateway' field to each element
-							$getField: {
-								// Properly get a field from an object
-								field: "type", // The field of the object we want
-								input: {
-									// The object we are getting it from
-									$arrayElemAt: [
-										// Get an an object from
-										"$purchases", // the purchases array
-										{
-											$indexOfArray: [
-												// Select the index which we want to get
-												{
-													$map: {
-														// Create a temporary array of either true or false
-														input: "$purchases", // based on the purchases array
-														in: {
-															$eq: [
-																// comparing the ids between
-																"$$this.id", // the current purchase object
-																"$data._id", // and the current data object
-															],
-														},
-													},
-												},
-												true,
-											],
-										},
-									],
-								},
-							},
-						},
-						// Stage three:
-						// Get the discounts used on each product during checkout
-						// and add them to an array in the purchase.
-						"data.discounts": {
-							$reduce: {
-								input: {
-									$map: {
-										input: "$data.items.discounts",
-										as: "discount",
-										in: {
-											$cond: {
-												if: {
-													$gte: [
-														{
-															$size: "$$discount",
-														},
-														1,
-													],
-												},
-												then: {
-													id: { $first: "$$discount.id" },
-													appliesTo: "$data.items.id",
-													name: { $first: "$$discount.name" },
-													code: { $first: "$$discount.code" },
-													decimal: { $first: "$$discount.discountDecimal" },
-													percent: { $first: "$$discount.discountPercentage" },
-												},
-												else: {
-													ignore: true,
-												},
-											},
-										},
-									},
-								},
-								initialValue: [],
-								in: {
-									$cond: [
-										{
-											$in: ["$$this.id", "$$value.id"],
-										},
-										"$$value",
-										{ $concatArrays: ["$$value", ["$$this"]] },
-									],
-								},
-							},
-						},
-					},
-				},
-				// Stage four:
-				// Recoup the data array elements and create a new
-				// array, the 'purchases' array
-				{
-					$group: {
-						_id: "$purchases.id",
-						purchases: { $push: "$data" },
-					},
-				},
+	const purchaseHistory = (await db
+		.collection("purchases")
+		.find({ boughtBy: req.query.userId })
+		.toArray()) as AggregatedPurchaseRecordPurchases[];
 
-				// Add the user's discord id
-				{
-					$addFields: {
-						discordId: req.query.userId,
-					},
-				},
-
-				// Remove their stripe customer id and discounts directly
-				// in the items purchased in favour of a combined array
-				// within the purchase object
-				{
-					$unset: ["_id", "purchases.items.discounts"],
-				},
-			])
-			.toArray()
-	)[0] as AggregatedPurchaseRecord;
-
-	for (let purchase of purchaseHistory.purchases) {
+	for (let purchase of purchaseHistory) {
 		const refund = (await db.collection("refunds").findOne({ order: purchase._id })) as Refund;
 		if (refund) {
 			purchase.refundStatus = refund.status;
