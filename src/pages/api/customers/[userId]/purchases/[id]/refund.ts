@@ -7,7 +7,7 @@ import PayPal from "src/util/paypal";
 import { NextIronRequest, withSession } from "src/util/session";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
-import { Customer } from "../../get";
+import { Customer } from "../../index";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const user = await req.session.get("user");

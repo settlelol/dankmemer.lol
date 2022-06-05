@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 
 interface Props {
 	purchase: AggregatedPurchaseRecordPurchases;
+	userId: string;
 	close: (bypass: boolean) => void;
 }
 
@@ -22,7 +23,7 @@ interface DropdownOptions {
 	value: string;
 }
 
-export default function DisputeCreator({ purchase, close }: Props) {
+export default function DisputeCreator({ purchase, userId, close }: Props) {
 	const [reason, setReason] = useState<DropdownOptions>();
 	const [refundBody, setRefundBody] = useState("");
 	const [acknowledgement, setAcknowledgement] = useState(false);
@@ -72,7 +73,7 @@ export default function DisputeCreator({ purchase, close }: Props) {
 		if (canSubmit) {
 			try {
 				await axios({
-					url: `/api/customers/purchases/${purchase._id}/refund`,
+					url: `/api/customers/${userId}/purchases/${purchase._id}/refund`,
 					method: "POST",
 					data: {
 						gateway: purchase.gateway,

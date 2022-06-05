@@ -4,7 +4,7 @@ import LoadingPepe from "src/components/LoadingPepe";
 import { Title } from "src/components/Title";
 import Button from "src/components/ui/Button";
 import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/[userId]/history";
-import { StripePurchaseDetails } from "src/pages/api/customers/purchases/[id]";
+import { StripePurchaseDetails } from "src/pages/api/customers/[userId]/purchases/[id]";
 import DisputeCreator from "./RefundRequester";
 import PaymentMethod from "./PaymentMethod";
 import PurchasedGoods from "./PurchasedGoods";
@@ -12,6 +12,7 @@ import clsx from "clsx";
 
 interface Props {
 	purchase: AggregatedPurchaseRecordPurchases;
+	userId: string;
 }
 
 export enum RefundStatus {
@@ -32,7 +33,7 @@ export interface Refund {
 	status: RefundStatus;
 }
 
-export default function PurchaseViewer({ purchase }: Props) {
+export default function PurchaseViewer({ purchase, userId }: Props) {
 	const [loading, setLoading] = useState(true);
 	const [paymentMethod, setPaymentMethod] = useState<StripePurchaseDetails["paymentMethod"] | null>(null);
 	const [disputing, setDisputing] = useState(false);
@@ -49,7 +50,7 @@ export default function PurchaseViewer({ purchase }: Props) {
 
 	useEffect(() => {
 		if (purchase.gateway === "stripe") {
-			axios(`/api/customers/purchases/${purchase._id}`)
+			axios(`/api/customers/${userId}/purchases/${purchase._id}`)
 				.then(({ data }) => {
 					const details = data as StripePurchaseDetails;
 					setPaymentMethod(details.paymentMethod);
@@ -70,7 +71,7 @@ export default function PurchaseViewer({ purchase }: Props) {
 	};
 
 	return disputing ? (
-		<DisputeCreator close={closeDispute} purchase={purchase} />
+		<DisputeCreator close={closeDispute} purchase={purchase} userId={userId} />
 	) : (
 		<div>
 			<Title size="big">Viewing order</Title>

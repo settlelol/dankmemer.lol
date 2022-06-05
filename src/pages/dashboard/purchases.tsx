@@ -161,7 +161,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 			links={<DashboardLinks user={user!} />}
 			hideRightPane={() => setViewing(false)}
 			rightPaneVisible={viewing}
-			rightPaneContent={<PurchaseViewer purchase={viewingPurchase!} />}
+			rightPaneContent={<PurchaseViewer purchase={viewingPurchase!} userId={user!.id} />}
 		>
 			<main>
 				<Title size="big">Purchase history</Title>

@@ -10,7 +10,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	const db = await dbConnect();
-	const refund = (await db.collection("refunds").findOne({ order: req.query.id })) as Refund;
+	const refund = (await db.collection("refunds").findOne({ order: req.query.userId })) as Refund;
 
 	if (!refund) {
 		return res.status(202).json({ message: "No refund was found for the given ID." });
