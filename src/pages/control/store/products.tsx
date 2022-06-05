@@ -1,5 +1,4 @@
 import axios from "axios";
-import { formatDistance } from "date-fns";
 import { GetServerSideProps } from "next";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import ControlPanelContainer from "src/components/control/Container";
@@ -11,11 +10,10 @@ import { AnyProduct } from "src/pages/store";
 import Checkbox from "src/components/ui/Checkbox";
 import Input from "src/components/store/Input";
 import ProductEditor from "src/components/control/store/ProductEditor";
-import CheckboxHead from "src/components/control/store/CheckboxHead";
 import Button from "src/components/ui/Button";
 import ProductCreator from "src/components/control/store/ProductCreator";
 import ControlLinks from "src/components/control/ControlLinks";
-import Table, { ColumnData } from "src/components/control/Table";
+import Table from "src/components/control/Table";
 import ColumnSelector from "src/components/control/Table/ColumnSelector";
 import {
 	createTable,
