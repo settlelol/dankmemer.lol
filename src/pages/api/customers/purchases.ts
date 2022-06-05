@@ -1,47 +1,11 @@
 import { Db } from "mongodb";
 import { NextApiResponse } from "next";
-import { Refund, RefundStatus } from "src/components/dashboard/account/purchases/PurchaseViewer";
-import { TIME } from "src/constants";
+import { Refund } from "src/components/dashboard/account/purchases/PurchaseViewer";
 import { Metadata } from "src/pages/store";
 import { dbConnect } from "src/util/mongodb";
-import { redisConnect } from "src/util/redis";
 import { NextIronRequest, withSession } from "src/util/session";
 import { stripeConnect } from "src/util/stripe";
-import Stripe from "stripe";
-import { PurchaseRecord } from "../../store/checkout/finalize/paypal";
-import { PaymentIntentItemResult } from "../../store/webhooks/stripe";
-
-// TODO: Optimize this entire path, very slow, 4 second initial load
-
-export interface DiscountData {
-	id: string;
-	appliesTo: string[];
-	name: string;
-	code: string;
-	decimal: number;
-	percent: string;
-	ignore?: boolean;
-}
-
-export type AggregatedPurchaseRecordPurchases = Omit<PurchaseRecord & { gateway: "stripe" | "paypal" }, "items"> & {
-	_id: string;
-	items: (PaymentIntentItemResult & {
-		id: string;
-		image: string;
-		metadata: Metadata;
-		priceObject?: PriceObject;
-	})[];
-	discounts: DiscountData[];
-	type: Metadata["type"];
-	metadata: Metadata;
-	refundStatus?: RefundStatus;
-};
-
-export interface PriceObject {
-	value: number;
-	interval: Stripe.Price.Recurring.Interval;
-	interval_count: number;
-}
+import { AggregatedPurchaseRecordPurchases, PriceObject } from "./[userId]/history";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const user = req.session.get("user");
@@ -50,19 +14,22 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 	const db: Db = await dbConnect();
 	const stripe = stripeConnect();
-	const redis = await redisConnect();
 
-	const cached = await redis.get(`customer:purchase-history:${req.query.userId}`);
-	if (cached) {
-		return res.status(304).json({ history: JSON.parse(cached) });
+	let purchases: AggregatedPurchaseRecordPurchases[] = [];
+	if (req.query.find) {
+		purchases = (await db
+			.collection("purchases")
+			.find({ _id: req.query.find })
+			.toArray()) as AggregatedPurchaseRecordPurchases[];
+	} else {
+		purchases = (await db
+			.collection("purchases")
+			.find()
+			.limit(100)
+			.toArray()) as AggregatedPurchaseRecordPurchases[];
 	}
 
-	const purchaseHistory = (await db
-		.collection("purchases")
-		.find({ boughtBy: req.query.userId })
-		.toArray()) as AggregatedPurchaseRecordPurchases[];
-
-	for (let purchase of purchaseHistory) {
+	for (let purchase of purchases) {
 		const refund = (await db.collection("refunds").findOne({ order: purchase._id })) as Refund;
 		if (refund) {
 			purchase.refundStatus = refund.status;
@@ -110,9 +77,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		}
 	}
 
-	await redis.set(`customer:purchase-history:${req.query.userId}`, JSON.stringify(purchaseHistory), "PX", TIME.month);
-
-	return res.status(200).json({ history: purchaseHistory });
+	return res.status(200).json({ history: purchases });
 };
 
 export default withSession(handler);

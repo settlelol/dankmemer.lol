@@ -3,16 +3,17 @@ import { useEffect, useState } from "react";
 import LoadingPepe from "src/components/LoadingPepe";
 import { Title } from "src/components/Title";
 import Button from "src/components/ui/Button";
-import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/[userId]/history";
 import { StripePurchaseDetails } from "src/pages/api/customers/[userId]/purchases/[id]";
 import DisputeCreator from "./RefundRequester";
 import PaymentMethod from "./PaymentMethod";
 import PurchasedGoods from "./PurchasedGoods";
 import clsx from "clsx";
+import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/[userId]/history";
 
 interface Props {
 	purchase: AggregatedPurchaseRecordPurchases;
 	userId: string;
+	staffView?: boolean;
 }
 
 export enum RefundStatus {
@@ -33,7 +34,7 @@ export interface Refund {
 	status: RefundStatus;
 }
 
-export default function PurchaseViewer({ purchase, userId }: Props) {
+export default function PurchaseViewer({ purchase, userId, staffView }: Props) {
 	const [loading, setLoading] = useState(true);
 	const [paymentMethod, setPaymentMethod] = useState<StripePurchaseDetails["paymentMethod"] | null>(null);
 	const [disputing, setDisputing] = useState(false);
@@ -70,7 +71,7 @@ export default function PurchaseViewer({ purchase, userId }: Props) {
 		}
 	};
 
-	return disputing ? (
+	return disputing && !staffView ? (
 		<DisputeCreator close={closeDispute} purchase={purchase} userId={userId} />
 	) : (
 		<div>
@@ -96,14 +97,14 @@ export default function PurchaseViewer({ purchase, userId }: Props) {
 								Need support
 							</Button>
 							<Button
-								variant={activeDispute ? "dark" : "danger"}
+								variant={activeDispute || staffView ? "dark" : "danger"}
 								size="medium"
 								onClick={() => setDisputing(true)}
 								className={clsx(
-									activeDispute &&
+									(activeDispute || staffView) &&
 										"text-neutral-500 hover:bg-opacity-100 dark:text-neutral-500 dark:hover:bg-opacity-100"
 								)}
-								disabled={activeDispute!}
+								disabled={activeDispute! || staffView}
 							>
 								Request a refund
 							</Button>

@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { Title } from "src/components/Title";
-import { DiscountData, AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/[userId]/history";
+import { AggregatedPurchaseRecordPurchases, DiscountData } from "src/pages/api/customers/[userId]/history";
 
 interface Props {
 	purchase: AggregatedPurchaseRecordPurchases;

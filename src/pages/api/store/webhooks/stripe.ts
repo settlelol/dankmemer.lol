@@ -44,6 +44,7 @@ export interface PaymentIntentItemResult {
 	type: Stripe.Price.Type;
 	interval?: Stripe.Price.Recurring.Interval;
 	intervalCount?: number;
+	image?: string;
 }
 
 export interface PaymentIntentItemDiscount {

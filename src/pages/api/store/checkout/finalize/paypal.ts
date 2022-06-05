@@ -15,6 +15,8 @@ export interface PurchaseRecord {
 	giftFor?: string;
 	items: PaymentIntentItemResult[];
 	discounts: PaymentIntentItemDiscount[];
+	boughtBy: string;
+	gateway: "stripe" | "paypal";
 	purchaseTime: number;
 	subscriptionId?: string;
 }
