@@ -25,6 +25,8 @@ import { Icon as Iconify } from "@iconify/react";
 import { formatRelative } from "date-fns";
 import ControlLinks from "src/components/control/ControlLinks";
 import { AggregatedPurchaseRecordPurchases as AggregatedPurchaseRecord } from "src/pages/api/customers/[userId]/history";
+import Button from "src/components/ui/Button";
+import PurchaseFinder from "src/components/control/store/PurchaseFinder";
 
 export default function PurchaseHistory({ user }: PageProps) {
 	const { current: table } = useRef(
@@ -34,6 +36,9 @@ export default function PurchaseHistory({ user }: PageProps) {
 	const [loading, setLoading] = useState(true);
 	const [viewing, setViewing] = useState(false);
 	const [viewingPurchase, setViewingPurchase] = useState<AggregatedPurchaseRecord>();
+	const [rightPane, setRightPane] = useState(
+		<PurchaseViewer purchase={viewingPurchase!} userId={user!.id} staffView />
+	);
 	const [purchases, setPurchases] = useState<AggregatedPurchaseRecord[]>([]);
 
 	const [sorting, setSorting] = useState<SortingState>([]);
@@ -163,6 +168,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 	}, []);
 
 	const showPurchase = (purchase: AggregatedPurchaseRecord) => {
+		setRightPane(<PurchaseViewer purchase={purchase!} userId={user!.id} staffView />);
 		setViewingPurchase(purchase);
 		setViewing(true);
 	};
@@ -173,7 +179,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 			links={<ControlLinks user={user!} />}
 			hideRightPane={() => setViewing(false)}
 			rightPaneVisible={viewing}
-			rightPaneContent={<PurchaseViewer purchase={viewingPurchase!} userId={user!.id} staffView />}
+			rightPaneContent={rightPane}
 		>
 			<main>
 				<Title size="big">Recent purchases</Title>
@@ -192,6 +198,18 @@ export default function PurchaseHistory({ user }: PageProps) {
 							value={(instance.getColumn("_id").getFilterValue() ?? "") as string}
 							onChange={(e) => instance.getColumn("_id").setFilterValue(e.target.value)}
 						/>
+					</div>
+					<div className="order-2 mt-8 flex items-center justify-center space-x-4">
+						<Button
+							variant="primary"
+							className="w-max"
+							onClick={() => {
+								setViewing(true);
+								setRightPane(<PurchaseFinder showPurchase={showPurchase} />);
+							}}
+						>
+							Find a specific purchase
+						</Button>
 					</div>
 				</div>
 				<section className="flex flex-col space-y-5">
