@@ -5,7 +5,7 @@ import { Title } from "src/components/Title";
 import Container from "src/components/ui/Container";
 import { PageProps } from "src/types";
 import { withSession } from "src/util/session";
-import { CartItem as CartItems } from ".";
+import { CartItem as CartItems, Metadata } from ".";
 import CartItem from "src/components/store/cart/CartItem";
 import MarketingBox from "src/components/store/cart/MarketingBox";
 import Button from "src/components/ui/Button";
@@ -20,12 +20,27 @@ import Tooltip from "src/components/ui/Tooltip";
 import { Icon as Iconify } from "@iconify/react";
 import { toast } from "react-toastify";
 import { AppliedDiscount } from "../api/store/discount/apply";
+import { dbConnect } from "src/util/mongodb";
+import { PurchaseRecord } from "../api/store/checkout/finalize/paypal";
+import { stripeConnect } from "src/util/stripe";
 
 interface Props extends PageProps {
 	cartData: CartItems[];
+	upsells: UpsellProduct[];
 }
 
-export default function Cart({ cartData, user }: Props) {
+export interface UpsellProduct {
+	id: string;
+	name: string;
+	image: string;
+	type: Metadata["type"];
+	prices: {
+		id: string;
+		value: number;
+	}[];
+}
+
+export default function Cart({ cartData, upsells, user }: Props) {
 	const router = useRouter();
 
 	const [processingChange, setProcessingChange] = useState<boolean>(false);
@@ -250,6 +265,16 @@ export default function Cart({ cartData, user }: Props) {
 		}
 	};
 
+	const addUpsellProduct = async (id: string) => {
+		try {
+			const { data: formatted } = await axios(`/api/store/product/find?id=${id}&action=format&to=cart-item`);
+			addToCart(formatted);
+		} catch (e) {
+			console.error(e);
+			toast.error("We were unable to update your cart information. Please try again later.");
+		}
+	};
+
 	useEffect(() => {
 		setValidGiftRecipient(
 			/^[0-9]*$/.test(giftRecipient) &&
@@ -304,21 +329,9 @@ export default function Cart({ cartData, user }: Props) {
 					<div className="mt-5 h-max w-full rounded-lg bg-light-500 px-4 py-3 dark:bg-dark-200">
 						<Title size="small">Other users have also bought</Title>
 						<div className="mt-2">
-							{/* 
-								TODO: (Badosz) Create some kind of mongo query to get either:
-								a) Random products out of recent purchases
-								b) Random products that users have bought
-								c) Most purchased products
-								d) [Not sure how reasonable] Past purchases that includes some or all of the current cart's items
-
-								Pick whichever you want I have no preference but you shouldn't need the
-								cart check because it will be in a different array
-
-								-InBlue xqcL
-
-								TODO: (Blue) Create a way to present a sale on an item here.
-							*/}
-							{cart.length >= 1 && <OtherProduct {...cart[0]} addToCart={addToCart} />}
+							{upsells.map((upsell) => (
+								<OtherProduct {...upsell} addToCart={addUpsellProduct} />
+							))}
 						</div>
 					</div>
 				</div>
@@ -531,8 +544,55 @@ export const getServerSideProps: GetServerSideProps = withSession(
 				},
 			};
 
+		const db = await dbConnect();
+		const stripe = stripeConnect();
+		const samplePurchaseSet = (await db
+			.collection("purchases")
+			.find()
+			.sort({ purchaseTime: -1 })
+			.limit(100)
+			.toArray()) as PurchaseRecord[];
+		const itemCounts: { [key: string]: number } = {};
+		for (let purchase of samplePurchaseSet) {
+			for (let item of purchase.items) {
+				itemCounts[item.id!] = (itemCounts[item.id!] ?? 0) + item.quantity;
+			}
+		}
+
+		const sortedSample = Object.fromEntries(Object.entries(itemCounts).sort(([_, a], [__, b]) => b - a));
+		const top3 = Object.keys(sortedSample).slice(0, 3);
+		const remainder = Object.keys(sortedSample).slice(3);
+		const twoRandom = [...remainder].sort(() => 0.5 - Math.random()).slice(0, 2);
+		const upsellsRaw = [...top3, ...twoRandom].sort(() => 0.5 - Math.random());
+		const upsells: UpsellProduct[] = [];
+
+		for (let upsellProduct of upsellsRaw) {
+			const product = await stripe.products.retrieve(upsellProduct);
+			const prices = (
+				await stripe.prices.list({
+					product: product.id,
+					active: true,
+				})
+			).data;
+
+			upsells.push({
+				id: product.id,
+				image: product.images[0],
+				name: product.name,
+				type: (product.metadata as Metadata).type,
+				prices: prices.map((price) => ({
+					id: price.id,
+					value: price.unit_amount!,
+				})),
+			});
+		}
+
 		return {
-			props: { cartData: cart, user },
+			props: {
+				cartData: cart,
+				upsells,
+				user,
+			},
 		};
 	}
 );
