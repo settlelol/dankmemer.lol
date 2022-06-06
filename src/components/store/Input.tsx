@@ -13,6 +13,7 @@ interface InputProps {
 	iconSize?: number;
 	iconEnd?: "left" | "right";
 	iconGap?: string;
+	required?: boolean;
 	disabled?: boolean;
 	className?: string;
 	onChange?: ChangeEventHandler<HTMLInputElement>;
@@ -37,6 +38,7 @@ export default function Input({
 	iconSize = 24,
 	iconEnd = "left",
 	iconGap,
+	required,
 	disabled,
 	className,
 	onChange,
@@ -44,7 +46,12 @@ export default function Input({
 }: InputProps) {
 	return (
 		<div className="group relative flex flex-col justify-start text-black dark:text-white">
-			{label && <label className="mb-1 text-neutral-600 dark:text-neutral-300">{label}</label>}
+			{label && (
+				<label className="mb-1 text-neutral-600 dark:text-neutral-300">
+					{label}
+					{required && <sup className="text-red-500">*</sup>}
+				</label>
+			)}
 			{icon && (
 				<span className={clsx("absolute top-10", iconEnd === "right" ? "right-3" : "left-3")}>
 					<Iconify

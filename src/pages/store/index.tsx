@@ -1,6 +1,6 @@
 import axios from "axios";
 import router from "next/router";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Title } from "src/components/Title";
 import Button from "src/components/ui/Button";
 import Container from "src/components/ui/Container";
@@ -15,6 +15,7 @@ import { authenticatedRoute } from "src/util/redirects";
 import Modal from "src/components/store/Modal";
 import ShoppingCart from "src/components/store/ShoppingCart";
 import { toast } from "react-toastify";
+import PagedBanner, { BannerPage } from "src/components/community/PagedBanner";
 
 export interface Product extends Stripe.Product {
 	price: number;
@@ -88,6 +89,7 @@ export default function StoreHome({ user }: PageProps) {
 	const [products, setProducts] = useState<AnyProduct[]>([]);
 	const [annualPricing, setAnnualPricing] = useState<Boolean>(false);
 
+	const [bannerPages, setBannerPages] = useState<BannerPage[]>([]);
 	const [modalProps, setModalProps] = useState<ModalProps>();
 
 	const getProducts = async () => {
@@ -222,6 +224,9 @@ export default function StoreHome({ user }: PageProps) {
 								: "Shopping cart"
 						}
 					/>
+				</div>
+				<div className="mt-3">
+					<PagedBanner pages={bannerPages} height={"h-auto md:h-72"} />
 				</div>
 				<div className="mt-4">
 					<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
