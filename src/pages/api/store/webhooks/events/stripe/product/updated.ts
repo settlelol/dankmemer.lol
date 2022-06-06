@@ -77,7 +77,7 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 		}
 	}
 
-	if (prices.length >= 1) {
+	if (prices.length > 1) {
 		fields.push({
 			name: `Price${prices.length !== 1 ? "s" : ""}`,
 			value: prices
