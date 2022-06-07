@@ -9,7 +9,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	let query = {};
-	if (!user.developer) {
+	if (req.query.active || !user.developer) {
 		query = {
 			active: true,
 		};

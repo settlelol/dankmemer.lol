@@ -92,14 +92,33 @@ export default function StoreHome({ user }: PageProps) {
 	const [bannerPages, setBannerPages] = useState<BannerPage[]>([]);
 	const [modalProps, setModalProps] = useState<ModalProps>();
 
-	const getProducts = async () => {
-		const { data: products } = await axios("/api/store/products/one-time/list");
-		setProducts(products);
+	const getBanners = async () => {
+		try {
+			const { data: visibleBanners } = await axios("/api/store/banners/list?active=true");
+			setBannerPages(visibleBanners);
+		} catch (e) {
+			if (process.env.NODE_ENV === "development") {
+				console.error(e);
+			}
+		}
 	};
 
-	const getSubscriptions = async () => {
-		let { data: subscriptions } = await axios("/api/store/products/subscriptions/list");
-		setSubscriptions(subscriptions);
+	const getAllProducts = async () => {
+		try {
+			let ProductsAPI = axios.create({
+				baseURL: "/api/store/products/",
+			});
+			axios.all([ProductsAPI.get("/one-time/list"), ProductsAPI.get("/subscriptions/list")]).then(
+				axios.spread(async ({ data: singles }, { data: subscriptions }) => {
+					setProducts(singles);
+					setSubscriptions(subscriptions);
+				})
+			);
+		} catch (e) {
+			if (process.env.NODE_ENV === "development") {
+				console.error(e);
+			}
+		}
 	};
 
 	const getCartContents = async () => {
@@ -181,8 +200,8 @@ export default function StoreHome({ user }: PageProps) {
 	};
 
 	useEffect(() => {
-		getProducts();
-		getSubscriptions();
+		getBanners();
+		getAllProducts();
 		getCartContents();
 	}, []);
 
@@ -225,9 +244,11 @@ export default function StoreHome({ user }: PageProps) {
 						}
 					/>
 				</div>
-				<div className="mt-3">
-					<PagedBanner pages={bannerPages} height={"h-auto md:h-72"} />
-				</div>
+				{bannerPages.length >= 1 && (
+					<div className="mt-3">
+						<PagedBanner pages={bannerPages} height={"h-auto md:h-72"} />
+					</div>
+				)}
 				<div className="mt-4">
 					<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 						<Title size="small">Subscriptions</Title>
