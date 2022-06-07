@@ -20,7 +20,7 @@ export default function Navlink({ icon, size = 22, text, href }: Props) {
 				</div>
 				<p
 					className={
-						router.route === href
+						router.route === href || router.route.startsWith(href)
 							? "text-dank-200"
 							: "text-gray-800 group-hover:text-dank-100 dark:text-white"
 					}

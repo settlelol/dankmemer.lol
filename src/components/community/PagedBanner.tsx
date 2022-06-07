@@ -13,11 +13,23 @@ interface Props {
 }
 
 export interface BannerPage {
+	_id?: string;
 	title: string;
 	description: string;
 	image: string;
 	primaryAction: BannerAction;
 	secondaryAction?: BannerAction;
+	active?: boolean;
+	createdBy?: string | BannerCreator;
+	createdAt?: number;
+	lastUpdated?: number;
+	updatedBy?: string | BannerCreator;
+}
+
+export interface BannerCreator {
+	id: string;
+	username: string;
+	discriminator: string;
 }
 
 interface BannerAction {
@@ -28,16 +40,6 @@ interface BannerAction {
 
 export enum PossibleActions {
 	OPEN_LINK = "open-link",
-}
-
-function BannerAction(action: PossibleActions, input: string): { exec: () => any } {
-	switch (action) {
-		case PossibleActions.OPEN_LINK:
-			const router = useRouter();
-			return {
-				exec: () => router.push(input),
-			};
-	}
 }
 
 function useInterval(callback: any, delay: number) {
@@ -61,6 +63,8 @@ export default function PagedBanner({
 	height = "h-auto md:h-52",
 	duration = 1000,
 }: RequireExactlyOne<Props, "pages" | "displayPage">) {
+	const router = useRouter();
+
 	const [paused, setPaused] = useState(false);
 	const [timePast, setTimePast] = useState(0);
 	const [pageIndex, setPageIndex] = useState(0);
@@ -71,7 +75,7 @@ export default function PagedBanner({
 	}, [displayPage]);
 
 	useInterval(() => {
-		if (!paused && !displayPage) {
+		if (!paused && !displayPage && pages && pages.length > 1) {
 			if (timePast + 1 >= duration) {
 				setPageIndex((curr) => (pages.length - 1 > curr ? curr + 1 : 0));
 				setTimePast(0);
@@ -86,6 +90,15 @@ export default function PagedBanner({
 			setPage(pages[pageIndex]);
 		}
 	}, [pageIndex]);
+
+	const BannerAction = (action: PossibleActions, input: string): { exec: () => any } => {
+		switch (action) {
+			case PossibleActions.OPEN_LINK:
+				return {
+					exec: () => router.push(input),
+				};
+		}
+	};
 
 	return (
 		<>
@@ -148,31 +161,33 @@ export default function PagedBanner({
 						)}
 					</div>
 				</div>
-				<div className="absolute left-0 bottom-0 z-20 grid h-5 w-full place-items-center overflow-hidden">
-					<div className="flex space-x-3">
-						{Array(pages ? pages.length : 1)
-							.fill(0)
-							.map((_, i) => (
-								<div
-									role={"progressbar"}
-									className="h-1 w-8 cursor-pointer overflow-hidden rounded-full bg-white/40"
-									onClick={() => {
-										setTimePast(0);
-										setPageIndex(i);
-									}}
-								>
-									{pageIndex === i && (
-										<div
-											className="h-full bg-dank-300"
-											style={{
-												width: (timePast / duration) * 100 + "%",
-											}}
-										/>
-									)}
-								</div>
-							))}
+				{pages && pages.length > 1 && (
+					<div className="absolute left-0 bottom-0 z-20 grid h-5 w-full place-items-center overflow-hidden">
+						<div className="flex space-x-3">
+							{Array(pages.length)
+								.fill(0)
+								.map((_, i) => (
+									<div
+										role={"progressbar"}
+										className="h-1 w-8 cursor-pointer overflow-hidden rounded-full bg-white/40"
+										onClick={() => {
+											setTimePast(0);
+											setPageIndex(i);
+										}}
+									>
+										{pageIndex === i && (
+											<div
+												className="h-full bg-dank-300"
+												style={{
+													width: (timePast / duration) * 100 + "%",
+												}}
+											/>
+										)}
+									</div>
+								))}
+						</div>
 					</div>
-				</div>
+				)}
 			</div>
 		</>
 	);
