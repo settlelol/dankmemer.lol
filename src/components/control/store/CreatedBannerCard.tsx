@@ -66,7 +66,7 @@ export default function CreatedBannerCard({ banner }: Props) {
 							</Link>
 						)}
 					</p>
-					{banner.createdAt && <p>Created: {formatRelative(new Date(banner.createdAt), new Date())}</p>}
+					{banner.createdAt && <p>Created at: {formatRelative(new Date(banner.createdAt), new Date())}</p>}
 					{banner.updatedBy &&
 						(typeof banner.updatedBy === "string" ? banner.updatedBy === banner.createdBy : true) && (
 							<p>
