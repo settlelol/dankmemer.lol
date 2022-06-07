@@ -261,7 +261,7 @@ export default function BannerEditor() {
 				</div>
 			</Box>
 			<div className="mt-5">
-				<PagedBanner displayPage={sampleBanner} isStatic />
+				<PagedBanner displayPage={sampleBanner} height={"h-auto md:h-72"} />
 			</div>
 		</div>
 	);
