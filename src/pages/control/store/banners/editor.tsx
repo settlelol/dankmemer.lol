@@ -218,7 +218,7 @@ export default function BannerEditor({ user, bannerId }: PageProps & { bannerId?
 									onChange={(e) => setPrimaryInput(e.target.value)}
 									type={"text"}
 									width="w-full"
-									label="Primary Action Input"
+									label="Primary action input"
 									required
 									placeholder="Some kind of input to provide to the function selected"
 									value={primaryInput}
@@ -265,7 +265,7 @@ export default function BannerEditor({ user, bannerId }: PageProps & { bannerId?
 									onChange={(e) => setSecondaryInput(e.target.value)}
 									type={"text"}
 									width="w-full"
-									label="Secondary Action Input"
+									label="Secondary action input"
 									placeholder="Some kind of input to provide to the function selected"
 									value={secondaryInput}
 								/>
