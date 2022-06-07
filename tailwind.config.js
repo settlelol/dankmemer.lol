@@ -9,6 +9,8 @@ module.exports = {
 		extend: {
 			screens: {
 				phone: "540px",
+				short: { raw: "(min-height: 800px)" },
+				tall: { raw: "(min-height: 900px)" },
 			},
 			fontFamily: {
 				montserrat: ["Montserrat"],
