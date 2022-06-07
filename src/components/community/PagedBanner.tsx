@@ -3,6 +3,8 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import Button from "../ui/Button";
 import type { RequireExactlyOne } from "type-fest";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 interface Props {
 	pages?: BannerPage[];
@@ -40,6 +42,7 @@ interface BannerAction {
 
 export enum PossibleActions {
 	OPEN_LINK = "open-link",
+	ADD_TO_CART = "add-to-cart",
 }
 
 function useInterval(callback: any, delay: number) {
@@ -96,6 +99,20 @@ export default function PagedBanner({
 			case PossibleActions.OPEN_LINK:
 				return {
 					exec: () => router.push(input),
+				};
+			case PossibleActions.ADD_TO_CART:
+				return {
+					exec: async () => {
+						try {
+							await axios(`/api/store/cart/add?id=${input}`);
+							await router.push("/store/cart");
+						} catch (e) {
+							if (process.env.NODE_ENV === "development") {
+								console.error(e);
+							}
+							toast.error("Unable to add product(s) to cart. Please try again later.");
+						}
+					},
 				};
 		}
 	};

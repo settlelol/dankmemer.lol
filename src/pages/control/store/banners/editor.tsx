@@ -16,7 +16,6 @@ import ControlLinks from "src/components/control/ControlLinks";
 import { PageProps } from "src/types";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { withSession } from "src/util/session";
-import { developerRoute } from "src/util/redirects";
 import GoBack from "src/components/ui/GoBack";
 import { Session } from "next-iron-session";
 
@@ -26,6 +25,10 @@ const Options: ActionOption[] = [
 	{
 		label: "Open a Link",
 		action: PossibleActions.OPEN_LINK,
+	},
+	{
+		label: "Add a product to user's cart",
+		action: PossibleActions.ADD_TO_CART,
 	},
 ];
 
