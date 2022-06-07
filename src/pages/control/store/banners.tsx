@@ -4,14 +4,12 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import PagedBanner, { BannerPage } from "src/components/community/PagedBanner";
+import ControlPanelContainer from "src/components/control/Container";
+import ControlLinks from "src/components/control/ControlLinks";
 import LoadingPepe from "src/components/LoadingPepe";
-import BannerEditor from "src/components/store/BannerEditor";
-import Input from "src/components/store/Input";
+import BannerEditor from "src/components/control/store/BannerEditor";
 import { Title } from "src/components/Title";
-import Box from "src/components/ui/Box";
 import Button from "src/components/ui/Button";
-import Container from "src/components/ui/Container";
-import Switch from "src/components/ui/Switch";
 import { PageProps } from "src/types";
 import { developerRoute } from "src/util/redirects";
 import { withSession } from "src/util/session";
@@ -38,35 +36,33 @@ export default function StoreBanners({ user }: PageProps) {
 	}, []);
 
 	return (
-		<Container title="Blog Editor" user={user}>
-			<div className="my-16">
-				<div className="flex items-center justify-between">
-					<Title size="big">Manage store banners</Title>
-					<Button variant={creating ? "danger" : "primary"} onClick={() => setCreating((curr) => !curr)}>
-						{creating ? "Close" : "Open"} Banner Creator
-					</Button>
-				</div>
-				<div className="my-4 flex flex-col space-y-8">
-					{creating && <BannerEditor />}
-					<div className="py-5">
-						<Title size="medium" className="font-semibold">
-							Existing Banners
-						</Title>
-						{!loading ? (
-							banners.length >= 1 ? (
-								<div className="flex flex-col space-y-8">
-									<PagedBanner pages={banners} />
-								</div>
-							) : (
-								<p>No banners :/</p>
-							)
+		<ControlPanelContainer title="Blog Editor" links={<ControlLinks user={user!} />}>
+			<div className="flex items-center justify-between">
+				<Title size="big">Store banners</Title>
+				<Button variant={creating ? "danger" : "primary"} onClick={() => setCreating((curr) => !curr)}>
+					{creating ? "Close" : "Open"} Banner Creator
+				</Button>
+			</div>
+			<div className="my-4 flex flex-col space-y-8">
+				{creating && <BannerEditor />}
+				<div className="py-5">
+					<Title size="medium" className="font-semibold">
+						Existing Banners
+					</Title>
+					{!loading ? (
+						banners.length >= 1 ? (
+							<div className="flex flex-col space-y-8">
+								<PagedBanner pages={banners} />
+							</div>
 						) : (
-							<LoadingPepe />
-						)}
-					</div>
+							<p>No banners :/</p>
+						)
+					) : (
+						<LoadingPepe />
+					)}
 				</div>
 			</div>
-		</Container>
+		</ControlPanelContainer>
 	);
 }
 

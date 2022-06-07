@@ -16,6 +16,7 @@ import Modal from "src/components/store/Modal";
 import ShoppingCart from "src/components/store/ShoppingCart";
 import { toast } from "react-toastify";
 import PagedBanner, { BannerPage } from "src/components/community/PagedBanner";
+import Switch from "src/components/ui/Switch";
 
 export interface Product extends Stripe.Product {
 	price: number;
@@ -87,7 +88,7 @@ export default function StoreHome({ user }: PageProps) {
 	const [cartItems, setCartItems] = useState<CartItem[] | []>([]);
 	const [subscriptions, setSubscriptions] = useState<AnyProduct[]>([]);
 	const [products, setProducts] = useState<AnyProduct[]>([]);
-	const [annualPricing, setAnnualPricing] = useState<Boolean>(false);
+	const [annualPricing, setAnnualPricing] = useState<boolean>(false);
 
 	const [bannerPages, setBannerPages] = useState<BannerPage[]>([]);
 	const [modalProps, setModalProps] = useState<ModalProps>();
@@ -254,18 +255,11 @@ export default function StoreHome({ user }: PageProps) {
 						<Title size="small">Subscriptions</Title>
 						<div className="flex items-center justify-end">
 							<p className="mr-2 text-sm text-neutral-900 dark:text-neutral-100">Annual pricing</p>
-							<label
-								htmlFor="annualPricing"
-								onClick={() => setAnnualPricing(!annualPricing)}
-								className="flex select-none items-center space-x-6 text-dark-500 dark:text-white"
-							>
-								<span
-									className={clsx(
-										"h-4 w-4 rounded-full",
-										annualPricing ? "bg-dank-300" : "bg-gray-400 dark:bg-dank-400"
-									)}
-								/>
-							</label>
+							<Switch
+								checked={annualPricing}
+								variant="normal"
+								onClick={() => setAnnualPricing((curr) => !curr)}
+							/>
 						</div>
 					</div>
 					<div

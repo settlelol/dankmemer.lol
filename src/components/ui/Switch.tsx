@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { MouseEventHandler, useEffect, useState } from "react";
+import { MouseEventHandler } from "react";
 
 interface Props {
 	checked: boolean;
@@ -13,8 +13,8 @@ export default function Switch({ checked, variant, onClick }: Props) {
 			<input className="invisible h-0 w-0" name="switch" type="checkbox" checked={checked} />
 			<label
 				className={clsx(
-					checked && variant === "normal" && "bg-green-500 dark:bg-green-500",
-					checked && variant === "danger" && "bg-red-500 dark:bg-red-500",
+					checked && variant !== "danger" && "!bg-green-500 dark:!bg-green-500",
+					checked && variant === "danger" && "!bg-red-500 dark:!bg-red-500",
 					"relative flex h-6 w-11 cursor-pointer items-center justify-between rounded-full bg-slate-200 transition-colors dark:bg-neutral-700"
 				)}
 				htmlFor="switch"

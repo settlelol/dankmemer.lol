@@ -7,7 +7,7 @@ const optionVariants = {
 	danger: "text-rose-600",
 };
 
-interface Option {
+export interface Option {
 	label: string | ReactNode;
 	link?: string;
 	icon?: string;
@@ -23,13 +23,7 @@ interface Props {
 	requireScroll?: boolean;
 }
 
-export default function Dropdown({
-	content,
-	options,
-	className = "",
-	isInput = false,
-	requireScroll = false,
-}: Props) {
+export default function Dropdown({ content, options, className = "", isInput = false, requireScroll = false }: Props) {
 	const [open, setOpen] = useState(false);
 	const dropdown = useRef<any>(null);
 
@@ -60,15 +54,10 @@ export default function Dropdown({
 	}, []);
 
 	return (
-		<div
-			className={clsx("relative cursor-pointer select-none", className)}
-			ref={dropdown}
-		>
+		<div className={clsx("relative cursor-pointer select-none", className)} ref={dropdown}>
 			<div
 				className={clsx(
-					isInput
-						? "bg-light-200 dark:bg-dank-600"
-						: "bg-light-500 dark:bg-dank-500",
+					isInput ? "bg-light-200 dark:bg-dank-600" : "bg-light-500 dark:bg-dank-500",
 					"flex items-center rounded-md"
 				)}
 				onClick={() => setOpen(!open)}
@@ -89,24 +78,15 @@ export default function Dropdown({
 							.map((option) => {
 								const content = (
 									<div
-										onClick={(e) =>
-											option?.onClick
-												? option?.onClick(e)
-												: null
-										}
+										onClick={(e) => (option?.onClick ? option?.onClick(e) : null)}
 										className={clsx(
 											"rounded-sm px-2 py-1 text-sm hover:bg-[#131417]",
-											optionVariants[
-												option?.variant || "normal"
-											]
+											optionVariants[option?.variant || "normal"]
 										)}
 									>
 										<div className="flex items-center space-x-2">
 											{option?.icon && (
-												<div
-													className="material-icons"
-													style={{ fontSize: "16px" }}
-												>
+												<div className="material-icons" style={{ fontSize: "16px" }}>
 													{option.icon}
 												</div>
 											)}
@@ -115,13 +95,7 @@ export default function Dropdown({
 									</div>
 								);
 
-								return option?.link ? (
-									<Link href={option?.link || "#"}>
-										{content}
-									</Link>
-								) : (
-									content
-								);
+								return option?.link ? <Link href={option?.link || "#"}>{content}</Link> : content;
 							})}
 					</div>
 				</div>

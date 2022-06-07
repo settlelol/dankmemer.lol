@@ -2,10 +2,11 @@ import clsx from "clsx";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import Button from "../ui/Button";
-import Link from "../ui/Link";
+import type { RequireExactlyOne } from "type-fest";
 
 interface Props {
-	pages: BannerPage[];
+	pages?: BannerPage[];
+	displayPage?: BannerPage;
 	height?: string;
 	duration?: number;
 	isStatic?: boolean;
@@ -15,14 +16,28 @@ export interface BannerPage {
 	title: string;
 	description: string;
 	image: string;
-	url: string;
-	buttonText: string;
-	secondaryLink?: SecondaryBannerLink;
+	primaryAction: BannerAction;
+	secondaryAction?: BannerAction;
 }
 
-interface SecondaryBannerLink {
+interface BannerAction {
 	text: string;
-	url: string;
+	action: PossibleActions;
+	input: string;
+}
+
+export enum PossibleActions {
+	OPEN_LINK = "open-link",
+}
+
+function BannerAction(action: PossibleActions, input: string): { exec: () => any } {
+	switch (action) {
+		case PossibleActions.OPEN_LINK:
+			const router = useRouter();
+			return {
+				exec: () => router.push(input),
+			};
+	}
 }
 
 function useInterval(callback: any, delay: number) {
@@ -40,15 +55,23 @@ function useInterval(callback: any, delay: number) {
 	}, [delay]);
 }
 
-export default function PagedBanner({ pages, height = "h-auto md:h-52", duration = 1000, isStatic }: Props) {
-	const router = useRouter();
+export default function PagedBanner({
+	pages,
+	displayPage,
+	height = "h-auto md:h-52",
+	duration = 1000,
+}: RequireExactlyOne<Props, "pages" | "displayPage">) {
 	const [paused, setPaused] = useState(false);
 	const [timePast, setTimePast] = useState(0);
 	const [pageIndex, setPageIndex] = useState(0);
-	const [page, setPage] = useState<BannerPage>(pages[0]);
+	const [page, setPage] = useState<BannerPage>(pages ? pages[0] : displayPage);
+
+	useEffect(() => {
+		setPage(displayPage!);
+	}, [displayPage]);
 
 	useInterval(() => {
-		if (!paused && !isStatic) {
+		if (!paused && !displayPage) {
 			if (timePast + 1 >= duration) {
 				setPageIndex((curr) => (pages.length - 1 > curr ? curr + 1 : 0));
 				setTimePast(0);
@@ -59,7 +82,9 @@ export default function PagedBanner({ pages, height = "h-auto md:h-52", duration
 	}, 1);
 
 	useEffect(() => {
-		setPage(pages[pageIndex]);
+		if (pages) {
+			setPage(pages[pageIndex]);
+		}
 	}, [pageIndex]);
 
 	return (
@@ -103,23 +128,29 @@ export default function PagedBanner({ pages, height = "h-auto md:h-52", duration
 					<h1 className="font-montserrat text-3xl font-bold text-light-100">{page.title}</h1>
 					<p className="mb-3 text-light-300 drop-shadow">{page.description}</p>
 					<div>
-						<Button variant="primary" onClick={() => router.push(page.url)}>
+						<Button
+							variant="primary"
+							onClick={() => BannerAction(page.primaryAction.action, page.primaryAction.input).exec()}
+						>
 							<div className="flex items-center space-x-2">
-								<p>{page.buttonText}</p>
+								<p>{page.primaryAction.text}</p>
 							</div>
 						</Button>
-						{page.secondaryLink && (
-							<p>
-								<Link href={page.secondaryLink.url} className="underline underline-offset-1">
-									{page.secondaryLink.text}
-								</Link>
+						{page.secondaryAction && (
+							<p
+								onClick={() =>
+									BannerAction(page.secondaryAction!.action, page.secondaryAction!.input).exec()
+								}
+								className="cursor-pointer text-gray-800 underline underline-offset-2 hover:text-dank-300 dark:text-neutral-400 dark:hover:text-dank-100"
+							>
+								{page.secondaryAction.text}
 							</p>
 						)}
 					</div>
 				</div>
 				<div className="absolute left-0 bottom-0 z-20 grid h-5 w-full place-items-center overflow-hidden">
 					<div className="flex space-x-3">
-						{Array(pages.length)
+						{Array(pages ? pages.length : 1)
 							.fill(0)
 							.map((_, i) => (
 								<div
