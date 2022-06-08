@@ -17,6 +17,10 @@ import ShoppingCart from "src/components/store/ShoppingCart";
 import { toast } from "react-toastify";
 import PagedBanner, { BannerPage } from "src/components/store/PagedBanner";
 import Switch from "src/components/ui/Switch";
+import Link from "src/components/ui/Link";
+import { UpsellProduct } from "./cart";
+import { toTitleCase } from "src/util/string";
+import PopularProduct from "src/components/store/PopularProduct";
 
 export interface Product extends Stripe.Product {
 	price: number;
@@ -84,8 +88,9 @@ export default function StoreHome({ user }: PageProps) {
 
 	const [totalCost, setTotalCost] = useState<string>("...");
 	const [cartQuantities, setCartQuantities] = useState(0);
-
 	const [cartItems, setCartItems] = useState<CartItem[] | []>([]);
+
+	const [popularProducts, setPopularProducts] = useState<UpsellProduct[]>([]);
 	const [subscriptions, setSubscriptions] = useState<AnyProduct[]>([]);
 	const [products, setProducts] = useState<AnyProduct[]>([]);
 	const [annualPricing, setAnnualPricing] = useState<boolean>(false);
@@ -109,12 +114,19 @@ export default function StoreHome({ user }: PageProps) {
 			let ProductsAPI = axios.create({
 				baseURL: "/api/store/products/",
 			});
-			axios.all([ProductsAPI.get("/one-time/list"), ProductsAPI.get("/subscriptions/list")]).then(
-				axios.spread(async ({ data: singles }, { data: subscriptions }) => {
-					setProducts(singles);
-					setSubscriptions(subscriptions);
-				})
-			);
+			axios
+				.all([
+					ProductsAPI.get("/popular"),
+					ProductsAPI.get("/one-time/list"),
+					ProductsAPI.get("/subscriptions/list"),
+				])
+				.then(
+					axios.spread(async ({ data: popularProds }, { data: singles }, { data: subscriptions }) => {
+						setPopularProducts(popularProds);
+						setProducts(singles);
+						setSubscriptions(subscriptions);
+					})
+				);
 		} catch (e) {
 			if (process.env.NODE_ENV === "development") {
 				console.error(e);
@@ -167,6 +179,16 @@ export default function StoreHome({ user }: PageProps) {
 			_cartItems[alreadyExists].quantity += 1;
 			setCartItems(_cartItems);
 		} else setCartItems((_items) => [..._items, item]);
+	};
+
+	const addUpsellProduct = async (id: string) => {
+		try {
+			const { data: formatted } = await axios(`/api/store/product/find?id=${id}&action=format&to=cart-item`);
+			addToCart(formatted);
+		} catch (e) {
+			console.error(e);
+			toast.error("We were unable to update your cart information. Please try again later.");
+		}
 	};
 
 	const showProduct = (product: AnyProduct) => {
@@ -250,6 +272,16 @@ export default function StoreHome({ user }: PageProps) {
 						<PagedBanner pages={bannerPages} height={"h-auto md:h-72"} />
 					</div>
 				)}
+				<section className="mt-14">
+					<Title size="medium" className="font-semibold">
+						Popular products
+					</Title>
+					<div className="mt-3 flex justify-between space-x-10">
+						{popularProducts.map((product) => (
+							<PopularProduct product={product} addProduct={addUpsellProduct} />
+						))}
+					</div>
+				</section>
 				<div className="mt-4">
 					<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 						<Title size="small">Subscriptions</Title>
