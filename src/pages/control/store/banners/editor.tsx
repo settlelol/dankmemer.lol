@@ -35,6 +35,7 @@ const Options: ActionOption[] = [
 export default function BannerEditor({ user, bannerId }: PageProps & { bannerId?: string }) {
 	const router = useRouter();
 	const [submitInactiveBanner, setSubmitInactiveBanner] = useState(true);
+	const [isBannerActive, setIsBannerActive] = useState(false);
 
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
@@ -105,6 +106,7 @@ export default function BannerEditor({ user, bannerId }: PageProps & { bannerId?
 					setSecondaryText(data.secondaryAction?.text ?? "");
 					setSecondaryAction(Options.find((option) => option.action === data.secondaryAction?.action));
 					setSecondaryInput(data.secondaryAction?.input ?? "");
+					setIsBannerActive(data.active!);
 					setSubmitInactiveBanner(data.active!);
 				})
 				.catch((e) => {
@@ -278,8 +280,10 @@ export default function BannerEditor({ user, bannerId }: PageProps & { bannerId?
 					<div className="flex items-center justify-end space-x-2 text-red-400">
 						<p className="flex items-center space-x-2">
 							<span>
-								{bannerId ? "Change banner to be" : "Create banner as"}{" "}
-								<span className="font-bold">inactive</span>
+								{bannerId ? "Set banner to be" : "Create banner as"}{" "}
+								<span className="font-bold">
+									{isBannerActive && !submitInactiveBanner ? "inactive" : "active"}
+								</span>
 							</span>
 							<Tooltip
 								content={
