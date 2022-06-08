@@ -33,8 +33,9 @@ export default function PopularProduct({ product, addProduct }: Props) {
 			</div>
 			<div className="absolute bottom-4 left-0 w-full px-5">
 				<div className="flex w-full items-center justify-between space-x-2 text-base">
-					<Button size="medium" className="w-7/12" onClick={() => addProduct(product.id)}>
-						Purchase for ${(product.prices[0].value / 100).toFixed(2)}
+					<Button size="medium" className="w-8/12" onClick={() => addProduct(product.id)}>
+						{product.type !== "subscription" ? "Purchase for" : "Subscribe from"} $
+						{(product.prices[0].value / 100).toFixed(2)}
 					</Button>
 					<Link href="#" variant="secondary" className="underline">
 						Learn more
