@@ -17,7 +17,6 @@ export default function ProductEditor({ id }: Props) {
 	const [noDbContent, setNoDbContent] = useState(false);
 	const [canSubmit, setCanSubmit] = useState(false);
 
-	const [productId, setProductId] = useState(id);
 	const [productName, setProductName] = useState("");
 	const [productDescription, setProductDescription] = useState("");
 
@@ -55,7 +54,6 @@ export default function ProductEditor({ id }: Props) {
 			});
 
 		return () => {
-			setProductId("");
 			setProductName("");
 		};
 	}, []);
