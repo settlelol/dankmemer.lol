@@ -10,7 +10,7 @@ interface Props {
 export default function Switch({ checked, variant, onClick }: Props) {
 	return (
 		<>
-			<input className="invisible h-0 w-0" name="switch" type="checkbox" checked={checked} />
+			<input className="invisible h-0 w-0" name="switch" type="checkbox" />
 			<label
 				className={clsx(
 					checked && variant !== "danger" && "!bg-green-500 dark:!bg-green-500",
