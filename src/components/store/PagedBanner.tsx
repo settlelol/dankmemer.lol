@@ -68,6 +68,7 @@ export default function PagedBanner({
 }: RequireExactlyOne<Props, "pages" | "displayPage">) {
 	const router = useRouter();
 
+	const [primaryActionLoading, setPrimaryActionLoading] = useState(false);
 	const [paused, setPaused] = useState(false);
 	const [timePast, setTimePast] = useState(0);
 	const [pageIndex, setPageIndex] = useState(0);
@@ -104,6 +105,7 @@ export default function PagedBanner({
 				return {
 					exec: async () => {
 						try {
+							setPrimaryActionLoading(true);
 							await axios(`/api/store/cart/add?id=${input}`);
 							await router.push("/store/cart");
 						} catch (e) {
@@ -111,6 +113,8 @@ export default function PagedBanner({
 								console.error(e);
 							}
 							toast.error("Unable to add product(s) to cart. Please try again later.");
+						} finally {
+							setPrimaryActionLoading(false);
 						}
 					},
 				};
@@ -161,6 +165,10 @@ export default function PagedBanner({
 						<Button
 							variant="primary"
 							onClick={() => BannerAction(page.primaryAction.action, page.primaryAction.input).exec()}
+							loading={{
+								state: primaryActionLoading,
+								text: page.primaryAction.text,
+							}}
 						>
 							<div className="flex items-center space-x-2">
 								<p>{page.primaryAction.text}</p>
