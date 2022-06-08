@@ -16,7 +16,7 @@ export default function PopularProduct({ product, add, openModal }: Props) {
 			className={clsx(
 				"relative h-40 w-[28%] rounded-md px-5 py-4 transition-shadow",
 				"shadow-lg shadow-dank-300/20 hover:shadow-xl hover:shadow-dank-300/20",
-				"dark:bg-dark-500"
+				"bg-light-500 dark:bg-dark-500"
 			)}
 		>
 			<div className="flex items-center justify-start space-x-4">
@@ -28,7 +28,9 @@ export default function PopularProduct({ product, add, openModal }: Props) {
 				/>
 				<div>
 					<Title size="small">{product.name}</Title>
-					<p className="-mt-1.5 text-sm dark:text-neutral-400">{toTitleCase(product.type!)} item</p>
+					<p className="-mt-1.5 text-sm text-neutral-500 dark:text-neutral-400">
+						{toTitleCase(product.type!)} item
+					</p>
 				</div>
 			</div>
 			<div className="absolute bottom-4 left-0 w-full px-5">
@@ -37,7 +39,10 @@ export default function PopularProduct({ product, add, openModal }: Props) {
 						{product.type !== "subscription" ? "Purchase for" : "Subscribe from"} $
 						{(product.prices[0].value / 100).toFixed(2)}
 					</Button>
-					<p className="cursor-pointer text-center underline dark:text-neutral-400" onClick={openModal}>
+					<p
+						className="cursor-pointer text-center text-neutral-600 underline dark:text-neutral-400"
+						onClick={openModal}
+					>
 						Learn more
 					</p>
 				</div>
