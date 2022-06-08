@@ -60,7 +60,7 @@ export default function ManageProducts({ user }: PageProps) {
 	const [products, setProducts] = useState<ProductData[]>([]);
 	const [editing, setEditing] = useState(false);
 	const [editorContent, setEditorContent] = useState<ReactNode>();
-	const [productToEdit, setProductToEdit] = useState<AnyProduct>();
+	const [productToEdit, setProductToEdit] = useState("");
 
 	const [columnVisibility, setColumnVisibility] = useState({});
 	const [sorting, setSorting] = useState<SortingState>([]);
@@ -116,7 +116,7 @@ export default function ManageProducts({ user }: PageProps) {
 				),
 			}),
 			table.createDataColumn("prices", {
-				header: "Prices",
+				header: "Price(s)",
 				size: 144,
 				cell: (prices) =>
 					prices.getValue() ? (
@@ -172,6 +172,24 @@ export default function ManageProducts({ user }: PageProps) {
 				cell: (revenue) =>
 					revenue.getValue() >= 1 ? "$" + revenue.getValue().toFixed(2).toLocaleString() : <>&mdash;</>,
 			}),
+			table.createDisplayColumn({
+				id: "rtl_actions",
+				enableResizing: false,
+				enableHiding: false,
+				header: "",
+				cell: ({ row }) => (
+					<div className="-mr-6 grid place-items-center">
+						<Iconify
+							icon="akar-icons:edit"
+							height={18}
+							className="cursor-pointer hover:!text-dank-100"
+							onClick={() => setProductToEdit(row.original!.id)}
+						/>
+					</div>
+				),
+				maxSize: 40,
+				size: 40,
+			}),
 		],
 		[]
 	);
@@ -209,13 +227,7 @@ export default function ManageProducts({ user }: PageProps) {
 		if (!productToEdit) {
 			setEditing(false);
 		} else {
-			setEditorContent(
-				<ProductEditor
-					id={productToEdit.id}
-					name={productToEdit.name}
-					description={productToEdit.description || ""}
-				/>
-			);
+			setEditorContent(<ProductEditor id={productToEdit} />);
 			setEditing(true);
 		}
 	}, [productToEdit]);
@@ -232,7 +244,7 @@ export default function ManageProducts({ user }: PageProps) {
 				if (confirm("Are you sure you want to close the editor? All unsaved changes will be lost.")) {
 					setEditing(false);
 					setTimeout(() => {
-						setProductToEdit(undefined);
+						setProductToEdit("");
 					}, 400);
 				}
 			}}
