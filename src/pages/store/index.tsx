@@ -21,6 +21,7 @@ import Link from "src/components/ui/Link";
 import { UpsellProduct } from "./cart";
 import { toTitleCase } from "src/util/string";
 import PopularProduct from "src/components/store/PopularProduct";
+import Product from "src/components/store/Product";
 
 export interface Product extends Stripe.Product {
 	price: number;
@@ -42,6 +43,7 @@ type PriceInformation = {
 
 interface PossibleMetadata {
 	type: "single" | "subscription" | "giftable";
+	category: "item pack" | "tool" | "collectable" | "power-up" | "drop item" | "sellable" | "lootbox" | "tradeable";
 	hidden: boolean;
 	isGift: string;
 	paypalPlan: string;
@@ -84,6 +86,7 @@ export type ModalProps = {
 };
 
 export default function StoreHome({ user }: PageProps) {
+	const [modalProductId, setModalProductId] = useState("");
 	const [openModal, setOpenModal] = useState(false);
 
 	const [totalCost, setTotalCost] = useState<string>("...");
@@ -181,7 +184,7 @@ export default function StoreHome({ user }: PageProps) {
 		} else setCartItems((_items) => [..._items, item]);
 	};
 
-	const addUpsellProduct = async (id: string) => {
+	const addProductById = async (id: string) => {
 		try {
 			const { data: formatted } = await axios(`/api/store/product/find?id=${id}&action=format&to=cart-item`);
 			addToCart(formatted);
@@ -249,10 +252,23 @@ export default function StoreHome({ user }: PageProps) {
 		}
 	}, [cartItems]);
 
+	useEffect(() => {
+		if (modalProductId && modalProductId.length >= 1) {
+			setOpenModal(true);
+		} else {
+			setOpenModal(false);
+		}
+	}, [modalProductId]);
+
 	return (
 		<>
-			{/* @ts-ignore */}
-			{openModal && <Modal {...modalProps} />}
+			{openModal && (
+				<Modal
+					productId={modalProductId}
+					add={() => addProductById(modalProductId)}
+					close={() => setModalProductId("")}
+				/>
+			)}
 			<Container title="Store" user={user}>
 				<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 					<Title size="big">Store</Title>
@@ -278,60 +294,54 @@ export default function StoreHome({ user }: PageProps) {
 					</Title>
 					<div className="mt-3 flex justify-between space-x-10">
 						{popularProducts.map((product) => (
-							<PopularProduct product={product} addProduct={addUpsellProduct} />
+							<PopularProduct
+								product={product}
+								addProduct={addProductById}
+								openModal={() => setModalProductId(product.id)}
+							/>
 						))}
 					</div>
 				</section>
-				<div className="mt-4">
+				<section className="mt-4">
 					<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
-						<Title size="small">Subscriptions</Title>
-						<div className="flex items-center justify-end">
-							<p className="mr-2 text-sm text-neutral-900 dark:text-neutral-100">Annual pricing</p>
-							<Switch
-								checked={annualPricing}
-								variant="normal"
-								onClick={() => setAnnualPricing((curr) => !curr)}
-							/>
-						</div>
+						<Title size="medium" className="font-semibold">
+							Subscriptions
+						</Title>
 					</div>
 					<div
 						className="mt-4 grid justify-between gap-x-8 gap-y-7"
 						style={{
-							gridTemplateColumns: "repeat(auto-fit, minmax(208px, auto))", // 208px is the width of the product card
+							gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
 						}}
 					>
 						{subscriptions.map((product) => (
-							<>
-								<SubscriptionProduct
-									product={product}
-									annualPricing={annualPricing}
-									addToCart={addToCart}
-									openModal={() => showProduct(product)}
-								/>
-							</>
+							<Product
+								product={product}
+								add={() => addProductById(product.id)}
+								openModal={() => setModalProductId(product.id)}
+							/>
 						))}
 					</div>
-				</div>
-				<div className="mt-8 mb-12">
-					<Title size="small">In-game items</Title>
+				</section>
+				<div className="mt-12 mb-12">
+					<Title size="medium" className="font-semibold">
+						Items
+					</Title>
 					<div
 						className={clsx(
 							"mt-4 grid gap-x-8 gap-y-7",
 							products.length < 5 ? "justify-start" : "justify-between"
 						)}
 						style={{
-							gridTemplateColumns: "repeat(auto-fit, minmax(208px, auto))", // 208px is the width of the product card
+							gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
 						}}
 					>
 						{products.map((product) => (
-							<>
-								<SimpleProduct
-									product={product}
-									contentsString={"View possible drops"}
-									addToCart={addToCart}
-									openModal={() => showProduct(product)}
-								/>
-							</>
+							<Product
+								product={product}
+								add={() => addProductById(product.id)}
+								openModal={() => setModalProductId(product.id)}
+							/>
 						))}
 					</div>
 				</div>

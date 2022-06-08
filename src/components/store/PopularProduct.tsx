@@ -3,14 +3,14 @@ import { UpsellProduct } from "src/pages/store/cart";
 import { toTitleCase } from "src/util/string";
 import { Title } from "../Title";
 import Button from "../ui/Button";
-import Link from "../ui/Link";
 
 interface Props {
 	product: UpsellProduct;
 	addProduct: (id: string) => void;
+	openModal: () => void;
 }
 
-export default function PopularProduct({ product, addProduct }: Props) {
+export default function PopularProduct({ product, addProduct, openModal }: Props) {
 	return (
 		<div
 			className={clsx(
@@ -37,9 +37,9 @@ export default function PopularProduct({ product, addProduct }: Props) {
 						{product.type !== "subscription" ? "Purchase for" : "Subscribe from"} $
 						{(product.prices[0].value / 100).toFixed(2)}
 					</Button>
-					<Link href="#" variant="secondary" className="underline">
+					<p className="cursor-pointer text-center underline dark:text-neutral-400" onClick={openModal}>
 						Learn more
-					</Link>
+					</p>
 				</div>
 			</div>
 		</div>
