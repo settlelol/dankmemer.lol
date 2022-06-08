@@ -15,7 +15,7 @@ export default function CreatedBannerCard({ banner }: Props) {
 	const router = useRouter();
 
 	return (
-		<div className="relative h-96 w-72 max-w-xs overflow-y-hidden rounded-lg dark:bg-dank-500">
+		<div className="relative h-96 w-72 max-w-xs overflow-y-hidden rounded-lg bg-light-500 dark:bg-dank-500">
 			<div className="h-32 w-full">
 				<div
 					className={clsx(
@@ -29,7 +29,7 @@ export default function CreatedBannerCard({ banner }: Props) {
 				/>
 			</div>
 			<div className="px-5 py-4">
-				<h3 className="flex items-center text-2xl font-bold">
+				<h3 className="flex items-center text-2xl font-bold text-neutral-800 dark:text-white">
 					{banner.title}{" "}
 					{banner.active ? (
 						<div className="ml-2 flex">
@@ -49,7 +49,7 @@ export default function CreatedBannerCard({ banner }: Props) {
 						</div>
 					)}
 				</h3>
-				<div className="text-sm">
+				<div className="text-sm text-neutral-700">
 					<p>
 						Created by:{" "}
 						{typeof banner.createdBy === "string" ? (
@@ -92,7 +92,7 @@ export default function CreatedBannerCard({ banner }: Props) {
 					{banner.lastUpdated && (
 						<p>Last updated: {formatRelative(new Date(banner.lastUpdated), new Date())}</p>
 					)}
-					<p className="mt-2 dark:text-neutral-400">{banner.description}</p>
+					<p className="mt-2 text-neutral-500 dark:text-neutral-400">{banner.description}</p>
 				</div>
 			</div>
 			<div className="absolute bottom-4 w-full px-5">

@@ -15,12 +15,12 @@ export default function PaymentMethod({ paymentMethod }: Props) {
 			</Title>
 			<div
 				className={clsx(
-					"mb-5 mt-1 flex select-none items-center justify-between rounded-md border-[1px] border-white/30 px-4 py-3 dark:bg-dank-500"
+					"mb-5 mt-1 flex select-none items-center justify-between rounded-md border-[1px] border-black/40 px-4 py-3 dark:border-white/30 dark:bg-dank-500"
 				)}
 			>
 				<div className="flex flex-row items-center justify-start">
 					{paymentMethod.brand === "visa" && <img src={"/img/store/cards/visa.svg"} width={30} height={30} />}
-					<p className="ml-3 text-sm">
+					<p className="ml-3 text-sm text-black dark:text-white">
 						{toTitleCase(paymentMethod.brand)} {paymentMethod.type} card{" "}
 						<span className="text-neutral-600">•</span> Ending with <code>{paymentMethod.last4}</code>
 					</p>

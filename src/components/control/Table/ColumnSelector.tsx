@@ -18,7 +18,7 @@ export default function ColumnSelector({ instance }: Props) {
 						className={clsx(
 							"flex items-center justify-between",
 							"rounded-md border-[1px] border-[#3C3C3C]",
-							"bg-light-500 transition-colors dark:bg-dark-100 dark:text-neutral-400 hover:dark:text-neutral-200",
+							"bg-light-500 text-neutral-700 transition-colors dark:bg-dark-100 dark:text-neutral-400 hover:dark:text-neutral-200",
 							"w-44 px-4 py-2 text-sm"
 						)}
 					>
@@ -36,7 +36,7 @@ export default function ColumnSelector({ instance }: Props) {
 									className="!mt-0"
 									callback={() => column.toggleVisibility()}
 								>
-									<p className="text-sm">
+									<p className="text-sm text-neutral-100 dark:text-neutral-400">
 										{toTitleCase(column.id.replace(/rtl\_/, "").replace(/_/, " "))}
 									</p>
 								</Checkbox>

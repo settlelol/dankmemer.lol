@@ -42,11 +42,11 @@ export default function PurchasedGoods({ purchase }: Props) {
 									backgroundImage: `url('${item.image}')`,
 								}}
 							/>
-							<span>
+							<span className="text-black dark:text-white">
 								{purchase.type === "single" ? item.quantity + "x" : ""} {item.name}
 							</span>
 						</div>
-						<p className="min-w-max">
+						<p className="min-w-max text-black dark:text-white">
 							${item.price.toFixed(2)}
 							{item.type === "recurring" ? (
 								<>
@@ -75,19 +75,23 @@ export default function PurchasedGoods({ purchase }: Props) {
 					<>
 						{purchase.discounts.length === 1 ? (
 							!purchase.discounts[0].ignore && (
-								<h3 className="font-montserrat text-base font-semibold">Discounts applied</h3>
+								<h3 className="font-montserrat text-base font-semibold text-neutral-800 dark:text-white">
+									Discounts applied
+								</h3>
 							)
 						) : (
-							<h3 className="font-montserrat text-base font-semibold">Discount applied</h3>
+							<h3 className="font-montserrat text-base font-semibold text-neutral-800 dark:text-white">
+								Discount applied
+							</h3>
 						)}
 						{(purchase.discounts as DiscountData[]).map((discount) =>
 							!discount.ignore ? (
 								<div className="mb-1" key={discount.id}>
-									<p className="text-sm dark:text-neutral-200">
+									<p className="text-sm text-neutral-700 dark:text-neutral-200">
 										{discount.name} <span className="font-bold">-{discount.percent}</span> (-$
 										{(subtotal * (discount.decimal / 100)).toFixed(2)})
 									</p>
-									<div className="text-sm dark:text-neutral-400">
+									<div className="text-sm text-neutral-500 dark:text-neutral-400">
 										{discount.appliesTo.map((itemId) => {
 											const prod = purchase.items.find((prod) => prod.id === itemId)!;
 											return (
