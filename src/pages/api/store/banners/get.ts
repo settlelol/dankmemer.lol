@@ -1,7 +1,6 @@
 import { ObjectId } from "mongodb";
 import { NextApiResponse } from "next-auth/internals/utils";
-import { BannerPage } from "src/components/community/PagedBanner";
-import { UserData } from "src/types";
+import { BannerPage } from "src/components/store/PagedBanner";
 import { dbConnect } from "src/util/mongodb";
 import { NextIronRequest, withSession } from "src/util/session";
 

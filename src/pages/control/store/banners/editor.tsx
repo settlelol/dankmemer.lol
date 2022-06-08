@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import Dropdown, { Option } from "src/components/ui/Dropdown";
 import clsx from "clsx";
-import PagedBanner, { BannerPage, PossibleActions } from "src/components/community/PagedBanner";
+import PagedBanner, { BannerPage, PossibleActions } from "src/components/store/PagedBanner";
 import Button from "src/components/ui/Button";
 import Switch from "src/components/ui/Switch";
 import Input from "src/components/store/Input";

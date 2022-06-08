@@ -15,7 +15,7 @@ import { authenticatedRoute } from "src/util/redirects";
 import Modal from "src/components/store/Modal";
 import ShoppingCart from "src/components/store/ShoppingCart";
 import { toast } from "react-toastify";
-import PagedBanner, { BannerPage } from "src/components/community/PagedBanner";
+import PagedBanner, { BannerPage } from "src/components/store/PagedBanner";
 import Switch from "src/components/ui/Switch";
 
 export interface Product extends Stripe.Product {

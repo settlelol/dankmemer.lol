@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { formatRelative } from "date-fns";
-import { BannerCreator, BannerPage } from "src/components/community/PagedBanner";
+import { BannerCreator, BannerPage } from "src/components/store/PagedBanner";
 import Button from "src/components/ui/Button";
 import Link from "src/components/ui/Link";
 import Tooltip from "src/components/ui/Tooltip";

@@ -4,7 +4,7 @@ import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { BannerPage } from "src/components/community/PagedBanner";
+import { BannerPage } from "src/components/store/PagedBanner";
 import ControlPanelContainer from "src/components/control/Container";
 import ControlLinks from "src/components/control/ControlLinks";
 import CreatedBannerCard from "src/components/control/store/CreatedBannerCard";
