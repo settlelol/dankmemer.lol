@@ -6,11 +6,11 @@ import Button from "../ui/Button";
 
 interface Props {
 	product: UpsellProduct;
-	addProduct: (id: string) => void;
+	add: () => void;
 	openModal: () => void;
 }
 
-export default function PopularProduct({ product, addProduct, openModal }: Props) {
+export default function PopularProduct({ product, add, openModal }: Props) {
 	return (
 		<div
 			className={clsx(
@@ -33,7 +33,7 @@ export default function PopularProduct({ product, addProduct, openModal }: Props
 			</div>
 			<div className="absolute bottom-4 left-0 w-full px-5">
 				<div className="flex w-full items-center justify-between space-x-2 text-base">
-					<Button size="medium" className="w-8/12" onClick={() => addProduct(product.id)}>
+					<Button size="medium" className="w-8/12" onClick={() => add()}>
 						{product.type !== "subscription" ? "Purchase for" : "Subscribe from"} $
 						{(product.prices[0].value / 100).toFixed(2)}
 					</Button>

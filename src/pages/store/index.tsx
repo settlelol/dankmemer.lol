@@ -295,8 +295,9 @@ export default function StoreHome({ user }: PageProps) {
 					<div className="mt-3 flex justify-between space-x-10">
 						{popularProducts.map((product) => (
 							<PopularProduct
+								key={product.id}
 								product={product}
-								addProduct={addProductById}
+								add={() => addProductById(product.id)}
 								openModal={() => setModalProductId(product.id)}
 							/>
 						))}
@@ -316,6 +317,7 @@ export default function StoreHome({ user }: PageProps) {
 					>
 						{subscriptions.map((product) => (
 							<Product
+								key={product.id}
 								product={product}
 								add={() => addProductById(product.id)}
 								openModal={() => setModalProductId(product.id)}
@@ -338,6 +340,7 @@ export default function StoreHome({ user }: PageProps) {
 					>
 						{products.map((product) => (
 							<Product
+								key={product.id}
 								product={product}
 								add={() => addProductById(product.id)}
 								openModal={() => setModalProductId(product.id)}
