@@ -46,9 +46,9 @@ export default function CartItemImmutable({
 						$
 						{selectedPrice.interval
 							? selectedPrice.interval === "year"
-								? (unit_cost * 10.8).toFixed(2)
+								? ((unit_cost / 100) * 10.8).toFixed(2)
 								: unit_cost.toFixed(2)
-							: (unit_cost * quantity).toFixed(2)}
+							: ((unit_cost / 100) * quantity).toFixed(2)}
 					</p>
 					{metadata?.type === "subscription" ? (
 						selectedPrice.interval ? (
