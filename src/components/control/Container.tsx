@@ -66,51 +66,39 @@ export default function ControlPanelContainer({
 		<>
 			{title && <NextSeo title={`Dank Memer | ${title}`} />}
 			<ToastContainer position="top-center" theme="colored" />
-			{rightPaneVisible ? (
+			<div
+				className={clsx(
+					rightPaneVisible && "select-none opacity-50",
+					rightPaneVisible && dragging && "cursor-col-resize select-none"
+				)}
+				{...(rightPaneVisible && { onClick: hideRightPane })}
+			>
 				<div
-					className={clsx("select-none opacity-50", dragging && "cursor-col-resize select-none")}
-					onClick={hideRightPane}
+					className={clsx(
+						rightPaneVisible && "pointer-events-none",
+						"fixed top-0 left-0 h-full w-72 bg-neutral-100 px-9 py-5 dark:bg-dark-100"
+					)}
 				>
-					<div className="pointer-events-none fixed top-0 left-0 h-full w-72 bg-neutral-100 px-9 py-5 dark:bg-dark-100">
-						<div
-							className="mb-5 flex cursor-pointer items-center justify-start"
-							onClick={() => router.push("/")}
-						>
-							<img src={"/img/memer.png"} width={41} height={41} />
-							<h1 className="ml-3 select-none font-montserrat text-2xl font-bold text-dank-200 dark:text-white">
-								Dank Memer
-							</h1>
-						</div>
-						{links}
-					</div>
-					<div className="pointer-events-none ml-[22rem] mr-16 flex min-h-screen justify-start">
-						<div className="relative my-10 w-full">{children}</div>
-					</div>
-				</div>
-			) : (
-				<>
-					<div className="fixed top-0 left-0 h-full w-72 bg-neutral-100 px-9 py-5 dark:bg-dark-100">
-						<div
-							className="mb-5 flex cursor-pointer items-center justify-start"
-							onClick={() => router.push("/")}
-						>
-							<img src={"/img/memer.png"} width={41} height={41} />
-							<h1 className="ml-3 select-none font-montserrat text-2xl font-bold text-dank-200 dark:text-white">
-								Dank Memer
-							</h1>
-						</div>
-						{links}
-					</div>
 					<div
-						className={clsx(
-							"ml-[22rem] mr-16 flex min-h-screen justify-start",
-							rightPaneVisible && "pointer-events-none"
-						)}
+						className="mb-5 flex cursor-pointer items-center justify-start"
+						onClick={() => router.push("/")}
 					>
-						<div className="relative my-10 w-full">{children}</div>
+						<img src={"/img/memer.png"} width={41} height={41} />
+						<h1 className="ml-3 select-none font-montserrat text-2xl font-bold text-dank-200 dark:text-white">
+							Dank Memer
+						</h1>
 					</div>
-				</>
-			)}
+					{links}
+				</div>
+				<div
+					className={clsx(
+						rightPaneVisible && "pointer-events-none",
+						"ml-[22rem] mr-16 flex min-h-screen justify-start"
+					)}
+				>
+					<div className="relative my-10 w-full">{children}</div>
+				</div>
+			</div>
 			<div
 				ref={rightPane}
 				style={{ width: draggedWidth }}
