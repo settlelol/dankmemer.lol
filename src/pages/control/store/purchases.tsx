@@ -155,6 +155,13 @@ export default function PurchaseHistory({ user }: PageProps) {
 		getPaginationRowModel: getPaginationRowModel(),
 	});
 
+	const recalculateRowCount = () => {
+		setPagination({
+			pageIndex: 0,
+			pageSize: document.documentElement.clientHeight >= 850 ? 10 : 9,
+		});
+	};
+
 	useEffect(() => {
 		axios(`/api/customers/purchases`)
 			.then(({ data }) => {
@@ -166,6 +173,11 @@ export default function PurchaseHistory({ user }: PageProps) {
 			.finally(() => {
 				setLoading(false);
 			});
+
+		window.addEventListener("resize", recalculateRowCount);
+		return () => {
+			window.removeEventListener("resize", recalculateRowCount);
+		};
 	}, []);
 
 	const showPurchase = (purchase: AggregatedPurchaseRecord) => {
