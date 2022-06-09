@@ -27,6 +27,7 @@ import ControlLinks from "src/components/control/ControlLinks";
 import { AggregatedPurchaseRecordPurchases as AggregatedPurchaseRecord } from "src/pages/api/customers/[userId]/history";
 import Button from "src/components/ui/Button";
 import PurchaseFinder from "src/components/control/store/PurchaseFinder";
+import Pagination from "src/components/control/Table/Pagination";
 
 export default function PurchaseHistory({ user }: PageProps) {
 	const { current: table } = useRef(
@@ -44,7 +45,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [pagination, setPagination] = useState<PaginationState>({
 		pageIndex: 0,
-		pageSize: 10,
+		pageSize: document.documentElement.clientHeight >= 850 ? 10 : 9,
 	});
 	const columns = useMemo(
 		() => [
@@ -212,15 +213,16 @@ export default function PurchaseHistory({ user }: PageProps) {
 						</Button>
 					</div>
 				</div>
-				<section className="flex flex-col space-y-5">
+				<section className="flex flex-col space-y-5 overflow-x-auto">
 					{loading ? (
 						<LoadingPepe />
 					) : purchases.length >= 1 ? (
-						<Table instance={instance} />
+						<Table instance={instance} minWidth={1460} />
 					) : (
 						<p>No purchases made</p>
 					)}
 				</section>
+				<Pagination instance={instance} />
 			</main>
 		</Container>
 	);

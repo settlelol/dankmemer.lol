@@ -31,6 +31,7 @@ import { Icon as Iconify } from "@iconify/react";
 import clsx from "clsx";
 import { formatRelative } from "date-fns";
 import LoadingPepe from "src/components/LoadingPepe";
+import Pagination from "src/components/control/Table/Pagination";
 
 export interface ProductSales {
 	_id: string;
@@ -66,7 +67,7 @@ export default function ManageProducts({ user }: PageProps) {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [pagination, setPagination] = useState<PaginationState>({
 		pageIndex: 0,
-		pageSize: 10,
+		pageSize: document.documentElement.clientHeight >= 850 ? 10 : 9,
 	});
 	const columns = useMemo(
 		() => [
@@ -274,15 +275,16 @@ export default function ManageProducts({ user }: PageProps) {
 							</Button>
 						</div>
 					</div>
-					<section className="flex flex-col space-y-5">
+					<section className="flex max-w-full flex-col space-y-5 overflow-x-auto">
 						{loading ? (
 							<LoadingPepe />
 						) : products.length >= 1 ? (
-							<Table instance={instance} />
+							<Table instance={instance} minWidth={1460} />
 						) : (
 							<p>No purchases made</p>
 						)}
 					</section>
+					<Pagination instance={instance} />
 				</div>
 			</main>
 		</ControlPanelContainer>

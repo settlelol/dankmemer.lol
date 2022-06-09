@@ -26,6 +26,7 @@ import { formatRelative } from "date-fns";
 import ControlLinks from "src/components/control/ControlLinks";
 import { toTitleCase } from "src/util/string";
 import RefundViewer from "src/components/control/store/RefundViewer";
+import Pagination from "src/components/control/Table/Pagination";
 
 export default function Refunds({ user }: PageProps) {
 	const { current: table } = useRef(createTable().setRowType<Refund>().setOptions({ enableSorting: true }));
@@ -68,7 +69,7 @@ export default function Refunds({ user }: PageProps) {
 			}),
 			table.createDataColumn("order", {
 				header: "Order ID",
-				size: 320,
+				size: 250,
 			}),
 			table.createDataColumn("gateway", {
 				header: "Payment processor",
@@ -175,15 +176,16 @@ export default function Refunds({ user }: PageProps) {
 						/>
 					</div>
 				</div>
-				<section className="flex flex-col space-y-5">
+				<section className="flex flex-col space-y-5 overflow-x-auto">
 					{loading ? (
 						<LoadingPepe />
 					) : refunds.length >= 1 ? (
-						<Table instance={instance} />
+						<Table instance={instance} minWidth={1300} />
 					) : (
 						<p>No refunds have been made</p>
 					)}
 				</section>
+				<Pagination instance={instance} />
 			</main>
 		</Container>
 	);

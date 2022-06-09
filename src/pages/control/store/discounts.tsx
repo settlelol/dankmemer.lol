@@ -24,6 +24,7 @@ import {
 } from "@tanstack/react-table";
 import ColumnSelector from "src/components/control/Table/ColumnSelector";
 import LoadingPepe from "src/components/LoadingPepe";
+import Pagination from "src/components/control/Table/Pagination";
 
 export interface Discount {
 	id: string;
@@ -50,17 +51,12 @@ export default function ManageDiscounts({ user }: PageProps) {
 	const { current: table } = useRef(createTable().setRowType<Discount>().setOptions({ enableSorting: true }));
 	const [loading, setLoading] = useState(true);
 	const [discounts, setDiscounts] = useState<Discount[]>([]);
-	const [editing, setEditing] = useState(false);
-	const [editorContent, setEditorContent] = useState<ReactNode>();
-	const [discountToEdit, setDiscountToEdit] = useState<Discount | null>(null);
-
-	const [showOptionsFor, setShowOptionsFor] = useState<string>("");
 
 	const [columnVisibility, setColumnVisibility] = useState({});
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [pagination, setPagination] = useState<PaginationState>({
 		pageIndex: 0,
-		pageSize: 10,
+		pageSize: document.documentElement.clientHeight >= 850 ? 10 : 9,
 	});
 
 	const columns = useMemo(
@@ -181,15 +177,6 @@ export default function ManageDiscounts({ user }: PageProps) {
 		});
 	}, []);
 
-	useEffect(() => {
-		if (!discountToEdit) {
-			setEditing(false);
-		} else {
-			setEditorContent(<></>);
-			setEditing(true);
-		}
-	}, [discountToEdit]);
-
 	const createDiscount = () => {
 		if (
 			confirm(
@@ -228,15 +215,16 @@ export default function ManageDiscounts({ user }: PageProps) {
 							</Button>
 						</div>
 					</div>
-					<section className="flex flex-col space-y-5">
+					<section className="flex flex-col space-y-5 overflow-x-auto">
 						{loading ? (
 							<LoadingPepe />
 						) : discounts.length >= 1 ? (
-							<Table instance={instance} />
+							<Table instance={instance} minWidth={1190} />
 						) : (
 							<p>No discounts exist</p>
 						)}
 					</section>
+					<Pagination instance={instance} />
 				</div>
 			</main>
 		</ControlPanelContainer>
