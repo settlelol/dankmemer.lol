@@ -14,8 +14,8 @@ export default function PopularProduct({ product, add, openModal }: Props) {
 	return (
 		<div
 			className={clsx(
-				"relative h-40 w-[28%] rounded-md px-5 py-4 transition-shadow",
-				"shadow-lg shadow-dank-300/20 hover:shadow-xl hover:shadow-dank-300/20",
+				"relative h-40 w-96 rounded-md px-5 py-4 xl:transition-shadow",
+				"xl:shadow-lg xl:shadow-dank-300/20 xl:hover:shadow-xl xl:hover:shadow-dank-300/20",
 				"bg-light-500 dark:bg-dark-500"
 			)}
 		>

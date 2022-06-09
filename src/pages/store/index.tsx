@@ -285,22 +285,24 @@ export default function StoreHome({ user }: PageProps) {
 				</div>
 				{bannerPages.length >= 1 && (
 					<div className="mt-3">
-						<PagedBanner pages={bannerPages} height={"h-auto md:h-72"} />
+						<PagedBanner pages={bannerPages} height={"h-72"} />
 					</div>
 				)}
 				<section className="mt-14">
 					<Title size="medium" className="font-semibold">
 						Popular products
 					</Title>
-					<div className="mt-3 flex justify-between space-x-10">
-						{popularProducts.map((product) => (
-							<PopularProduct
-								key={product.id}
-								product={product}
-								add={() => addProductById(product.id)}
-								openModal={() => setModalProductId(product.id)}
-							/>
-						))}
+					<div className="overflow-y-visible overflow-x-scroll xl:overflow-visible">
+						<div className="mt-3 flex min-w-[1280px] justify-between space-x-10 xl:min-w-[unset]">
+							{popularProducts.map((product) => (
+								<PopularProduct
+									key={product.id}
+									product={product}
+									add={() => addProductById(product.id)}
+									openModal={() => setModalProductId(product.id)}
+								/>
+							))}
+						</div>
 					</div>
 				</section>
 				<section className="mt-4">
@@ -310,7 +312,7 @@ export default function StoreHome({ user }: PageProps) {
 						</Title>
 					</div>
 					<div
-						className="mt-4 grid justify-between gap-x-8 gap-y-7"
+						className="col-auto mt-4 grid place-items-center justify-center gap-x-8 gap-y-7 phone:justify-between"
 						style={{
 							gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
 						}}
@@ -326,13 +328,13 @@ export default function StoreHome({ user }: PageProps) {
 					</div>
 				</section>
 				<div className="mt-12 mb-12">
-					<Title size="medium" className="font-semibold">
+					<Title size="medium" className="text-center font-semibold phone:text-left">
 						Items
 					</Title>
 					<div
 						className={clsx(
 							"mt-4 grid gap-x-8 gap-y-7",
-							products.length < 5 ? "justify-start" : "justify-between"
+							products.length < 5 ? "justify-start" : "justify-center phone:justify-between"
 						)}
 						style={{
 							gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
