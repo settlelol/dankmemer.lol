@@ -318,7 +318,7 @@ export default function BannerEditor({ user, bannerId }: PageProps & { bannerId?
 				</div>
 			</div>
 			<div className="mt-5">
-				<PagedBanner displayPage={sampleBanner} height={"h-auto md:h-72"} />
+				<PagedBanner displayPage={sampleBanner} height={"h-72"} />
 			</div>
 		</ControlPanelContainer>
 	);
