@@ -170,11 +170,23 @@ export default function ManageDiscounts({ user }: PageProps) {
 		getPaginationRowModel: getPaginationRowModel(),
 	});
 
+	const recalculateRowCount = () => {
+		setPagination({
+			pageIndex: 0,
+			pageSize: document.documentElement.clientHeight >= 850 ? 10 : 9,
+		});
+	};
+
 	useEffect(() => {
 		axios("/api/discounts/list").then(({ data }) => {
 			setDiscounts(data);
 			setLoading(false);
 		});
+
+		window.addEventListener("resize", recalculateRowCount);
+		return () => {
+			window.removeEventListener("resize", recalculateRowCount);
+		};
 	}, []);
 
 	const createDiscount = () => {
@@ -215,7 +227,7 @@ export default function ManageDiscounts({ user }: PageProps) {
 							</Button>
 						</div>
 					</div>
-					<section className="flex flex-col space-y-5 overflow-x-auto">
+					<section className="flex flex-col space-y-5 overflow-x-auto xl:overflow-x-hidden">
 						{loading ? (
 							<LoadingPepe />
 						) : discounts.length >= 1 ? (

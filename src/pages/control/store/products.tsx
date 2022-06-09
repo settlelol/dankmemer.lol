@@ -1,6 +1,6 @@
 import axios from "axios";
 import { GetServerSideProps } from "next";
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import ControlPanelContainer from "src/components/control/Container";
 import { PageProps } from "src/types";
 import { developerRoute } from "src/util/redirects";
@@ -67,7 +67,7 @@ export default function ManageProducts({ user }: PageProps) {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [pagination, setPagination] = useState<PaginationState>({
 		pageIndex: 0,
-		pageSize: document.documentElement.clientHeight >= 850 ? 10 : 9,
+		pageSize: 10,
 	});
 	const columns = useMemo(
 		() => [
@@ -212,6 +212,13 @@ export default function ManageProducts({ user }: PageProps) {
 		getPaginationRowModel: getPaginationRowModel(),
 	});
 
+	const recalculateRowCount = () => {
+		setPagination({
+			pageIndex: 0,
+			pageSize: document.documentElement.clientHeight >= 850 ? 10 : 9,
+		});
+	};
+
 	useEffect(() => {
 		axios("/api/store/products/data")
 			.then(({ data }) => {
@@ -222,6 +229,11 @@ export default function ManageProducts({ user }: PageProps) {
 				console.error(e);
 				toast.error("Unable to get store products.");
 			});
+
+		window.addEventListener("resize", recalculateRowCount);
+		return () => {
+			window.removeEventListener("resize", recalculateRowCount);
+		};
 	}, []);
 
 	useEffect(() => {
@@ -275,7 +287,7 @@ export default function ManageProducts({ user }: PageProps) {
 							</Button>
 						</div>
 					</div>
-					<section className="flex max-w-full flex-col space-y-5 overflow-x-auto">
+					<section className="flex max-w-full flex-col space-y-5 overflow-x-auto xl:overflow-x-hidden">
 						{loading ? (
 							<LoadingPepe />
 						) : products.length >= 1 ? (

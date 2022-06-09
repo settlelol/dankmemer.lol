@@ -1,6 +1,6 @@
 import axios from "axios";
 import { GetServerSideProps } from "next";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Container from "src/components/control/Container";
 import LoadingPepe from "src/components/LoadingPepe";
 import { Title } from "src/components/Title";
@@ -132,6 +132,13 @@ export default function Refunds({ user }: PageProps) {
 		getPaginationRowModel: getPaginationRowModel(),
 	});
 
+	const recalculateRowCount = () => {
+		setPagination({
+			pageIndex: 0,
+			pageSize: document.documentElement.clientHeight >= 850 ? 10 : 9,
+		});
+	};
+
 	useEffect(() => {
 		axios(`/api/customers/refunds`)
 			.then(({ data }) => {
@@ -143,6 +150,11 @@ export default function Refunds({ user }: PageProps) {
 			.finally(() => {
 				setLoading(false);
 			});
+
+		window.addEventListener("resize", recalculateRowCount);
+		return () => {
+			window.removeEventListener("resize", recalculateRowCount);
+		};
 	}, []);
 
 	const showRefund = (refund: Refund) => {
@@ -176,7 +188,7 @@ export default function Refunds({ user }: PageProps) {
 						/>
 					</div>
 				</div>
-				<section className="flex flex-col space-y-5 overflow-x-auto">
+				<section className="flex flex-col space-y-5 overflow-x-auto xl:overflow-x-hidden">
 					{loading ? (
 						<LoadingPepe />
 					) : refunds.length >= 1 ? (

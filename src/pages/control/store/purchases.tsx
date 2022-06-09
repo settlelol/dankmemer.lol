@@ -1,6 +1,6 @@
 import axios from "axios";
 import { GetServerSideProps } from "next";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Container from "src/components/control/Container";
 import LoadingPepe from "src/components/LoadingPepe";
 import { Title } from "src/components/Title";
@@ -45,7 +45,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [pagination, setPagination] = useState<PaginationState>({
 		pageIndex: 0,
-		pageSize: document.documentElement.clientHeight >= 850 ? 10 : 9,
+		pageSize: 10,
 	});
 	const columns = useMemo(
 		() => [
@@ -155,6 +155,13 @@ export default function PurchaseHistory({ user }: PageProps) {
 		getPaginationRowModel: getPaginationRowModel(),
 	});
 
+	const recalculateRowCount = () => {
+		setPagination({
+			pageIndex: 0,
+			pageSize: document.documentElement.clientHeight >= 850 ? 10 : 9,
+		});
+	};
+
 	useEffect(() => {
 		axios(`/api/customers/purchases`)
 			.then(({ data }) => {
@@ -166,6 +173,11 @@ export default function PurchaseHistory({ user }: PageProps) {
 			.finally(() => {
 				setLoading(false);
 			});
+
+		window.addEventListener("resize", recalculateRowCount);
+		return () => {
+			window.removeEventListener("resize", recalculateRowCount);
+		};
 	}, []);
 
 	const showPurchase = (purchase: AggregatedPurchaseRecord) => {
@@ -213,7 +225,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 						</Button>
 					</div>
 				</div>
-				<section className="flex flex-col space-y-5 overflow-x-auto">
+				<section className="flex flex-col space-y-5 overflow-x-auto xl:overflow-x-hidden">
 					{loading ? (
 						<LoadingPepe />
 					) : purchases.length >= 1 ? (
