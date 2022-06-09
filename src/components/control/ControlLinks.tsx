@@ -15,7 +15,7 @@ export default function ControlLinks({ user }: Props) {
 
 	return (
 		<>
-			<SimpleBar className="short:max-h-[650px] tall:max-h-[750px]" scrollbarMaxSize={10}>
+			<SimpleBar className="short:max-h-[650px] tall:max-h-[750px]">
 				<LinkGroup title="Website">
 					<Navlink icon="bx:bxs-dashboard" text="Website overview" href="/control/website/overview" />
 					<Navlink
