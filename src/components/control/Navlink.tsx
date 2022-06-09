@@ -1,7 +1,7 @@
 import { Icon as Iconify } from "@iconify/react";
 import clsx from "clsx";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "../ui/Link";
 
 interface Props {
@@ -14,6 +14,10 @@ interface Props {
 export default function Navlink({ icon, size = 22, text, href }: Props) {
 	const router = useRouter();
 	const [active, setActive] = useState(router.route === href || router.route.startsWith(href));
+
+	useEffect(() => {
+		setActive(router.route === href || router.route.startsWith(href));
+	}, [router.route]);
 
 	return (
 		<Link href={href}>
