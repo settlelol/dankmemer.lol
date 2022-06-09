@@ -262,7 +262,7 @@ export default function ManageProducts({ user }: PageProps) {
 				}
 			}}
 			rightPaneVisible={editing}
-			rightPaneContent={editorContent}
+			rightPaneContent={editorContent!}
 			links={<ControlLinks user={user!} />}
 		>
 			<main>

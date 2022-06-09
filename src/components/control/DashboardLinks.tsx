@@ -26,19 +26,19 @@ export default function DashboardLinks({ user }: Props) {
 					href="/dashboard/infractions"
 				/> */}
 			</LinkGroup>
-			<div className="absolute bottom-0 left-0 mb-2 h-16 w-full px-9">
+			<div className="absolute bottom-5 left-0 ml-6 flex justify-center xl:hidden">
+				<img src={user.avatar} width={32} className="rounded-full" />
+			</div>
+			<div className="absolute bottom-0 left-0 mb-2 hidden h-16 w-full px-9 xl:block">
 				<div className="box-border flex h-14 w-full items-center justify-between rounded-md bg-[#D8DCDE] dark:bg-dank-500">
 					<div className="flex items-center justify-start pl-4">
 						<img src={user.avatar} width={32} className="rounded-full" />
 						<div className="ml-2">
 							<p className="leading-none text-gray-800 dark:text-white">{user.username}</p>
-							<p className="text-xs leading-none text-light-600">
-								#{user.discriminator}
-								{/* Maybe we can change this to show a subscription tier if the user has one */}
-							</p>
+							<p className="text-xs leading-none text-light-600">#{user.discriminator}</p>
 						</div>
 					</div>
-					<div className="flex items-center justify-end pr-4">
+					<div className="hidden items-center justify-end pr-4 xl:flex">
 						<Iconify
 							icon={theme === "light" ? "fluent:weather-moon-24-filled" : "akar-icons:sun-fill"}
 							height="20"

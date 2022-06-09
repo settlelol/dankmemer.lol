@@ -1,30 +1,19 @@
-import { MouseEvent, ReactNode, useRef, useState } from "react";
-import { useRouter } from "next/router";
+import { MouseEvent, ReactNode, useEffect, useRef, useState } from "react";
+import { NextRouter, useRouter } from "next/router";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Head from "next/head";
 import clsx from "clsx";
 import { NextSeo } from "next-seo";
+import { RequireAllOrNone } from "type-fest";
 
-interface PropsWithNoRightPane {
+interface Props {
 	children: ReactNode;
 	links: ReactNode;
 	title: string;
-	hideRightPane?: never;
-	rightPaneVisible?: never;
-	rightPaneContent?: never;
+	hideRightPane?: () => void;
+	rightPaneVisible?: boolean;
+	rightPaneContent?: ReactNode;
 }
-
-interface PropsWithRightPane {
-	children: ReactNode;
-	links: ReactNode;
-	title: string;
-	hideRightPane: () => void;
-	rightPaneVisible: boolean;
-	rightPaneContent: ReactNode;
-}
-
-type Props = PropsWithNoRightPane | PropsWithRightPane;
 
 export default function ControlPanelContainer({
 	children,
@@ -33,7 +22,7 @@ export default function ControlPanelContainer({
 	hideRightPane,
 	rightPaneVisible,
 	rightPaneContent,
-}: Props) {
+}: RequireAllOrNone<Props, "hideRightPane" | "rightPaneContent" | "rightPaneVisible">) {
 	const router = useRouter();
 
 	const rightPane = useRef<HTMLDivElement>(null);
@@ -76,15 +65,15 @@ export default function ControlPanelContainer({
 				<div
 					className={clsx(
 						rightPaneVisible && "pointer-events-none",
-						"fixed top-0 left-0 h-full w-72 bg-neutral-100 px-9 py-5 dark:bg-dark-100"
+						"fixed top-0 left-0 h-full w-20 bg-neutral-100 px-4 py-5 dark:bg-dark-100 xl:w-72 xl:px-9"
 					)}
 				>
 					<div
-						className="mb-5 flex cursor-pointer items-center justify-start"
+						className="mb-5 grid cursor-pointer place-items-center xl:flex xl:items-center xl:justify-start"
 						onClick={() => router.push("/")}
 					>
 						<img src={"/img/memer.png"} width={41} height={41} />
-						<h1 className="ml-3 select-none font-montserrat text-2xl font-bold text-dank-200 dark:text-white">
+						<h1 className="ml-3 hidden select-none font-montserrat text-2xl font-bold text-dank-200 dark:text-white xl:block">
 							Dank Memer
 						</h1>
 					</div>
@@ -93,7 +82,8 @@ export default function ControlPanelContainer({
 				<div
 					className={clsx(
 						rightPaneVisible && "pointer-events-none",
-						"ml-[22rem] mr-16 flex min-h-screen justify-start"
+						"ml-32 mr-16 xl:ml-[22rem] xl:mr-16",
+						"flex min-h-screen justify-start"
 					)}
 				>
 					<div className="relative my-10 w-full">{children}</div>
