@@ -49,7 +49,7 @@ export default function CreatedBannerCard({ banner }: Props) {
 						</div>
 					)}
 				</h3>
-				<div className="text-sm text-neutral-700">
+				<div className="text-sm text-neutral-700 dark:text-white">
 					<p>
 						Created by:{" "}
 						{typeof banner.createdBy === "string" ? (
