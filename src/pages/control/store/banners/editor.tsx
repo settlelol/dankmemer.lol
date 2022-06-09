@@ -313,7 +313,7 @@ export default function BannerEditor({ user, bannerId }: PageProps & { bannerId?
 							}
 						}}
 					>
-						{bannerId ? "Submit changes" : "Submit banner details"}
+						{bannerId ? "Submit changes" : "Create new banner"}
 					</Button>
 				</div>
 			</div>
