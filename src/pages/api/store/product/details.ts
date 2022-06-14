@@ -18,7 +18,7 @@ export interface ProductDetails {
 	body: ProductBodies;
 }
 
-interface DetailedPrice {
+export interface DetailedPrice {
 	id: string;
 	value: number;
 	interval?: DetailedPriceInterval;
