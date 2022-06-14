@@ -1,11 +1,11 @@
 import axios from "axios";
 import { GetServerSideProps } from "next";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Container from "src/components/control/Container";
 import LoadingPepe from "src/components/LoadingPepe";
 import { Title } from "src/components/Title";
 import { PageProps } from "src/types";
-import { authenticatedRoute } from "src/util/redirects";
+import { developerRoute } from "src/util/redirects";
 import { withSession } from "src/util/session";
 import Input from "src/components/store/Input";
 import PurchaseViewer from "src/components/dashboard/account/purchases/PurchaseViewer";
@@ -240,4 +240,4 @@ export default function PurchaseHistory({ user }: PageProps) {
 	);
 }
 
-export const getServerSideProps: GetServerSideProps = withSession(authenticatedRoute);
+export const getServerSideProps: GetServerSideProps = withSession(developerRoute);
