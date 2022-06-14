@@ -24,7 +24,7 @@ export default function Navlink({ icon, size = 22, text, href }: Props) {
 			<div className="group mb-3 flex cursor-pointer items-center justify-center rounded-md transition-colors xl:justify-start">
 				<div
 					className={clsx(
-						active && "shadow-[inset_0_0_8px] shadow-dank-100/80",
+						active && "shadow-[inset_0_0_8px] shadow-dank-100/80 xl:shadow-none",
 						"grid min-h-[40px] min-w-[40px] place-items-center rounded-md bg-dank-200 fill-white dark:bg-[#175a34] xl:mr-4"
 					)}
 				>
