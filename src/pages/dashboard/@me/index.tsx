@@ -8,10 +8,9 @@ import { withSession } from "src/util/session";
 
 export default function Account({ user }: PageProps) {
 	return (
-		<Container title="Account" links={<DashboardLinks user={user!} />}>
+		<Container customSpacing={true} title="Account" links={<DashboardLinks user={user!} />}>
 			<main>
-				<Title size="big">Account</Title>
-				<div className="h-14 w-full dark:bg-dank-500"></div>
+				<div className="h-64 w-full dark:bg-dank-500"></div>
 			</main>
 		</Container>
 	);

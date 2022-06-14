@@ -14,11 +14,7 @@ export default function DashboardLinks({ user }: Props) {
 	return (
 		<>
 			<LinkGroup title="Account">
-				{/* <Navlink
-					icon="ant-design:user-outlined"
-					text="Account overview"
-					href="/dashboard/account"
-				/> */}
+				<Navlink icon="ant-design:user-outlined" text="Account overview" href="/dashboard/@me" />
 				<Navlink icon="la:file-invoice-dollar" text="Purchase history" href="/dashboard/@me/purchases" />
 				{/* <Navlink
 					icon="fa6-regular:face-angry"

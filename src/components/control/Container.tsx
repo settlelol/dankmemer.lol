@@ -10,6 +10,7 @@ interface Props {
 	children: ReactNode;
 	links: ReactNode;
 	title: string;
+	customSpacing?: boolean;
 	hideRightPane?: () => void;
 	rightPaneVisible?: boolean;
 	rightPaneContent?: ReactNode;
@@ -19,6 +20,7 @@ export default function ControlPanelContainer({
 	children,
 	links,
 	title,
+	customSpacing = false,
 	hideRightPane,
 	rightPaneVisible,
 	rightPaneContent,
@@ -82,11 +84,11 @@ export default function ControlPanelContainer({
 				<div
 					className={clsx(
 						rightPaneVisible && "pointer-events-none",
-						"ml-32 mr-16 xl:ml-[22rem] xl:mr-16",
+						!customSpacing ? "ml-32 mr-16 xl:ml-[22rem] xl:mr-16" : "ml-20 xl:ml-72",
 						"flex min-h-screen justify-start"
 					)}
 				>
-					<div className="relative my-10 w-full">{children}</div>
+					<div className={clsx("relative w-full", !customSpacing && "my-10")}>{children}</div>
 				</div>
 			</div>
 			<div
