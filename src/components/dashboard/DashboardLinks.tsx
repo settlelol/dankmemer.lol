@@ -1,5 +1,5 @@
-import LinkGroup from "./LinkGroup";
-import Navlink from "./Navlink";
+import LinkGroup from "../control/LinkGroup";
+import Navlink from "../control/Navlink";
 import { Icon as Iconify } from "@iconify/react";
 import { useTheme } from "next-themes";
 import { User } from "src/types";
@@ -19,7 +19,7 @@ export default function DashboardLinks({ user }: Props) {
 					text="Account overview"
 					href="/dashboard/account"
 				/> */}
-				<Navlink icon="la:file-invoice-dollar" text="Purchase history" href="/dashboard/purchases" />
+				<Navlink icon="la:file-invoice-dollar" text="Purchase history" href="/dashboard/@me/purchases" />
 				{/* <Navlink
 					icon="fa6-regular:face-angry"
 					text="Infraction history"

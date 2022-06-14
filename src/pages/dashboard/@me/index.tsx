@@ -1,6 +1,6 @@
 import { GetServerSideProps } from "next";
 import Container from "src/components/control/Container";
-import DashboardLinks from "src/components/control/DashboardLinks";
+import DashboardLinks from "src/components/dashboard/DashboardLinks";
 import { Title } from "src/components/Title";
 import { PageProps } from "src/types";
 import { authenticatedRoute } from "src/util/redirects";
@@ -17,5 +17,4 @@ export default function Account({ user }: PageProps) {
 	);
 }
 
-export const getServerSideProps: GetServerSideProps =
-	withSession(authenticatedRoute);
+export const getServerSideProps: GetServerSideProps = withSession(authenticatedRoute);
