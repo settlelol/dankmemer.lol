@@ -11,6 +11,7 @@ import { DetailedPrice } from "src/pages/api/store/product/details";
 export interface SubscriptionInformation {
 	id: string;
 	product: SubscriptionProduct;
+	currentPeriod: CurrentPeriod;
 }
 
 interface SubscriptionProduct {
@@ -18,6 +19,11 @@ interface SubscriptionProduct {
 	name: string;
 	image: string;
 	price: Required<Omit<DetailedPrice, "id">>;
+}
+
+interface CurrentPeriod {
+	start: number;
+	end: number;
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
@@ -92,6 +98,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						count: subscriptionPrice.recurring!.interval_count,
 					},
 				},
+			},
+			currentPeriod: {
+				start: subscription.current_period_start,
+				end: subscription.current_period_end,
 			},
 		} as SubscriptionInformation,
 	});

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { format } from "date-fns";
 import { GetServerSideProps } from "next";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -119,6 +120,13 @@ export default function Account({ user }: PageProps) {
 									Cancel subscription
 								</Button>
 							</div>
+							<p className="mt-2 text-xs dark:text-neutral-400">
+								Please be aware that these actions will come into affect at the end of your current
+								billing period on:{" "}
+								<span className="underline">
+									{format(new Date(subscribedTo.currentPeriod.end * 1000), "LLLL do', at' h:mm aaa")}
+								</span>
+							</p>
 						</section>
 					)}
 				</main>
