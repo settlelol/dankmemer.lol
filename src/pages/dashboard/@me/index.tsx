@@ -113,9 +113,9 @@ export default function Account({ user }: PageProps) {
 									Change tier
 								</Button>
 								<Button size="medium" className="w-full">
-									Change price
+									Change billing period
 								</Button>
-								<Button size="medium" variant="danger" className="w-full grow">
+								<Button size="medium" variant="danger" className="w-11/12 grow">
 									Cancel subscription
 								</Button>
 							</div>
