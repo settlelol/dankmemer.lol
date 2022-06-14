@@ -13,10 +13,10 @@ interface Props {
 
 export default function Navlink({ icon, size = 22, text, href }: Props) {
 	const router = useRouter();
-	const [active, setActive] = useState(router.route === href || router.route.startsWith(href));
+	const [active, setActive] = useState(router.route === href || router.route.endsWith(href));
 
 	useEffect(() => {
-		setActive(router.route === href || router.route.startsWith(href));
+		setActive(router.route === href || router.route.endsWith(href));
 	}, [router.route]);
 
 	return (
