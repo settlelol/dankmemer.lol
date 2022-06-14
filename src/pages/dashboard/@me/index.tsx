@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Badge } from "src/components/Badge";
 import Container from "src/components/control/Container";
+import CancelSubscription from "src/components/dashboard/account/modals/Cancel";
 import DashboardLinks from "src/components/dashboard/DashboardLinks";
+import Dialog from "src/components/Dialog";
 import LoadingPepe from "src/components/LoadingPepe";
 import { Title } from "src/components/Title";
 import Button from "src/components/ui/Button";
@@ -18,6 +20,7 @@ export default function Account({ user }: PageProps) {
 	const [loading, setLoading] = useState(true);
 	const [profile, setProfile] = useState<Profile>();
 	const [subscribedTo, setSubscribedTo] = useState<SubscriptionInformation>();
+	const [dialogOpen, setDialogOpen] = useState(false);
 
 	useEffect(() => {
 		axios
@@ -53,6 +56,9 @@ export default function Account({ user }: PageProps) {
 				<LoadingPepe />
 			) : (
 				<main>
+					<Dialog open={dialogOpen} onClose={setDialogOpen} closeButton>
+						<CancelSubscription close={setDialogOpen} />
+					</Dialog>
 					<div
 						className="relative h-64 w-full bg-cover bg-center bg-no-repeat dark:bg-dank-500"
 						style={{ backgroundImage: `url('${profile.user.banner}')` }}
@@ -116,7 +122,12 @@ export default function Account({ user }: PageProps) {
 								<Button size="medium" className="w-full">
 									Change billing period
 								</Button>
-								<Button size="medium" variant="danger" className="w-11/12 grow">
+								<Button
+									size="medium"
+									variant="danger"
+									className="w-11/12 grow"
+									onClick={() => setDialogOpen(true)}
+								>
 									Cancel subscription
 								</Button>
 							</div>
