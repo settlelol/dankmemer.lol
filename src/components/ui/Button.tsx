@@ -16,9 +16,9 @@ const alignClasses = {
 };
 
 const variantClasses = {
-	primary: "text-white bg-dank-300 hover:bg-opacity-80 transition-colors",
-	dark: "text-gray-900 dark:text-white bg-gray-300 hover:bg-opacity-80 dark:bg-dank-600 dark:hover:bg-opacity-75 transition-colors",
-	danger: "text-white bg-rose-500 hover:bg-opacity-80 transition-colors",
+	primary: "text-white bg-dank-300 disabled:bg-opacity-75 enabled:hover:bg-opacity-80 transition-colors",
+	dark: "text-gray-900 dark:text-white bg-gray-300 disabled:bg-opacity-75 enabled:hover:bg-opacity-80 dark:bg-dank-600 dark:hover:bg-opacity-75 transition-colors",
+	danger: "text-white bg-rose-500 disabled:bg-opacity-75 enabled:hover:bg-opacity-80 transition-colors",
 };
 
 interface Loading {
