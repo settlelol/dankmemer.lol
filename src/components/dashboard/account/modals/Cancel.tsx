@@ -1,12 +1,7 @@
-import { Dispatch, SetStateAction } from "react";
 import { Title } from "src/components/Title";
 import Button from "src/components/ui/Button";
 
-interface Props {
-	close: Dispatch<SetStateAction<boolean>>;
-}
-
-export default function CancelSubscription({ close }: Props) {
+export default function CancelSubscription() {
 	return (
 		<>
 			<Title size="medium" className="font-semibold">

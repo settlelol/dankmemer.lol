@@ -57,7 +57,7 @@ export default function Account({ user }: PageProps) {
 			) : (
 				<main>
 					<Dialog open={dialogOpen} onClose={setDialogOpen} closeButton>
-						<CancelSubscription close={setDialogOpen} />
+						<CancelSubscription />
 					</Dialog>
 					<div
 						className="relative h-64 w-full bg-cover bg-center bg-no-repeat dark:bg-dank-500"
