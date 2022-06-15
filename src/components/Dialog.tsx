@@ -45,7 +45,7 @@ export default function Dialog({ open, onClose, children, closeButton }: Props) 
 			ref={dialog}
 			className={clsx(
 				"relative m-auto overflow-hidden",
-				"backdrop:bg-gray-900/50 backdrop:backdrop-blur-sm",
+				"backdrop:bg-dark-400/50 backdrop:backdrop-blur-sm",
 				"bg-white dark:bg-dark-300",
 				"rounded-md shadow-xl transition-all",
 				"sm:w-full sm:max-w-lg"
