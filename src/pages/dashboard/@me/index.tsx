@@ -1,4 +1,5 @@
 import axios from "axios";
+import clsx from "clsx";
 import { format } from "date-fns";
 import { GetServerSideProps } from "next";
 import { useEffect, useState } from "react";
@@ -57,7 +58,7 @@ export default function Account({ user }: PageProps) {
 			) : (
 				<main>
 					<Dialog open={dialogOpen} onClose={setDialogOpen} closeButton>
-						<CancelSubscription />
+						<CancelSubscription userId={user!.id} />
 					</Dialog>
 					<div
 						className="relative h-64 w-full bg-cover bg-center bg-no-repeat dark:bg-dank-500"
@@ -100,8 +101,8 @@ export default function Account({ user }: PageProps) {
 										}}
 									></div>
 									<div>
-										<p>{subscribedTo.product.name}</p>
-										<p className="-mt-1 text-sm dark:text-neutral-300">
+										<p className="text-black dark:text-white">{subscribedTo.product.name}</p>
+										<p className="-mt-1 text-sm text-neutral-700 dark:text-neutral-300">
 											${(subscribedTo.product.price.value / 100).toFixed(2)}{" "}
 											{subscribedTo.product.price.interval.count === 1 ? (
 												<>every {subscribedTo.product.price.interval.period}</>
@@ -115,25 +116,40 @@ export default function Account({ user }: PageProps) {
 									</div>
 								</div>
 							</div>
-							<div className="mt-2 flex items-center justify-start space-x-3">
-								<Button size="medium" className="w-2/3">
-									Change tier
-								</Button>
-								<Button size="medium" className="w-full">
-									Change billing period
-								</Button>
-								<Button
-									size="medium"
-									variant="danger"
-									className="w-11/12 grow"
-									onClick={() => setDialogOpen(true)}
-								>
-									Cancel subscription
-								</Button>
-							</div>
-							<p className="mt-2 text-xs dark:text-neutral-400">
-								Please be aware that these actions will come into affect at the end of your current
-								billing period on:{" "}
+							{!subscribedTo.finalPeriod && (
+								<div className="mt-2 flex items-center justify-start space-x-3">
+									<Button size="medium" className="w-2/3" disabled={subscribedTo.finalPeriod}>
+										Change tier
+									</Button>
+									<Button size="medium" className="w-full" disabled={subscribedTo.finalPeriod}>
+										Change billing period
+									</Button>
+									<Button
+										size="medium"
+										variant="danger"
+										className="w-11/12 grow"
+										onClick={() => setDialogOpen(true)}
+										disabled={subscribedTo.finalPeriod}
+										title="You have already requested your subscription be cancelled."
+									>
+										Cancel subscription
+									</Button>
+								</div>
+							)}
+							<p
+								className={clsx(
+									"mt-2 text-xs text-neutral-500 dark:text-neutral-400",
+									subscribedTo.finalPeriod && "text-red-400 dark:text-red-400"
+								)}
+							>
+								{subscribedTo.finalPeriod ? (
+									<>Your subscription will end on: </>
+								) : (
+									<>
+										Please be aware that these actions will come into affect at the end of your
+										current billing period on:{" "}
+									</>
+								)}
 								<span className="underline">
 									{format(new Date(subscribedTo.currentPeriod.end * 1000), "LLLL do', at' h:mm aaa")}
 								</span>

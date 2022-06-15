@@ -11,7 +11,6 @@ import { DetailedPrice } from "src/pages/api/store/product/details";
 export interface SubscriptionInformation {
 	id: string;
 	product: SubscriptionProduct;
-	finalPeriod: boolean;
 	currentPeriod: CurrentPeriod;
 }
 
@@ -81,32 +80,15 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		});
 	}
 
-	const subscriptionProduct = await stripe.products.retrieve(subscription.items.data[0].price.product as string);
-	const subscriptionPrice = subscription.items.data[0].price;
-	return res.status(200).json({
-		message: "A subscription has been found",
-		isSubscribed: true,
-		subscription: {
-			id: subscription.id,
-			product: {
-				id: subscriptionProduct.id,
-				name: subscriptionProduct.name,
-				image: subscriptionProduct.images[0],
-				price: {
-					value: subscriptionPrice.unit_amount!,
-					interval: {
-						period: subscriptionPrice.recurring!.interval,
-						count: subscriptionPrice.recurring!.interval_count,
-					},
-				},
-			},
-			finalPeriod: subscription.cancel_at_period_end,
-			currentPeriod: {
-				start: subscription.current_period_start,
-				end: subscription.current_period_end,
-			},
-		} as SubscriptionInformation,
-	});
+	try {
+		await stripe.subscriptions.update(subscription.id, {
+			cancel_at_period_end: true,
+		});
+		return res.status(200).json({ message: "Subscription renewal has been cancelled." });
+	} catch (e: any) {
+		console.error(`Failed to cancel subscription for user ${user.id}, reason: ${e.message.replace(/"/g, "")}`);
+		return res.status(500).json({ message: "Failed to cancel subscription renewal." });
+	}
 };
 
 export default withSession(handler);
