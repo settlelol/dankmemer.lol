@@ -11,10 +11,7 @@ import { Payer } from "../types/Orders/Payer";
 import { PurchaseUnit } from "../types/Orders/PurchaseUnit";
 import { LinkDescription } from "./Products";
 
-let hostURL =
-	process.env.NODE_ENV === "production"
-		? "api.paypal.com"
-		: "api.sandbox.paypal.com";
+let hostURL = process.env.NODE_ENV === "production" ? "api.paypal.com" : "api.sandbox.paypal.com";
 
 interface ValidRequest {
 	valid: Boolean;
@@ -35,6 +32,7 @@ export enum WebhookEvents {
 	CAPTURE_REFUNDED = "PAYMENT.CAPTURE.REFUNDED",
 	CAPTURE_REVERSED = "PAYMENT.CAPTURE.REVERSED",
 	PLAN_CREATED = "BILLING.PLAN.CREATED",
+	SUBSCRIPTION_CANCELLED = "BILLING.SUBSCRIPTION.CANCELLED",
 	PRODUCT_CREATED = "CATALOG.PRODUCT.CREATED",
 	SALE_COMPLETED = "PAYMENT.SALE.COMPLETED",
 }
@@ -47,6 +45,7 @@ export interface PayPalEvent {
 export interface PayPalWebhookResource {
 	id: string;
 	custom?: string; // Custom assigned id to the resource
+	custom_id?: string; // Same as above
 	update_time: string;
 	create_time: string;
 	purchase_units?: PurchaseUnit[];
@@ -55,6 +54,7 @@ export interface PayPalWebhookResource {
 	links: LinkDescription[];
 	intent?: string;
 	payer?: Payer;
+	subscriber?: Payer; // Same as previous prop
 	status?: string;
 	plan_id?: string;
 	billing_agreement_id?: string;
@@ -73,25 +73,18 @@ export default class Webhooks {
 			}
 
 			if (!Object.values(WebhookEvents).includes(req.body.event_type)) {
-				return reject(
-					Error(`Event '${req.body.event_type}' is unsupported.`)
-				);
+				console.log(req.body.resource);
+				return reject(Error(`Event '${req.body.event_type}' is unsupported.`));
 			}
 
 			resolve(result);
 		});
 	}
 
-	private async verifyRequest(
-		req: NextApiRequest
-	): Promise<ValidRequest | InvalidRequest> {
-		const signature: string =
-			req.headers["paypal-transmission-sig"]?.toString()!;
-		const authAlgorithm: string =
-			req.headers["paypal-auth-algo"]?.toString()!;
-		const certificateUrl: URL = new URL(
-			req.headers["paypal-cert-url"]?.toString() ?? ""
-		);
+	private async verifyRequest(req: NextApiRequest): Promise<ValidRequest | InvalidRequest> {
+		const signature: string = req.headers["paypal-transmission-sig"]?.toString()!;
+		const authAlgorithm: string = req.headers["paypal-auth-algo"]?.toString()!;
+		const certificateUrl: URL = new URL(req.headers["paypal-cert-url"]?.toString() ?? "");
 
 		if (authAlgorithm !== "SHA256withRSA") {
 			console.error(
@@ -104,9 +97,7 @@ export default class Webhooks {
 		}
 
 		if (certificateUrl.host !== hostURL) {
-			console.error(
-				`Received Webhook from unexpected host: ${certificateUrl.host}`
-			);
+			console.error(`Received Webhook from unexpected host: ${certificateUrl.host}`);
 			return {
 				valid: false,
 				error: "Unexpected certificate host",
@@ -115,9 +106,7 @@ export default class Webhooks {
 
 		const { data: certificate } = await axios(certificateUrl.href);
 		if (!certificate) {
-			console.error(
-				`Unable to get certificate from ${certificateUrl.href}`
-			);
+			console.error(`Unable to get certificate from ${certificateUrl.href}`);
 			return {
 				valid: false,
 				error: `Unable to get certificate from ${certificateUrl.href}`,

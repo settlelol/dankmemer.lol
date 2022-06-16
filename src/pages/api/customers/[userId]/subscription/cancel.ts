@@ -5,8 +5,8 @@ import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { NextIronRequest, withSession } from "src/util/session";
 import { Customer } from "..";
-import { PriceObject } from "../history";
 import { DetailedPrice } from "src/pages/api/store/product/details";
+import PayPal from "src/util/paypal";
 
 export interface SubscriptionInformation {
 	id: string;
@@ -44,50 +44,91 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	const db: Db = await dbConnect();
 	const _customer = (await db.collection("customers").findOne({ discordId: req.query.userId })) as Customer;
-	const stripe = stripeConnect();
-	let customer: Stripe.Customer | undefined;
-	if (!_customer) {
-		const unrecordedCustomer = (
-			await stripe.customers.search({
-				query: `metadata['discordId']: '${user.id}' OR email:'${user.email}'`,
+	if (!_customer.subscription) {
+		return res.status(400).json({ message: "no sub" });
+	}
+
+	if (_customer.subscription.provider === "stripe") {
+		const stripe = stripeConnect();
+		let customer: Stripe.Customer | undefined;
+		if (!_customer) {
+			const unrecordedCustomer = (
+				await stripe.customers.search({
+					query: `metadata['discordId']: '${user.id}' OR email:'${user.email}'`,
+				})
+			).data[0];
+
+			if (unrecordedCustomer) {
+				customer = unrecordedCustomer;
+			} else {
+				return res.status(404).json({
+					error: "Requested user was not found in the database.",
+				});
+			}
+		} else {
+			customer = (await stripe.customers.retrieve(_customer._id, {
+				expand: ["invoice_settings.default_payment_method"],
+			})) as Stripe.Customer;
+		}
+
+		const subscription = (
+			await stripe.subscriptions.list({
+				customer: customer.id,
+				status: "active",
 			})
 		).data[0];
 
-		if (unrecordedCustomer) {
-			customer = unrecordedCustomer;
-		} else {
-			return res.status(404).json({
-				error: "Requested user was not found in the database.",
+		if (!subscription) {
+			return res.status(410).json({
+				message: "No subscription was found",
+				isSubscribed: false,
 			});
 		}
-	} else {
-		customer = (await stripe.customers.retrieve(_customer._id, {
-			expand: ["invoice_settings.default_payment_method"],
-		})) as Stripe.Customer;
-	}
 
-	const subscription = (
-		await stripe.subscriptions.list({
-			customer: customer.id,
-			status: "active",
-		})
-	).data[0];
+		try {
+			await stripe.subscriptions.update(subscription.id, {
+				cancel_at_period_end: true,
+			});
+			return res.status(200).json({ message: "Subscription renewal has been cancelled." });
+		} catch (e: any) {
+			console.error(`Failed to cancel subscription for user ${user.id}, reason: ${e.message.replace(/"/g, "")}`);
+			return res.status(500).json({ message: "Failed to cancel subscription renewal." });
+		}
+	} else if (_customer.subscription.provider === "paypal") {
+		try {
+			// Do to limitations with the PayPal API we need to keep
+			// track of subscription dates manually. However, to avoid
+			// charging the user again we cancel the subscription here
+			// and remove their benefits at the end of the period which
+			// is indicated by their customer record in db.
+			const paypal = new PayPal();
+			const subscription = await paypal.subscriptions.get(_customer.subscription.id);
 
-	if (!subscription) {
-		return res.status(410).json({
-			message: "No subscription was found",
-			isSubscribed: false,
-		});
-	}
+			if (!subscription) {
+				return res.status(410).json({
+					message: "No subscription was found",
+					isSubscribed: false,
+				});
+			}
 
-	try {
-		await stripe.subscriptions.update(subscription.id, {
-			cancel_at_period_end: true,
-		});
-		return res.status(200).json({ message: "Subscription renewal has been cancelled." });
-	} catch (e: any) {
-		console.error(`Failed to cancel subscription for user ${user.id}, reason: ${e.message.replace(/"/g, "")}`);
-		return res.status(500).json({ message: "Failed to cancel subscription renewal." });
+			Promise.all([
+				paypal.subscriptions.cancel(subscription.id),
+				db.collection("customers").updateOne(
+					{ _id: _customer._id },
+					{
+						$set: {
+							"subscription.cancelled": true,
+						},
+					}
+				),
+			]);
+			return res.status(200).json({ message: "Subscription renewal has been cancelled." });
+		} catch (e: any) {
+			console.error(
+				`Failed to cancel PayPal subscription for user ${user.id}, reason: ${e.message.replace(/"/g, "")}`
+			);
+			return res.status(500).json({ message: "Failed to cancel subscription renewal." });
+		}
 	}
 };
 

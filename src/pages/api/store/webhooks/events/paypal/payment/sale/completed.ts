@@ -5,7 +5,7 @@ import { redisConnect } from "src/util/redis";
 import { stripeConnect } from "src/util/stripe";
 import { EventResponse } from "../../../../paypal";
 
-const billingPeriod = {
+export const billingPeriod = {
 	day: "Daily",
 	week: "Weekly",
 	month: "Monthly",

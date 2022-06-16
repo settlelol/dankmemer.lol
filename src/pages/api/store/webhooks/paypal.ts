@@ -9,6 +9,7 @@ import { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10";
 
 import { default as CaptureCompleted } from "./events/paypal/payment/capture/completed";
 import { default as PlanCreated } from "./events/paypal/billing/plan/created";
+import { default as SubscriptionCancelled } from "./events/paypal/billing/subscription/cancelled";
 import { default as ProductCreated } from "./events/paypal/product/created";
 import { default as SaleCompleted } from "./events/paypal/payment/sale/completed";
 
@@ -33,9 +34,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		let error: string | undefined;
 		let status: number | undefined;
 
-		let processedEvent = await redis.get(
-			`paypal-purchase:${event.data.id}`
-		);
+		let processedEvent = await redis.get(`paypal-purchase:${event.data.id}`);
 		if (processedEvent) {
 			return res.status(200).json({ message: "Event already processed" });
 		}
@@ -53,6 +52,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			case WebhookEvents.SALE_COMPLETED:
 				({ result, error } = await SaleCompleted(event, paypal));
 				break;
+			case WebhookEvents.SUBSCRIPTION_CANCELLED:
+				({ result, error } = await SubscriptionCancelled(event, paypal));
+				break;
 			default:
 				({ error, status } = {
 					error: `Not expected to handle event type, ${event.type}`,
@@ -60,12 +62,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				});
 		}
 
-		await redis.set(
-			`paypal-event-for:${event.type}:${event.data.id}`,
-			event.data.id,
-			"PX",
-			TIME.minute * 15
-		);
+		await redis.set(`paypal-event-for:${event.type}:${event.data.id}`, event.data.id, "PX", TIME.minute * 15);
 
 		if (result !== null && !error) {
 			if (process.env.NODE_ENV === "development" && result.embeds) {
