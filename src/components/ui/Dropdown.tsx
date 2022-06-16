@@ -1,6 +1,8 @@
 import clsx from "clsx";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import SimpleBar from "simplebar-react";
+import "simplebar/dist/simplebar.min.css";
 
 const optionVariants = {
 	normal: "text-neutral-300",
@@ -21,9 +23,19 @@ interface Props {
 	className?: string;
 	isInput?: boolean;
 	requireScroll?: boolean;
+	reverseOptions?: boolean;
+	maxOptionsHeight?: string;
 }
 
-export default function Dropdown({ content, options, className = "", isInput = false, requireScroll = false }: Props) {
+export default function Dropdown({
+	content,
+	options,
+	className = "",
+	isInput = false,
+	requireScroll = false,
+	reverseOptions = false,
+	maxOptionsHeight = "max-h-72",
+}: Props) {
 	const [open, setOpen] = useState(false);
 	const dropdown = useRef<any>(null);
 
@@ -64,42 +76,78 @@ export default function Dropdown({ content, options, className = "", isInput = f
 			>
 				{content}
 			</div>
-			{open && (
-				<div className="absolute z-50 mt-2 min-h-full w-full">
-					<div
-						className={clsx(
-							"flex flex-col space-y-1 rounded-md bg-[#18191c] p-2",
-							requireScroll && "max-h-72 overflow-y-auto"
-						)}
-						onClick={() => setOpen(false)}
-					>
-						{options
-							.filter((o) => o)
-							.map((option) => {
-								const content = (
-									<div
-										onClick={(e) => (option?.onClick ? option?.onClick(e) : null)}
-										className={clsx(
-											"rounded-sm px-2 py-1 text-sm hover:bg-[#131417]",
-											optionVariants[option?.variant || "normal"]
-										)}
-									>
-										<div className="flex items-center space-x-2">
-											{option?.icon && (
-												<div className="material-icons" style={{ fontSize: "16px" }}>
-													{option.icon}
+			{open &&
+				(requireScroll ? (
+					<div className={clsx("absolute z-50 min-h-full w-full", reverseOptions ? "bottom-11" : "mt-2")}>
+						<SimpleBar className={maxOptionsHeight}>
+							<div
+								className={clsx("flex flex-col space-y-1 overflow-y-auto rounded-md bg-[#18191c] p-2")}
+								onClick={() => setOpen(false)}
+							>
+								{options
+									.filter((o) => o)
+									.map((option) => {
+										const content = (
+											<div
+												onClick={(e) => (option?.onClick ? option?.onClick(e) : null)}
+												className={clsx(
+													"rounded-sm px-2 py-1 text-sm hover:bg-[#131417]",
+													optionVariants[option?.variant || "normal"]
+												)}
+											>
+												<div className="flex items-center space-x-2">
+													{option?.icon && (
+														<div className="material-icons" style={{ fontSize: "16px" }}>
+															{option.icon}
+														</div>
+													)}
+													<div>{option?.label}</div>
 												</div>
-											)}
-											<div>{option?.label}</div>
-										</div>
-									</div>
-								);
+											</div>
+										);
 
-								return option?.link ? <Link href={option?.link || "#"}>{content}</Link> : content;
-							})}
+										return option?.link ? (
+											<Link href={option?.link || "#"}>{content}</Link>
+										) : (
+											content
+										);
+									})}
+							</div>
+						</SimpleBar>
 					</div>
-				</div>
-			)}
+				) : (
+					<div className="absolute z-50 mt-2 min-h-full w-full">
+						<div
+							className={clsx("flex flex-col space-y-1 rounded-md bg-[#18191c] p-2", maxOptionsHeight)}
+							onClick={() => setOpen(false)}
+						>
+							{options
+								.filter((o) => o)
+								.map((option) => {
+									const content = (
+										<div
+											onClick={(e) => (option?.onClick ? option?.onClick(e) : null)}
+											className={clsx(
+												"rounded-sm px-2 py-1 text-sm hover:bg-[#131417]",
+												optionVariants[option?.variant || "normal"]
+											)}
+										>
+											<div className="flex items-center space-x-2">
+												{option?.icon && (
+													<div className="material-icons" style={{ fontSize: "16px" }}>
+														{option.icon}
+													</div>
+												)}
+												<div>{option?.label}</div>
+											</div>
+										</div>
+									);
+
+									return option?.link ? <Link href={option?.link || "#"}>{content}</Link> : content;
+								})}
+						</div>
+					</div>
+				))}
 		</div>
 	);
 }
