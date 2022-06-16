@@ -20,6 +20,7 @@ interface CustomerSubscription {
 	purchaseTime: number;
 	expiryTime: number;
 	automaticRenewal: boolean;
+	cancelled?: boolean;
 }
 
 interface CustomerPurchases {

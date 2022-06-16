@@ -37,11 +37,7 @@ interface PlansListResponse {
 	links: LinkDescription[];
 }
 
-interface CreatePlanParams
-	extends Omit<
-		Plan,
-		"id" | "status" | "create_time" | "update_time" | "links"
-	> {
+interface CreatePlanParams extends Omit<Plan, "id" | "status" | "create_time" | "update_time" | "links"> {
 	status: "CREATED" | "ACTIVE";
 }
 
@@ -50,22 +46,26 @@ export default class Plans {
 		const httpClient = await createPayPal();
 
 		const res = await httpClient({
-			url: `/v2/billing/plans`,
+			url: `/v1/billing/plans`,
 			method: "GET",
 		});
 		const data: PlansListResponse | PayPalResponseError = res.data;
 		return data;
 	}
 
-	public async retrieve(id: string) {
+	public async retrieve(id: string): Promise<Plan> {
 		const httpClient = await createPayPal();
 
-		const res = await httpClient({
-			url: `/v2/billing/plans/${id}`,
-			method: "GET",
-		});
-		const data: Plan | PayPalResponseError = res.data;
-		return data;
+		try {
+			return (
+				await httpClient({
+					url: `/v1/billing/plans/${id}`,
+					method: "GET",
+				})
+			).data as Plan;
+		} catch (e) {
+			throw e as PayPalResponseError;
+		}
 	}
 
 	public async create(options: CreatePlanParams): Promise<Plan> {
