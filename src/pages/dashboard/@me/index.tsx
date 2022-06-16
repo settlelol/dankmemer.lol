@@ -2,16 +2,18 @@ import axios from "axios";
 import clsx from "clsx";
 import { format } from "date-fns";
 import { GetServerSideProps } from "next";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Badge } from "src/components/Badge";
 import Container from "src/components/control/Container";
-import CancelSubscription from "src/components/dashboard/account/modals/Cancel";
+import AdjustSubscription from "src/components/dashboard/account/modals/AdjustSubscription";
+import CancelSubscription from "src/components/dashboard/account/modals/CancelSubscription";
 import DashboardLinks from "src/components/dashboard/DashboardLinks";
 import Dialog from "src/components/Dialog";
 import LoadingPepe from "src/components/LoadingPepe";
 import { Title } from "src/components/Title";
 import Button from "src/components/ui/Button";
+import Link from "src/components/ui/Link";
 import { SubscriptionInformation } from "src/pages/api/customers/[userId]/subscription";
 import { PageProps, Profile } from "src/types";
 import { authenticatedRoute } from "src/util/redirects";
@@ -22,6 +24,7 @@ export default function Account({ user }: PageProps) {
 	const [profile, setProfile] = useState<Profile>();
 	const [subscribedTo, setSubscribedTo] = useState<SubscriptionInformation>();
 	const [dialogOpen, setDialogOpen] = useState(false);
+	const [dialogContent, setDialogContent] = useState<ReactNode>();
 
 	useEffect(() => {
 		axios
@@ -58,7 +61,7 @@ export default function Account({ user }: PageProps) {
 			) : (
 				<main>
 					<Dialog open={dialogOpen} onClose={setDialogOpen} closeButton>
-						<CancelSubscription userId={user!.id} />
+						{dialogContent}
 					</Dialog>
 					<div
 						className="relative h-64 w-full bg-cover bg-center bg-no-repeat dark:bg-dank-500"
@@ -87,7 +90,7 @@ export default function Account({ user }: PageProps) {
 						</div>
 					</div>
 					{subscribedTo && (
-						<section className="my-10 mx-10 max-w-lg">
+						<section className="my-10 mx-10 max-w-sm">
 							<Title size="big" className="font-semibold">
 								Your Subscription
 							</Title>
@@ -118,17 +121,25 @@ export default function Account({ user }: PageProps) {
 							</div>
 							{!subscribedTo.finalPeriod && (
 								<div className="mt-2 flex items-center justify-start space-x-3">
-									<Button size="medium" className="w-2/3" disabled={subscribedTo.finalPeriod}>
-										Change tier
-									</Button>
-									<Button size="medium" className="w-full" disabled={subscribedTo.finalPeriod}>
-										Change billing period
+									<Button
+										size="medium"
+										className="w-full"
+										onClick={() => {
+											setDialogContent(<AdjustSubscription userId={user!.id} />);
+											setDialogOpen(true);
+										}}
+										disabled={subscribedTo.finalPeriod}
+									>
+										Adjust subscription
 									</Button>
 									<Button
 										size="medium"
 										variant="danger"
-										className="w-11/12 grow"
-										onClick={() => setDialogOpen(true)}
+										className="w-full"
+										onClick={() => {
+											setDialogContent(<CancelSubscription userId={user!.id} />);
+											setDialogOpen(true);
+										}}
 										disabled={subscribedTo.finalPeriod}
 										title="You have already requested your subscription be cancelled."
 									>
@@ -154,6 +165,14 @@ export default function Account({ user }: PageProps) {
 									{format(new Date(subscribedTo.currentPeriod.end * 1000), "LLLL do', at' h:mm aaa")}
 								</span>
 							</p>
+							{subscribedTo.finalPeriod && (
+								<p className="text-xs text-neutral-500 dark:text-neutral-400">
+									If you made a mistake in cancelling your subscription,{" "}
+									<Link href="https://discord.gg/dankmemerbot" className="!text-dank-100">
+										please contact our support
+									</Link>
+								</p>
+							)}
 						</section>
 					)}
 				</main>
