@@ -1,16 +1,72 @@
-import axios from "axios";
-import { useRouter } from "next/router";
-import { useState } from "react";
+import clsx from "clsx";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Title } from "src/components/Title";
 import Button from "src/components/ui/Button";
+import Dropdown from "src/components/ui/Dropdown";
+import Link from "src/components/ui/Link";
+import { Icon as Iconify } from "@iconify/react";
+import { DetailedPriceInterval } from "src/pages/api/store/product/details";
+import axios from "axios";
+import { AnyProduct } from "src/pages/store";
+import Stripe from "stripe";
 
 interface Props {
 	userId: string;
+	availableSubscriptions: SubscriptionOption[];
+	onAvailableSubscriptionsChange: Dispatch<SetStateAction<SubscriptionOption[]>>;
+	current: Omit<SubscriptionOption, "price"> & { price: string };
 }
 
-export default function AdjustSubscription({ userId }: Props) {
-	const router = useRouter();
-	const [errored, setErrored] = useState(false);
+export interface SubscriptionOption {
+	id: string;
+	name: string;
+	image: string;
+	price: SubscriptionOptionPrice;
+	interval: DetailedPriceInterval;
+}
+
+interface SubscriptionOptionPrice {
+	id: string;
+	value: string; // Formatted string
+}
+
+export default function AdjustSubscription({ availableSubscriptions, onAvailableSubscriptionsChange, current }: Props) {
+	const [subscriptions, setSubscriptions] = useState(availableSubscriptions);
+	const [selectedTier, setSelectedTier] = useState<string>(current.id);
+	const [selectedPrice, setSelectedPrice] = useState(current.price);
+
+	useEffect(() => {
+		if (availableSubscriptions.length < 1) {
+			axios("/api/store/products/subscriptions/list").then(({ data }: { data: AnyProduct[] }) => {
+				const formatted: SubscriptionOption[] = [];
+				for (let product of data) {
+					for (let price of product.prices) {
+						formatted.push({
+							id: product.id,
+							name: product.name,
+							image: product.images[0],
+							price: {
+								id: price.id,
+								value: `$${(price.price / 100).toFixed(2)}`,
+							},
+							interval: {
+								period: price.interval as Stripe.Price.Recurring.Interval,
+								count: 1,
+							},
+						});
+					}
+				}
+				onAvailableSubscriptionsChange(formatted);
+				setSubscriptions(formatted);
+			});
+		}
+	}, []);
+
+	useEffect(() => {
+		if (subscriptions.length >= 1) {
+			setSelectedPrice(subscriptions.filter((sub) => sub.id === selectedTier)[0].price.id);
+		}
+	}, [selectedTier]);
 
 	return (
 		<>
@@ -25,6 +81,113 @@ export default function AdjustSubscription({ userId }: Props) {
 				<Title size="small" className="font-semibold">
 					Subscription tier
 				</Title>
+				<p className="text-sm text-neutral-500 dark:text-neutral-400">
+					You can view what is included in each subscription tier on{" "}
+					<Link href="/store" className="!text-dank-100">
+						our store homepage
+					</Link>
+					.
+				</p>
+				<div className="mt-3">
+					<Dropdown
+						content={
+							<div
+								className={clsx(
+									"flex items-center justify-between",
+									"rounded-md border-[1px] border-[#3C3C3C]",
+									"bg-light-500 text-neutral-800 transition-colors dark:bg-black/40 dark:text-neutral-400",
+									"w-full px-3 py-2 text-sm"
+								)}
+							>
+								<p>
+									{selectedTier && subscriptions.find((sub) => sub.id === selectedTier) ? (
+										<span className="flex items-center space-x-2">
+											<img
+												src={subscriptions.find((sub) => sub.id === selectedTier)!.image}
+												width={24}
+											/>
+											<span>{subscriptions.find((sub) => sub.id === selectedTier)!.name}</span>
+										</span>
+									) : (
+										"Select one"
+									)}
+								</p>
+								<Iconify icon="ic:baseline-expand-more" height={15} className="ml-1" />
+							</div>
+						}
+						options={[...new Map(subscriptions.map((sub) => [sub["id"], sub])).values()].map((option) => {
+							return {
+								label: (
+									<span className="flex items-center space-x-2 py-1">
+										<img src={option.image} width={24} />
+										<span>
+											{option.name} (from {option.price.value} / {option.interval.period})
+										</span>
+									</span>
+								),
+								onClick: () => setSelectedTier(option.id),
+							};
+						})}
+						maxOptionsHeight="!max-h-32"
+						requireScroll
+					/>
+				</div>
+			</section>
+			<section>
+				<Title size="small" className="font-semibold">
+					Billing interval
+				</Title>
+				<p className="text-sm text-neutral-500 dark:text-neutral-400">
+					Change how often you are charged for your active subscription.
+				</p>
+				<div className="mt-3">
+					<Dropdown
+						content={
+							<div
+								className={clsx(
+									"flex items-center justify-between",
+									"rounded-md border-[1px] border-[#3C3C3C]",
+									"bg-light-500 text-neutral-800 transition-colors dark:bg-black/40 dark:text-neutral-400",
+									"w-full px-3 py-2 text-sm"
+								)}
+							>
+								<p>
+									{selectedPrice && selectedTier ? (
+										<span className="flex items-center space-x-2">
+											{subscriptions
+												.filter((sub) => sub.id === selectedTier)
+												.find((sub) => sub.price.id === selectedPrice)?.price.value ??
+												current.price}{" "}
+											/{" "}
+											{subscriptions
+												.filter((sub) => sub.id === selectedTier)
+												.find((sub) => sub.price.id === selectedPrice)?.interval.period ??
+												current.interval.period}
+										</span>
+									) : (
+										"Select one"
+									)}
+								</p>
+								<Iconify icon="ic:baseline-expand-more" height={15} className="ml-1" />
+							</div>
+						}
+						options={subscriptions
+							.filter((sub) => sub.id === selectedTier)
+							.map((option) => {
+								return {
+									label: (
+										<span className="flex items-center space-x-2 py-1">
+											{option.price.value} / {option.interval.period}
+										</span>
+									),
+									onClick: () => setSelectedPrice(option.price.id),
+								};
+							})}
+						maxOptionsHeight="!max-h-32"
+						requireScroll
+						reverseOptions
+					/>
+				</div>
 			</section>
 			<div className="mt-5 flex w-full items-center justify-end space-x-4">
 				<Button
@@ -32,15 +195,11 @@ export default function AdjustSubscription({ userId }: Props) {
 					variant="primary"
 					onClick={(e) => {
 						e.preventDefault();
-						sendCancellation();
 					}}
 				>
 					Save changes
 				</Button>
 			</div>
-			{errored && (
-				<p className="mt-2 text-right text-sm text-red-500">Something went wrong. Please try again later.</p>
-			)}
 		</>
 	);
 }

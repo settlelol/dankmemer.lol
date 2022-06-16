@@ -20,7 +20,7 @@ interface SubscriptionProduct {
 	id: string;
 	name: string;
 	image: string;
-	price: Required<Omit<DetailedPrice, "id">>;
+	price: Required<DetailedPrice>;
 }
 
 interface CurrentPeriod {
@@ -148,6 +148,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 						name: stripeProduct.name,
 						image: stripeProduct.images[0],
 						price: {
+							id: stripePrice.id,
 							value: stripePrice.unit_amount!,
 							interval: {
 								period: stripePrice.recurring!.interval,

@@ -6,7 +6,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Badge } from "src/components/Badge";
 import Container from "src/components/control/Container";
-import AdjustSubscription from "src/components/dashboard/account/modals/AdjustSubscription";
+import AdjustSubscription, { SubscriptionOption } from "src/components/dashboard/account/modals/AdjustSubscription";
 import CancelSubscription from "src/components/dashboard/account/modals/CancelSubscription";
 import DashboardLinks from "src/components/dashboard/DashboardLinks";
 import Dialog from "src/components/Dialog";
@@ -23,6 +23,7 @@ export default function Account({ user }: PageProps) {
 	const [loading, setLoading] = useState(true);
 	const [profile, setProfile] = useState<Profile>();
 	const [subscribedTo, setSubscribedTo] = useState<SubscriptionInformation>();
+	const [availableSubscriptions, setAvailableSubscriptions] = useState<SubscriptionOption[]>([]);
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [dialogContent, setDialogContent] = useState<ReactNode>();
 
@@ -125,7 +126,22 @@ export default function Account({ user }: PageProps) {
 										size="medium"
 										className="w-full"
 										onClick={() => {
-											setDialogContent(<AdjustSubscription userId={user!.id} />);
+											setDialogContent(
+												<AdjustSubscription
+													userId={user!.id}
+													availableSubscriptions={availableSubscriptions}
+													onAvailableSubscriptionsChange={setAvailableSubscriptions}
+													current={{
+														id: subscribedTo.product.id,
+														name: subscribedTo.product.name,
+														image: subscribedTo.product.image,
+														price: `$${(subscribedTo.product.price.value / 100).toFixed(
+															2
+														)}`,
+														interval: subscribedTo.product.price.interval,
+													}}
+												/>
+											);
 											setDialogOpen(true);
 										}}
 										disabled={subscribedTo.finalPeriod}

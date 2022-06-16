@@ -24,7 +24,7 @@ export interface DetailedPrice {
 	interval?: DetailedPriceInterval;
 }
 
-interface DetailedPriceInterval {
+export interface DetailedPriceInterval {
 	period: Stripe.Price.Recurring.Interval;
 	count: number;
 }
