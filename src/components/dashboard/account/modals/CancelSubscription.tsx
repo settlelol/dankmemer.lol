@@ -6,9 +6,10 @@ import Button from "src/components/ui/Button";
 
 interface Props {
 	userId: string;
+	ends: string;
 }
 
-export default function CancelSubscription({ userId }: Props) {
+export default function CancelSubscription({ userId, ends }: Props) {
 	const router = useRouter();
 	const [errored, setErrored] = useState(false);
 
@@ -30,7 +31,11 @@ export default function CancelSubscription({ userId }: Props) {
 				Confirm cancellation
 			</Title>
 			<p className="text-sm text-neutral-500 dark:text-neutral-400">
-				Are you sure you want to cancel your subscription? This action is irreversible.
+				Are you sure you want to cancel your subscription? This action is irreversible.{" "}
+				<span className="text-red-400">
+					Please be aware that these actions will come into affect at the end of your current billing period
+					on: <span className="underline">{ends}</span>.
+				</span>
 			</p>
 			<div className="mt-5 flex w-full items-center justify-end space-x-4">
 				<Button

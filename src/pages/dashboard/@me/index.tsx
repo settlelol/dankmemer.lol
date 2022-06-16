@@ -137,7 +137,15 @@ export default function Account({ user }: PageProps) {
 										variant="danger"
 										className="w-full"
 										onClick={() => {
-											setDialogContent(<CancelSubscription userId={user!.id} />);
+											setDialogContent(
+												<CancelSubscription
+													userId={user!.id}
+													ends={format(
+														new Date(subscribedTo.currentPeriod.end * 1000),
+														"LLLL do', at' h:mm aaa"
+													)}
+												/>
+											);
 											setDialogOpen(true);
 										}}
 										disabled={subscribedTo.finalPeriod}
@@ -147,31 +155,24 @@ export default function Account({ user }: PageProps) {
 									</Button>
 								</div>
 							)}
-							<p
-								className={clsx(
-									"mt-2 text-xs text-neutral-500 dark:text-neutral-400",
-									subscribedTo.finalPeriod && "text-red-400 dark:text-red-400"
-								)}
-							>
-								{subscribedTo.finalPeriod ? (
-									<>Your subscription will end on: </>
-								) : (
-									<>
-										Please be aware that these actions will come into affect at the end of your
-										current billing period on:{" "}
-									</>
-								)}
-								<span className="underline">
-									{format(new Date(subscribedTo.currentPeriod.end * 1000), "LLLL do', at' h:mm aaa")}
-								</span>
-							</p>
 							{subscribedTo.finalPeriod && (
-								<p className="text-xs text-neutral-500 dark:text-neutral-400">
-									If you made a mistake in cancelling your subscription,{" "}
-									<Link href="https://discord.gg/dankmemerbot" className="!text-dank-100">
-										please contact our support
-									</Link>
-								</p>
+								<>
+									<p className={clsx("mt-2 text-xs text-red-400 dark:text-red-400")}>
+										Your subscription will end on:
+										<span className="underline">
+											{format(
+												new Date(subscribedTo.currentPeriod.end * 1000),
+												"LLLL do', at' h:mm aaa"
+											)}
+										</span>
+									</p>
+									<p className="text-xs text-neutral-500 dark:text-neutral-400">
+										If you made a mistake in cancelling your subscription,{" "}
+										<Link href="https://discord.gg/dankmemerbot" className="!text-dank-100">
+											please contact our support
+										</Link>
+									</p>
+								</>
 							)}
 						</section>
 					)}
