@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function Dialog({ open, onClose, children, closeButton }: Props) {
-	const dialog = useRef<HTMLDialogElement>();
+	const dialog = useRef<HTMLDialogElement>(null);
 	const state = useRef(false);
 
 	const closeDialog = () => {
@@ -41,7 +41,6 @@ export default function Dialog({ open, onClose, children, closeButton }: Props) 
 
 	return (
 		<dialog
-			// @ts-expect-error
 			ref={dialog}
 			className={clsx(
 				"relative m-auto overflow-hidden",
