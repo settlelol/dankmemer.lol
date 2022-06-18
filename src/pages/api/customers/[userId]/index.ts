@@ -120,24 +120,26 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 							},
 					  }
 					: null,
-				other: paymentMethods.map((pm: Stripe.PaymentMethod) => {
-					return {
-						id: pm.id,
-						card: {
-							brand: pm.card?.brand,
-							type: pm.card?.funding,
-							expiry: {
-								month: pm.card?.exp_month,
-								year: pm.card?.exp_year,
+				other: paymentMethods
+					.filter((pm) => pm.id !== defaultPaymentMethod?.id)
+					.map((pm: Stripe.PaymentMethod) => {
+						return {
+							id: pm.id,
+							card: {
+								brand: pm.card?.brand,
+								type: pm.card?.funding,
+								expiry: {
+									month: pm.card?.exp_month,
+									year: pm.card?.exp_year,
+								},
+								last4: pm.card?.last4,
+								expired:
+									pm.card?.exp_year! <= new Date().getFullYear() ||
+									(pm.card?.exp_year! <= new Date().getFullYear() &&
+										pm.card?.exp_month! < new Date().getMonth() + 1),
 							},
-							last4: pm.card?.last4,
-							expired:
-								pm.card?.exp_year! <= new Date().getFullYear() ||
-								(pm.card?.exp_year! <= new Date().getFullYear() &&
-									pm.card?.exp_month! < new Date().getMonth() + 1),
-						},
-					};
-				}),
+						};
+					}),
 			},
 		});
 	}
