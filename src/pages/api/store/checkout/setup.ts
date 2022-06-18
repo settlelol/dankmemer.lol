@@ -47,7 +47,6 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				await db.collection("customers").insertOne({
 					_id: customer.id as unknown as ObjectId,
 					discordId: user.id,
-					purchases: [],
 				});
 			} else {
 				customer = await stripe.customers.create({
@@ -60,7 +59,6 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				await db.collection("customers").insertOne({
 					_id: customer.id as unknown as ObjectId,
 					discordId: user.id,
-					purchases: [],
 				});
 			}
 		} catch (e: any) {
