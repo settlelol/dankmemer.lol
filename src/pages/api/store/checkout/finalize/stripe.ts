@@ -66,6 +66,14 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		customerData.email = user.email;
 	}
 
+	if (!customer.invoice_settings.default_payment_method) {
+		customerData.invoice_settings = {
+			default_payment_method: (
+				(invoice.payment_intent as Stripe.PaymentIntent).payment_method as Stripe.PaymentMethod
+			).id,
+		};
+	}
+
 	try {
 		let discounts: PaymentIntentItemDiscount[] = [];
 		for (let i = 0; i < (invoice.discounts as Stripe.Discount[] | Stripe.DeletedDiscount[])?.length; i++) {
@@ -117,8 +125,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			}
 		}
 
-		await stripe.customers.update(customer.id, customerData);
-		await stripe.invoices.update((invoice.payment_intent as Stripe.PaymentIntent).invoice as string, { metadata });
+		Promise.all([
+			stripe.customers.update(customer.id, customerData),
+			stripe.invoices.update((invoice.payment_intent as Stripe.PaymentIntent).invoice as string, { metadata }),
+		]);
 
 		if (subscription) {
 			const subscriptionInfo = await stripe.subscriptions.retrieve(invoice.subscription as string);
