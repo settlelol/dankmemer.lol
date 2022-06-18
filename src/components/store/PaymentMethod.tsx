@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import Image from "next/image";
 import { useState } from "react";
 import { toTitleCase } from "src/util/string";
 import { RequireAllOrNone } from "type-fest";
@@ -40,7 +41,16 @@ export default function PaymentMethod({
 					</div>
 				)}
 				{paymentMethod.card.brand === "visa" && (
-					<img src={"/img/store/cards/visa.svg"} width={30} height={30} />
+					<Image src={"/img/store/cards/visa.svg"} width={30} height={30} />
+				)}
+				{paymentMethod.card.brand === "mastercard" && (
+					<Image src={"/img/store/cards/mastercard.svg"} width={30} height={30} />
+				)}
+				{paymentMethod.card.brand === "discover" && (
+					<Image src={"/img/store/cards/discover.svg"} width={30} height={30} />
+				)}
+				{paymentMethod.card.brand === "amex" && (
+					<Image src={"/img/store/cards/amex.svg"} width={30} height={30} />
 				)}
 				<p className="ml-3 text-sm text-black dark:text-white">
 					{toTitleCase(paymentMethod.card.brand)} {paymentMethod.card.type} card{" "}
