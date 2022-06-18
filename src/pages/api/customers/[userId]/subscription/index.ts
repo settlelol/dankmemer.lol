@@ -130,14 +130,11 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			const plan = await paypal.plans.retrieve(subscription.plan_id);
 			const stripeProduct = await stripe.products.retrieve(plan.product_id);
 			const stripePrice = (
-				await stripe.prices.list({
-					product: stripeProduct.id,
-					active: true,
+				await stripe.prices.search({
+					query: `metadata["paypalPlan"]:"${plan.id}"`,
 				})
-			).data.find(
-				(price) =>
-					(price.unit_amount! / 100).toString() === plan.billing_cycles[0].pricing_scheme?.fixed_price?.value
-			)!;
+			).data[0];
+
 			return res.status(200).json({
 				message: "A subscription has been found",
 				isSubscribed: true,
