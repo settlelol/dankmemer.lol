@@ -1,5 +1,6 @@
 import { Db } from "mongodb";
 import { NextApiResponse } from "next";
+import { CardData } from "src/components/store/checkout/CheckoutForm";
 import { dbConnect } from "src/util/mongodb";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
@@ -26,6 +27,14 @@ interface CustomerSubscription {
 interface CustomerPurchases {
 	type: "stripe" | "paypal";
 	id: string;
+}
+
+export interface SensitiveCustomerData {
+	activeSubscription?: string;
+	cards: {
+		default: CardData;
+		other: CardData[];
+	};
 }
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {

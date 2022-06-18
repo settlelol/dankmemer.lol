@@ -1,31 +1,34 @@
 import axios from "axios";
-import clsx from "clsx";
 import { format } from "date-fns";
 import { GetServerSideProps } from "next";
-import { ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Badge } from "src/components/Badge";
 import Container from "src/components/control/Container";
 import AdjustSubscription, { SubscriptionOption } from "src/components/dashboard/account/modals/AdjustSubscription";
 import CancelSubscription from "src/components/dashboard/account/modals/CancelSubscription";
+import SavedPaymentMethods from "src/components/dashboard/account/PaymentMethods";
 import DashboardLinks from "src/components/dashboard/DashboardLinks";
+import ActiveSubscription from "src/components/dashboard/SubscribedTo";
 import Dialog from "src/components/Dialog";
 import LoadingPepe from "src/components/LoadingPepe";
 import { Title } from "src/components/Title";
-import Button from "src/components/ui/Button";
-import Link from "src/components/ui/Link";
+import { SensitiveCustomerData } from "src/pages/api/customers/[userId]";
 import { SubscriptionInformation } from "src/pages/api/customers/[userId]/subscription";
 import { PageProps, Profile } from "src/types";
 import { authenticatedRoute } from "src/util/redirects";
 import { withSession } from "src/util/session";
 
+export type PossibleDialogViews = "adjust" | "cancel";
+
 export default function Account({ user }: PageProps) {
 	const [loading, setLoading] = useState(true);
 	const [profile, setProfile] = useState<Profile>();
+	const [customer, setCustomer] = useState<SensitiveCustomerData>();
 	const [subscribedTo, setSubscribedTo] = useState<SubscriptionInformation>();
 	const [availableSubscriptions, setAvailableSubscriptions] = useState<SubscriptionOption[]>([]);
 	const [dialogOpen, setDialogOpen] = useState(false);
-	const [dialogView, setDialogView] = useState<ReactNode>();
+	const [dialogView, setDialogView] = useState<PossibleDialogViews | null>();
 
 	useEffect(() => {
 		axios
@@ -36,6 +39,7 @@ export default function Account({ user }: PageProps) {
 			.then(
 				axios.spread(({ data: profile }, { data: customerData }) => {
 					setProfile(profile);
+					setCustomer(customerData);
 					if (customerData.activeSubscription) {
 						axios(`/api/customers/${user!.id}/subscription`)
 							.then(({ data: { subscription } }) => {
@@ -55,6 +59,20 @@ export default function Account({ user }: PageProps) {
 			});
 	}, []);
 
+	useEffect(() => {
+		if (dialogView && dialogView.length >= 1) {
+			setDialogOpen(true);
+		} else {
+			setDialogOpen(false);
+		}
+	}, [dialogView]);
+
+	useEffect(() => {
+		if (!dialogOpen && dialogView && dialogView.length >= 1) {
+			setDialogView(null);
+		}
+	}, [dialogOpen]);
+
 	return (
 		<Container customSpacing={true} title="Account" links={<DashboardLinks user={user!} />}>
 			{loading || !profile ? (
@@ -63,29 +81,36 @@ export default function Account({ user }: PageProps) {
 				<main>
 					{subscribedTo && user && (
 						<Dialog open={dialogOpen} onClose={setDialogOpen} closeButton>
-							{dialogView === "adjust" ? (
-								<AdjustSubscription
-									userId={user.id}
-									availableSubscriptions={availableSubscriptions}
-									onAvailableSubscriptionsChange={setAvailableSubscriptions}
-									isOpen={dialogOpen}
-									current={{
-										id: subscribedTo.product.id,
-										name: subscribedTo.product.name,
-										image: subscribedTo.product.image,
-										price: `$${(subscribedTo.product.price.value / 100).toFixed(2)}`,
-										interval: subscribedTo.product.price.interval,
-									}}
-								/>
-							) : (
-								<CancelSubscription
-									userId={user.id}
-									ends={format(
-										new Date(subscribedTo.currentPeriod.end * 1000),
-										"LLLL do', at' h:mm aaa"
-									)}
-								/>
-							)}
+							{(() => {
+								switch (dialogView) {
+									case "adjust":
+										return (
+											<AdjustSubscription
+												userId={user.id}
+												availableSubscriptions={availableSubscriptions}
+												onAvailableSubscriptionsChange={setAvailableSubscriptions}
+												isOpen={dialogOpen}
+												current={{
+													id: subscribedTo.product.id,
+													name: subscribedTo.product.name,
+													image: subscribedTo.product.image,
+													price: `$${(subscribedTo.product.price.value / 100).toFixed(2)}`,
+													interval: subscribedTo.product.price.interval,
+												}}
+											/>
+										);
+									case "cancel":
+										return (
+											<CancelSubscription
+												userId={user.id}
+												ends={format(
+													new Date(subscribedTo.currentPeriod.end * 1000),
+													"LLLL do', at' h:mm aaa"
+												)}
+											/>
+										);
+								}
+							})()}
 						</Dialog>
 					)}
 					<div
@@ -114,92 +139,12 @@ export default function Account({ user }: PageProps) {
 							{profile.user.honorable && <Badge role="honorable" />}
 						</div>
 					</div>
-					{subscribedTo && (
-						<section className="my-10 mx-10 max-w-sm">
-							<Title size="big" className="font-semibold">
-								Your Subscription
-							</Title>
-							<p className="text-neutral-500 dark:text-neutral-400">Manage your active subscription</p>
-							<div className="mt-5 flex w-full flex-col">
-								<div className="flex items-center justify-start space-x-4">
-									<div
-										className="h-14 w-14 rounded-md bg-[length:40px_40px] bg-center bg-no-repeat dark:bg-dank-500"
-										style={{
-											backgroundImage: `url('${subscribedTo.product.image}')`,
-										}}
-									></div>
-									<div>
-										<p className="text-black dark:text-white">{subscribedTo.product.name}</p>
-										<p className="-mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-											${(subscribedTo.product.price.value / 100).toFixed(2)}{" "}
-											{subscribedTo.product.price.interval.count === 1 ? (
-												<>every {subscribedTo.product.price.interval.period}</>
-											) : (
-												<>
-													every {subscribedTo.product.price.interval?.count}{" "}
-													{subscribedTo.product.price.interval.period}s
-												</>
-											)}
-										</p>
-									</div>
-								</div>
-							</div>
-							{!subscribedTo.finalPeriod && (
-								<div className="mt-2 flex items-center justify-start space-x-3">
-									{subscribedTo.provider !== "paypal" && (
-										<Button
-											size="medium"
-											className="w-full"
-											onClick={() => {
-												setDialogView("adjust");
-												setDialogOpen(true);
-											}}
-											disabled={subscribedTo.finalPeriod}
-										>
-											Adjust subscription
-										</Button>
-									)}
-									<Button
-										size="medium"
-										variant="danger"
-										className={clsx(subscribedTo.provider === "paypal" ? "w-1/2" : "w-full")}
-										onClick={() => {
-											setDialogView("cancel");
-											setDialogOpen(true);
-										}}
-										disabled={subscribedTo.finalPeriod}
-										title="You have already requested your subscription be cancelled."
-									>
-										Cancel subscription
-									</Button>
-								</div>
+					{customer && (
+						<section className="m-10 flex flex-row items-start justify-start space-x-10">
+							{subscribedTo && (
+								<ActiveSubscription subscribedTo={subscribedTo} openView={setDialogView} />
 							)}
-							{subscribedTo.finalPeriod && (
-								<>
-									<p className={clsx("mt-2 text-xs text-red-400 dark:text-red-400")}>
-										Your subscription will end on:{" "}
-										<span className="underline">
-											{format(
-												new Date(subscribedTo.currentPeriod.end * 1000),
-												"LLLL do', at' h:mm aaa"
-											)}
-										</span>
-									</p>
-									<p className="text-xs text-neutral-500 dark:text-neutral-400">
-										If you made a mistake in cancelling your subscription,{" "}
-										<Link href="https://discord.gg/dankmemerbot" className="!text-dank-100">
-											please contact our support
-										</Link>
-									</p>
-								</>
-							)}
-							{subscribedTo.provider === "paypal" && (
-								<p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
-									Due to technical limitations changing your subscription plan while using PayPal is
-									not available. If you wish to make changes it is advised to cancel your current
-									subscription and resubscribe to your preferred tier and billing interval.
-								</p>
-							)}
+							<SavedPaymentMethods customer={customer} />
 						</section>
 					)}
 				</main>
