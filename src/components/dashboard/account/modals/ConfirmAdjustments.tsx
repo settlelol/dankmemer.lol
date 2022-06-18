@@ -3,6 +3,8 @@ import Button from "src/components/ui/Button";
 import { SubscriptionOption } from "./AdjustSubscription";
 import { Icon as Iconify } from "@iconify/react";
 import axios from "axios";
+import { useState } from "react";
+import { useRouter } from "next/router";
 
 interface Props {
 	userId: string;
@@ -11,7 +13,12 @@ interface Props {
 }
 
 export default function ConfirmAdjustments({ userId, current, newSub }: Props) {
+	const router = useRouter();
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string>();
+
 	const submitChanges = () => {
+		setLoading(true);
 		axios({
 			url: `/api/customers/${userId}/subscription/change`,
 			method: "PATCH",
@@ -19,7 +26,20 @@ export default function ConfirmAdjustments({ userId, current, newSub }: Props) {
 				newProduct: newSub.id,
 				newPrice: newSub.price.id,
 			},
-		});
+		})
+			.then(() => {
+				router.reload();
+			})
+			.catch((e) => {
+				if (e.response.status === 422) {
+					setError(e.response.data.message);
+				} else {
+					setError("Something went wrong. Please try again later.");
+				}
+			})
+			.finally(() => {
+				setLoading(false);
+			});
 	};
 
 	return (
@@ -70,10 +90,15 @@ export default function ConfirmAdjustments({ userId, current, newSub }: Props) {
 						e.preventDefault();
 						submitChanges();
 					}}
+					loading={{
+						state: loading,
+						text: "Applying changes",
+					}}
 				>
 					Confirm changes
 				</Button>
 			</div>
+			{error && <p className="mt-2 text-right text-sm text-red-500">{error}</p>}
 		</>
 	);
 }
