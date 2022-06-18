@@ -25,7 +25,7 @@ export default function Account({ user }: PageProps) {
 	const [subscribedTo, setSubscribedTo] = useState<SubscriptionInformation>();
 	const [availableSubscriptions, setAvailableSubscriptions] = useState<SubscriptionOption[]>([]);
 	const [dialogOpen, setDialogOpen] = useState(false);
-	const [dialogContent, setDialogContent] = useState<ReactNode>();
+	const [dialogView, setDialogView] = useState<ReactNode>();
 
 	useEffect(() => {
 		axios
@@ -61,9 +61,33 @@ export default function Account({ user }: PageProps) {
 				<LoadingPepe />
 			) : (
 				<main>
-					<Dialog open={dialogOpen} onClose={setDialogOpen} closeButton>
-						{dialogContent}
-					</Dialog>
+					{subscribedTo && user && (
+						<Dialog open={dialogOpen} onClose={setDialogOpen} closeButton>
+							{dialogView === "adjust" ? (
+								<AdjustSubscription
+									userId={user.id}
+									availableSubscriptions={availableSubscriptions}
+									onAvailableSubscriptionsChange={setAvailableSubscriptions}
+									isOpen={dialogOpen}
+									current={{
+										id: subscribedTo.product.id,
+										name: subscribedTo.product.name,
+										image: subscribedTo.product.image,
+										price: `$${(subscribedTo.product.price.value / 100).toFixed(2)}`,
+										interval: subscribedTo.product.price.interval,
+									}}
+								/>
+							) : (
+								<CancelSubscription
+									userId={user.id}
+									ends={format(
+										new Date(subscribedTo.currentPeriod.end * 1000),
+										"LLLL do', at' h:mm aaa"
+									)}
+								/>
+							)}
+						</Dialog>
+					)}
 					<div
 						className="relative h-64 w-full bg-cover bg-center bg-no-repeat dark:bg-dank-500"
 						style={{ backgroundImage: `url('${profile.user.banner}')` }}
@@ -126,22 +150,7 @@ export default function Account({ user }: PageProps) {
 										size="medium"
 										className="w-full"
 										onClick={() => {
-											setDialogContent(
-												<AdjustSubscription
-													userId={user!.id}
-													availableSubscriptions={availableSubscriptions}
-													onAvailableSubscriptionsChange={setAvailableSubscriptions}
-													current={{
-														id: subscribedTo.product.id,
-														name: subscribedTo.product.name,
-														image: subscribedTo.product.image,
-														price: `$${(subscribedTo.product.price.value / 100).toFixed(
-															2
-														)}`,
-														interval: subscribedTo.product.price.interval,
-													}}
-												/>
-											);
+											setDialogView("adjust");
 											setDialogOpen(true);
 										}}
 										disabled={subscribedTo.finalPeriod}
@@ -153,15 +162,7 @@ export default function Account({ user }: PageProps) {
 										variant="danger"
 										className="w-full"
 										onClick={() => {
-											setDialogContent(
-												<CancelSubscription
-													userId={user!.id}
-													ends={format(
-														new Date(subscribedTo.currentPeriod.end * 1000),
-														"LLLL do', at' h:mm aaa"
-													)}
-												/>
-											);
+											setDialogView("cancel");
 											setDialogOpen(true);
 										}}
 										disabled={subscribedTo.finalPeriod}
