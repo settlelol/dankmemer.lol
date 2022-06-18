@@ -5,10 +5,11 @@ import { Title } from "src/components/Title";
 import Button from "src/components/ui/Button";
 import { StripePurchaseDetails } from "src/pages/api/customers/[userId]/purchases/[id]";
 import DisputeCreator from "./RefundRequester";
-import PaymentMethod from "./PaymentMethod";
 import PurchasedGoods from "./PurchasedGoods";
 import clsx from "clsx";
 import { AggregatedPurchaseRecordPurchases } from "src/pages/api/customers/[userId]/history";
+import PaymentMethod from "src/components/store/PaymentMethod";
+import { Card } from "src/components/store/checkout/CheckoutForm";
 
 interface Props {
 	purchase: AggregatedPurchaseRecordPurchases;
@@ -37,7 +38,7 @@ export interface Refund {
 
 export default function PurchaseViewer({ purchase, userId, staffView }: Props) {
 	const [loading, setLoading] = useState(true);
-	const [paymentMethod, setPaymentMethod] = useState<StripePurchaseDetails["paymentMethod"] | null>(null);
+	const [paymentMethod, setPaymentMethod] = useState<Card>();
 	const [disputing, setDisputing] = useState(false);
 	const [activeDispute] = useState<boolean | null>(
 		purchase.refundStatus === RefundStatus.OPEN_WAITING_FOR_CUSTOMER ||
@@ -84,7 +85,14 @@ export default function PurchaseViewer({ purchase, userId, staffView }: Props) {
 				<LoadingPepe />
 			) : (
 				<div className="mt-3">
-					{purchase.gateway === "stripe" && paymentMethod && <PaymentMethod paymentMethod={paymentMethod} />}
+					{purchase.gateway === "stripe" && paymentMethod && (
+						<div className="mt-5">
+							<Title size="small" className="font-semibold">
+								Purchase method
+							</Title>
+							<PaymentMethod paymentMethod={{ id: "cardUsed", card: paymentMethod }} />
+						</div>
+					)}
 					<PurchasedGoods purchase={purchase} />
 					<div className="mt-5">
 						<Title size="small" className="font-semibold">
