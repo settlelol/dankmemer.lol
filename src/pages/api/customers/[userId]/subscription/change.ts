@@ -7,6 +7,7 @@ import { NextIronRequest, withSession } from "src/util/session";
 import { Customer } from "..";
 import { DetailedPrice } from "src/pages/api/store/product/details";
 import PayPal from "src/util/paypal";
+import { Metadata } from "src/pages/store";
 
 export interface SubscriptionInformation {
 	id: string;
@@ -117,40 +118,41 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			return res.status(500).json({ message: "Failed to change subscription." });
 		}
 	} else if (_customer.subscription.provider === "paypal") {
-		try {
-			// Do to limitations with the PayPal API we need to keep
-			// track of subscription dates manually. However, to avoid
-			// charging the user again we cancel the subscription here
-			// and remove their benefits at the end of the period which
-			// is indicated by their customer record in db.
-			// const paypal = new PayPal();
-			// const subscription = await paypal.subscriptions.get(_customer.subscription.id);
+		// PayPal does not support changing the subscribed product like Stripe does.
+		// This endpoint only allows for changing billing period which isn't ideal,
+		// leaving it here incase that changes in the future.
 
-			// if (!subscription) {
-			// 	return res.status(410).json({
-			// 		message: "No subscription was found",
-			// 		isSubscribed: false,
-			// 	});
-			// }
+		return res.status(406).json({ message: "Changing PayPal subscriptions is unsupported at this time." });
 
-			// Promise.all([
-			// 	paypal.subscriptions.cancel(subscription.id),
-			// 	db.collection("customers").updateOne(
-			// 		{ _id: _customer._id },
-			// 		{
-			// 			$set: {
-			// 				"subscription.cancelled": true,
-			// 			},
-			// 		}
-			// 	),
-			// ]);
-			return res.status(200).json({ message: "PayPal change not done yet." });
-		} catch (e: any) {
-			console.error(
-				`Failed to cancel PayPal subscription for user ${user.id}, reason: ${e.message.replace(/"/g, "")}`
-			);
-			return res.status(500).json({ message: "Failed to cancel subscription renewal." });
-		}
+		// try {
+		// 	const paypal = new PayPal();
+		// 	const stripe = stripeConnect();
+		// 	const subscription = await paypal.subscriptions.get(_customer.subscription.id);
+
+		// 	if (!subscription) {
+		// 		return res.status(410).json({
+		// 			message: "No subscription was found",
+		// 			isSubscribed: false,
+		// 		});
+		// 	}
+
+		// 	const stripePrice = await stripe.prices.retrieve(newPrice);
+		// 	if (!(stripePrice.metadata as Metadata).paypalPlan) {
+		// 		return res.status(501).json({ message: "Unable to find required PayPal plan ID." });
+		// 	} else {
+		// 		await paypal.subscriptions.update(
+		// 			_customer.subscription.id,
+		// 			(stripePrice.metadata as Metadata).paypalPlan!
+		// 		);
+		// 		return res.status(200).json({ message: "Subscription has been changed." });
+		// 	}
+		// } catch (e: any) {
+		// 	console.error(e);
+		// 	console.error(
+		// 		`Failed to cancel PayPal subscription for user ${user.id}, reason: ${e.message.replace(/"/g, "")}`
+		// 	);
+		// 	return res.status(500).json({ message: "Failed to cancel subscription renewal." });
+		// }
 	}
 };
 

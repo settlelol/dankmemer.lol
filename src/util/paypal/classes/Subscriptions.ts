@@ -64,4 +64,30 @@ export default class Subscriptions {
 			}
 		}
 	}
+
+	// PayPal does not support changing the subscribed product like Stripe does.
+	// This endpoint only allows for changing billing period which isn't ideal,
+	// leaving it here incase that changes in the future.
+	//
+	// public async update(subscriptionId: string, newPlan: string) {
+	// 	const httpClient = await createPayPal();
+
+	// 	if (!subscriptionId) {
+	// 		throw new Error("No plan data was provided.");
+	// 	} else {
+	// 		try {
+	// 			return (
+	// 				await httpClient({
+	// 					url: `/v1/billing/subscriptions/${subscriptionId}/revise`,
+	// 					method: "POST",
+	// 					data: {
+	// 						plan_id: newPlan,
+	// 					},
+	// 				})
+	// 			).data as Subscription;
+	// 		} catch (e) {
+	// 			throw e as PayPalResponseError;
+	// 		}
+	// 	}
+	// }
 }

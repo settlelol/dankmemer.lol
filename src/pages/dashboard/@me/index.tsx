@@ -146,21 +146,23 @@ export default function Account({ user }: PageProps) {
 							</div>
 							{!subscribedTo.finalPeriod && (
 								<div className="mt-2 flex items-center justify-start space-x-3">
-									<Button
-										size="medium"
-										className="w-full"
-										onClick={() => {
-											setDialogView("adjust");
-											setDialogOpen(true);
-										}}
-										disabled={subscribedTo.finalPeriod}
-									>
-										Adjust subscription
-									</Button>
+									{subscribedTo.provider !== "paypal" && (
+										<Button
+											size="medium"
+											className="w-full"
+											onClick={() => {
+												setDialogView("adjust");
+												setDialogOpen(true);
+											}}
+											disabled={subscribedTo.finalPeriod}
+										>
+											Adjust subscription
+										</Button>
+									)}
 									<Button
 										size="medium"
 										variant="danger"
-										className="w-full"
+										className={clsx(subscribedTo.provider === "paypal" ? "w-1/2" : "w-full")}
 										onClick={() => {
 											setDialogView("cancel");
 											setDialogOpen(true);
@@ -175,7 +177,7 @@ export default function Account({ user }: PageProps) {
 							{subscribedTo.finalPeriod && (
 								<>
 									<p className={clsx("mt-2 text-xs text-red-400 dark:text-red-400")}>
-										Your subscription will end on:
+										Your subscription will end on:{" "}
 										<span className="underline">
 											{format(
 												new Date(subscribedTo.currentPeriod.end * 1000),
@@ -190,6 +192,13 @@ export default function Account({ user }: PageProps) {
 										</Link>
 									</p>
 								</>
+							)}
+							{subscribedTo.provider === "paypal" && (
+								<p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+									Due to technical limitations changing your subscription plan while using PayPal is
+									not available. If you wish to make changes it is advised to cancel your current
+									subscription and resubscribe to your preferred tier and billing interval.
+								</p>
 							)}
 						</section>
 					)}

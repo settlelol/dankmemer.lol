@@ -11,6 +11,7 @@ import PayPal from "src/util/paypal";
 
 export interface SubscriptionInformation {
 	id: string;
+	provider: "stripe" | "paypal";
 	product: SubscriptionProduct;
 	finalPeriod: boolean;
 	currentPeriod: CurrentPeriod;
@@ -95,6 +96,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			isSubscribed: true,
 			subscription: {
 				id: subscription.id,
+				provider: "stripe",
 				product: {
 					id: subscriptionProduct.id,
 					name: subscriptionProduct.name,
@@ -140,6 +142,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				isSubscribed: true,
 				subscription: {
 					id: subscription.id,
+					provider: "paypal",
 					product: {
 						id: stripeProduct.id,
 						name: stripeProduct.name,
