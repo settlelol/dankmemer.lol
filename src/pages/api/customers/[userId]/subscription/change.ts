@@ -5,27 +5,6 @@ import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { NextIronRequest, withSession } from "src/util/session";
 import { Customer } from "..";
-import { DetailedPrice } from "src/pages/api/store/product/details";
-import PayPal from "src/util/paypal";
-import { Metadata } from "src/pages/store";
-
-export interface SubscriptionInformation {
-	id: string;
-	product: SubscriptionProduct;
-	currentPeriod: CurrentPeriod;
-}
-
-interface SubscriptionProduct {
-	id: string;
-	name: string;
-	image: string;
-	price: Required<Omit<DetailedPrice, "id">>;
-}
-
-interface CurrentPeriod {
-	start: number;
-	end: number;
-}
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	if (req.method?.toLowerCase() !== "patch") {
