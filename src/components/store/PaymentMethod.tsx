@@ -7,23 +7,26 @@ import { CardData } from "./checkout/CheckoutForm";
 
 interface Props {
 	paymentMethod: CardData;
-	isDefault?: boolean;
+	className?: string;
 	select?: (id: string) => void;
 	selected?: boolean;
+	isDefault?: boolean;
 }
 
 export default function PaymentMethod({
 	paymentMethod,
-	isDefault,
+	className,
 	select,
 	selected,
+	isDefault,
 }: RequireAllOrNone<Props, "select" | "selected">): JSX.Element {
 	const [selectable] = useState(select !== undefined && selected !== undefined);
 	return (
 		<div
 			className={clsx(
-				"mb-5 mt-1 flex select-none items-center justify-between rounded-md border-[1px] border-black/40 px-4 py-3 dark:border-white/30 dark:bg-dank-500",
-				selectable ? "border-dank-300" : "border-white/30"
+				"mt-1 flex select-none items-center justify-between rounded-md border-[1px] border-black/40 px-4 py-3 dark:border-white/30 dark:bg-dank-500",
+				selectable ? "border-dank-300" : "border-white/30",
+				className
 			)}
 			{...(select !== undefined && {
 				onClick: () => select(paymentMethod.id),
