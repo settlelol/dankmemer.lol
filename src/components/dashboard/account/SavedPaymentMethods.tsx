@@ -4,6 +4,7 @@ import { Title } from "src/components/Title";
 import Button from "src/components/ui/Button";
 import { SensitiveCustomerData } from "src/pages/api/customers/[userId]";
 import { PossibleDialogViews } from "src/pages/dashboard/@me";
+import { Icon as Iconify } from "@iconify/react";
 
 interface Props {
 	customer: SensitiveCustomerData;
@@ -13,15 +14,33 @@ interface Props {
 export default function SavedPaymentMethods({ customer, openView }: Props) {
 	const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>([]);
 
+	const addOrRemoveSelect = (id: string) => {
+		if (!selectedPaymentMethods.includes(id)) {
+			setSelectedPaymentMethods((curr) => [...curr, id]);
+		} else {
+			setSelectedPaymentMethods((curr) => curr.filter((el) => el !== id));
+		}
+	};
+
 	return (
 		<section className="w-full max-w-lg">
 			<div className="flex items-center justify-between">
 				<Title size="medium" className="font-semibold">
 					Payment Methods
 				</Title>
-				<Button size="small" onClick={() => openView("new-card")}>
-					Add new
-				</Button>
+				<div className="space-x-3">
+					{selectedPaymentMethods.length >= 1 && (
+						<Button size="small" className="space-x-1 pr-1">
+							<span>Manage</span>
+							<span>
+								<Iconify icon="eva:chevron-down-fill" height={20} />
+							</span>
+						</Button>
+					)}
+					<Button size="small" onClick={() => openView("new-card")}>
+						Add new
+					</Button>
+				</div>
 			</div>
 			<p className="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
 				These cards can only be used during checkouts using Stripe. PayPal cards must be managed through your
@@ -44,7 +63,7 @@ export default function SavedPaymentMethods({ customer, openView }: Props) {
 						key={paymentMethod.id}
 						paymentMethod={paymentMethod}
 						selected={selectedPaymentMethods.includes(paymentMethod.id)}
-						select={() => setSelectedPaymentMethods((curr) => [...curr, paymentMethod.id])}
+						select={() => addOrRemoveSelect(paymentMethod.id)}
 					/>
 				))}
 			</div>
