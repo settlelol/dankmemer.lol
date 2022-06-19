@@ -9,6 +9,7 @@ import Container from "src/components/control/Container";
 import AdjustSubscription, { SubscriptionOption } from "src/components/dashboard/account/modals/AdjustSubscription";
 import CancelSubscription from "src/components/dashboard/account/modals/CancelSubscription";
 import CreateCard from "src/components/dashboard/account/modals/CreateCard";
+import DeleteSelectedCards from "src/components/dashboard/account/modals/DeleteCards";
 import SavedPaymentMethods from "src/components/dashboard/account/SavedPaymentMethods";
 import DashboardLinks from "src/components/dashboard/DashboardLinks";
 import ActiveSubscription from "src/components/dashboard/SubscribedTo";
@@ -21,7 +22,7 @@ import { PageProps, Profile } from "src/types";
 import { authenticatedRoute } from "src/util/redirects";
 import { withSession } from "src/util/session";
 
-export type PossibleDialogViews = "adjust" | "cancel" | "new-card";
+export type PossibleDialogViews = "adjust" | "cancel" | "new-card" | "delete-cards";
 
 export default function Account({ user }: PageProps) {
 	const [loading, setLoading] = useState(true);
@@ -29,6 +30,9 @@ export default function Account({ user }: PageProps) {
 	const [customer, setCustomer] = useState<SensitiveCustomerData>();
 	const [subscribedTo, setSubscribedTo] = useState<SubscriptionInformation>();
 	const [availableSubscriptions, setAvailableSubscriptions] = useState<SubscriptionOption[]>([]);
+
+	const [selectedCards, setSelectedCards] = useState<string[]>([]);
+
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [dialogView, setDialogView] = useState<PossibleDialogViews | null>();
 
@@ -113,6 +117,8 @@ export default function Account({ user }: PageProps) {
 										);
 									case "new-card":
 										return <CreateCard userId={user.id} />;
+									case "delete-cards":
+										return <DeleteSelectedCards userId={user.id} cardIds={selectedCards} />;
 								}
 							})()}
 						</Dialog>
@@ -149,7 +155,12 @@ export default function Account({ user }: PageProps) {
 								{subscribedTo && (
 									<ActiveSubscription subscribedTo={subscribedTo} openView={setDialogView} />
 								)}
-								<SavedPaymentMethods customer={customer} openView={setDialogView} />
+								<SavedPaymentMethods
+									userId={profile.user.id}
+									customer={customer}
+									onSelectedCardsChange={setSelectedCards}
+									openView={setDialogView}
+								/>
 							</section>
 						</SimpleBar>
 					)}
