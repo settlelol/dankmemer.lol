@@ -10,7 +10,7 @@ interface Props {
 	className?: string;
 }
 
-export default function Checkbox({ state, style = "border", callback, children, className }: Props) {
+export default function Checkbox({ state, style = "border", callback, children = <></>, className }: Props) {
 	return (
 		<div className={clsx("mt-2 flex flex-row items-center justify-start", className)} onClick={callback}>
 			<div
