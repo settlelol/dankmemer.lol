@@ -3,11 +3,12 @@ import { format } from "date-fns";
 import { GetServerSideProps } from "next";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import SimpleBar from "simplebar-react";
 import { Badge } from "src/components/Badge";
 import Container from "src/components/control/Container";
 import AdjustSubscription, { SubscriptionOption } from "src/components/dashboard/account/modals/AdjustSubscription";
 import CancelSubscription from "src/components/dashboard/account/modals/CancelSubscription";
-import SavedPaymentMethods from "src/components/dashboard/account/PaymentMethods";
+import SavedPaymentMethods from "src/components/dashboard/account/SavedPaymentMethods";
 import DashboardLinks from "src/components/dashboard/DashboardLinks";
 import ActiveSubscription from "src/components/dashboard/SubscribedTo";
 import Dialog from "src/components/Dialog";
@@ -140,12 +141,14 @@ export default function Account({ user }: PageProps) {
 						</div>
 					</div>
 					{customer && (
-						<section className="m-10 flex flex-row items-start justify-start space-x-10">
-							{subscribedTo && (
-								<ActiveSubscription subscribedTo={subscribedTo} openView={setDialogView} />
-							)}
-							<SavedPaymentMethods customer={customer} />
-						</section>
+						<SimpleBar className="m-10 lg:max-h-[400px]">
+							<section className="flex flex-col items-start justify-start space-y-10 lg:flex-row lg:space-y-0 lg:space-x-10">
+								{subscribedTo && (
+									<ActiveSubscription subscribedTo={subscribedTo} openView={setDialogView} />
+								)}
+								<SavedPaymentMethods customer={customer} />
+							</section>
+						</SimpleBar>
 					)}
 				</main>
 			)}

@@ -11,7 +11,7 @@ export default function SavedPaymentMethods({ customer }: Props) {
 	const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>([]);
 
 	return (
-		<section className="w-1/3">
+		<section className="w-full max-w-lg">
 			<Title size="big" className="font-semibold">
 				Payment Methods
 			</Title>
