@@ -6,7 +6,7 @@ import "simplebar/dist/simplebar.min.css";
 
 const optionVariants = {
 	normal: "text-neutral-300",
-	danger: "text-rose-600",
+	danger: "text-red-500",
 };
 
 export interface Option {
