@@ -86,7 +86,7 @@ export default function PurchaseViewer({ purchase, userId, staffView }: Props) {
 			) : (
 				<div className="mt-3">
 					{purchase.gateway === "stripe" && paymentMethod && (
-						<div className="mt-5">
+						<div className="my-5">
 							<Title size="small" className="font-semibold">
 								Purchase method
 							</Title>

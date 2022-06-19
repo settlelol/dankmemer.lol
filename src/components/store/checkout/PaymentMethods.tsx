@@ -18,7 +18,7 @@ export default function PaymentMethods({ savedPaymentMethods, defaultPaymentMeth
 				Below are a list of previously used payment methods you have opted for us to save. Select one to use it
 				again.
 			</p>
-			<div className="mt-3 flex flex-col">
+			<div className="mt-3 flex flex-col space-y-5">
 				{defaultPaymentMethod && (
 					<PaymentMethod
 						key={defaultPaymentMethod.id}
