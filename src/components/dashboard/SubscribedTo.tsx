@@ -14,7 +14,7 @@ interface Props {
 export default function ActiveSubscription({ subscribedTo, openView }: Props) {
 	return (
 		<section className="max-w-sm">
-			<Title size="big" className="font-semibold">
+			<Title size="medium" className="font-semibold">
 				Your Subscription
 			</Title>
 			<p className="text-neutral-500 dark:text-neutral-400">Manage your active subscription</p>

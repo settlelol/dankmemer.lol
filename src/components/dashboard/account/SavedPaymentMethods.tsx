@@ -12,7 +12,7 @@ export default function SavedPaymentMethods({ customer }: Props) {
 
 	return (
 		<section className="w-full max-w-lg">
-			<Title size="big" className="font-semibold">
+			<Title size="medium" className="font-semibold">
 				Payment Methods
 			</Title>
 			{customer.cards.default && (
