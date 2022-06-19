@@ -145,7 +145,7 @@ export default function Account({ user }: PageProps) {
 					</div>
 					{customer && (
 						<SimpleBar className="m-10 lg:max-h-[400px]">
-							<section className="flex flex-col items-start justify-start space-y-10 lg:flex-row lg:space-y-0 lg:space-x-10">
+							<section className="flex flex-col items-start justify-start space-y-10 lg:flex-row lg:space-y-0 lg:space-x-32">
 								{subscribedTo && (
 									<ActiveSubscription subscribedTo={subscribedTo} openView={setDialogView} />
 								)}
