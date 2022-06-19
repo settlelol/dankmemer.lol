@@ -8,6 +8,7 @@ import { Badge } from "src/components/Badge";
 import Container from "src/components/control/Container";
 import AdjustSubscription, { SubscriptionOption } from "src/components/dashboard/account/modals/AdjustSubscription";
 import CancelSubscription from "src/components/dashboard/account/modals/CancelSubscription";
+import CreateCard from "src/components/dashboard/account/modals/CreateCard";
 import SavedPaymentMethods from "src/components/dashboard/account/SavedPaymentMethods";
 import DashboardLinks from "src/components/dashboard/DashboardLinks";
 import ActiveSubscription from "src/components/dashboard/SubscribedTo";
@@ -20,7 +21,7 @@ import { PageProps, Profile } from "src/types";
 import { authenticatedRoute } from "src/util/redirects";
 import { withSession } from "src/util/session";
 
-export type PossibleDialogViews = "adjust" | "cancel";
+export type PossibleDialogViews = "adjust" | "cancel" | "new-card";
 
 export default function Account({ user }: PageProps) {
 	const [loading, setLoading] = useState(true);
@@ -110,6 +111,8 @@ export default function Account({ user }: PageProps) {
 												)}
 											/>
 										);
+									case "new-card":
+										return <CreateCard userId={user.id} />;
 								}
 							})()}
 						</Dialog>
