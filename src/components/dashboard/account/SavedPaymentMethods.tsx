@@ -3,12 +3,14 @@ import PaymentMethod from "src/components/store/PaymentMethod";
 import { Title } from "src/components/Title";
 import Button from "src/components/ui/Button";
 import { SensitiveCustomerData } from "src/pages/api/customers/[userId]";
+import { PossibleDialogViews } from "src/pages/dashboard/@me";
 
 interface Props {
 	customer: SensitiveCustomerData;
+	openView: (view: PossibleDialogViews) => void;
 }
 
-export default function SavedPaymentMethods({ customer }: Props) {
+export default function SavedPaymentMethods({ customer, openView }: Props) {
 	const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>([]);
 
 	return (
@@ -17,7 +19,9 @@ export default function SavedPaymentMethods({ customer }: Props) {
 				<Title size="medium" className="font-semibold">
 					Payment Methods
 				</Title>
-				<Button size="small">Add new</Button>
+				<Button size="small" onClick={() => openView("new-card")}>
+					Add new
+				</Button>
 			</div>
 			<p className="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
 				These cards can only be used during checkouts using Stripe. PayPal cards must be managed through your

@@ -149,7 +149,7 @@ export default function Account({ user }: PageProps) {
 								{subscribedTo && (
 									<ActiveSubscription subscribedTo={subscribedTo} openView={setDialogView} />
 								)}
-								<SavedPaymentMethods customer={customer} />
+								<SavedPaymentMethods customer={customer} openView={setDialogView} />
 							</section>
 						</SimpleBar>
 					)}
