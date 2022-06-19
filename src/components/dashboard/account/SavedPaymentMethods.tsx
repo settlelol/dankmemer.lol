@@ -64,6 +64,7 @@ export default function SavedPaymentMethods({ customer, openView }: Props) {
 						paymentMethod={paymentMethod}
 						selected={selectedPaymentMethods.includes(paymentMethod.id)}
 						select={() => addOrRemoveSelect(paymentMethod.id)}
+						multiSelect
 					/>
 				))}
 			</div>

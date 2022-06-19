@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { toTitleCase } from "src/util/string";
 import { RequireAllOrNone } from "type-fest";
+import Checkbox from "../ui/Checkbox";
 import { CardData } from "./checkout/CheckoutForm";
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 	select?: (id: string) => void;
 	selected?: boolean;
 	isDefault?: boolean;
+	multiSelect?: boolean;
 }
 
 export default function PaymentMethod({
@@ -19,6 +21,7 @@ export default function PaymentMethod({
 	select,
 	selected,
 	isDefault,
+	multiSelect,
 }: RequireAllOrNone<Props, "select" | "selected">): JSX.Element {
 	const [selectable] = useState(select !== undefined && selected !== undefined);
 	return (
@@ -34,16 +37,19 @@ export default function PaymentMethod({
 			})}
 		>
 			<div className="flex flex-row items-center justify-start">
-				{selectable && (
-					<div
-						className={clsx(
-							"relative mr-2 grid h-3 min-w-[0.75rem] place-items-center rounded-full border-2",
-							selected ? "border-dank-300" : "border-black/30 dark:border-white/30"
-						)}
-					>
-						{selected && <div className="absolute h-1 w-1 rounded-full bg-dank-300"></div>}
-					</div>
-				)}
+				{selectable &&
+					(!multiSelect ? (
+						<div
+							className={clsx(
+								"relative mr-2 grid h-3 min-w-[0.75rem] place-items-center rounded-full border-2",
+								selected ? "border-dank-300" : "border-black/30 dark:border-white/30"
+							)}
+						>
+							{selected && <div className="absolute h-1 w-1 rounded-full bg-dank-300"></div>}
+						</div>
+					) : (
+						<Checkbox style="border" state={selected} className="mt-0 mr-1" callback={select} />
+					))}
 				{paymentMethod.card.brand === "visa" && (
 					<Image src={"/img/store/cards/visa.svg"} width={30} height={30} />
 				)}
