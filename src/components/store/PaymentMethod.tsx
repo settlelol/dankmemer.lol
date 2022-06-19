@@ -25,7 +25,8 @@ export default function PaymentMethod({
 		<div
 			className={clsx(
 				"mt-1 flex select-none items-center justify-between rounded-md border-[1px] border-black/40 px-4 py-3 dark:border-white/30 dark:bg-dank-500",
-				selectable ? "border-dank-300" : "border-white/30",
+				selectable && selected ? "!border-dank-300 dark:!border-dank-300" : "dark:border-white/30",
+				selectable && "cursor-pointer",
 				className
 			)}
 			{...(select !== undefined && {
