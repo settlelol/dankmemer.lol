@@ -33,13 +33,15 @@ export const formatProduct = async (
 					active: true,
 					product: product.id,
 				})
-			).data.map((price) => ({
-				id: price.id,
-				metadata: price.metadata,
-				price: price.unit_amount!,
-				type: price.type,
-				interval: price.recurring?.interval,
-			}));
+			).data
+				.sort((a, b) => a.unit_amount! - b.unit_amount!)
+				.map((price) => ({
+					id: price.id,
+					metadata: price.metadata,
+					price: price.unit_amount!,
+					type: price.type,
+					interval: price.recurring?.interval,
+				}));
 			const formatted: CartItem = {
 				id: product.id,
 				name: product.name,
