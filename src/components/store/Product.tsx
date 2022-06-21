@@ -1,8 +1,11 @@
 import clsx from "clsx";
+import { useEffect, useState } from "react";
 import { TIME } from "src/constants";
 import { ListedProduct } from "src/pages/store";
 import { toTitleCase } from "src/util/string";
 import Button from "../ui/Button";
+import addToCart from "public/img/store/lottie/addToCart.json";
+import Lottie from "react-lottie-player/dist/LottiePlayerLight";
 
 interface Props {
 	product: ListedProduct;
@@ -11,6 +14,16 @@ interface Props {
 }
 
 export default function Product({ product, add, openModal }: Props) {
+	const [showAdded, setShowAdded] = useState(false);
+
+	useEffect(() => {
+		if (showAdded) {
+			setTimeout(() => {
+				setShowAdded(false);
+			}, 1200);
+		}
+	}, [showAdded]);
+
 	return (
 		<div className="flex flex-col">
 			<div className="relative mb-1 flex h-64 w-56 flex-col rounded-md border border-black/30 dark:border-white/20">
@@ -24,9 +37,26 @@ export default function Product({ product, add, openModal }: Props) {
 					/>
 				</div>
 				<div className="w-full px-5">
-					<Button className="w-full" onClick={() => add()}>
-						Add to cart
-					</Button>
+					<div className="relative grid place-items-center">
+						<Button
+							// Needs to use arbitrary values because the animation is behind the button, ruins the effect
+							className="w-full hover:bg-[#47aa5b] hover:!bg-opacity-100 hover:dark:bg-[#167a2a] hover:dark:!bg-opacity-100"
+							onClick={() => {
+								setShowAdded(true);
+								add();
+							}}
+						>
+							{showAdded ? "Added to cart!" : "Add to cart"}
+						</Button>
+						{showAdded && (
+							<Lottie
+								className="pointer-events-none absolute -z-10"
+								animationData={addToCart}
+								loop={false}
+								play
+							/>
+						)}
+					</div>
 					<p
 						className="cursor-pointer text-center text-sm text-neutral-500 underline dark:text-neutral-400"
 						onClick={openModal}
