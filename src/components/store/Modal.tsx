@@ -1,13 +1,11 @@
 import MarkdownIt from "markdown-it";
-import { ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { tailwindHtml } from "src/util/blog";
 import Button from "../ui/Button";
 import { toTitleCase } from "../../util/string";
-import { ModalProps } from "src/pages/store";
 import axios from "axios";
 import { ProductDetails } from "src/pages/api/store/product/details";
 import LoadingPepe from "../LoadingPepe";
-import { add } from "date-fns";
 
 interface Props {
 	productId: string;

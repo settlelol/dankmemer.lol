@@ -96,10 +96,8 @@ export default function StoreHome({ user }: PageProps) {
 	const [popularProducts, setPopularProducts] = useState<UpsellProduct[]>([]);
 	const [subscriptions, setSubscriptions] = useState<AnyProduct[]>([]);
 	const [products, setProducts] = useState<AnyProduct[]>([]);
-	const [annualPricing, setAnnualPricing] = useState<boolean>(false);
 
 	const [bannerPages, setBannerPages] = useState<BannerPage[]>([]);
-	const [modalProps, setModalProps] = useState<ModalProps>();
 
 	const getBanners = async () => {
 		try {
@@ -173,8 +171,8 @@ export default function StoreHome({ user }: PageProps) {
 			});
 		}
 
-		if (typeToAdd === "subscription" && item.selectedPrice.interval!.length < 1)
-			item.selectedPrice.interval = annualPricing ? "year" : "month";
+		// if (typeToAdd === "subscription" && item.selectedPrice.interval!.length < 1)
+		// 	item.selectedPrice.interval = annualPricing ? "year" : "month";
 
 		const alreadyExists = cartItems.findIndex((_item) => _item.id === item.id);
 		if (alreadyExists !== -1) {
@@ -192,37 +190,6 @@ export default function StoreHome({ user }: PageProps) {
 			console.error(e);
 			toast.error("We were unable to update your cart information. Please try again later.");
 		}
-	};
-
-	const showProduct = (product: AnyProduct) => {
-		if (product.metadata.type === "subscription") {
-			setModalProps({
-				product,
-				annualPricing,
-				addToCart,
-				closeModal: () => setOpenModal(false),
-				titles: {
-					included: "Exclusive benefits",
-					additional: "Also included",
-				},
-				cta: {
-					text: "Compare All Subscriptions",
-					callback: () => {
-						console.log("Do something");
-					},
-				},
-			});
-		} else {
-			setModalProps({
-				product,
-				addToCart,
-				closeModal: () => setOpenModal(false),
-				titles: {
-					included: "Potential items",
-				},
-			});
-		}
-		setOpenModal(true);
 	};
 
 	useEffect(() => {
