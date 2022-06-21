@@ -111,9 +111,6 @@ export default function Cart({ cartData, upsells, user }: Props) {
 				});
 			}
 		}
-		if (cart.length < 1) {
-			router.push("/store");
-		}
 	}, [cart]);
 
 	useEffect(() => {
@@ -125,6 +122,9 @@ export default function Cart({ cartData, upsells, user }: Props) {
 			const _cart = [...cart];
 			_cart.splice(index, 1);
 			setCart(_cart);
+			if (_cart.length < 1) {
+				router.push("/store");
+			}
 		}
 	};
 
