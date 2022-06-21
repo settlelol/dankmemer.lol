@@ -1,3 +1,5 @@
+import clsx from "clsx";
+import { TIME } from "src/constants";
 import { AnyProduct, Metadata } from "src/pages/store";
 import { toTitleCase } from "src/util/string";
 import Button from "../ui/Button";
@@ -11,7 +13,10 @@ interface Props {
 export default function Product({ product, add, openModal }: Props) {
 	return (
 		<div className="flex flex-col">
-			<div className="mb-1 flex h-64 w-56 flex-col rounded-md border border-black/30 dark:border-white/20">
+			<div className="relative mb-1 flex h-64 w-56 flex-col rounded-md border border-black/30 dark:border-white/20">
+				{new Date().getTime() - new Date(product.created * 1000).getTime() <= TIME.month && (
+					<Badge variant="new" />
+				)}
 				<div className="grid h-48 w-56 place-items-center">
 					<div
 						className="h-28 w-28 bg-contain bg-center bg-no-repeat"
@@ -44,6 +49,29 @@ export default function Product({ product, add, openModal }: Props) {
 					</p>
 				</div>
 			</div>
+		</div>
+	);
+}
+
+const badgeVariants = {
+	sale: {
+		text: "SALE",
+		color: "bg-red-500",
+	},
+	new: {
+		text: "NEW",
+		color: "bg-dank-300",
+	},
+};
+
+interface BadgeProps {
+	variant: keyof typeof badgeVariants;
+}
+
+function Badge({ variant }: BadgeProps) {
+	return (
+		<div className={clsx("absolute left-4 -top-4 py-1 px-3", badgeVariants[variant].color)}>
+			<p className="select-none font-montserrat font-bold tracking-wide">{badgeVariants[variant].text}</p>
 		</div>
 	);
 }
