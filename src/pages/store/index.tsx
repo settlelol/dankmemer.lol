@@ -1,14 +1,10 @@
 import axios from "axios";
-import router from "next/router";
-import { ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Title } from "src/components/Title";
-import Button from "src/components/ui/Button";
 import Container from "src/components/ui/Container";
 import { PageProps } from "src/types";
 import Stripe from "stripe";
-import SimpleProduct from "src/components/store/SimpleProduct";
 import clsx from "clsx";
-import SubscriptionProduct from "src/components/store/SubscriptionProduct";
 import { GetServerSideProps } from "next";
 import { withSession } from "src/util/session";
 import { authenticatedRoute } from "src/util/redirects";
@@ -16,10 +12,7 @@ import Modal from "src/components/store/Modal";
 import ShoppingCart from "src/components/store/ShoppingCart";
 import { toast } from "react-toastify";
 import PagedBanner, { BannerPage } from "src/components/store/PagedBanner";
-import Switch from "src/components/ui/Switch";
-import Link from "src/components/ui/Link";
 import { UpsellProduct } from "./cart";
-import { toTitleCase } from "src/util/string";
 import PopularProduct from "src/components/store/PopularProduct";
 import Product from "src/components/store/Product";
 
