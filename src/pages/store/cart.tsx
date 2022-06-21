@@ -1,13 +1,13 @@
 import axios from "axios";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Title } from "src/components/Title";
 import Container from "src/components/ui/Container";
 import { PageProps } from "src/types";
 import { withSession } from "src/util/session";
 import { CartItem as CartItems, Metadata } from ".";
 import CartItem from "src/components/store/cart/CartItem";
-import MarketingBox from "src/components/store/cart/MarketingBox";
+import MarketingBox, { MarketBoxVariants } from "src/components/store/cart/MarketingBox";
 import Button from "src/components/ui/Button";
 import OtherProduct from "src/components/store/cart/OtherProduct";
 import { useRouter } from "next/router";
@@ -42,6 +42,8 @@ export interface UpsellProduct {
 
 export default function Cart({ cartData, upsells, user }: Props) {
 	const router = useRouter();
+
+	const marketingBoxView = useRef<MarketBoxVariants>(Math.random() >= 0.5 ? "gifting" : "perks");
 
 	const [processingChange, setProcessingChange] = useState<boolean>(false);
 	const [cart, setCart] = useState<CartItems[]>(cartData);
@@ -335,12 +337,11 @@ export default function Cart({ cartData, upsells, user }: Props) {
 					</div>
 				</div>
 				<div className="flex w-80 flex-col">
-					<MarketingBox
-						color="blue"
-						title="Extra Savings"
-						topText="Unlock more savings by purchasing an annual subscription!"
-						bottomText="When purchasing a subscription you are able to save up to 10% by switching to annual subscription rather than a monthly subscription."
-					/>
+					{cart[0] && cart[0].metadata!.type === "subscription" ? (
+						<MarketingBox variant="subscriptionSavings" />
+					) : (
+						<MarketingBox variant={marketingBoxView.current} />
+					)}
 					<div className="my-5 h-max w-full rounded-lg bg-light-500 px-8 py-7 dark:bg-dark-200">
 						<Title size="small">Details</Title>
 						<p className="mt-2 font-inter text-sm leading-tight text-neutral-700/80 dark:text-light-600">
