@@ -18,7 +18,7 @@ export default function MarketingBox({ color, title, topText, bottomText }: Prop
 		<div
 			className={clsx("relative h-56 w-full rounded-lg px-8 py-7 shadow-[0px_0px_12px]", boxColors[color])}
 			style={{
-				backgroundImage: `url("/img/store/grid.png")`,
+				backgroundImage: `url("/img/store/patterns/grid.png")`,
 			}}
 		>
 			<div className="absolute -top-11 -right-10">
