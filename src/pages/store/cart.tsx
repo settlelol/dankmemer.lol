@@ -97,11 +97,11 @@ export default function Cart({ cartData, upsells, user }: Props) {
 							setDiscountData(data);
 						})
 						.catch(() => {
-							const _salesTax = cartTotal * 0.0675;
+							const rawSalesTax = cartTotal * 0.0675;
 
 							setThresholdDiscount(cartTotal >= 20 && cart[0].metadata?.type !== "subscription");
-							setSalesTax(_salesTax);
-							setTotalCost(cartTotal + _salesTax);
+							setSalesTax(rawSalesTax);
+							setTotalCost(cartTotal + rawSalesTax);
 						});
 				}
 			});
@@ -121,10 +121,10 @@ export default function Cart({ cartData, upsells, user }: Props) {
 
 	const deleteItem = (index: number) => {
 		if (!processingChange) {
-			const _cart = [...cart];
-			_cart.splice(index, 1);
-			setCart(_cart);
-			if (_cart.length < 1) {
+			const newCart = [...cart];
+			newCart.splice(index, 1);
+			setCart(newCart);
+			if (newCart.length < 1) {
 				router.push("/store");
 			}
 		}
@@ -132,17 +132,17 @@ export default function Cart({ cartData, upsells, user }: Props) {
 
 	const updateQuantity = (index: number, quantity: number) => {
 		if (!processingChange) {
-			const _cart = [...cart];
-			_cart[index].quantity = quantity;
-			setCart(_cart);
+			const newCart = [...cart];
+			newCart[index].quantity = quantity;
+			setCart(newCart);
 		}
 	};
 
 	const changeInterval = (index: number, interval: "month" | "year") => {
 		if (!processingChange) {
-			const _cart: CartItems[] = [...cart];
-			_cart[index].selectedPrice = _cart[index].prices.filter((price) => price.interval === interval)[0];
-			setCart(_cart);
+			const newCart: CartItems[] = [...cart];
+			newCart[index].selectedPrice = newCart[index].prices.filter((price) => price.interval === interval)[0];
+			setCart(newCart);
 		}
 	};
 
