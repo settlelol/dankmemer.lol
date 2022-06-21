@@ -573,7 +573,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 					product: product.id,
 					active: true,
 				})
-			).data;
+			).data.sort((a, b) => a.unit_amount! - b.unit_amount!);
 
 			upsells.push({
 				id: product.id,
