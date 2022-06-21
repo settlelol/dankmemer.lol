@@ -312,7 +312,7 @@ export default function CheckoutForm({
 							select={() => setSelectedPaymentOption("Card")}
 						/>
 						<PaymentOption
-							icons={[<img key="paypal" src="/img/store/pay-pal.png" width={70} />]}
+							icons={[<img key="paypal" src="/img/store/paypal.png" width={70} />]}
 							selected={selectedPaymentOption === "PayPal"}
 							select={() => setSelectedPaymentOption("PayPal")}
 						/>
