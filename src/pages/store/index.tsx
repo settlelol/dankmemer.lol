@@ -17,22 +17,11 @@ import PopularProduct from "src/components/store/PopularProduct";
 import Product from "src/components/store/Product";
 import { ProductDetails } from "../api/store/product/details";
 
-export interface Product extends Stripe.Product {
-	price: number;
-}
-
-type Price = {
-	id: string;
-	price: number;
-	interval: string;
-};
-
 type PriceInformation = {
 	id: string;
 	type: Stripe.Price.Type;
 	interval?: Stripe.Price.Recurring.Interval;
 	price: number;
-	metadata: any;
 };
 
 interface PossibleMetadata {
