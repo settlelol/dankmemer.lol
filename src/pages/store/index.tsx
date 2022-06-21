@@ -15,6 +15,7 @@ import PagedBanner, { BannerPage } from "src/components/store/PagedBanner";
 import { UpsellProduct } from "./cart";
 import PopularProduct from "src/components/store/PopularProduct";
 import Product from "src/components/store/Product";
+import { ProductDetails } from "../api/store/product/details";
 
 export interface Product extends Stripe.Product {
 	price: number;
@@ -35,17 +36,27 @@ type PriceInformation = {
 };
 
 interface PossibleMetadata {
-	type: "single" | "subscription" | "giftable";
-	category: "item pack" | "tool" | "collectable" | "power-up" | "drop item" | "sellable" | "lootbox" | "tradeable";
-	hidden: boolean;
+	type: ProductType;
+	category: ProductCategory;
+	hidden: "true" | "false";
 	isGift: string;
 	paypalPlan: string;
 	giftProduct: string;
 	mainProduct: string;
 	mainInterval: string;
-	ignoreWebhook: boolean;
+	ignoreWebhook: "true" | "false";
 }
 
+export type ProductType = "single" | "subscription" | "giftable";
+export type ProductCategory =
+	| "item pack"
+	| "tool"
+	| "collectable"
+	| "power-up"
+	| "drop item"
+	| "sellable"
+	| "lootbox"
+	| "tradeable";
 export type Metadata = Partial<PossibleMetadata>;
 
 export type CartItem = {
@@ -59,12 +70,10 @@ export type CartItem = {
 	image?: string;
 };
 
-export interface AnyProduct extends Stripe.Product {
-	prices: Price[];
-}
+export type ListedProduct = Omit<ProductDetails, "body"> & { hidden: boolean; created: number };
 
 export type ModalProps = {
-	product: AnyProduct;
+	product: ListedProduct;
 	annualPricing?: Boolean;
 	addToCart: any;
 	closeModal: any;
@@ -87,8 +96,8 @@ export default function StoreHome({ user }: PageProps) {
 	const [cartItems, setCartItems] = useState<CartItem[] | []>([]);
 
 	const [popularProducts, setPopularProducts] = useState<UpsellProduct[]>([]);
-	const [subscriptions, setSubscriptions] = useState<AnyProduct[]>([]);
-	const [products, setProducts] = useState<AnyProduct[]>([]);
+	const [subscriptions, setSubscriptions] = useState<ListedProduct[]>([]);
+	const [products, setProducts] = useState<ListedProduct[]>([]);
 
 	const [bannerPages, setBannerPages] = useState<BannerPage[]>([]);
 

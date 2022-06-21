@@ -2,9 +2,8 @@ import { NextApiResponse } from "next";
 import { NextIronRequest, withSession } from "../../../../util/session";
 import { dbConnect } from "src/util/mongodb";
 import { stripeConnect } from "src/util/stripe";
-import { Metadata } from "src/pages/store";
+import { Metadata, ProductCategory, ProductType } from "src/pages/store";
 import Stripe from "stripe";
-import { ReactNode } from "react";
 import { redisConnect } from "src/util/redis";
 import { TIME } from "src/constants";
 
@@ -12,8 +11,8 @@ export interface ProductDetails {
 	id: string;
 	name: string;
 	image: string;
-	type: Required<Metadata>["type"];
-	category?: Metadata["category"];
+	type: ProductType;
+	category?: ProductCategory;
 	prices: DetailedPrice[];
 	body: ProductBodies;
 }

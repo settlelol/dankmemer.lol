@@ -4,17 +4,7 @@ import { NextIronRequest, withSession } from "../../../../../util/session";
 import Stripe from "stripe";
 import { redisConnect } from "src/util/redis";
 import { TIME } from "../../../../../constants";
-
-interface Product extends Stripe.Product {
-	prices: Price[];
-}
-
-interface Price {
-	id: string;
-	price: number;
-	interval: string;
-	metadata: any;
-}
+import { ListedProduct, Metadata } from "src/pages/store";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const user = req.session.get("user");
@@ -23,51 +13,65 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		return res.status(401).json({ error: "You are not logged in." });
 	}
 
-	let result: Product[] = [];
+	let result: ListedProduct[] = [];
 
 	const redis = await redisConnect();
 	const cached = await redis.get("store:products:subscriptions");
 
 	if (cached) {
-		let parsedCache = JSON.parse(cached) as Product[];
+		let parsedCache = JSON.parse(cached) as ListedProduct[];
 		if (user.developer) {
 			return res.status(200).json(parsedCache);
 		}
-		return res.status(200).json(parsedCache.filter((product) => product.metadata.hidden !== "true"));
+		return res.status(200).json(parsedCache.filter((product) => product.hidden));
 	}
 
-	const stripe: Stripe = stripeConnect();
-	const { data: products } = await stripe.products.list({
-		active: true,
-		limit: 100,
-	});
-
-	for (const i in products) {
-		const _prices: Price[] = [];
-		const { data: prices } = await stripe.prices.list({
-			active: true,
-			product: products[i].id,
-			type: "recurring",
+	try {
+		const stripe: Stripe = stripeConnect();
+		const { data: products } = await stripe.products.search({
+			query: `active:'true' AND metadata['type']:'subscription'`,
+			limit: 100,
 		});
-		if (prices.length >= 1) {
-			for (const i in prices) {
-				_prices.push({
-					id: prices[i].id,
-					price: prices[i].unit_amount!,
-					interval: prices[i].recurring?.interval!,
-					metadata: prices[i].metadata,
-				});
-			}
-			result.push({ ...products[i], prices: _prices });
+
+		for (const product of products) {
+			const prices = (
+				await stripe.prices.list({
+					active: true,
+					product: product.id,
+					type: "recurring",
+				})
+			).data
+				.sort((a, b) => a.unit_amount! - b.unit_amount!)
+				.map((price) => ({
+					id: price.id,
+					value: price.unit_amount!,
+					interval: {
+						period: price.recurring!.interval,
+						count: price.recurring!.interval_count,
+					},
+				}));
+
+			result.push({
+				id: product.id,
+				name: product.name,
+				image: product.images[0],
+				created: product.created,
+				prices,
+				type: (product.metadata as Metadata).type!,
+				hidden: JSON.parse((product.metadata as Metadata).hidden ?? "false"),
+			});
 		}
-	}
 
-	await redis.set("store:products:subscriptions", JSON.stringify(result), "PX", TIME.month);
+		await redis.set("store:products:subscriptions", JSON.stringify(result), "PX", TIME.month);
 
-	if (user.developer) {
-		return res.status(200).json(result);
+		if (user.developer) {
+			return res.status(200).json(result);
+		}
+		return res.status(200).json(result.filter((product) => product.hidden));
+	} catch (e: any) {
+		console.error(`Failed to construct subscription product list: ${e.message.replace(/"/g, "")}`);
+		return res.status(500).json({ message: "Failed to construct subscription product list." });
 	}
-	return res.status(200).json(result.filter((product) => product.metadata.hidden !== "true"));
 };
 
 export default withSession(handler);

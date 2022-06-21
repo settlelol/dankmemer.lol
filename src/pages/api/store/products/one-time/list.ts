@@ -4,15 +4,7 @@ import { NextIronRequest, withSession } from "../../../../../util/session";
 import Stripe from "stripe";
 import { redisConnect } from "src/util/redis";
 import { TIME } from "../../../../../constants";
-
-interface Product extends Stripe.Product {
-	prices: Price[];
-}
-
-interface Price {
-	id: string;
-	price: number;
-}
+import { ListedProduct, Metadata } from "src/pages/store";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const user = req.session.get("user");
@@ -21,47 +13,63 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		return res.status(401).json({ error: "You are not logged in." });
 	}
 
-	let result: Product[] = [];
+	let result: ListedProduct[] = [];
 
 	const redis = await redisConnect();
 	const cached = await redis.get("store:products:one-time");
 
 	if (cached) {
-		let parsedCache = JSON.parse(cached) as Product[];
+		let parsedCache = JSON.parse(cached) as ListedProduct[];
 		if (user.developer) {
 			return res.status(200).json(parsedCache);
 		}
-		return res.status(200).json(parsedCache.filter((product) => product.metadata.hidden !== "true"));
+		return res.status(200).json(parsedCache.filter((product) => product.hidden));
 	}
 
-	const stripe: Stripe = stripeConnect();
-	const { data: products } = await stripe.products.list({
-		active: true,
-		limit: 100,
-	});
-
-	for (const i in products) {
-		const { data: price } = await stripe.prices.list({
+	try {
+		const stripe: Stripe = stripeConnect();
+		const { data: products } = await stripe.products.list({
 			active: true,
-			product: products[i].id,
-			type: "one_time",
+			limit: 100,
 		});
-		if (price[0]) {
-			if (products[i].metadata.type !== "giftable") {
-				result.push({
-					...products[i],
-					prices: [{ id: price[0].id, price: price[0].unit_amount! }],
-				});
+
+		for (const product of products) {
+			const prices = (
+				await stripe.prices.list({
+					active: true,
+					product: product.id,
+					type: "one_time",
+				})
+			).data.map((price) => ({
+				id: price.id,
+				value: price.unit_amount!,
+			}));
+			if (prices[0]) {
+				if (product.metadata.type !== "giftable") {
+					result.push({
+						id: product.id,
+						name: product.name,
+						image: product.images[0],
+						created: product.created,
+						prices,
+						type: (product.metadata as Metadata).type!,
+						category: (product.metadata as Metadata).category,
+						hidden: JSON.parse((product.metadata as Metadata).hidden ?? "false"),
+					});
+				}
 			}
 		}
-	}
 
-	await redis.set("store:products:one-time", JSON.stringify(result), "PX", TIME.month);
+		await redis.set("store:products:one-time", JSON.stringify(result), "PX", TIME.month);
 
-	if (user.developer) {
-		return res.status(200).json(result);
+		if (user.developer) {
+			return res.status(200).json(result);
+		}
+		return res.status(200).json(result.filter((product) => product.hidden));
+	} catch (e: any) {
+		console.error(`Failed to construct one-time product list: ${e.message.replace(/"/g, "")}`);
+		return res.status(500).json({ message: "Failed to construct one-time product list." });
 	}
-	return res.status(200).json(result.filter((product) => product.metadata.hidden !== "true"));
 };
 
 export default withSession(handler);

@@ -1,11 +1,11 @@
 import clsx from "clsx";
 import { TIME } from "src/constants";
-import { AnyProduct, Metadata } from "src/pages/store";
+import { ListedProduct } from "src/pages/store";
 import { toTitleCase } from "src/util/string";
 import Button from "../ui/Button";
 
 interface Props {
-	product: AnyProduct;
+	product: ListedProduct;
 	add: () => void;
 	openModal: () => void;
 }
@@ -20,7 +20,7 @@ export default function Product({ product, add, openModal }: Props) {
 				<div className="grid h-48 w-56 place-items-center">
 					<div
 						className="h-28 w-28 bg-contain bg-center bg-no-repeat"
-						style={{ backgroundImage: `url('${product.images[0]}')` }}
+						style={{ backgroundImage: `url('${product.image}')` }}
 					/>
 				</div>
 				<div className="w-full px-5">
@@ -39,13 +39,13 @@ export default function Product({ product, add, openModal }: Props) {
 				<div className="flex flex-col">
 					<h6 className="font-bold text-neutral-800 dark:text-white">{product.name}</h6>
 					<p className="-mt-1.5 text-sm text-neutral-500 dark:text-neutral-400">
-						{toTitleCase(product.metadata.type)}
+						{toTitleCase(product.type)}
 					</p>
 				</div>
 				<div className="flex flex-col text-right">
-					<h6 className="font-bold text-dank-300">${(product.prices[0].price / 100).toFixed(2)}</h6>
+					<h6 className="font-bold text-dank-300">${(product.prices[0].value / 100).toFixed(2)}</h6>
 					<p className="-mt-1.5 text-sm text-neutral-500  dark:text-neutral-400">
-						{(product.metadata as Metadata).type === "subscription" ? "per month" : "each"}
+						{product.type === "subscription" ? "per month" : "each"}
 					</p>
 				</div>
 			</div>
