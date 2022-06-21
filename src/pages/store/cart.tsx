@@ -270,7 +270,6 @@ export default function Cart({ cartData, upsells, user }: Props) {
 			const { data: formatted } = await axios(`/api/store/product/find?id=${id}&action=format&to=cart-item`);
 			addToCart(formatted);
 		} catch (e) {
-			console.error(e);
 			toast.error("We were unable to update your cart information. Please try again later.");
 		}
 	};
