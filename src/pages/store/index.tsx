@@ -15,16 +15,9 @@ import PagedBanner, { BannerPage } from "src/components/store/PagedBanner";
 import { UpsellProduct } from "./cart";
 import PopularProduct from "src/components/store/PopularProduct";
 import Product from "src/components/store/Product";
-import { ProductDetails } from "../api/store/product/details";
+import { DetailedPrice, ProductDetails } from "../api/store/product/details";
 import LoadingProduct from "src/components/store/LoadingProduct";
-
-type PriceInformation = {
-	id: string;
-	type: Stripe.Price.Type;
-	price: number;
-	interval?: Stripe.Price.Recurring.Interval;
-	metadata?: Metadata;
-};
+import { getSelectedPriceValue } from "src/util/store";
 
 interface PossibleMetadata {
 	type: ProductType;
@@ -53,12 +46,11 @@ export type Metadata = Partial<PossibleMetadata>;
 export type CartItem = {
 	id: string;
 	name: string;
-	selectedPrice: PriceInformation;
-	prices: PriceInformation[];
-	unit_cost: number;
+	type: ProductType;
+	image: string;
+	selectedPrice: string;
+	prices: DetailedPrice[];
 	quantity: number;
-	metadata?: Metadata;
-	image?: string;
 };
 
 export type ListedProduct = Omit<ProductDetails, "body"> & { hidden: boolean; created: number };
@@ -133,9 +125,14 @@ export default function StoreHome({ user }: PageProps) {
 		if (!cartContents.cart) return;
 		setCartItems(cartContents.cart);
 		if (cartContents.cart.length < 1) return;
+		console.log(cartContents);
 		setTotalCost(
 			cartContents.cart
-				.reduce((acc: number, item: CartItem) => acc + (item.selectedPrice.price / 100) * item.quantity, 0)
+				.reduce(
+					(acc: number, item: CartItem) =>
+						acc + (getSelectedPriceValue(item, item.selectedPrice).value / 100) * item.quantity,
+					0
+				)
 				.toFixed(2)
 		);
 		setCartQuantities(cartContents.cart.reduce((acc: number, item: CartItem) => acc + item.quantity, 0));
@@ -143,9 +140,9 @@ export default function StoreHome({ user }: PageProps) {
 
 	const addToCart = async (item: CartItem) => {
 		let toastMessage: string | undefined;
-		const typeToAdd = item.metadata!.type;
-		const cartHasSubscription = cartItems.filter((i) => i.metadata?.type === "subscription").length >= 1;
-		const cartHasSingle = cartItems.filter((i) => i.metadata?.type === "single").length >= 1;
+		const typeToAdd = item.type;
+		const cartHasSubscription = cartItems.filter((i) => i.type === "subscription").length >= 1;
+		const cartHasSingle = cartItems.filter((i) => i.type === "single").length >= 1;
 
 		if (typeToAdd === "subscription" && cartHasSubscription) {
 			toastMessage = "Only one subscription should be added your cart at a time.";
@@ -199,9 +196,13 @@ export default function StoreHome({ user }: PageProps) {
 			setTotalCost("0.00");
 			setCartQuantities(0);
 		} else {
+			console.log(cartItems);
 			setTotalCost(
 				cartItems
-					.map((item: CartItem) => (item.selectedPrice.price / 100) * item.quantity)
+					.map(
+						(item: CartItem) =>
+							(getSelectedPriceValue(item, item.selectedPrice).value / 100) * item.quantity
+					)
 					.reduce((a: number, b: number) => a + b)
 					.toFixed(2)
 			);

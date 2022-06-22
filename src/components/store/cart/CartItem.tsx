@@ -19,15 +19,20 @@ export default function CartItem({
 	index,
 	size = "large",
 	name,
+	type,
+	prices,
 	selectedPrice,
 	quantity,
-	metadata,
 	image,
 	updateQuantity,
 	changeInterval,
 	deleteItem,
 	disabled,
 }: Props) {
+	const price = () => {
+		return prices.find((price) => price.id === selectedPrice)!;
+	};
+
 	const setQuantity = (value: any) => {
 		const quantity = parseInt(value);
 		if (isNaN(quantity)) return;
@@ -56,14 +61,12 @@ export default function CartItem({
 					>
 						{name}
 					</h4>
-					<p className="text-xs leading-none text-light-600">
-						{metadata?.type && toTitleCase(metadata?.type)}
-					</p>
+					<p className="text-xs leading-none text-light-600">{type && toTitleCase(type)}</p>
 				</div>
 			</div>
 			<div className={clsx("flex items-center justify-center")}>
 				<div className={clsx(size === "small" ? "mr-5" : "mr-16")}>
-					{metadata?.type === "subscription" ? (
+					{type === "subscription" ? (
 						<Dropdown
 							content={
 								<div
@@ -73,7 +76,7 @@ export default function CartItem({
 									)}
 								>
 									<p>
-										{selectedPrice.interval! === "year"
+										{price().interval?.period === "year"
 											? size === "small"
 												? "Annually"
 												: "Annual subscription"
@@ -89,7 +92,7 @@ export default function CartItem({
 								</div>
 							}
 							options={
-								selectedPrice.interval === "month"
+								price().interval?.period === "month"
 									? [
 											{
 												onClick: () => {
@@ -161,7 +164,7 @@ export default function CartItem({
 						size === "small" ? "min-w-[50px] text-sm" : "min-w-[70px] text-base"
 					)}
 				>
-					${((selectedPrice.price / 100) * quantity).toFixed(2)}
+					${((price().value / 100) * quantity).toFixed(2)}
 				</p>
 				<Iconify
 					icon="bx:bx-trash"

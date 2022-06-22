@@ -14,6 +14,7 @@ import CartItemImmutable from "src/components/store/checkout/CartItemImmutable";
 import CheckoutForm from "src/components/store/checkout/CheckoutForm";
 import StoreBreadcrumb from "src/components/store/StoreBreadcrumb";
 import { Session } from "next-iron-session";
+import { getSelectedPriceValue } from "src/util/store";
 
 const _stripeElementsOptions: StripeElementsOptions = {};
 
@@ -32,32 +33,37 @@ interface Props extends PageProps {
 }
 
 export default function Checkout({ cartData, user }: Props) {
-	const [clientSecret, setClientSecret] = useState("");
-	const [invoiceId, setInvoiceId] = useState("");
-
 	const [stripeElementsOptions, setStripeElementsOptions] = useState<StripeElementsOptions>();
 
 	const [subtotalCost, setSubtotalCost] = useState<string>("");
+	const [purchaseIsGift, setPurchaseIsGift] = useState(false);
+	const [purchaseGiftFor, setPurchaseGiftFor] = useState("");
+	const [clientSecret, setClientSecret] = useState("");
+	const [invoiceId, setInvoiceId] = useState("");
 
 	useEffect(() => {
 		setSubtotalCost(
 			cartData
-				.reduce((acc: number, item: CartItems) => acc + (item.selectedPrice.price / 100) * item.quantity, 0)
+				.reduce(
+					(acc: number, item: CartItems) =>
+						acc + (getSelectedPriceValue(item, item.selectedPrice).value / 100) * item.quantity,
+					0
+				)
 				.toFixed(2)
 		);
 
-		axios("/api/store/checkout/setup")
-			.then(({ data }) => {
+		axios.all([axios.get("/api/store/checkout/setup"), axios.get("/api/store/config/get")]).then(
+			axios.spread(({ data: setup }, { data: { config } }) => {
 				setStripeElementsOptions({
 					..._stripeElementsOptions,
-					clientSecret: data.client_secret,
+					clientSecret: setup.client_secret,
 				});
-				setInvoiceId(data.invoice);
-				setClientSecret(data.client_secret);
+				setInvoiceId(setup.invoice);
+				setClientSecret(setup.client_secret);
+				setPurchaseIsGift(config.isGift);
+				setPurchaseGiftFor(config.giftFor || "");
 			})
-			.catch((e) => {
-				console.error(e);
-			});
+		);
 	}, []);
 
 	return (
@@ -76,6 +82,10 @@ export default function Checkout({ cartData, user }: Props) {
 							userEmail={user!.email}
 							itemsTotal={subtotalCost}
 							subtotalCost={(parseFloat(subtotalCost) + parseFloat(subtotalCost) * 0.0675).toFixed(2)}
+							gift={{
+								isGift: purchaseIsGift,
+								giftFor: purchaseGiftFor,
+							}}
 							cart={cartData}
 						/>
 						<div className="relative hidden w-full lg:ml-5 lg:block">
@@ -83,8 +93,8 @@ export default function Checkout({ cartData, user }: Props) {
 								<Title size="small">Shopping cart</Title>
 								<div className="flex h-full flex-col items-end justify-between pb-7">
 									<div className="w-full">
-										{cartData.map((item, i) => (
-											<CartItemImmutable index={i} {...item} />
+										{cartData.map((item) => (
+											<CartItemImmutable key={item.id} {...item} gifted={purchaseIsGift} />
 										))}
 									</div>
 									<div>

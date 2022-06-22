@@ -13,6 +13,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import { OrdersRetrieveResponse } from "src/util/paypal/classes/Orders";
 import { toast } from "react-toastify";
+import { getSelectedPriceValue } from "src/util/store";
 
 interface Props {
 	stripe: Stripe | null;
@@ -32,6 +33,10 @@ interface Props {
 	subtotalCost: string;
 	itemsTotal: string;
 	totalCost: string;
+	gift: {
+		isGift: boolean;
+		giftFor: string;
+	};
 	discounts: DiscountsApplied;
 	integratedWalletButtonType: "check-out" | "subscribe";
 }
@@ -64,14 +69,15 @@ export default function AccountInformation({
 	itemsTotal,
 	subtotalCost,
 	totalCost,
+	gift,
 	discounts,
 	integratedWalletButtonType,
 }: Props) {
 	const router = useRouter();
 	const { theme } = useTheme();
 
-	const [giftRecipient, setGiftRecipient] = useState("");
-	const [isGift, setIsGift] = useState(false);
+	const [giftRecipient, setGiftRecipient] = useState(gift.giftFor);
+	const [isGift, setIsGift] = useState(gift.isGift);
 
 	const [receiptEmail, setReceiptEmail] = useState(userEmail);
 	const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -111,11 +117,13 @@ export default function AccountInformation({
 								name: item.name,
 								unit_amount: {
 									currency_code: "USD",
-									value: (item.selectedPrice.price / 100).toFixed(2),
+									value: (getSelectedPriceValue(item, item.selectedPrice).value / 100).toFixed(2),
 								},
 								quantity: item.quantity.toString(),
 								category: "DIGITAL_GOODS",
-								sku: `${item.id}:${item.selectedPrice.interval || "single"}`,
+								sku: `${item.id}:${
+									getSelectedPriceValue(item, item.selectedPrice).interval?.period || "single"
+								}`,
 							};
 						}),
 						{
@@ -142,7 +150,7 @@ export default function AccountInformation({
 	const createPayPalSubscription = async (actions: any) => {
 		const { data: res } = await axios(`/api/customers/${isGift ? giftRecipient : userId}`);
 
-		if (res.isSubscribed && cartData[0].metadata?.type === "subscription") {
+		if (res.isSubscribed && cartData[0].type === "subscription") {
 			return toast.info(
 				<p>
 					{isGift ? <>That user</> : <>You</>} already {isGift ? <>has</> : <>have</>} an active subscription.{" "}
@@ -166,8 +174,8 @@ export default function AccountInformation({
 			);
 		} else {
 			return actions.subscription.create({
-				plan_id: cartData[0].selectedPrice.metadata!.paypalPlan,
-				custom_id: `${cartData[0].selectedPrice.metadata!.paypalPlan}:${userId}:${
+				plan_id: getSelectedPriceValue(cartData[0], cartData[0].selectedPrice).paypalPlan,
+				custom_id: `${getSelectedPriceValue(cartData[0], cartData[0].selectedPrice).paypalPlan}:${userId}:${
 					giftRecipient || userId
 				}:${new Date().getTime()}`,
 			});
@@ -180,7 +188,7 @@ export default function AccountInformation({
 	};
 
 	const paypalSuccess = (details: OrdersRetrieveResponse, data: any) => {
-		const subscriptionGift = isGift && cartData[0].metadata!.type === "subscription";
+		const subscriptionGift = isGift && cartData[0].type === "subscription";
 
 		axios({
 			method: "PATCH",
@@ -193,7 +201,7 @@ export default function AccountInformation({
 				...(subscriptionGift && {
 					giftSubscription: {
 						product: cartData[0].id,
-						price: cartData[0].selectedPrice.id,
+						price: cartData[0].selectedPrice,
 					},
 				}),
 			},
@@ -217,17 +225,6 @@ export default function AccountInformation({
 			router.push(`/store/checkout/success?gateway=paypal&id=${data.orderID}&invoice=${invoiceId}`);
 		});
 	};
-
-	useEffect(() => {
-		axios("/api/store/config/get")
-			.then(({ data }) => {
-				setIsGift(data.config.isGift);
-				setGiftRecipient(data.config.giftFor || "");
-			})
-			.catch((e) => {
-				console.error(e);
-			});
-	}, []);
 
 	useEffect(() => {
 		if (!integratedWallet || !stripe || !clientSecret) return;
@@ -261,6 +258,11 @@ export default function AccountInformation({
 			}
 		});
 	}, [integratedWallet, stripe, clientSecret]);
+
+	useEffect(() => {
+		setGiftRecipient(gift.giftFor);
+		setIsGift(gift.isGift);
+	}, [gift]);
 
 	return (
 		<div className="w-full">
@@ -314,7 +316,7 @@ export default function AccountInformation({
 				) : selectedPaymentOption === "PayPal" ? (
 					<div className="mt-3 h-[50px] w-full overflow-hidden dark:text-white">
 						{acceptedTerms ? (
-							cartData[0].metadata!.type! === "subscription" && !isGift ? (
+							cartData[0].type === "subscription" && !isGift ? (
 								<PayPalButton
 									options={{
 										vault: true,
@@ -339,7 +341,7 @@ export default function AccountInformation({
 										console.error(err);
 									}}
 								/>
-							) : cartData[0].metadata!.type! === "subscription" && isGift ? (
+							) : cartData[0].type === "subscription" && isGift ? (
 								<PayPalButton
 									options={{
 										clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,

@@ -23,6 +23,7 @@ import { AppliedDiscount } from "../api/store/discount/apply";
 import { dbConnect } from "src/util/mongodb";
 import { PurchaseRecord } from "../api/store/checkout/finalize/paypal";
 import { stripeConnect } from "src/util/stripe";
+import { getSelectedPriceValue } from "src/util/store";
 
 interface Props extends PageProps {
 	cartData: CartItems[];
@@ -67,7 +68,8 @@ export default function Cart({ cartData, upsells, user }: Props) {
 
 	useEffect(() => {
 		const cartTotal = cart.reduce(
-			(acc: number, item: CartItems) => acc + (item.selectedPrice.price / 100) * item.quantity,
+			(acc: number, item: CartItems) =>
+				acc + (getSelectedPriceValue(item, item.selectedPrice).value / 100) * item.quantity,
 			0
 		);
 
@@ -82,7 +84,8 @@ export default function Cart({ cartData, upsells, user }: Props) {
 				data: { cartData: cart },
 			}).then(() => {
 				const cartTotal = cart.reduce(
-					(acc: number, item: CartItems) => acc + (item.selectedPrice.price / 100) * item.quantity,
+					(acc: number, item: CartItems) =>
+						acc + (getSelectedPriceValue(item, item.selectedPrice).value / 100) * item.quantity,
 					0
 				);
 				setSubtotalCost(cartTotal);
@@ -99,7 +102,7 @@ export default function Cart({ cartData, upsells, user }: Props) {
 						.catch(() => {
 							const rawSalesTax = cartTotal * 0.0675;
 
-							setThresholdDiscount(cartTotal >= 20 && cart[0].metadata?.type !== "subscription");
+							setThresholdDiscount(cartTotal >= 20 && cart[0].type !== "subscription");
 							setSalesTax(rawSalesTax);
 							setTotalCost(cartTotal + rawSalesTax);
 						});
@@ -141,7 +144,9 @@ export default function Cart({ cartData, upsells, user }: Props) {
 	const changeInterval = (index: number, interval: "month" | "year") => {
 		if (!processingChange) {
 			const newCart: CartItems[] = [...cart];
-			newCart[index].selectedPrice = newCart[index].prices.filter((price) => price.interval === interval)[0];
+			newCart[index].selectedPrice = newCart[index].prices.filter(
+				(price) => price.interval?.period === interval
+			)[0].id;
 			setCart(newCart);
 		}
 	};
@@ -188,8 +193,6 @@ export default function Cart({ cartData, upsells, user }: Props) {
 					case 410:
 						setDiscountError("Discount code has expired.");
 						break;
-					default:
-						console.log(`Unhandled discount error code: ${e.response.status}`);
 				}
 			})
 			.finally(() => setProcessingChange(false));
@@ -231,14 +234,14 @@ export default function Cart({ cartData, upsells, user }: Props) {
 		setAppliedSavings(data.totalSavings ?? 0);
 		setSalesTax(_salesTax);
 		setTotalCost(total);
-		setThresholdDiscount(total >= 20 && cart[0].metadata?.type !== "subscription");
+		setThresholdDiscount(total >= 20 && cart[0].type !== "subscription");
 	}, [discountData, subtotalCost]);
 
 	const addToCart = async (item: CartItems) => {
 		let toastMessage: string | undefined;
-		const typeToAdd = item.metadata!.type;
-		const cartHasSubscription = cart.filter((i) => i.metadata?.type === "subscription").length >= 1;
-		const cartHasSingle = cart.filter((i) => i.metadata?.type === "single").length >= 1;
+		const typeToAdd = item.type;
+		const cartHasSubscription = cart.filter((i) => i.type === "subscription").length >= 1;
+		const cartHasSingle = cart.filter((i) => i.type === "single").length >= 1;
 
 		if (typeToAdd === "subscription" && cartHasSubscription) {
 			toastMessage = "Only one subscription should be added your cart at a time.";
@@ -337,7 +340,7 @@ export default function Cart({ cartData, upsells, user }: Props) {
 					</div>
 				</div>
 				<div className="flex w-80 flex-col">
-					{cart[0] && cart[0].metadata!.type === "subscription" ? (
+					{cart[0] && cart[0].type === "subscription" ? (
 						<MarketingBox variant="subscriptionSavings" />
 					) : (
 						<MarketingBox variant={marketingBoxView.current} />

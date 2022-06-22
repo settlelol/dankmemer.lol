@@ -21,6 +21,8 @@ export interface DetailedPrice {
 	id: string;
 	value: number;
 	interval?: DetailedPriceInterval;
+	paypalPlan?: string;
+	giftProductId?: string;
 }
 
 export interface DetailedPriceInterval {

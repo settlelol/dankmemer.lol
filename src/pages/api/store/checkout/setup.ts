@@ -7,6 +7,7 @@ import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { AppliedDiscount } from "../discount/apply";
 import { toTitleCase } from "src/util/string";
+import { getSelectedPriceValue } from "src/util/store";
 
 interface CartConfig {
 	isGift: boolean;
@@ -85,14 +86,14 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	try {
-		if (cart.length === 1 && cart[0].metadata?.type === "subscription") {
+		if (cart.length === 1 && cart[0].type === "subscription") {
 			if (!config.isGift) {
 				const subscription = await stripe.subscriptions.create({
 					customer: customer.id!,
 					payment_behavior: "default_incomplete",
 					expand: ["latest_invoice.payment_intent"],
 					...(discount && { coupon: discount.coupon.id }),
-					items: [{ price: cart[0].selectedPrice.id }],
+					items: [{ price: cart[0].selectedPrice }],
 				});
 				const invoice = subscription.latest_invoice as Stripe.Invoice;
 
@@ -103,9 +104,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				});
 			} else if (config.isGift) {
 				const giftProduct = await stripe.products.retrieve(
-					(
-						await stripe.prices.retrieve(cart[0].selectedPrice.id)
-					).metadata.giftProduct
+					getSelectedPriceValue(cart[0], cart[0].selectedPrice).giftProductId!
 				);
 				// Gift subscription invoice item
 				await stripe.invoiceItems.create({
@@ -118,7 +117,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				await stripe.invoiceItems.create({
 					customer: customer?.id!,
 					currency: "usd",
-					unit_amount_decimal: (cart[0].selectedPrice.price * 0.0675).toFixed(0),
+					unit_amount_decimal: (getSelectedPriceValue(cart[0], cart[0].selectedPrice).value * 0.0675).toFixed(
+						0
+					),
 				});
 				const giftInvoice = await stripe.invoices.create({
 					customer: customer.id,
@@ -135,7 +136,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				const finalizedInvoice = await stripe.invoices.finalizeInvoice(giftInvoice.id);
 				const paymentIntent = await stripe.paymentIntents.update(finalizedInvoice.payment_intent as string, {
 					description: `Payment for 1x ${giftProduct.name} gift subscription (${toTitleCase(
-						cart[0].selectedPrice.interval!
+						getSelectedPriceValue(cart[0], cart[0].selectedPrice).interval?.period!
 					)})`,
 				});
 
@@ -150,7 +151,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			await stripe.invoiceItems.create({
 				customer: customer?.id!,
 				currency: "usd",
-				price: cart[i].selectedPrice.id,
+				price: cart[i].selectedPrice,
 				quantity: cart[i].quantity,
 			});
 		}
@@ -164,7 +165,8 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			currency: "usd",
 			unit_amount_decimal: (
 				cart.reduce(
-					(acc: number, item: CartItem) => acc + (item.selectedPrice.price / 100) * item.quantity,
+					(acc: number, item: CartItem) =>
+						acc + (getSelectedPriceValue(item, item.selectedPrice).value / 100) * item.quantity,
 					0
 				) *
 				0.0675 *

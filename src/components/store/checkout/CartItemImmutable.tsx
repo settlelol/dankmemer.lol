@@ -1,28 +1,19 @@
-import { Metadata } from "src/pages/store";
-import { SelectedPrice } from "src/pages/store/checkout/success";
-
+import { CartItem } from "src/pages/store";
 import { toTitleCase } from "src/util/string";
-
-interface Props {
-	index?: number;
-	name: string;
-	gifted?: string;
-	selectedPrice: SelectedPrice;
-	metadata?: Metadata;
-	unit_cost: number;
-	quantity: number;
-	image?: string;
-}
 
 export default function CartItemImmutable({
 	name,
+	type,
+	prices,
 	gifted,
 	selectedPrice,
-	unit_cost,
 	quantity,
-	metadata,
 	image,
-}: Props) {
+}: CartItem & { gifted: boolean }) {
+	const price = () => {
+		return prices.find((price) => price.id === selectedPrice)!;
+	};
+
 	return (
 		<div className="flex flex-col">
 			<div className="mt-3 flex w-full items-center justify-between">
@@ -35,30 +26,26 @@ export default function CartItemImmutable({
 					></div>
 					<div className="ml-5 flex flex-col justify-center">
 						<h4 className="font-bold leading-none text-gray-800 dark:text-white">{name}</h4>
-						<p className="text-sm leading-none text-light-600">
-							{gifted && JSON.parse(gifted) && "(Gifted) "}
-							{metadata?.type && toTitleCase(metadata?.type)}
+						<p className="mt-0.5 text-sm leading-none text-light-600">
+							{gifted && "(Gifted) "}
+							{type && toTitleCase(type === "giftable" ? "subscription" : type)}
 						</p>
 					</div>
 				</div>
 				<div className="flex flex-col">
 					<p className="min-w-[60px] text-right font-montserrat font-bold leading-none text-gray-800 dark:text-white">
-						$
-						{selectedPrice.interval
-							? selectedPrice.interval === "year"
-								? ((unit_cost / 100) * 10.8).toFixed(2)
-								: unit_cost.toFixed(2)
-							: ((unit_cost / 100) * quantity).toFixed(2)}
+						${((price().value / 100) * quantity).toFixed(2)}
 					</p>
-					{metadata?.type === "subscription" ? (
-						selectedPrice.interval ? (
-							<p className="text-sm leading-none text-light-600">
-								Billing period: {toTitleCase(selectedPrice.interval)}ly
+					{type === "subscription" ? (
+						!gifted ? (
+							// For normal subscriptions
+							<p className="mt-0.5 text-sm leading-none text-light-600">
+								Billing period: {toTitleCase(price().interval!.period)}ly
 							</p>
 						) : (
-							<p className="text-sm leading-none text-light-600">
-								Duration: {selectedPrice.duration!.count}{" "}
-								{toTitleCase(selectedPrice.duration!.interval)}
+							// For gifted subscriptions
+							<p className="mt-0.5 text-sm leading-none text-light-600">
+								Duration: {price().interval!.count} {toTitleCase(price().interval!.period)}
 							</p>
 						)
 					) : (

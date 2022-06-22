@@ -24,6 +24,7 @@ import clsx from "clsx";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import Image from "next/image";
+import { getSelectedPriceValue } from "src/util/store";
 
 interface Props {
 	clientSecret: string;
@@ -33,6 +34,10 @@ interface Props {
 	itemsTotal: string;
 	subtotalCost: string;
 	cart: CartItem[];
+	gift: {
+		isGift: boolean;
+		giftFor: string;
+	};
 }
 
 export interface Card {
@@ -61,6 +66,7 @@ export default function CheckoutForm({
 	userEmail,
 	itemsTotal,
 	subtotalCost,
+	gift,
 	cart,
 }: Props) {
 	const _invoiceId = useRef(invoiceId);
@@ -92,7 +98,7 @@ export default function CheckoutForm({
 	const [saveCardAsDefault, setSaveCardAsDefault] = useState(false);
 
 	const [thresholdDiscount, setThresholdDiscount] = useState(
-		parseFloat(subtotalCost) >= 20 && cart[0].metadata?.type !== "subscription"
+		parseFloat(subtotalCost) >= 20 && cart[0].type !== "subscription"
 	);
 	const [appliedDiscountCode, setAppliedDiscountCode] = useState("");
 	const [discountedItems, setDiscountedItems] = useState<DiscountItem[]>([]);
@@ -151,11 +157,11 @@ export default function CheckoutForm({
 	useEffect(() => {
 		const numSubCost = parseFloat(subtotalCost);
 		const totalAfterSavings = numSubCost - appliedSavings;
-		setThresholdDiscount(totalAfterSavings >= 20 && cart[0].metadata?.type !== "subscription");
+		setThresholdDiscount(totalAfterSavings >= 20 && cart[0].type !== "subscription");
 		setTotalCost(
 			(
 				totalAfterSavings -
-				(totalAfterSavings >= 20 && cart[0].metadata?.type !== "subscription" ? totalAfterSavings * 0.1 : 0)
+				(totalAfterSavings >= 20 && cart[0].type !== "subscription" ? totalAfterSavings * 0.1 : 0)
 			).toFixed(2)
 		);
 	}, [subtotalCost, appliedSavings]);
@@ -196,7 +202,7 @@ export default function CheckoutForm({
 			displayItems: cart.map((item) => {
 				return {
 					label: `${item.quantity}x ${item.name}`,
-					amount: item.quantity * item.selectedPrice.price,
+					amount: item.quantity * getSelectedPriceValue(item, item.selectedPrice).value,
 				};
 			}),
 			requestPayerName: true,
@@ -217,7 +223,7 @@ export default function CheckoutForm({
 
 		const { data: res } = await axios(`/api/customers/${isGift ? giftFor : userId}`);
 
-		if (res.isSubscribed && cart[0].metadata?.type === "subscription") {
+		if (res.isSubscribed && cart[0].type === "subscription") {
 			setProcessingPayment(false);
 			return toast.info(
 				<p>
@@ -529,6 +535,7 @@ export default function CheckoutForm({
 						itemsTotal={itemsTotal}
 						subtotalCost={subtotalCost}
 						totalCost={totalCost}
+						gift={gift}
 						discounts={{
 							discountsUsed: [
 								{
@@ -556,7 +563,7 @@ export default function CheckoutForm({
 								: "0.00",
 						}}
 						integratedWalletButtonType={
-							cart[0].selectedPrice.type === "recurring" ? "subscribe" : "check-out"
+							getSelectedPriceValue(cart[0], cart[0].selectedPrice).interval ? "subscribe" : "check-out"
 						}
 					/>
 				</div>

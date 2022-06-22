@@ -1,7 +1,8 @@
-import { CartItem } from "src/pages/store";
+import { CartItem, Metadata } from "src/pages/store";
 import { redisConnect } from "src/util/redis";
 import { TIME } from "src/constants";
 import Stripe from "stripe";
+import { DetailedPrice } from "src/pages/api/store/product/details";
 
 interface FailedFormat {
 	message: string;
@@ -28,7 +29,7 @@ export const formatProduct = async (
 			if (!product) {
 				return { message: "No product with the provided ID was found." };
 			}
-			const prices = (
+			const prices: DetailedPrice[] = (
 				await stripe.prices.list({
 					active: true,
 					product: product.id,
@@ -37,20 +38,28 @@ export const formatProduct = async (
 				.sort((a, b) => a.unit_amount! - b.unit_amount!)
 				.map((price) => ({
 					id: price.id,
-					metadata: price.metadata,
-					price: price.unit_amount!,
-					type: price.type,
-					interval: price.recurring?.interval,
+					value: price.unit_amount!,
+					...(price.recurring && {
+						interval: {
+							period: price.recurring.interval,
+							count: price.recurring.interval_count,
+						},
+					}),
+					...((price.metadata as Metadata).paypalPlan && {
+						paypalPlan: price.metadata.paypalPlan,
+					}),
+					...((price.metadata as Metadata).giftProduct && {
+						giftProductId: price.metadata.giftProduct,
+					}),
 				}));
 			const formatted: CartItem = {
 				id: product.id,
 				name: product.name,
-				quantity: 1,
-				selectedPrice: prices[0],
-				unit_cost: prices[0].price,
-				prices,
+				type: (product.metadata as Metadata).type!,
 				image: product.images[0],
-				metadata: product.metadata,
+				selectedPrice: prices[0].id,
+				prices,
+				quantity: 1,
 			};
 			await redis.set(`formatted-product:${product.id}:cart-item`, JSON.stringify(formatted), "PX", TIME.day);
 			return formatted;
