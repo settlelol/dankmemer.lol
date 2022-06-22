@@ -23,7 +23,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		if (user.developer) {
 			return res.status(200).json(parsedCache);
 		}
-		return res.status(200).json(parsedCache.filter((product) => product.hidden));
+		return res.status(200).json(parsedCache.filter((product) => !product.hidden));
 	}
 
 	try {
@@ -65,7 +65,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		if (user.developer) {
 			return res.status(200).json(result);
 		}
-		return res.status(200).json(result.filter((product) => product.hidden));
+		return res.status(200).json(result.filter((product) => !product.hidden));
 	} catch (e: any) {
 		console.error(`Failed to construct one-time product list: ${e.message.replace(/"/g, "")}`);
 		return res.status(500).json({ message: "Failed to construct one-time product list." });
