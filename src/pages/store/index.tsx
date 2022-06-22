@@ -301,9 +301,7 @@ export default function StoreHome({ user }: PageProps) {
 					<div
 						className={clsx(
 							"mt-4 grid gap-x-8 gap-y-7",
-							products.length >= 1
-								? false
-								: products.length < 5
+							products.length >= 1 && products.length < 5
 								? "justify-start"
 								: "justify-center phone:justify-between"
 						)}
