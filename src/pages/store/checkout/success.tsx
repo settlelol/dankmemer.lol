@@ -227,14 +227,6 @@ export const getServerSideProps: GetServerSideProps = withSession(
 				(invoice.payment_intent! as Stripe.PaymentIntent).id
 			);
 
-			let subscription: Stripe.Subscription | null = null;
-			if (invoiceItems[0].type === "subscription") {
-				subscription = await stripe.subscriptions.retrieve(
-					// @ts-ignore
-					invoiceItems[0].subscription
-				);
-			}
-
 			if (invoice.metadata!.boughtByDiscordId !== user.id) {
 				return {
 					redirect: {
@@ -279,19 +271,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 			});
 
 			const { data: invoiceItems } = await stripe.invoices.listLineItems(invoice.id);
-			let items: InvoiceItems[] | InvoiceSubscription[] = [];
-
-			const paymentIntent = await stripe.paymentIntents.retrieve(
-				(invoice.payment_intent! as Stripe.PaymentIntent).id
-			);
-
-			let subscription: Stripe.Subscription | null = null;
-			if (invoiceItems[0].type === "subscription") {
-				subscription = await stripe.subscriptions.retrieve(
-					// @ts-ignore
-					invoiceItems[0].subscription
-				);
-			}
+			let items: CartItem[] = [];
 
 			if (invoice.metadata!.boughtByDiscordId !== user.id) {
 				return {
@@ -302,34 +282,13 @@ export const getServerSideProps: GetServerSideProps = withSession(
 				};
 			}
 
-			for (let i = 0; i < invoiceItems.length; i++) {
-				const item = invoiceItems[i];
+			for (let item of invoiceItems) {
 				const product = await stripe.products.retrieve(item.price?.product as string);
 
 				if (product.name.includes("Product for invoice item ")) {
 					salesTax = item.amount;
 				} else {
-					if (item.type === "invoiceitem") {
-						items.push({
-							type: item.type,
-							name: product.name,
-							price: item.price?.unit_amount!,
-							quantity: item.quantity!,
-							metadata: product.metadata,
-							image: product.images[0] || "",
-						});
-					} else {
-						items.push({
-							type: item.type,
-							name: product.name,
-							price: subscription!.items.data[0].price.unit_amount!,
-							quantity: 1,
-							interval: subscription!.items.data[0].price.recurring?.interval!,
-							endsAt: subscription!.current_period_end,
-							metadata: product.metadata,
-							image: product.images[0],
-						});
-					}
+					items.push((await formatProduct("cart-item", product.id, stripe)) as CartItem);
 				}
 			}
 
@@ -354,7 +313,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 		} else {
 			const order = (await paypal.orders.retrieve(ctx.query.id.toString())) as OrdersRetrieveResponse;
 
-			let items: InvoiceItems[] | InvoiceSubscription[] = [];
+			let items: CartItem[] = [];
 
 			const purchasedItems = order.purchase_units[0].items;
 			for (let i = 0; purchasedItems.length > i; i++) {
@@ -363,32 +322,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 					salesTax = parseFloat(item.unit_amount.value) * 100;
 				} else {
 					const product = await stripe.products.retrieve(item.sku.split(":")[0]);
-					const prices = (
-						await stripe.prices.list({
-							product: item.sku.split(":")[0],
-							active: true,
-						})
-					).data;
-					items.push({
-						type: "invoiceitem",
-						name: item.name,
-						price: parseFloat(item.unit_amount.value) * 100,
-						quantity: parseInt(item.quantity),
-						metadata: product.metadata,
-						image: product.images[0],
-						duration: {
-							interval: prices.find(
-								(price) =>
-									price.unit_amount! === parseInt(item.unit_amount.value) * 100 &&
-									price.recurring?.interval === item.sku.split(":")[1]
-							)?.recurring?.interval!,
-							count: prices.find(
-								(price) =>
-									price.unit_amount! === parseInt(item.unit_amount.value) * 100 &&
-									price.recurring?.interval === item.sku.split(":")[1]
-							)?.recurring?.interval_count!,
-						},
-					});
+					items.push((await formatProduct("cart-item", product.id, stripe)) as CartItem);
 				}
 			}
 
