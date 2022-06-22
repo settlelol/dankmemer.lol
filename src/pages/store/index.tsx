@@ -16,6 +16,7 @@ import { UpsellProduct } from "./cart";
 import PopularProduct from "src/components/store/PopularProduct";
 import Product from "src/components/store/Product";
 import { ProductDetails } from "../api/store/product/details";
+import LoadingProduct from "src/components/store/LoadingProduct";
 
 type PriceInformation = {
 	id: string;
@@ -252,14 +253,18 @@ export default function StoreHome({ user }: PageProps) {
 					</Title>
 					<div className="overflow-y-visible overflow-x-scroll xl:overflow-visible">
 						<div className="mt-3 flex min-w-[1280px] justify-between space-x-10 xl:min-w-[unset]">
-							{popularProducts.map((product) => (
-								<PopularProduct
-									key={product.id}
-									product={product}
-									add={() => addProductById(product.id)}
-									openModal={() => setModalProductId(product.id)}
-								/>
-							))}
+							{popularProducts.length >= 1
+								? popularProducts.map((product) => (
+										<PopularProduct
+											key={product.id}
+											product={product}
+											add={() => addProductById(product.id)}
+											openModal={() => setModalProductId(product.id)}
+										/>
+								  ))
+								: Array(3)
+										.fill(0)
+										.map(() => <LoadingProduct variant="popular" />)}
 						</div>
 					</div>
 				</section>
@@ -275,14 +280,18 @@ export default function StoreHome({ user }: PageProps) {
 							gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
 						}}
 					>
-						{subscriptions.map((product) => (
-							<Product
-								key={product.id}
-								product={product}
-								add={() => addProductById(product.id)}
-								openModal={() => setModalProductId(product.id)}
-							/>
-						))}
+						{subscriptions.length >= 1
+							? subscriptions.map((product) => (
+									<Product
+										key={product.id}
+										product={product}
+										add={() => addProductById(product.id)}
+										openModal={() => setModalProductId(product.id)}
+									/>
+							  ))
+							: Array(5)
+									.fill(0)
+									.map(() => <LoadingProduct variant="normal" />)}
 					</div>
 				</section>
 				<div className="mt-12 mb-12">
@@ -292,20 +301,28 @@ export default function StoreHome({ user }: PageProps) {
 					<div
 						className={clsx(
 							"mt-4 grid gap-x-8 gap-y-7",
-							products.length < 5 ? "justify-start" : "justify-center phone:justify-between"
+							products.length >= 1
+								? false
+								: products.length < 5
+								? "justify-start"
+								: "justify-center phone:justify-between"
 						)}
 						style={{
 							gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
 						}}
 					>
-						{products.map((product) => (
-							<Product
-								key={product.id}
-								product={product}
-								add={() => addProductById(product.id)}
-								openModal={() => setModalProductId(product.id)}
-							/>
-						))}
+						{products.length >= 1
+							? products.map((product) => (
+									<Product
+										key={product.id}
+										product={product}
+										add={() => addProductById(product.id)}
+										openModal={() => setModalProductId(product.id)}
+									/>
+							  ))
+							: Array(5)
+									.fill(0)
+									.map(() => <LoadingProduct variant="normal" />)}
 					</div>
 				</div>
 			</Container>
