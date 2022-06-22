@@ -324,7 +324,7 @@ export default function CheckoutForm({
 							/>
 						)}
 					</div>
-					{selectedPaymentOption === "Card" && (!defaultPaymentMethod || !savedPaymentMethods) && (
+					{selectedPaymentOption === "Card" && (defaultPaymentMethod || savedPaymentMethods) && (
 						<PaymentMethods
 							savedPaymentMethods={savedPaymentMethods}
 							defaultPaymentMethod={defaultPaymentMethod}
