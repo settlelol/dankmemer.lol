@@ -140,7 +140,10 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 										</h3>
 										<div className="flex flex-col">
 											{invoice.items.map((item) => (
-												<CartItemImmutable {...item} gifted={invoice.metadata.isGift} />
+												<CartItemImmutable
+													{...item}
+													gifted={JSON.parse(invoice.metadata.isGift)}
+												/>
 											))}
 										</div>
 									</div>
@@ -248,53 +251,6 @@ export const getServerSideProps: GetServerSideProps = withSession(
 					salesTax = item.amount;
 				} else {
 					items.push((await formatProduct("cart-item", product.id, stripe)) as CartItem);
-
-					// if (item.type === "invoiceitem") {
-					// 	if (product.metadata.type === "giftable") {
-					// 		let _product = await stripe.products.retrieve(product.metadata.mainProduct as string);
-					// 		const prices = (
-					// 			await stripe.prices.list({
-					// 				active: true,
-					// 				product: _product.id,
-					// 			})
-					// 		).data;
-
-					// 		items.push({
-					// 			type: _product.type,
-					// 			name: product.name,
-					// 			price: item.price?.unit_amount!,
-					// 			quantity: 1,
-					// 			metadata: _product.metadata,
-					// 			image: product.images[0],
-					// 			duration: {
-					// 				interval: product.metadata.mainInterval as Stripe.Price.Recurring.Interval,
-					// 				count: prices!.find(
-					// 					(price) => price.recurring?.interval === product.metadata.mainInterval
-					// 				)?.recurring?.interval_count!,
-					// 			},
-					// 		});
-					// 	} else {
-					// 		items.push({
-					// 			type: item.type,
-					// 			name: product.name,
-					// 			price: item.price?.unit_amount!,
-					// 			quantity: item.quantity!,
-					// 			metadata: product.metadata,
-					// 			image: product.images[0] || "",
-					// 		});
-					// 	}
-					// } else {
-					// 	items.push({
-					// 		type: item.type,
-					// 		name: product.name,
-					// 		price: subscription!.items.data[0].price.unit_amount!,
-					// 		quantity: 1,
-					// 		interval: subscription!.items.data[0].price.recurring?.interval!,
-					// 		endsAt: subscription!.current_period_end,
-					// 		metadata: product.metadata,
-					// 		image: product.images[0],
-					// 	});
-					// }
 				}
 			}
 
