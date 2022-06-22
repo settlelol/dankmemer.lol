@@ -21,8 +21,9 @@ import LoadingProduct from "src/components/store/LoadingProduct";
 type PriceInformation = {
 	id: string;
 	type: Stripe.Price.Type;
-	interval?: Stripe.Price.Recurring.Interval;
 	price: number;
+	interval?: Stripe.Price.Recurring.Interval;
+	metadata?: Metadata;
 };
 
 interface PossibleMetadata {
@@ -162,9 +163,6 @@ export default function StoreHome({ user }: PageProps) {
 				autoClose: 3000,
 			});
 		}
-
-		// if (typeToAdd === "subscription" && item.selectedPrice.interval!.length < 1)
-		// 	item.selectedPrice.interval = annualPricing ? "year" : "month";
 
 		const alreadyExists = cartItems.findIndex((_item) => _item.id === item.id);
 		if (alreadyExists !== -1) {

@@ -166,8 +166,8 @@ export default function AccountInformation({
 			);
 		} else {
 			return actions.subscription.create({
-				plan_id: cartData[0].selectedPrice.metadata.paypalPlan,
-				custom_id: `${cartData[0].selectedPrice.metadata.paypalPlan}:${userId}:${
+				plan_id: cartData[0].selectedPrice.metadata!.paypalPlan,
+				custom_id: `${cartData[0].selectedPrice.metadata!.paypalPlan}:${userId}:${
 					giftRecipient || userId
 				}:${new Date().getTime()}`,
 			});
