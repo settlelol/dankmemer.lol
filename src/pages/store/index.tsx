@@ -125,7 +125,6 @@ export default function StoreHome({ user }: PageProps) {
 		if (!cartContents.cart) return;
 		setCartItems(cartContents.cart);
 		if (cartContents.cart.length < 1) return;
-		console.log(cartContents);
 		setTotalCost(
 			cartContents.cart
 				.reduce(
@@ -196,7 +195,6 @@ export default function StoreHome({ user }: PageProps) {
 			setTotalCost("0.00");
 			setCartQuantities(0);
 		} else {
-			console.log(cartItems);
 			setTotalCost(
 				cartItems
 					.map(

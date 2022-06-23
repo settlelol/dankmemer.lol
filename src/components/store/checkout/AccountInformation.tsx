@@ -334,11 +334,10 @@ export default function AccountInformation({
 										approvePayPalSubscription(data, actions);
 									}}
 									catchError={(err: any) => {
-										console.error(err);
+										toast.error("Something went wrong while processing your request.");
 									}}
 									onError={(err: any) => {
-										console.log("onerror");
-										console.error(err);
+										toast.error("Failed to checkout.");
 									}}
 								/>
 							) : cartData[0].type === "subscription" && isGift ? (
