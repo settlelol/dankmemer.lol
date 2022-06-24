@@ -6,7 +6,7 @@ import { PurchaseRecord } from "../checkout/finalize/paypal";
 import { UpsellProduct } from "src/pages/store/cart";
 import { Metadata } from "src/pages/store";
 import { redisConnect } from "src/util/redis";
-import { TIME } from "src/constants";
+import { LOOT_BLOCKED_COUNTRIES, TIME } from "src/constants";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const user = req.session.get("user");
@@ -18,8 +18,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const db = await dbConnect();
 	const stripe = stripeConnect();
 	const redis = await redisConnect();
-
-	const cached = await redis.get("store:popular-purchases");
+	const country = req.headers["cf-ipcountry"] as string;
+	const restrictResults = country && LOOT_BLOCKED_COUNTRIES.includes(country);
+	const cache = restrictResults ? "store:popular-purchases:restricted" : "store:popular-purchases";
+	const cached = await redis.get(cache);
 	if (cached) {
 		return res.status(200).json(JSON.parse(cached));
 	}
@@ -36,11 +38,15 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const itemCounts: { [key: string]: number } = {};
 	for (let purchase of lastMonthPurchases) {
 		for (let item of purchase.items) {
+			if (restrictResults && !itemCounts[item.id!]) {
+				const product = await stripe.products.retrieve(item.id!);
+				if ((product.metadata as Metadata).category === "lootbox") break;
+			}
 			itemCounts[item.id!] = (itemCounts[item.id!] ?? 0) + item.quantity;
 		}
 	}
 
-	const sortedPurchases = Object.fromEntries(Object.entries(itemCounts).sort(([_, a], [__, b]) => b - a));
+	let sortedPurchases = Object.fromEntries(Object.entries(itemCounts).sort(([_, a], [__, b]) => b - a));
 	const top3 = Object.keys(sortedPurchases).slice(0, 3);
 	const popularProducts: UpsellProduct[] = [];
 
@@ -65,7 +71,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		});
 	}
 
-	await redis.set("store:popular-purchases", JSON.stringify(popularProducts), "PX", TIME.month);
+	await redis.set(cache, JSON.stringify(popularProducts), "PX", TIME.month);
 	return res.status(200).json(popularProducts);
 };
 
