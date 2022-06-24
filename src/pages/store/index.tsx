@@ -5,7 +5,7 @@ import Container from "src/components/ui/Container";
 import { PageProps } from "src/types";
 import Stripe from "stripe";
 import clsx from "clsx";
-import { GetServerSideProps } from "next";
+import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { withSession } from "src/util/session";
 import { authenticatedRoute } from "src/util/redirects";
 import Modal from "src/components/store/Modal";
@@ -18,6 +18,9 @@ import Product from "src/components/store/Product";
 import { DetailedPrice, ProductDetails } from "../api/store/product/details";
 import LoadingProduct from "src/components/store/LoadingProduct";
 import { getSelectedPriceValue } from "src/util/store";
+import { Session } from "next-iron-session";
+import { dbConnect } from "src/util/mongodb";
+import BannedUser from "src/components/store/BannedUser";
 
 interface PossibleMetadata {
 	type: ProductType;
@@ -70,7 +73,7 @@ export type ModalProps = {
 	};
 };
 
-export default function StoreHome({ user }: PageProps) {
+export default function StoreHome({ user, banned }: PageProps & { banned: boolean }) {
 	const [modalProductId, setModalProductId] = useState("");
 	const [openModal, setOpenModal] = useState(false);
 
@@ -179,9 +182,11 @@ export default function StoreHome({ user }: PageProps) {
 	};
 
 	useEffect(() => {
-		getBanners();
-		getAllProducts();
-		getCartContents();
+		if (!banned) {
+			getBanners();
+			getAllProducts();
+			getCartContents();
+		}
 	}, []);
 
 	useEffect(() => {
@@ -225,104 +230,125 @@ export default function StoreHome({ user }: PageProps) {
 					close={() => setModalProductId("")}
 				/>
 			)}
-			<Container title="Store" user={user}>
-				<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
-					<Title size="big">Store</Title>
-					<ShoppingCart
-						totalCost={totalCost}
-						cart={cartItems}
-						setCart={setCartItems}
-						label={
-							cartQuantities >= 1
-								? `${cartQuantities} item${cartQuantities === 1 ? "" : "s"} for $${totalCost}`
-								: "Shopping cart"
-						}
-					/>
-				</div>
-				{bannerPages.length >= 1 && (
-					<div className="mt-3">
-						<PagedBanner pages={bannerPages} height={"h-72"} />
+			{banned && <BannedUser />}
+			{!banned && (
+				<Container title="Store" user={user}>
+					<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
+						<Title size="big">Store</Title>
+						<ShoppingCart
+							totalCost={totalCost}
+							cart={cartItems}
+							setCart={setCartItems}
+							label={
+								cartQuantities >= 1
+									? `${cartQuantities} item${cartQuantities === 1 ? "" : "s"} for $${totalCost}`
+									: "Shopping cart"
+							}
+						/>
 					</div>
-				)}
-				<section className="mt-14">
-					<Title size="medium" className="font-semibold">
-						Popular products
-					</Title>
-					<div className="overflow-y-visible overflow-x-scroll xl:overflow-visible">
-						<div className="mt-3 flex min-w-[1280px] justify-between space-x-10 xl:min-w-[unset]">
-							{popularProducts.length >= 1
-								? popularProducts.map((product) => (
-										<PopularProduct
+					{bannerPages.length >= 1 && (
+						<div className="mt-3">
+							<PagedBanner pages={bannerPages} height={"h-72"} />
+						</div>
+					)}
+					<section className="mt-14">
+						<Title size="medium" className="font-semibold">
+							Popular products
+						</Title>
+						<div className="overflow-y-visible overflow-x-scroll xl:overflow-visible">
+							<div className="mt-3 flex min-w-[1280px] justify-between space-x-10 xl:min-w-[unset]">
+								{popularProducts.length >= 1
+									? popularProducts.map((product) => (
+											<PopularProduct
+												key={product.id}
+												product={product}
+												add={() => addProductById(product.id)}
+												openModal={() => setModalProductId(product.id)}
+											/>
+									  ))
+									: Array(3)
+											.fill(0)
+											.map(() => <LoadingProduct variant="popular" />)}
+							</div>
+						</div>
+					</section>
+					<section className="mt-4">
+						<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
+							<Title size="medium" className="font-semibold">
+								Subscriptions
+							</Title>
+						</div>
+						<div
+							className="col-auto mt-4 grid place-items-center justify-center gap-x-8 gap-y-7 phone:justify-between"
+							style={{
+								gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
+							}}
+						>
+							{subscriptions.length >= 1
+								? subscriptions.map((product) => (
+										<Product
 											key={product.id}
 											product={product}
 											add={() => addProductById(product.id)}
 											openModal={() => setModalProductId(product.id)}
 										/>
 								  ))
-								: Array(3)
+								: Array(5)
 										.fill(0)
-										.map(() => <LoadingProduct variant="popular" />)}
+										.map(() => <LoadingProduct variant="normal" />)}
+						</div>
+					</section>
+					<div className="mt-12 mb-12">
+						<Title size="medium" className="text-center font-semibold phone:text-left">
+							Items
+						</Title>
+						<div
+							className={clsx(
+								"mt-4 grid gap-x-8 gap-y-7",
+								products.length >= 1 && products.length < 5
+									? "justify-start"
+									: "justify-center phone:justify-between"
+							)}
+							style={{
+								gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
+							}}
+						>
+							{products.length >= 1
+								? products.map((product) => (
+										<Product
+											key={product.id}
+											product={product}
+											add={() => addProductById(product.id)}
+											openModal={() => setModalProductId(product.id)}
+										/>
+								  ))
+								: Array(5)
+										.fill(0)
+										.map(() => <LoadingProduct variant="normal" />)}
 						</div>
 					</div>
-				</section>
-				<section className="mt-4">
-					<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
-						<Title size="medium" className="font-semibold">
-							Subscriptions
-						</Title>
-					</div>
-					<div
-						className="col-auto mt-4 grid place-items-center justify-center gap-x-8 gap-y-7 phone:justify-between"
-						style={{
-							gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
-						}}
-					>
-						{subscriptions.length >= 1
-							? subscriptions.map((product) => (
-									<Product
-										key={product.id}
-										product={product}
-										add={() => addProductById(product.id)}
-										openModal={() => setModalProductId(product.id)}
-									/>
-							  ))
-							: Array(5)
-									.fill(0)
-									.map(() => <LoadingProduct variant="normal" />)}
-					</div>
-				</section>
-				<div className="mt-12 mb-12">
-					<Title size="medium" className="text-center font-semibold phone:text-left">
-						Items
-					</Title>
-					<div
-						className={clsx(
-							"mt-4 grid gap-x-8 gap-y-7",
-							products.length >= 1 && products.length < 5
-								? "justify-start"
-								: "justify-center phone:justify-between"
-						)}
-						style={{
-							gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
-						}}
-					>
-						{products.length >= 1
-							? products.map((product) => (
-									<Product
-										key={product.id}
-										product={product}
-										add={() => addProductById(product.id)}
-										openModal={() => setModalProductId(product.id)}
-									/>
-							  ))
-							: Array(5)
-									.fill(0)
-									.map(() => <LoadingProduct variant="normal" />)}
-					</div>
-				</div>
-			</Container>
+				</Container>
+			)}
 		</>
 	);
 }
 
-export const getServerSideProps: GetServerSideProps = withSession(authenticatedRoute);
+export const getServerSideProps: GetServerSideProps = withSession(
+	async (ctx: GetServerSidePropsContext & { req: { session: Session } }) => {
+		const user = await ctx.req.session.get("user");
+		if (!user) {
+			return {
+				redirect: {
+					destination: `/api/auth/login?redirect=${encodeURIComponent(ctx.resolvedUrl)}`,
+					permanent: false,
+				},
+			};
+		}
+
+		const db = await dbConnect();
+
+		return {
+			props: { user, banned: await db.collection("bans").findOne({ id: user.id, type: "lootbox" }) },
+		};
+	}
+);
