@@ -3,7 +3,7 @@ import { NextApiResponse } from "next";
 import { NextIronRequest, withSession } from "../../../../../util/session";
 import Stripe from "stripe";
 import { redisConnect } from "src/util/redis";
-import { TIME } from "../../../../../constants";
+import { LOOT_BLOCKED_COUNTRIES, TIME } from "../../../../../constants";
 import { ListedProduct, Metadata } from "src/pages/store";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
@@ -15,6 +15,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	let result: ListedProduct[] = [];
 
+	const country = req.headers["cf-ipcountry"];
 	const redis = await redisConnect();
 	const cached = await redis.get("store:products:one-time");
 
@@ -23,7 +24,11 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		if (user.developer) {
 			return res.status(200).json(parsedCache);
 		}
-		return res.status(200).json(parsedCache.filter((product) => !product.hidden));
+		let visibleProducts = parsedCache.filter((product) => !product.hidden);
+		if (country && LOOT_BLOCKED_COUNTRIES.includes(country as string)) {
+			return res.status(200).json(visibleProducts.filter((product) => product.category !== "lootbox"));
+		}
+		return res.status(200).json(visibleProducts);
 	}
 
 	try {
@@ -65,7 +70,11 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		if (user.developer) {
 			return res.status(200).json(result);
 		}
-		return res.status(200).json(result.filter((product) => !product.hidden));
+		let visibleProducts = result.filter((product) => !product.hidden);
+		if (country && LOOT_BLOCKED_COUNTRIES.includes(country as string)) {
+			return res.status(200).json(visibleProducts.filter((product) => product.category !== "lootbox"));
+		}
+		return res.status(200).json(visibleProducts);
 	} catch (e: any) {
 		console.error(`Failed to construct one-time product list: ${e.message.replace(/"/g, "")}`);
 		return res.status(500).json({ message: "Failed to construct one-time product list." });
