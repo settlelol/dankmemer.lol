@@ -1,4 +1,4 @@
-export * from "./loot";
+export * from "./store";
 export * from "./misc";
 export * from "./rules";
 export * from "./posts";

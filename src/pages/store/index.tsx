@@ -21,6 +21,9 @@ import { getSelectedPriceValue } from "src/util/store";
 import { Session } from "next-iron-session";
 import { dbConnect } from "src/util/mongodb";
 import BannedUser from "src/components/store/BannedUser";
+import Dialog from "src/components/Dialog";
+import AgeVerification from "src/components/store/modals/AgeVerification";
+import { LOOT_AGE_VERIFICATION } from "src/constants";
 
 interface PossibleMetadata {
 	type: ProductType;
@@ -76,6 +79,7 @@ export type ModalProps = {
 export default function StoreHome({ user, banned }: PageProps & { banned: boolean }) {
 	const [modalProductId, setModalProductId] = useState("");
 	const [openModal, setOpenModal] = useState(false);
+	const [openDialog, setOpenDialog] = useState(false);
 
 	const [totalCost, setTotalCost] = useState<string>("...");
 	const [cartQuantities, setCartQuantities] = useState(0);
@@ -86,6 +90,9 @@ export default function StoreHome({ user, banned }: PageProps & { banned: boolea
 	const [products, setProducts] = useState<ListedProduct[]>([]);
 
 	const [bannerPages, setBannerPages] = useState<BannerPage[]>([]);
+
+	const [verifiedAge, setVerifiedAge] = useState<boolean | null>(null);
+	const [canPurchase, setCanPurchase] = useState(verifiedAge);
 
 	const getBanners = async () => {
 		try {
@@ -146,6 +153,14 @@ export default function StoreHome({ user, banned }: PageProps & { banned: boolea
 		const cartHasSubscription = cartItems.filter((i) => i.type === "subscription").length >= 1;
 		const cartHasSingle = cartItems.filter((i) => i.type === "single").length >= 1;
 
+		if (
+			typeToAdd === "single" &&
+			products.find((product) => product.id === item.id)?.category === "lootbox" &&
+			!verifiedAge
+		) {
+			setOpenDialog(true);
+		}
+
 		if (typeToAdd === "subscription" && cartHasSubscription) {
 			toastMessage = "Only one subscription should be added your cart at a time.";
 		} else if (typeToAdd === "subscription" && cartHasSingle) {
@@ -172,6 +187,7 @@ export default function StoreHome({ user, banned }: PageProps & { banned: boolea
 	};
 
 	const addProductById = async (id: string) => {
+		if (!canPurchase) return setOpenDialog(true);
 		try {
 			const { data: formatted } = await axios(`/api/store/product/find?id=${id}&action=format&to=cart-item`);
 			addToCart(formatted);
@@ -181,11 +197,20 @@ export default function StoreHome({ user, banned }: PageProps & { banned: boolea
 		}
 	};
 
+	const verifyAge = (isVerified: boolean) => {
+		if (!isVerified) {
+			return setCanPurchase(false);
+		}
+		localStorage.setItem("verified_age", "verified");
+		setCanPurchase(true);
+	};
+
 	useEffect(() => {
 		if (!banned) {
 			getBanners();
 			getAllProducts();
 			getCartContents();
+			setVerifiedAge(localStorage.getItem("verified_age") === "verified");
 		}
 	}, []);
 
@@ -233,6 +258,9 @@ export default function StoreHome({ user, banned }: PageProps & { banned: boolea
 			{banned && <BannedUser />}
 			{!banned && (
 				<Container title="Store" user={user}>
+					<Dialog open={openDialog} onClose={setOpenDialog}>
+						<AgeVerification isVerified={verifyAge} canPurchase={canPurchase} />
+					</Dialog>
 					<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 						<Title size="big">Store</Title>
 						<ShoppingCart

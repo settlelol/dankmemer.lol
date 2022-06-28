@@ -6,7 +6,7 @@ import { PurchaseRecord } from "../checkout/finalize/paypal";
 import { UpsellProduct } from "src/pages/store/cart";
 import { Metadata } from "src/pages/store";
 import { redisConnect } from "src/util/redis";
-import { LOOT_BLOCKED_COUNTRIES, TIME } from "src/constants";
+import { STORE_BLOCKED_COUNTRIES, TIME } from "src/constants";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const user = req.session.get("user");
@@ -19,7 +19,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const stripe = stripeConnect();
 	const redis = await redisConnect();
 	const country = req.headers["cf-ipcountry"] as string;
-	const restrictResults = country && LOOT_BLOCKED_COUNTRIES.includes(country);
+	const restrictResults = country && STORE_BLOCKED_COUNTRIES.includes(country);
 	const cache = restrictResults ? "store:popular-purchases:restricted" : "store:popular-purchases";
 	const cached = await redis.get(cache);
 	if (cached) {

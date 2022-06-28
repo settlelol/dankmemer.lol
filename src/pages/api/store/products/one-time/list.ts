@@ -3,7 +3,7 @@ import { NextApiResponse } from "next";
 import { NextIronRequest, withSession } from "../../../../../util/session";
 import Stripe from "stripe";
 import { redisConnect } from "src/util/redis";
-import { LOOT_BLOCKED_COUNTRIES, TIME } from "../../../../../constants";
+import { STORE_BLOCKED_COUNTRIES, TIME } from "../../../../../constants";
 import { ListedProduct, Metadata } from "src/pages/store";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
@@ -25,7 +25,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			return res.status(200).json(parsedCache);
 		}
 		let visibleProducts = parsedCache.filter((product) => !product.hidden);
-		if (country && LOOT_BLOCKED_COUNTRIES.includes(country as string)) {
+		if (country && STORE_BLOCKED_COUNTRIES.includes(country as string)) {
 			return res.status(200).json(visibleProducts.filter((product) => product.category !== "lootbox"));
 		}
 		return res.status(200).json(visibleProducts);
@@ -71,7 +71,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			return res.status(200).json(result);
 		}
 		let visibleProducts = result.filter((product) => !product.hidden);
-		if (country && LOOT_BLOCKED_COUNTRIES.includes(country as string)) {
+		if (country && STORE_BLOCKED_COUNTRIES.includes(country as string)) {
 			return res.status(200).json(visibleProducts.filter((product) => product.category !== "lootbox"));
 		}
 		return res.status(200).json(visibleProducts);
