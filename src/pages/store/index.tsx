@@ -3,11 +3,9 @@ import { useEffect, useState } from "react";
 import { Title } from "src/components/Title";
 import Container from "src/components/ui/Container";
 import { PageProps } from "src/types";
-import Stripe from "stripe";
 import clsx from "clsx";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { withSession } from "src/util/session";
-import { authenticatedRoute } from "src/util/redirects";
 import Modal from "src/components/store/Modal";
 import ShoppingCart from "src/components/store/ShoppingCart";
 import { toast } from "react-toastify";
@@ -23,7 +21,6 @@ import { dbConnect } from "src/util/mongodb";
 import BannedUser from "src/components/store/BannedUser";
 import Dialog from "src/components/Dialog";
 import AgeVerification from "src/components/store/modals/AgeVerification";
-import { LOOT_AGE_VERIFICATION } from "src/constants";
 
 interface PossibleMetadata {
 	type: ProductType;
