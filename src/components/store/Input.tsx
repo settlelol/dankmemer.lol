@@ -1,11 +1,18 @@
 import clsx from "clsx";
-import { ChangeEventHandler, FocusEventHandler, HTMLInputTypeAttribute, ReactNode } from "react";
+import {
+	ChangeEventHandler,
+	DetailedHTMLProps,
+	FocusEventHandler,
+	HTMLInputTypeAttribute,
+	InputHTMLAttributes,
+	ReactNode,
+} from "react";
 import { Icon as Iconify } from "@iconify/react";
 
 interface InputProps {
-	width: keyof typeof inputWidths | string;
+	width: keyof typeof inputWidths | (string & {});
 	type: Omit<"checkbox", HTMLInputTypeAttribute>;
-	placeholder: string;
+	placeholder?: string;
 	defaultValue?: string;
 	value?: string;
 	label?: string | ReactNode;
@@ -27,6 +34,8 @@ const inputWidths = {
 	large: "w-[200px]",
 };
 
+type Props = InputProps & DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
+
 export default function Input({
 	width,
 	type = "text",
@@ -43,7 +52,8 @@ export default function Input({
 	className,
 	onChange,
 	onBlur,
-}: InputProps) {
+	...attributes
+}: Props) {
 	return (
 		<div className="group relative flex flex-col justify-start text-black dark:text-white">
 			{label && (
@@ -72,8 +82,9 @@ export default function Input({
 				value={value}
 				onChange={onChange}
 				onBlur={onBlur}
+				{...attributes}
 				className={clsx(
-					inputWidths[width] || width,
+					inputWidths[width as keyof typeof inputWidths] ?? width,
 					className ? className : "",
 					icon
 						? iconEnd === "left"
