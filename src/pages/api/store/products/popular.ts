@@ -6,7 +6,8 @@ import { PurchaseRecord } from "../checkout/finalize/paypal";
 import { UpsellProduct } from "src/pages/store/cart";
 import { Metadata } from "src/pages/store";
 import { redisConnect } from "src/util/redis";
-import { STORE_BLOCKED_COUNTRIES, TIME } from "src/constants";
+import { STORE_BLOCKED_COUNTRIES, STORE_CUSTOM_MIN_AGE, TIME } from "src/constants";
+import { UserData } from "src/types";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const user = req.session.get("user");
@@ -19,7 +20,18 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const stripe = stripeConnect();
 	const redis = await redisConnect();
 	const country = req.headers["cf-ipcountry"] as string;
-	const restrictResults = country && STORE_BLOCKED_COUNTRIES.includes(country);
+	const userVerification = ((await db.collection("users").findOne({ _id: user.id })) as UserData).ageVerification;
+	const restrictResults =
+		country &&
+		(STORE_BLOCKED_COUNTRIES.includes(country) ||
+			(!STORE_BLOCKED_COUNTRIES.includes(country) &&
+				userVerification &&
+				userVerification.verified &&
+				((Object.keys(STORE_CUSTOM_MIN_AGE).includes(country) &&
+					// Check if the user is at least the minimum age for the country
+					userVerification.years < STORE_CUSTOM_MIN_AGE[country as keyof typeof STORE_CUSTOM_MIN_AGE]) ||
+					// Default to the minimum age for most countries
+					userVerification.years < 18)));
 	const cache = restrictResults ? "store:popular-purchases:restricted" : "store:popular-purchases";
 	const cached = await redis.get(cache);
 	if (cached) {

@@ -1,4 +1,4 @@
-import { POST_CATEGORIES } from "./constants";
+import { POST_CATEGORIES, STORE_CUSTOM_MIN_AGE } from "./constants";
 
 export interface User {
 	accent_color: string;
@@ -42,6 +42,14 @@ export interface UserData {
 	about?: string;
 	perks?: boolean;
 	position?: string;
+	ageVerification?: UserAge;
+}
+
+export interface UserAge {
+	verifiedOn: number;
+	verified: boolean;
+	countryVerified: keyof typeof STORE_CUSTOM_MIN_AGE | (string & {});
+	years: number;
 }
 
 export interface PageProps {

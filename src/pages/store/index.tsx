@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Title } from "src/components/Title";
 import Container from "src/components/ui/Container";
-import { PageProps } from "src/types";
+import { PageProps, User, UserAge, UserData } from "src/types";
 import clsx from "clsx";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { withSession } from "src/util/session";
@@ -21,6 +21,7 @@ import { dbConnect } from "src/util/mongodb";
 import BannedUser from "src/components/store/BannedUser";
 import Dialog from "src/components/Dialog";
 import AgeVerification from "src/components/store/modals/AgeVerification";
+import { STORE_BLOCKED_COUNTRIES, STORE_CUSTOM_MIN_AGE, STORE_NO_MIN_AGE } from "src/constants";
 
 interface PossibleMetadata {
 	type: ProductType;
@@ -73,7 +74,14 @@ export type ModalProps = {
 	};
 };
 
-export default function StoreHome({ user, banned }: PageProps & { banned: boolean }) {
+interface Props extends PageProps {
+	banned: boolean;
+	country: keyof typeof STORE_CUSTOM_MIN_AGE | (string & {});
+	verification: Omit<UserAge, "verifiedOn">;
+}
+
+export default function StoreHome({ user, banned, country, verification }: Props) {
+	const [userCountry, setUserCountry] = useState(country);
 	const [modalProductId, setModalProductId] = useState("");
 	const [openModal, setOpenModal] = useState(false);
 	const [openDialog, setOpenDialog] = useState(false);
@@ -88,9 +96,12 @@ export default function StoreHome({ user, banned }: PageProps & { banned: boolea
 
 	const [bannerPages, setBannerPages] = useState<BannerPage[]>([]);
 
-	const [verifiedAge, setVerifiedAge] = useState<boolean | null>(null);
-	const [canPurchase, setCanPurchase] = useState(verifiedAge);
-
+	const [requiresAgeVerification, setRequiresAgeVerification] = useState(
+		!(
+			Object.keys(STORE_NO_MIN_AGE).concat(Object.keys(STORE_BLOCKED_COUNTRIES)).includes(country) &&
+			!verification.verified
+		) && verification.years < (STORE_CUSTOM_MIN_AGE[userCountry as keyof typeof STORE_CUSTOM_MIN_AGE] ?? 18)
+	);
 	const getBanners = async () => {
 		try {
 			const { data: visibleBanners } = await axios("/api/store/banners/list?active=true");
@@ -153,7 +164,8 @@ export default function StoreHome({ user, banned }: PageProps & { banned: boolea
 		if (
 			typeToAdd === "single" &&
 			products.find((product) => product.id === item.id)?.category === "lootbox" &&
-			!verifiedAge
+			verification.verified &&
+			!requiresAgeVerification
 		) {
 			setOpenDialog(true);
 		}
@@ -184,7 +196,7 @@ export default function StoreHome({ user, banned }: PageProps & { banned: boolea
 	};
 
 	const addProductById = async (id: string) => {
-		if (!canPurchase) return setOpenDialog(true);
+		if (requiresAgeVerification) return setOpenDialog(true);
 		try {
 			const { data: formatted } = await axios(`/api/store/product/find?id=${id}&action=format&to=cart-item`);
 			addToCart(formatted);
@@ -194,22 +206,32 @@ export default function StoreHome({ user, banned }: PageProps & { banned: boolea
 		}
 	};
 
-	const verifyAge = (isVerified: boolean) => {
-		if (!isVerified) {
-			return setCanPurchase(false);
-		}
-		localStorage.setItem("verified_age", "verified");
-		setCanPurchase(true);
-	};
-
 	useEffect(() => {
 		if (!banned) {
 			getBanners();
 			getAllProducts();
 			getCartContents();
-			setVerifiedAge(localStorage.getItem("verified_age") === "verified");
 		}
 	}, []);
+
+	// If the country prop is unknown, re-attempt to retrieve it via Cloudflare Quic.
+	useEffect(() => {
+		if (country === "??") {
+			(async () => {
+				let { data } = await axios("https://cloudflare-quic.com/b/headers");
+				const country = data.headers["Cf-Ipcountry"];
+				setRequiresAgeVerification(
+					!(
+						Object.keys(STORE_NO_MIN_AGE).concat(Object.keys(STORE_BLOCKED_COUNTRIES)).includes(country) &&
+						!verification.verified
+					) &&
+						verification.years <
+							(STORE_CUSTOM_MIN_AGE[userCountry as keyof typeof STORE_CUSTOM_MIN_AGE] ?? 18)
+				);
+				setUserCountry(data.headers["Cf-Ipcountry"]);
+			})();
+		}
+	}, [country]);
 
 	useEffect(() => {
 		if (products.length < 1) return;
@@ -256,7 +278,7 @@ export default function StoreHome({ user, banned }: PageProps & { banned: boolea
 			{!banned && (
 				<Container title="Store" user={user}>
 					<Dialog open={openDialog} onClose={setOpenDialog}>
-						<AgeVerification isVerified={verifyAge} canPurchase={canPurchase} />
+						<AgeVerification age={verification.years} country={userCountry} />
 					</Dialog>
 					<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 						<Title size="big">Store</Title>
@@ -360,7 +382,7 @@ export default function StoreHome({ user, banned }: PageProps & { banned: boolea
 
 export const getServerSideProps: GetServerSideProps = withSession(
 	async (ctx: GetServerSidePropsContext & { req: { session: Session } }) => {
-		const user = await ctx.req.session.get("user");
+		const user = (await ctx.req.session.get("user")) as User;
 		if (!user) {
 			return {
 				redirect: {
@@ -371,9 +393,19 @@ export const getServerSideProps: GetServerSideProps = withSession(
 		}
 
 		const db = await dbConnect();
-
+		const dbUser = (await db.collection("users").findOne({ _id: user.id })) as UserData;
+		// Check request headers for cloudflare country header
+		let country = ctx.req.headers["cf-ipcountry"] ?? "??";
 		return {
-			props: { user, banned: await db.collection("bans").findOne({ id: user.id, type: "lootbox" }) },
+			props: {
+				user,
+				banned: await db.collection("bans").findOne({ id: user.id, type: "lootbox" }),
+				country: country,
+				verification: {
+					verified: dbUser.ageVerification?.verified ?? false,
+					years: dbUser.ageVerification?.years ?? 0,
+				},
+			},
 		};
 	}
 );
