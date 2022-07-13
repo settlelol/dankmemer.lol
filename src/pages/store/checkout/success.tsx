@@ -17,6 +17,7 @@ import { OrdersRetrieveResponse } from "src/util/paypal/classes/Orders";
 import clsx from "clsx";
 import { formatProduct } from "src/util/formatProduct";
 import { CartItem } from "..";
+import { NonNegative } from "type-fest";
 
 interface BuyerDetails {
 	discordId: string;
@@ -242,7 +243,8 @@ export const getServerSideProps: GetServerSideProps = withSession(
 				if (product.name.includes("Product for invoice item ")) {
 					salesTax = item.amount;
 				} else {
-					items.push((await formatProduct("cart-item", product.id, stripe)) as CartItem);
+					const formatted = await formatProduct("cart-item", product.id, stripe);
+					items.push({ ...formatted, quantity: item.quantity ?? 1 });
 				}
 			}
 
@@ -288,7 +290,8 @@ export const getServerSideProps: GetServerSideProps = withSession(
 				if (product.name.includes("Product for invoice item ")) {
 					salesTax = item.amount;
 				} else {
-					items.push((await formatProduct("cart-item", product.id, stripe)) as CartItem);
+					const formatted = await formatProduct("cart-item", product.id, stripe);
+					items.push({ ...formatted, quantity: item.quantity ?? 1 });
 				}
 			}
 
@@ -322,7 +325,8 @@ export const getServerSideProps: GetServerSideProps = withSession(
 					salesTax = parseFloat(item.unit_amount.value) * 100;
 				} else {
 					const product = await stripe.products.retrieve(item.sku.split(":")[0]);
-					items.push((await formatProduct("cart-item", product.id, stripe)) as CartItem);
+					const formatted = await formatProduct("cart-item", product.id, stripe);
+					items.push({ ...formatted, quantity: parseInt(item.quantity) });
 				}
 			}
 
