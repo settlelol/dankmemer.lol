@@ -75,7 +75,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				return res.status(200).json({ state: "Webhook sent" });
 			} catch (e: any) {
 				console.warn(
-					`Failed to send Discord webhook in response to Stripe webhook event. Failed on event, ${
+					`Failed to send Discord webhook in response to PayPal webhook event. Failed on event, ${
 						event.type
 					}.\nMessage: ${e.message.replace(/"/g, "")}`
 				);
