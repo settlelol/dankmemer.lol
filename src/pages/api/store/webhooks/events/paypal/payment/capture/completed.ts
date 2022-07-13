@@ -15,10 +15,21 @@ import { PaymentIntentItemDiscount, PaymentIntentItemResult } from "../../../../
 export default async function (event: PayPalEvent, paypal: PayPal): Promise<EventResponse> {
 	const httpClient = await createPayPal();
 	const stripe = stripeConnect();
+	const db = await dbConnect();
 
 	const orderUrl: LinkDescription = event.data.links.find((link: LinkDescription) => link.rel === "up")!;
 
 	const { data }: { data: PayPalWebhookResource } = await httpClient(orderUrl.href);
+	const existingPurchase = (await db.collection("purchases").findOne({ _id: data.id! })) as PurchaseRecord | null;
+
+	if (existingPurchase?.confirmed) {
+		return {
+			result: null,
+			error: "Purchase confirmation already completed. This is a duplicate event.",
+			status: 200,
+		};
+	}
+
 	const cartItems: PayPalCartItem[] = data.purchase_units![0].items.filter(
 		(item: PayPalCartItem) => item.sku.split(":")[0] !== "SALESTAX"
 	);
@@ -54,7 +65,6 @@ export default async function (event: PayPalEvent, paypal: PayPal): Promise<Even
 	const purchasedFor = data.purchase_units![0].custom_id.split(":")[1];
 	const isGift = JSON.parse(data.purchase_units![0].custom_id.split(":")[2]);
 
-	const db = await dbConnect();
 	let fields: APIEmbedField[] = [
 		{
 			name: "Purchased by",
@@ -84,7 +94,7 @@ export default async function (event: PayPalEvent, paypal: PayPal): Promise<Even
 
 	const record = (await db.collection("purchases").findOne({ _id: data.id })) as PurchaseRecord;
 
-	if (record) {
+	if (record && record.discounts.length >= 1) {
 		let discounts: PaymentIntentItemDiscount[] = record.discounts;
 		const items: PaymentIntentItemResult[] = record.items;
 
@@ -107,7 +117,12 @@ export default async function (event: PayPalEvent, paypal: PayPal): Promise<Even
 	}
 
 	const redis = await redisConnect();
-	await redis.del(`customer:purchase-history:${purchasedBy}`);
+	Promise.all([
+		redis.del(`customer:purchase-history:${purchasedBy}`),
+		db.collection("purchases").updateOne({ _id: data.id }, { $set: { confirmed: true } }),
+	]);
+
+	console.log(fields);
 
 	return {
 		result: {

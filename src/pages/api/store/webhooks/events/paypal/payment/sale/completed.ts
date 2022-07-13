@@ -1,4 +1,6 @@
 import { APIEmbedField } from "discord-api-types/v10";
+import { PurchaseRecord } from "src/pages/api/store/checkout/finalize/paypal";
+import { dbConnect } from "src/util/mongodb";
 import PayPal from "src/util/paypal";
 import { PayPalEvent } from "src/util/paypal/classes/Webhooks";
 import { redisConnect } from "src/util/redis";
@@ -22,6 +24,18 @@ export default async function (event: PayPalEvent, paypal: PayPal): Promise<Even
 		};
 	}
 
+	const db = await dbConnect();
+	const existingPurchase = (await db
+		.collection("purchases")
+		.findOne({ subscriptionId: event.data.billing_agreement_id })) as PurchaseRecord | null;
+
+	if (existingPurchase?.confirmed) {
+		return {
+			result: null,
+			error: "Subscription confirmation already completed. This is a duplicate event.",
+			status: 200,
+		};
+	}
 	const subscription = await paypal.subscriptions.get(event.data.billing_agreement_id!);
 	const plan = event.data.custom!.split(":")[0];
 	const purchasedBy = event.data.custom!.split(":")[1];
@@ -80,7 +94,12 @@ export default async function (event: PayPalEvent, paypal: PayPal): Promise<Even
 	]);
 
 	const redis = await redisConnect();
-	await redis.del(`customer:purchase-history:${purchasedBy}`);
+	Promise.all([
+		redis.del(`customer:purchase-history:${purchasedBy}`),
+		db
+			.collection("purchases")
+			.updateOne({ subscriptionId: event.data.billing_agreement_id! }, { $set: { confirmed: true } }),
+	]);
 
 	return {
 		result: {

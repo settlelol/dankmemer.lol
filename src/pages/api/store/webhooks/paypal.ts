@@ -92,8 +92,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	} catch (e: any) {
 		if (process.env.NODE_ENV !== "production") {
 			console.error(`[DEV] ${e.message.replace(/"/g, "")}`);
+			return res.status(200).json({ message: e.message.replace(/"/g, "") });
 		}
-		return res.status(500).json({ message: e });
+		return res.status(500).json({ message: e.message.replace(/"/g, "") });
 	}
 };
 

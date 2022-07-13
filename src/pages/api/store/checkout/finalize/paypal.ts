@@ -19,6 +19,7 @@ export interface PurchaseRecord {
 	gateway: "stripe" | "paypal";
 	purchaseTime: number;
 	subscriptionId?: string;
+	confirmed?: boolean;
 }
 
 interface RequestBody {
@@ -178,6 +179,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 				items: items.filter((item) => item !== undefined),
 				discounts,
 				purchaseTime: new Date().getTime(),
+				confirmed: false,
 				...(subscription && { subscriptionId: subscription }),
 			}),
 			redis.del(`customer:purchase-history:${user.id}`),
