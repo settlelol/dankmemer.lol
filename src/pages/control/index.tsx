@@ -22,9 +22,7 @@ function Panel({ link, label }: PanelProps) {
 					"border border-light-500 hover:border-dank-300 dark:border-dark-100 dark:hover:border-dank-300"
 				)}
 			>
-				<div className="font-montserrat text-xl font-bold text-dank-500 dark:text-white">
-					{label}
-				</div>
+				<div className="font-montserrat text-xl font-bold text-dank-500 dark:text-white">{label}</div>
 			</a>
 		</Link>
 	);
@@ -45,13 +43,10 @@ export default function ControlPage({ user }: PageProps) {
 							Administration
 						</div>
 						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-							<Panel link="/control/users" label="User Control" />
+							<Panel link="/control/users/access" label="User Control" />
 							<Panel link="/control/website" label="Website" />
 							<Panel link="/control/jobs" label="Jobs" />
-							<Panel
-								link="/control/store/overview"
-								label="Store"
-							/>
+							<Panel link="/control/store/overview" label="Store" />
 						</div>
 					</div>
 				)}
@@ -61,10 +56,7 @@ export default function ControlPage({ user }: PageProps) {
 					</div>
 					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
 						<Panel link="/control/inspect" label="Inspect a User" />
-						<Panel
-							link="/control/analytics"
-							label="Support Analytics"
-						/>
+						<Panel link="/control/analytics" label="Support Analytics" />
 					</div>
 				</div>
 			</div>
@@ -72,5 +64,4 @@ export default function ControlPage({ user }: PageProps) {
 	);
 }
 
-export const getServerSideProps: GetServerSideProps =
-	withSession(moderatorRoute);
+export const getServerSideProps: GetServerSideProps = withSession(moderatorRoute);
