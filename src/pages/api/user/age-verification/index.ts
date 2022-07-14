@@ -1,10 +1,9 @@
 import axios from "axios";
 import { NextApiResponse } from "next";
 import { STORE_CUSTOM_MIN_AGE } from "src/constants";
-import { UserData } from "../../../types";
-import { dbConnect } from "../../../util/mongodb";
-import { redisConnect } from "../../../util/redis";
-import { NextIronRequest, withSession } from "../../../util/session";
+import { UserData } from "src/types";
+import { dbConnect } from "src/util/mongodb";
+import { NextIronRequest, withSession } from "src/util/session";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const user = req.session.get("user");
@@ -51,7 +50,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		} catch {
 			return res
 				.status(500)
-				.json({ message: "Something went wrong while trying to update your age verification record anyway" });
+				.json({ message: "Something went wrong while trying to update your age verification record" });
 		}
 	}
 
@@ -71,12 +70,10 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		);
 		return res.status(200).json({ message: "Age verification completed." });
 	} catch {
-		return res
-			.status(202)
-			.json({
-				message:
-					"Age verification completed, however, an unsuccessful attempt was made at adding this to the database. This process will be reattempted next request for age verification",
-			});
+		return res.status(202).json({
+			message:
+				"Age verification completed, however, an unsuccessful attempt was made at adding this to the database. This process will be reattempted next request for age verification",
+		});
 	}
 };
 

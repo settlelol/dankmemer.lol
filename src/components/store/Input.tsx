@@ -87,7 +87,7 @@ export default function Input({
 					inputWidths[width as keyof typeof inputWidths] ?? width,
 					className ? className : "",
 					icon
-						? iconEnd === "left"
+						? iconEnd !== "right"
 							? iconGap
 								? `pl-${iconGap}`
 								: "pl-11"
@@ -95,7 +95,10 @@ export default function Input({
 							? `pr-${iconGap}`
 							: "pr-11"
 						: "",
-					"rounded-md border-[1px] border-neutral-300 px-3 py-2 font-inter text-sm focus-visible:border-dank-300 focus-visible:outline-none dark:border-neutral-700 dark:bg-black/30"
+					"rounded-md px-3 py-2",
+					"bg-white dark:bg-dark-400",
+					"border border-neutral-300 dark:border-neutral-700",
+					"font-inter text-sm focus-visible:border-dank-300 focus-visible:outline-none"
 				)}
 			/>
 		</div>

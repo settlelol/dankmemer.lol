@@ -35,6 +35,7 @@ export default function ControlLinks({ user }: Props) {
 					/>
 				</LinkGroup>
 				<LinkGroup title="Users">
+					<Navlink icon="la:user-cog" size={24} text="User access control" href="/control/users/access" />
 					<Navlink icon="tabler:hammer" text="Bans and Blacklists" href="/control/users/bans-bl" />
 					<Navlink icon="tabler:message-report" text="Reports" href="/control/users/reports" />
 				</LinkGroup>
