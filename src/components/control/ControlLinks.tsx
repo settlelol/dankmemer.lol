@@ -16,9 +16,11 @@ export default function ControlLinks({ user }: Props) {
 	const { theme, setTheme } = useTheme();
 
 	useEffect(() => {
-		document
-			.querySelectorAll("div.simplebar-track:nth-child(3)")[0]
-			.setAttribute("style", "--v-scroll-offset: -15px;");
+		const hScroll = document.querySelectorAll("div.simplebar-track:nth-child(2)")[0];
+		const vScroll = document.querySelectorAll("div.simplebar-track:nth-child(3)")[0];
+		hScroll.setAttribute("style", "display: none;");
+		vScroll.setAttribute("data-simplebar-v-scroll-offset", "");
+		vScroll.setAttribute("style", "--v-scroll-offset: -15px;");
 	}, []);
 
 	return (

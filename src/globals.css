@@ -47,6 +47,7 @@ html {
 	overflow: hidden !important;
 }
 
-[data-simplebar-v-offset] {
+[data-simplebar-v-scroll-offset] {
 	right: var(--v-scroll-offset) !important;
+	z-index: 100;
 }
