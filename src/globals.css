@@ -38,12 +38,15 @@ a {
 		opacity: 0.8;
 	}
 	100% {
-		transform: translate(var(--delta-x), var(--delta-y))
-			rotate(var(--direction));
+		transform: translate(var(--delta-x), var(--delta-y)) rotate(var(--direction));
 		opacity: 0;
 	}
 }
 
 html {
 	overflow: hidden !important;
+}
+
+[data-simplebar-v-offset] {
+	right: var(--v-scroll-offset) !important;
 }

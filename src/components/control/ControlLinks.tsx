@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { User } from "src/types";
 import SimpleBar from "simplebar-react";
 import "simplebar/dist/simplebar.min.css";
+import { useEffect } from "react";
 
 interface Props {
 	user: User;
@@ -13,6 +14,12 @@ interface Props {
 
 export default function ControlLinks({ user }: Props) {
 	const { theme, setTheme } = useTheme();
+
+	useEffect(() => {
+		document
+			.querySelectorAll("div.simplebar-track:nth-child(3)")[0]
+			.setAttribute("style", "--v-scroll-offset: -15px;");
+	}, []);
 
 	return (
 		<>
