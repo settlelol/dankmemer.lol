@@ -45,6 +45,8 @@ a {
 
 html {
 	overflow: hidden !important;
+	height: 100%;
+	scroll-behavior: smooth;
 }
 
 [data-simplebar-v-scroll-offset] {
