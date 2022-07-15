@@ -14,7 +14,7 @@ export default function OtherProduct({
 		<div className="mt-3 flex items-center justify-between">
 			<div className="flex">
 				<div
-					className="h-12 w-12 rounded-md bg-black/10 bg-[length:33px_33px] bg-center bg-no-repeat dark:bg-black/30"
+					className="h-12 min-h-[48px] w-12 min-w-[48px] rounded-md bg-black/10 bg-[length:33px_33px] bg-center bg-no-repeat dark:bg-black/30"
 					style={{
 						backgroundImage: `url('${image}')`,
 					}}
