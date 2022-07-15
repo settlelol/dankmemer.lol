@@ -46,52 +46,50 @@ export default function StoreBanners({ user }: PageProps) {
 				</Button>
 			</div>
 			<section className="mt-2">
-				<SimpleBar className="max-h-96 short:max-h-[650px] tall:max-h-[770px]">
-					{!loading ? (
-						banners.length >= 1 ? (
-							<>
-								<svg
-									className="imageBlur"
-									style={{
-										height: "1px",
-										width: "1px",
-										margin: "-1px",
-										position: "absolute",
-										zIndex: -1,
-									}}
-								>
-									<filter id="sharpBlur">
-										<feGaussianBlur stdDeviation="0.78"></feGaussianBlur>
-										<feColorMatrix
-											type="matrix"
-											values="1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 9 0"
-										></feColorMatrix>
-										<feComposite in2="SourceGraphic" operator="in"></feComposite>
-									</filter>
-								</svg>
-								<div
-									className={clsx(
-										"mt-4 grid gap-x-5 gap-y-7",
-										document.documentElement.clientWidth >= 1920 && banners.length <= 5
-											? "justify-start"
-											: "justify-between"
-									)}
-									style={{
-										gridTemplateColumns: "repeat(auto-fit, minmax(288px, auto))",
-									}}
-								>
-									{banners.map((banner) => (
-										<CreatedBannerCard banner={banner} />
-									))}
-								</div>
-							</>
-						) : (
-							<p>No banners :/</p>
-						)
+				{!loading ? (
+					banners.length >= 1 ? (
+						<>
+							<svg
+								className="imageBlur"
+								style={{
+									height: "1px",
+									width: "1px",
+									margin: "-1px",
+									position: "absolute",
+									zIndex: -1,
+								}}
+							>
+								<filter id="sharpBlur">
+									<feGaussianBlur stdDeviation="0.78"></feGaussianBlur>
+									<feColorMatrix
+										type="matrix"
+										values="1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 9 0"
+									></feColorMatrix>
+									<feComposite in2="SourceGraphic" operator="in"></feComposite>
+								</filter>
+							</svg>
+							<div
+								className={clsx(
+									"mt-4 grid gap-x-5 gap-y-7",
+									document.documentElement.clientWidth >= 1920 && banners.length <= 5
+										? "justify-start"
+										: "justify-between"
+								)}
+								style={{
+									gridTemplateColumns: "repeat(auto-fit, minmax(288px, auto))",
+								}}
+							>
+								{banners.map((banner) => (
+									<CreatedBannerCard banner={banner} />
+								))}
+							</div>
+						</>
 					) : (
-						<LoadingPepe />
-					)}
-				</SimpleBar>
+						<p>No banners :/</p>
+					)
+				) : (
+					<LoadingPepe />
+				)}
 			</section>
 		</ControlPanelContainer>
 	);

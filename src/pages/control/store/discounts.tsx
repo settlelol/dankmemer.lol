@@ -204,7 +204,7 @@ export default function ManageDiscounts({ user }: PageProps) {
 	return (
 		<ControlPanelContainer title={"Manage Discounts"} links={<ControlLinks user={user!} />}>
 			<main>
-				<div className="flex min-h-screen flex-col">
+				<div className="flex flex-col">
 					<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">
 						Discounts
 					</div>

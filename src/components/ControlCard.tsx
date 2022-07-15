@@ -75,6 +75,7 @@ export function ControlCard({ icon, title, type, input, allowEmptyInput = false,
 							placeholder={input.placeholder}
 							icon={input.icon}
 							iconSize={16}
+							iconGap={"4"}
 							value={inputData}
 							className="pl-9"
 							onChange={(e: any) => {

@@ -22,12 +22,13 @@ export default function StoreOverview({ user }: PageProps) {
 				<section className="mt-8">
 					<div>
 						<Input
-							width="w-64"
+							width="max-w-full w-64"
 							type="text"
 							placeholder="270904126974590976"
 							label="Populate all fields for this user"
 							icon="bxs:id-card"
 							iconSize={16}
+							iconGap={"4"}
 							value={populateWith}
 							onChange={(e) => {
 								!e.target.value.match(/(^[0-9]+$|^$)/) || e.target.value.length >= 21
@@ -38,7 +39,7 @@ export default function StoreOverview({ user }: PageProps) {
 						/>
 					</div>
 				</section>
-				<section className="mt-8 flex items-center space-x-4">
+				<section className="mt-8 flex flex-wrap items-center gap-6">
 					<UserAccessControls populateWith={populateWith} />
 				</section>
 			</main>
