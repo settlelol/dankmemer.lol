@@ -10,6 +10,7 @@ interface Props {
 	children: ReactNode;
 	links: ReactNode;
 	title: string;
+	disableScroll?: boolean;
 	customSpacing?: boolean;
 	hideRightPane?: () => void;
 	rightPaneVisible?: boolean;
@@ -20,6 +21,7 @@ export default function ControlPanelContainer({
 	children,
 	links,
 	title,
+	disableScroll = false,
 	customSpacing = false,
 	hideRightPane,
 	rightPaneVisible,
@@ -85,6 +87,7 @@ export default function ControlPanelContainer({
 					className={clsx(
 						rightPaneVisible && "pointer-events-none",
 						!customSpacing ? "ml-32 mr-16 xl:ml-[22rem] xl:mr-16" : "ml-20 xl:ml-72",
+						disableScroll && "max-h-screen",
 						"flex min-h-screen justify-start"
 					)}
 				>

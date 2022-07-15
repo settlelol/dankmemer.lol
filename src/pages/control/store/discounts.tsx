@@ -209,18 +209,18 @@ export default function ManageDiscounts({ user }: PageProps) {
 						Discounts
 					</div>
 					<div className="flex w-full items-center justify-between space-x-10">
-						<div className="order-1 grow">
+						<div className="order-1 mt-5 grow">
 							<Input
 								icon="bx:search"
 								width="w-full"
-								className="mt-8 !bg-light-500 dark:!bg-dark-100"
+								className="!bg-light-500 dark:!bg-dark-100"
 								placeholder="Search for a discount"
 								type={"search"}
 								value={(instance.getColumn("name").getFilterValue() ?? "") as string}
 								onChange={(e) => instance.getColumn("name").setFilterValue(e.target.value)}
 							/>
 						</div>
-						<div className="order-2 mt-8 flex items-center justify-center space-x-4">
+						<div className="order-2 mt-5 flex items-center justify-center space-x-4">
 							<ColumnSelector instance={instance} />
 							<Button variant="primary" className="w-max" onClick={createDiscount}>
 								Create a Discount

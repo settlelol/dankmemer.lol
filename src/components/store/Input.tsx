@@ -17,7 +17,7 @@ interface InputProps {
 	value?: string;
 	label?: string | ReactNode;
 	icon?: string;
-	iconSize?: number;
+	iconSize?: 16 | 24;
 	iconEnd?: "left" | "right";
 	iconGap?: string;
 	required?: boolean;
@@ -55,52 +55,60 @@ export default function Input({
 	...attributes
 }: Props) {
 	return (
-		<div className="group relative flex flex-col justify-start text-black dark:text-white">
+		<div className="flex flex-col justify-start text-black dark:text-white">
 			{label && (
 				<label className="mb-1 text-neutral-600 dark:text-neutral-300">
 					{label}
 					{required && <sup className="text-red-500">*</sup>}
 				</label>
 			)}
-			{icon && (
-				<span className={clsx("absolute top-10", iconEnd === "right" ? "right-3" : "left-3")}>
-					<Iconify
-						icon={icon}
-						width={iconSize}
+			<div className="group relative">
+				{icon && (
+					<span
 						className={clsx(
-							value?.length! >= 1 ? "dark:text-white" : "text-neutral-400",
-							"transition-colors duration-75"
+							"absolute",
+							iconSize === 24 ? "top-2" : "top-3",
+							iconEnd === "right" ? "right-3" : "left-3"
 						)}
-					/>
-				</span>
-			)}
-			<input
-				type={type}
-				disabled={disabled}
-				placeholder={placeholder}
-				defaultValue={defaultValue}
-				value={value}
-				onChange={onChange}
-				onBlur={onBlur}
-				{...attributes}
-				className={clsx(
-					inputWidths[width as keyof typeof inputWidths] ?? width,
-					className ? className : "",
-					icon
-						? iconEnd !== "right"
-							? iconGap
-								? `pl-${iconGap}`
-								: "pl-11"
-							: iconGap
-							? `pr-${iconGap}`
-							: "pr-11"
-						: "",
-					"rounded-md px-3 py-2",
-					"bg-white dark:bg-dark-400",
-					"border border-neutral-300 dark:border-neutral-700",
-					"font-inter text-sm focus-visible:border-dank-300 focus-visible:outline-none"
+					>
+						<Iconify
+							icon={icon}
+							width={iconSize}
+							className={clsx(
+								value?.length! >= 1 ? "dark:text-white" : "text-neutral-400",
+								"transition-colors duration-75"
+							)}
+						/>
+					</span>
 				)}
-			/>
+				<input
+					type={type}
+					disabled={disabled}
+					placeholder={placeholder}
+					defaultValue={defaultValue}
+					value={value}
+					onChange={onChange}
+					onBlur={onBlur}
+					{...attributes}
+					className={clsx(
+						inputWidths[width as keyof typeof inputWidths] ?? width,
+						className ? className : "",
+						icon
+							? iconEnd !== "right"
+								? iconGap
+									? `pl-${iconGap}`
+									: "pl-11"
+								: iconGap
+								? `pr-${iconGap}`
+								: "pr-11"
+							: "",
+						"rounded-md px-3 py-2",
+						"bg-white dark:bg-dark-400",
+						"border border-neutral-300 dark:border-neutral-700",
+						"font-inter text-sm focus-visible:border-dank-300 focus-visible:outline-none"
+					)}
+				/>
+			</div>
 		</div>
 	);
 }

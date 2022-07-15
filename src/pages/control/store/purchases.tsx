@@ -174,6 +174,7 @@ export default function PurchaseHistory({ user }: PageProps) {
 				setLoading(false);
 			});
 
+		recalculateRowCount();
 		window.addEventListener("resize", recalculateRowCount);
 		return () => {
 			window.removeEventListener("resize", recalculateRowCount);
@@ -193,26 +194,26 @@ export default function PurchaseHistory({ user }: PageProps) {
 			hideRightPane={() => setViewing(false)}
 			rightPaneVisible={viewing}
 			rightPaneContent={rightPane}
+			disableScroll
 		>
 			<main>
 				<Title size="big">Recent purchases</Title>
 				<p className="text-neutral-600 dark:text-neutral-400">
-					View the most recent purchases made through the web store.{" "}
-					<b>Limited to 100 results to cut down on load times</b>
+					View the most recent purchases made through the web store. <b>Limited to 100 results.</b>
 				</p>
 				<div className="flex w-full items-center justify-between space-x-10">
-					<div className="order-1 grow">
+					<div className="order-1 mt-5 grow">
 						<Input
 							icon="bx:search"
 							width="w-full"
-							className="mt-8 !bg-light-500 dark:!bg-dark-100"
+							className="!bg-light-500 dark:!bg-dark-100"
 							placeholder="Search for an order's ID"
 							type={"search"}
 							value={(instance.getColumn("_id").getFilterValue() ?? "") as string}
 							onChange={(e) => instance.getColumn("_id").setFilterValue(e.target.value)}
 						/>
 					</div>
-					<div className="order-2 mt-8 flex items-center justify-center space-x-4">
+					<div className="order-2 mt-5 flex items-center justify-center space-x-4">
 						<Button
 							variant="primary"
 							className="w-max"

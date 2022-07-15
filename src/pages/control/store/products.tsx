@@ -1,12 +1,11 @@
 import axios from "axios";
 import { GetServerSideProps } from "next";
-import { ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import ControlPanelContainer from "src/components/control/Container";
 import { PageProps } from "src/types";
 import { developerRoute } from "src/util/redirects";
 import { withSession } from "src/util/session";
 import { toast } from "react-toastify";
-import { AnyProduct } from "src/pages/store";
 import Checkbox from "src/components/ui/Checkbox";
 import Input from "src/components/store/Input";
 import ProductEditor from "src/components/control/store/ProductEditor";
@@ -230,6 +229,7 @@ export default function ManageProducts({ user }: PageProps) {
 				toast.error("Unable to get store products.");
 			});
 
+		recalculateRowCount();
 		window.addEventListener("resize", recalculateRowCount);
 		return () => {
 			window.removeEventListener("resize", recalculateRowCount);
@@ -266,21 +266,21 @@ export default function ManageProducts({ user }: PageProps) {
 			links={<ControlLinks user={user!} />}
 		>
 			<main>
-				<div className="flex min-h-screen flex-col">
+				<div className="flex flex-col">
 					<div className="font-montserrat text-3xl font-bold text-dank-300 dark:text-light-100">Products</div>
 					<div className="flex w-full items-center justify-between space-x-10">
-						<div className="order-1 grow">
+						<div className="order-1 mt-5 grow">
 							<Input
 								icon="bx:search"
 								width="w-full"
-								className="mt-8 !bg-light-500 dark:!bg-dark-100"
+								className="!bg-light-500 dark:!bg-dark-100"
 								placeholder="Search for a product name"
 								type={"search"}
 								value={(instance.getColumn("name").getFilterValue() ?? "") as string}
 								onChange={(e) => instance.getColumn("name").setFilterValue(e.target.value)}
 							/>
 						</div>
-						<div className="order-2 mt-8 flex items-center justify-center space-x-4">
+						<div className="order-2 mt-5 flex items-center justify-center space-x-4">
 							<ColumnSelector instance={instance} />
 							<Button variant="primary" className="w-max" onClick={createProduct}>
 								Add product
