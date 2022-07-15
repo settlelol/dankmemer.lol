@@ -63,8 +63,11 @@ export default function PaymentMethod({
 					<Image src={"/img/store/cards/amex.svg"} width={30} height={30} />
 				)}
 				<p className="ml-3 text-sm text-black dark:text-white">
-					{toTitleCase(paymentMethod.card.brand)} {paymentMethod.card.type} card{" "}
-					<span className="text-neutral-600">•</span> Ending with <code>{paymentMethod.card.last4}</code>
+					{toTitleCase(paymentMethod.card.brand)}{" "}
+					<span className="hidden sm:inline">
+						{paymentMethod.card.type} card <span className="text-neutral-600">•</span> E
+					</span>
+					<span className="inline sm:hidden">e</span>nding with <code>{paymentMethod.card.last4}</code>
 				</p>
 				{isDefault && (
 					<p className="ml-2 grid h-4 w-max place-items-center rounded bg-dank-300 px-1 text-xs">DEFAULT</p>

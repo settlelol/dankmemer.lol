@@ -312,7 +312,7 @@ export default function Cart({ cartData, upsells, user }: Props) {
 			</div>
 			<StoreBreadcrumb currentPage="cart" />
 
-			<div className="flex justify-between">
+			<div className="flex justify-between space-x-5 xl:space-x-0">
 				<div className="flex w-[73%] flex-col">
 					<div className="h-max w-full rounded-lg bg-light-500 px-4 py-3 dark:bg-dark-200">
 						<Title size="small">Your items</Title>
