@@ -31,7 +31,7 @@ function SubscriptionSavings() {
 	return (
 		<div
 			className={clsx(
-				"relative h-56 w-full rounded-lg bg-[#2c7acc] bg-bottom bg-no-repeat px-8 py-7 shadow-[0px_0px_12px] shadow-[#2c7acc]"
+				"relative h-56 w-full max-w-[320px] rounded-lg bg-[#2c7acc] bg-bottom bg-no-repeat px-8 py-7 shadow-[0px_0px_12px] shadow-[#2c7acc]"
 			)}
 			style={{
 				backgroundImage: `url("/img/store/patterns/grid.png")`,
@@ -60,7 +60,7 @@ function Gifting() {
 	return (
 		<div
 			className={clsx(
-				"relative h-56 w-full rounded-lg bg-[#F0AE11] bg-bottom bg-no-repeat px-8 py-7 shadow-[0px_0px_12px] shadow-[#F0AE11]"
+				"relative h-56 w-full max-w-[320px] rounded-lg bg-[#F0AE11] bg-bottom bg-no-repeat px-8 py-7 shadow-[0px_0px_12px] shadow-[#F0AE11]"
 			)}
 			style={{
 				backgroundImage: `url("/img/store/patterns/bumps.png")`,
@@ -89,7 +89,7 @@ function Perks() {
 	return (
 		<div
 			className={clsx(
-				"relative h-56 w-full rounded-lg bg-[#00FFA3] bg-bottom bg-no-repeat px-8 py-7 shadow-[0px_0px_12px] shadow-[#00FFA3]"
+				"relative h-56 w-full max-w-[320px] rounded-lg bg-[#00FFA3] bg-bottom bg-no-repeat px-8 py-7 shadow-[0px_0px_12px] shadow-[#00FFA3]"
 			)}
 			style={{
 				backgroundImage: `url("/img/store/patterns/diamonds.png")`,

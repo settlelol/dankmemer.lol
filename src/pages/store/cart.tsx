@@ -312,8 +312,8 @@ export default function Cart({ cartData, upsells, user }: Props) {
 			</div>
 			<StoreBreadcrumb currentPage="cart" />
 
-			<div className="flex justify-between space-x-5 xl:space-x-0">
-				<div className="flex w-[73%] flex-col">
+			<div className="flex flex-col justify-between lg:flex-row lg:space-x-5 xl:space-x-0">
+				<div className="flex w-full flex-col lg:w-[73%]">
 					<div className="h-max w-full rounded-lg bg-light-500 px-4 py-3 dark:bg-dark-200">
 						<Title size="small">Your items</Title>
 						<div className="mt-2">
@@ -339,13 +339,13 @@ export default function Cart({ cartData, upsells, user }: Props) {
 						</div>
 					</div>
 				</div>
-				<div className="flex w-80 flex-col">
+				<div className="my-10 flex w-full flex-col items-center space-y-10 md:flex-row-reverse md:items-start md:space-y-0 lg:my-0 lg:w-80 lg:flex-col lg:space-y-5">
 					{cart[0] && cart[0].type === "subscription" ? (
 						<MarketingBox variant="subscriptionSavings" />
 					) : (
 						<MarketingBox variant={marketingBoxView.current} />
 					)}
-					<div className="my-5 h-max w-full rounded-lg bg-light-500 px-8 py-7 dark:bg-dark-200">
+					<div className="h-max w-full rounded-lg bg-light-500 px-8 py-7 dark:bg-dark-200 md:mr-10 lg:my-5 lg:mr-10">
 						<Title size="small">Details</Title>
 						<p className="mt-2 font-inter text-sm leading-tight text-neutral-700/80 dark:text-light-600">
 							Checkout is completed in USD, bank or card fees may apply to international payments. The
@@ -416,7 +416,7 @@ export default function Cart({ cartData, upsells, user }: Props) {
 												<Button
 													size="medium"
 													className={clsx(
-														"w-full rounded-md",
+														"w-full max-w-max rounded-md",
 														discountInput?.length < 1 || processingChange
 															? "!bg-[#7F847F] text-[#333533]"
 															: "",
