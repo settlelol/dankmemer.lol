@@ -20,12 +20,14 @@ export default function OtherProduct({
 					}}
 				></div>
 				<div className="ml-5 flex flex-col justify-center">
-					<h4 className="font-bold leading-none text-gray-800 dark:text-white">{name}</h4>
+					<h4 className="text-sm font-bold leading-none text-gray-800 dark:text-white sm:text-base">
+						{name}
+					</h4>
 					<p className="text-sm leading-none text-light-600">{type && toTitleCase(type)}</p>
 				</div>
 			</div>
 			<div className="flex items-center justify-center">
-				<p className="mr-7 w-[70px] text-right font-montserrat font-bold text-gray-800 dark:text-white">
+				<p className="mr-7 w-[70px] text-right font-montserrat text-sm font-semibold text-gray-800 dark:text-white sm:text-base">
 					${(prices[0].value / 100).toFixed(2)}
 				</p>
 				<div
