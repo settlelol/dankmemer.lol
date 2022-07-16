@@ -15,6 +15,7 @@ import { TIME } from "src/constants";
 interface ProductData {
 	name: string;
 	type: "single" | "subscription";
+	category?: string;
 	prices: ProductPrice[];
 	description?: string; // Invoice descriptions
 	primaryTitle: string;
@@ -72,6 +73,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			metadata: {
 				hidden: "true",
 				type: productData.type,
+				...(productData.category && { category: productData.category }),
 			},
 		});
 

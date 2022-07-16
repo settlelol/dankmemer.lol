@@ -89,6 +89,7 @@ export default function ProductCreator({ forceHide }: Props) {
 			productDescription.length <= 250 &&
 			primaryTitle.length >= 1 &&
 			primaryBody.length >= 1 &&
+			(productType === "single" ? productCategory && productCategory.length >= 1 : true) &&
 			(secondaryEnabled ? secondaryTitle.length >= 1 && secondaryBody.length >= 1 : true)
 		) {
 			let allValid: boolean = true;
@@ -108,6 +109,7 @@ export default function ProductCreator({ forceHide }: Props) {
 		productName,
 		productPrices,
 		productType,
+		productCategory,
 		productDescription,
 		primaryTitle,
 		primaryBody,
@@ -157,6 +159,7 @@ export default function ProductCreator({ forceHide }: Props) {
 					data: {
 						name: productName,
 						type: productType,
+						category: productCategory,
 						prices: productPrices,
 						description: productDescription,
 						primaryTitle,
