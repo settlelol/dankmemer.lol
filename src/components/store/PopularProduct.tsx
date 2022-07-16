@@ -1,8 +1,11 @@
 import clsx from "clsx";
+import { useEffect, useState } from "react";
 import { UpsellProduct } from "src/pages/store/cart";
 import { toTitleCase } from "src/util/string";
 import { Title } from "../Title";
 import Button from "../ui/Button";
+import addToCart from "public/img/store/lottie/addToCart.json";
+import Lottie from "react-lottie-player/dist/LottiePlayerLight";
 
 interface Props {
 	product: UpsellProduct;
@@ -11,6 +14,16 @@ interface Props {
 }
 
 export default function PopularProduct({ product, add, openModal }: Props) {
+	const [showAdded, setShowAdded] = useState(false);
+
+	useEffect(() => {
+		if (showAdded) {
+			setTimeout(() => {
+				setShowAdded(false);
+			}, 1200);
+		}
+	}, [showAdded]);
+
 	return (
 		<div
 			className={clsx(
@@ -35,10 +48,26 @@ export default function PopularProduct({ product, add, openModal }: Props) {
 			</div>
 			<div className="absolute bottom-4 left-0 w-full px-5">
 				<div className="flex w-full items-center justify-between space-x-2 text-base">
-					<Button size="medium" className="w-8/12" onClick={() => add()}>
-						{product.type !== "subscription" ? "Purchase for" : "Subscribe from"} $
-						{(product.prices[0].value / 100).toFixed(2)}
+					<Button
+						size="medium"
+						className="z-10 w-8/12"
+						onClick={() => {
+							setShowAdded(true);
+							add();
+						}}
+					>
+						{showAdded ? (
+							"Added to cart!"
+						) : (
+							<>
+								{product.type !== "subscription" ? "Purchase for" : "Subscribe from"} $
+								{(product.prices[0].value / 100).toFixed(2)}
+							</>
+						)}
 					</Button>
+					{showAdded && (
+						<Lottie className="pointer-events-none absolute" animationData={addToCart} loop={false} play />
+					)}
 					<p
 						className="cursor-pointer text-center text-neutral-600 underline dark:text-neutral-400"
 						onClick={openModal}
