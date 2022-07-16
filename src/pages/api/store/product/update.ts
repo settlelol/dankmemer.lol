@@ -20,17 +20,13 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	if (!req.query.productId) {
-		return res
-			.status(400)
-			.json({ error: "No product id was provided in the request." });
+		return res.status(400).json({ error: "No product id was provided in the request." });
 	}
 
 	if (!req.body) {
 		return res.status(400).json({ error: "No product data was provided." });
 	} else if (!req.body.primaryTitle && !req.body.primaryBody) {
-		return res
-			.status(400)
-			.json({ error: "Missing required fields in body." });
+		return res.status(400).json({ error: "Missing required fields in body." });
 	}
 
 	const productId = req.query.productId.toString();
@@ -54,6 +50,9 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		await stripe.products.update(productId, {
 			name: req.body.name,
 			description: req.body.description,
+			metadata: {
+				category: req.body.category,
+			},
 		});
 		return res.status(200).json({
 			message: `Product '${productId}' was updated successfully.`,

@@ -2,7 +2,7 @@ import { NextApiResponse } from "next";
 import { NextIronRequest, withSession } from "../../../../util/session";
 import { dbConnect } from "src/util/mongodb";
 import { stripeConnect } from "src/util/stripe";
-import { Metadata, ProductCategory, ProductType } from "src/pages/store";
+import { Metadata, ProductType } from "src/pages/store";
 import Stripe from "stripe";
 import { redisConnect } from "src/util/redis";
 import { TIME } from "src/constants";
@@ -12,7 +12,7 @@ export interface ProductDetails {
 	name: string;
 	image: string;
 	type: ProductType;
-	category?: ProductCategory;
+	category?: string;
 	prices: DetailedPrice[];
 	body: ProductBodies;
 }

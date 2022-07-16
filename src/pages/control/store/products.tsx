@@ -240,7 +240,7 @@ export default function ManageProducts({ user }: PageProps) {
 		if (!productToEdit) {
 			setEditing(false);
 		} else {
-			setEditorContent(<ProductEditor id={productToEdit} />);
+			setEditorContent(<ProductEditor id={productToEdit} forceHide={() => setEditing(false)} />);
 			setEditing(true);
 		}
 	}, [productToEdit]);

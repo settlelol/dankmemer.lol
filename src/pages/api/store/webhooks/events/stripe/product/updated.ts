@@ -99,6 +99,9 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 		await redis.del("store:products:one-time");
 	}
 
+	// Clear details cache for the product
+	await redis.del(`store:products:${product.id}`);
+
 	if (metadata || product) {
 		fields.push({
 			name: "Metadata",

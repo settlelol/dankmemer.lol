@@ -25,7 +25,7 @@ import { STORE_BLOCKED_COUNTRIES, STORE_CUSTOM_MIN_AGE, STORE_NO_MIN_AGE } from 
 
 interface PossibleMetadata {
 	type: ProductType;
-	category: ProductCategory;
+	category: string;
 	hidden: "true" | "false";
 	isGift: string;
 	paypalPlan: string;
@@ -36,15 +36,6 @@ interface PossibleMetadata {
 }
 
 export type ProductType = "single" | "subscription" | "giftable";
-export type ProductCategory =
-	| "item pack"
-	| "tool"
-	| "collectable"
-	| "power-up"
-	| "drop item"
-	| "sellable"
-	| "lootbox"
-	| "tradeable";
 export type Metadata = Partial<PossibleMetadata>;
 
 export type CartItem = {

@@ -3,21 +3,32 @@ import Input from "src/components/store/Input";
 import { Title } from "src/components/Title";
 import { Icon as Iconify } from "@iconify/react";
 import clsx from "clsx";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Button from "src/components/ui/Button";
 import { ProductDetails } from "src/pages/api/store/product/details";
 import LoadingPepe from "src/components/LoadingPepe";
+import { StoreProductCategory } from "src/pages/api/website/static/store/categories/list";
+import { toast } from "react-toastify";
+import Dialog from "src/components/Dialog";
+import { CategoryCreator } from "./ProductCreator";
+import Dropdown from "src/components/ui/Dropdown";
 
 interface Props {
 	id: string;
+	forceHide: () => void;
 }
 
-export default function ProductEditor({ id }: Props) {
+export default function ProductEditor({ id, forceHide }: Props) {
+	const [dialogOpen, setDialogOpen] = useState(false);
+	const [updating, setUpdating] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [noDbContent, setNoDbContent] = useState(false);
 	const [canSubmit, setCanSubmit] = useState(false);
 
 	const [productName, setProductName] = useState("");
+	const [productCategory, setProductCategory] = useState<string | null>();
+	const [productCategories, setProductCategories] = useState<StoreProductCategory[]>([]);
+
 	const [productDescription, setProductDescription] = useState("");
 
 	const [primaryTitle, setPrimaryTitle] = useState("");
@@ -30,10 +41,25 @@ export default function ProductEditor({ id }: Props) {
 	const [secondaryTitle, setSecondaryTitle] = useState("");
 	const [secondaryBody, setSecondaryBody] = useState("");
 
+	const fetchCategories = async () => {
+		axios("/api/website/static/store/categories/list")
+			.then(({ data }) => {
+				setProductCategories([]);
+				setProductCategories(data);
+			})
+			.catch((e) => {
+				toast.error("Failed to load categories");
+				if (process.env.NODE_ENV !== "production") {
+					console.error(e);
+				}
+			});
+	};
+
 	useEffect(() => {
 		axios(`/api/store/product/details?id=${id}`)
 			.then(({ data }: { data: ProductDetails }) => {
 				setProductName(data.name);
+				setProductCategory(data.category);
 				setPrimaryTitle(data.body.primary.title);
 				setPrimaryBody(data.body.primary.content);
 
@@ -45,6 +71,7 @@ export default function ProductEditor({ id }: Props) {
 					setSecondaryTitle(data.body.secondary.title!);
 					setSecondaryBody(data.body.secondary.content!);
 				}
+				fetchCategories();
 			})
 			.catch((e) => {
 				setNoDbContent(true);
@@ -86,19 +113,35 @@ export default function ProductEditor({ id }: Props) {
 
 	const submitChanges = () => {
 		if (canSubmit) {
+			setUpdating(true);
 			axios({
 				url: "/api/store/product/update?productId=" + id,
 				method: "PUT",
 				data: {
 					name: productName,
+					category: productCategory,
 					description: productDescription,
 					primaryTitle,
 					primaryBody,
 					secondaryTitle,
 					secondaryBody,
 				},
-			});
+			})
+				.then(() => {
+					setUpdating(false);
+					forceHide();
+				})
+				.catch((e: any) => {
+					console.error(e);
+					toast.error("Failed to update product, please try again later.");
+				});
 		}
+	};
+
+	const categoryCreated = async (id: string) => {
+		setDialogOpen(false);
+		await fetchCategories();
+		setProductCategory(productCategories.find((category) => category.id === id)?.name);
 	};
 
 	return (
@@ -109,9 +152,12 @@ export default function ProductEditor({ id }: Props) {
 					shown in the product body on the store page.
 				</div>
 			)}
+			<Dialog open={dialogOpen} onClose={setDialogOpen}>
+				<CategoryCreator onSuccess={categoryCreated} />
+			</Dialog>
 			<Title size="big">Edit product</Title>
 			<p className="text-neutral-600 dark:text-neutral-400">
-				Edit both website data and Stripe data for '{name}'
+				Edit both website data and Stripe data for '{productName}'
 			</p>
 			{loading ? (
 				<LoadingPepe />
@@ -119,19 +165,62 @@ export default function ProductEditor({ id }: Props) {
 				<>
 					<div className="mt-4 space-y-5">
 						<div className="w-full space-y-3">
-							<Input
-								width="w-full"
-								type={"text"}
-								placeholder={"Dank Memer 2"}
-								value={productName}
-								onChange={(e) => setProductName(e.target.value)}
-								label={
-									<>
-										Product name
+							<div className="flex items-center justify-between">
+								<Input
+									width="w-full"
+									type={"text"}
+									placeholder={"Dank Memer 2"}
+									value={productName}
+									onChange={(e) => setProductName(e.target.value)}
+									label={
+										<>
+											Product name
+											<sup className="text-red-500">*</sup>
+										</>
+									}
+								/>
+								<div className="w-2/5">
+									<p className="mb-1 text-neutral-600 dark:text-neutral-300">
+										Product category
 										<sup className="text-red-500">*</sup>
-									</>
-								}
-							/>
+									</p>
+									<Dropdown
+										content={
+											<div
+												className={clsx(
+													"flex items-center justify-between",
+													"rounded-md border-[1px] border-[#3C3C3C]",
+													"bg-light-500 transition-colors dark:bg-black/40 dark:text-neutral-400",
+													"w-full px-3 py-2 text-sm"
+												)}
+											>
+												<p>{productCategory ?? "Select one"}</p>
+												<Iconify icon="ic:baseline-expand-more" height={15} className="ml-1" />
+											</div>
+										}
+										options={[
+											...productCategories.map((category) => ({
+												label: category.name,
+												onClick: () => setProductCategory(category.name),
+											})),
+											{
+												label: (
+													<div className="flex items-center space-x-2 ">
+														<Iconify
+															icon="ant-design:plus-outlined"
+															className="text-dank-300"
+														/>
+														<p className="text-white">Add new category</p>
+													</div>
+												),
+												onClick: () => setDialogOpen(true),
+											},
+										]}
+										isInput={false}
+										requireScroll={false}
+									/>
+								</div>
+							</div>
 							<div className="">
 								<label className="mb-1 text-neutral-600 dark:text-neutral-300">
 									Product description

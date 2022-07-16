@@ -557,7 +557,7 @@ export default function ProductCreator({ forceHide }: Props) {
 	);
 }
 
-function CategoryCreator({ onSuccess }: { onSuccess: (categoryId: string) => void }) {
+export function CategoryCreator({ onSuccess }: { onSuccess: (categoryId: string) => void }) {
 	const [categoryName, setCategoryName] = useState("");
 	const [pending, setPending] = useState(false);
 	const [error, setError] = useState<ReactNode | null>();
