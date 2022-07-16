@@ -69,7 +69,7 @@ export default function Product({ product, add, openModal }: Props) {
 				<div className="flex flex-col">
 					<h6 className="font-bold text-neutral-800 dark:text-white">{product.name}</h6>
 					<p className="-mt-1.5 text-sm text-neutral-500 dark:text-neutral-400">
-						{toTitleCase(product.type)}
+						{toTitleCase(product.category ?? product.type)}
 					</p>
 				</div>
 				<div className="flex flex-col text-right">
