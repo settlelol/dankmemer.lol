@@ -64,12 +64,15 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	for (let productId of top3) {
 		const product = await stripe.products.retrieve(productId);
-		const prices = (
+		let prices = (
 			await stripe.prices.list({
 				product: product.id,
 				active: true,
 			})
 		).data;
+		if (prices.length > 1) {
+			prices = prices.sort((a, b) => a.unit_amount! - b.unit_amount!);
+		}
 
 		popularProducts.push({
 			id: product.id,
