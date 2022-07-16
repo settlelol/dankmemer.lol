@@ -109,7 +109,7 @@ export default function PagedBanner({
 							await axios(`/api/store/cart/add?id=${input}`);
 							await router.push("/store/cart");
 						} catch (e) {
-							if (process.env.NODE_ENV === "development") {
+							if (process.env.NODE_ENV !== "production") {
 								console.error(e);
 							}
 							toast.error("Unable to add product(s) to cart. Please try again later.");

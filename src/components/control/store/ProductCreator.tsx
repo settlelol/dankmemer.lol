@@ -144,7 +144,7 @@ export default function ProductCreator({ forceHide }: Props) {
 				setCreatingProduct(false);
 				if (redirectAfterSubmit) {
 					window.location.href = `https://dashboard.stripe.com/${
-						process.env.NODE_ENV === "development" ? "test" : ""
+						process.env.NODE_ENV !== "production" ? "test" : ""
 					}/products/${data.product}`;
 				} else {
 					forceHide();
@@ -156,28 +156,25 @@ export default function ProductCreator({ forceHide }: Props) {
 	};
 
 	const addNewPrice = () => {
-		const _prices = [...productPrices];
-		_prices.push({
+		const rawPrices = [...productPrices];
+		rawPrices.push({
 			id: generateId(),
 			value: "",
 			interval: "Monthly",
 			intervalCount: "",
 		});
-		setProductPrices(_prices);
+		setProductPrices(rawPrices);
 	};
 
 	const updatePrice = (id: string, values: ProductPrice) => {
-		const _prices = [...productPrices];
-		Object.assign(
-			_prices.find((price) => price.id === id),
-			values
-		);
-		setProductPrices(_prices);
+		const rawPrices = [...productPrices];
+		Object.assign(rawPrices.find((price) => price.id === id)!, values);
+		setProductPrices(rawPrices);
 	};
 
 	const deletePrice = (id: string) => {
-		let _prices = productPrices.filter((price) => price.id !== id);
-		setProductPrices(_prices);
+		let rawPrices = productPrices.filter((price) => price.id !== id);
+		setProductPrices(rawPrices);
 	};
 
 	return (

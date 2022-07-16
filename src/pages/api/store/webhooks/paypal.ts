@@ -65,7 +65,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		await redis.set(`paypal-event-for:${event.type}:${event.data.id}`, event.data.id, "PX", TIME.minute * 15);
 
 		if (result !== null && !error) {
-			if (process.env.NODE_ENV === "development" && result.embeds) {
+			if (process.env.NODE_ENV !== "production" && result.embeds) {
 				result.embeds[0].title = "(DEV) " + result.embeds[0].title;
 			}
 			try {

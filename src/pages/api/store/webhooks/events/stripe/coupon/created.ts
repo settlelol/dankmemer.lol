@@ -55,7 +55,7 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 				.map(
 					(product) =>
 						`• ${product.name} [[Manage](https://dashboard.stripe.com/${
-							process.env.NODE_ENV === "development" ? "test/" : ""
+							process.env.NODE_ENV !== "production" ? "test/" : ""
 						}products/${product.id} "Manage '${product.name}' on Stripe")]`
 				)
 				.join("\n"),

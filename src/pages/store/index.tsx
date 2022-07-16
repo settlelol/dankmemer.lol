@@ -107,7 +107,7 @@ export default function StoreHome({ user, banned, country, verification }: Props
 			const { data: visibleBanners } = await axios("/api/store/banners/list?active=true");
 			setBannerPages(visibleBanners);
 		} catch (e) {
-			if (process.env.NODE_ENV === "development") {
+			if (process.env.NODE_ENV !== "production") {
 				console.error(e);
 			}
 		}
@@ -132,7 +132,7 @@ export default function StoreHome({ user, banned, country, verification }: Props
 					})
 				);
 		} catch (e) {
-			if (process.env.NODE_ENV === "development") {
+			if (process.env.NODE_ENV !== "production") {
 				console.error(e);
 			}
 		}

@@ -196,7 +196,7 @@ export default function ManageDiscounts({ user }: PageProps) {
 			)
 		) {
 			window.location.href = `https://dashboard.stripe.com/${
-				process.env.NODE_ENV === "development" ? "test/" : "/"
+				process.env.NODE_ENV !== "production" ? "test/" : "/"
 			}coupons/create`;
 		}
 	};

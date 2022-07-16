@@ -52,7 +52,7 @@ export default async function (event: PayPalEvent): Promise<EventResponse> {
 		{
 			name: "Associated with",
 			value: `\`${event.data.id}\`\n[[Open on Stripe](https://dashboard.stripe.com/${
-				process.env.NODE_ENV === "development" ? "test/" : ""
+				process.env.NODE_ENV !== "production" ? "test/" : ""
 			}products/${event.data.id})]`,
 			inline: true,
 		},
