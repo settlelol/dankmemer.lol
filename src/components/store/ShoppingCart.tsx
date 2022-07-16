@@ -17,7 +17,8 @@ export default function ShoppingCart({ totalCost, cart, setCart, label }: Props)
 	const router = useRouter();
 	const [showCart, setShowCart] = useState(false);
 	// Thanks badosz
-	let timeout: NodeJS.Timeout;
+	let timeoutEnter: NodeJS.Timeout;
+	let timeoutLeave: NodeJS.Timeout;
 
 	const deleteItem = (index: number) => {
 		const _cart = [...cart];
@@ -34,23 +35,25 @@ export default function ShoppingCart({ totalCost, cart, setCart, label }: Props)
 
 	const changeInterval = (index: number, interval: "month" | "year") => {
 		const _cart: CartItems[] = [...cart];
-		_cart[index].selectedPrice = _cart[index].prices.filter((price) => price.interval === interval)[0];
+		_cart[index].selectedPrice = _cart[index].prices.filter((price) => price.interval?.period === interval)[0].id;
 		setCart(_cart);
 	};
 
 	const buttonEnter = () => {
-		timeout = setTimeout(() => {
+		timeoutEnter = setTimeout(() => {
 			setShowCart(true);
 		}, 300);
 	};
 
 	const buttonLeave = () => {
-		clearTimeout(timeout);
-		setShowCart(false);
+		if (showCart) {
+			clearTimeout(timeoutEnter);
+			setShowCart(false);
+		}
 	};
 
 	return (
-		<div onMouseEnter={buttonEnter} onMouseLeave={buttonLeave}>
+		<div onMouseEnter={buttonEnter} onMouseLeave={buttonLeave} className="sticky z-50 float-right">
 			<Button size="small" className="w-full sm:w-auto" variant="dark" onClick={() => router.push(`/store/cart`)}>
 				<div className="flex items-center space-x-2 py-1">
 					<Iconify icon="akar-icons:cart" className="text-black dark:text-white" height={20} />

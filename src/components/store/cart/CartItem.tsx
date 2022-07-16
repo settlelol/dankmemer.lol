@@ -74,7 +74,12 @@ export default function CartItem({
 					onClick={deleteItem}
 				/>
 			</div>
-			<div className="float-right ml-14 flex w-full items-center justify-between sm:w-auto">
+			<div
+				className={clsx(
+					size !== "small" && "ml-14",
+					"float-right flex w-full items-center justify-between sm:w-auto"
+				)}
+			>
 				<div className={clsx(size === "small" ? "mr-5" : "mx-2 sm:mr-16")}>
 					{type === "subscription" ? (
 						<Dropdown
