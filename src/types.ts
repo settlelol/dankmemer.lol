@@ -198,3 +198,9 @@ export interface Notification {
 	data: Record<string, any>;
 	createdAt: number;
 }
+
+export interface StaticResource<ResourceType> {
+	_id: string;
+	label: string;
+	content: ResourceType;
+}

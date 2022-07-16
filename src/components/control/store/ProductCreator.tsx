@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import Input from "src/components/store/Input";
 import { Title } from "src/components/Title";
 import { Icon as Iconify } from "@iconify/react";
 import clsx from "clsx";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Button from "src/components/ui/Button";
 import Dropdown from "src/components/ui/Dropdown";
 import Checkbox from "src/components/ui/Checkbox";
 import ProductCreatorPrice from "./ProductCreatorPrice";
 import { toast } from "react-toastify";
+import { toTitleCase } from "src/util/string";
+import Dialog from "src/components/Dialog";
+import { StoreProductCategory } from "src/pages/api/website/static/store/categories/list";
 
 export interface ProductPrice {
 	id: string;
@@ -22,6 +25,7 @@ interface Props {
 }
 
 export default function ProductCreator({ forceHide }: Props) {
+	const [dialogOpen, setDialogOpen] = useState(false);
 	const [canSubmit, setCanSubmit] = useState(false);
 
 	const [productName, setProductName] = useState("");
@@ -32,6 +36,8 @@ export default function ProductCreator({ forceHide }: Props) {
 		},
 	]);
 	const [productType, setProductType] = useState<"single" | "subscription">("single");
+	const [productCategory, setProductCategory] = useState<string | null>();
+	const [productCategories, setProductCategories] = useState<StoreProductCategory[]>([]);
 
 	const [productDescription, setProductDescription] = useState("");
 
@@ -55,6 +61,24 @@ export default function ProductCreator({ forceHide }: Props) {
 		}
 		return id;
 	};
+
+	const fetchCategories = async () => {
+		axios("/api/website/static/store/categories/list")
+			.then(({ data }) => {
+				setProductCategories([]);
+				setProductCategories(data);
+			})
+			.catch((e) => {
+				toast.error("Failed to load categories");
+				if (process.env.NODE_ENV !== "production") {
+					console.error(e);
+				}
+			});
+	};
+
+	useEffect(() => {
+		fetchCategories();
+	}, []);
 
 	useEffect(() => {
 		if (
@@ -177,8 +201,17 @@ export default function ProductCreator({ forceHide }: Props) {
 		setProductPrices(rawPrices);
 	};
 
+	const categoryCreated = async (id: string) => {
+		setDialogOpen(false);
+		await fetchCategories();
+		setProductCategory(productCategories.find((category) => category.id === id)?.name);
+	};
+
 	return (
 		<>
+			<Dialog open={dialogOpen} onClose={setDialogOpen}>
+				<CategoryCreator onSuccess={categoryCreated} />
+			</Dialog>
 			<Title size="big">Add product</Title>
 			<p className="text-neutral-600 dark:text-neutral-400">Create a new purchaseable product for the store.</p>
 			<div className="mt-4 space-y-5">
@@ -266,42 +299,85 @@ export default function ProductCreator({ forceHide }: Props) {
 							</div>
 						</>
 					) : (
-						<div className="w-1/4">
-							<Input
-								width="w-full"
-								type={"text"}
-								placeholder={"9.99"}
-								value={productPrices[0].value.toString()}
-								icon={"bi:currency-dollar"}
-								className="!pl-8"
-								iconSize={16}
-								onChange={(e) => {
-									if (!Number.isNaN(e.target.value)) {
-										setProductPrices([
-											{
-												id: generateId(),
-												value: e.target.value,
-											},
-										]);
+						<div className="flex items-center justify-start space-x-5">
+							<div className="w-1/4">
+								<Input
+									width="w-full"
+									type={"text"}
+									placeholder={"9.99"}
+									value={productPrices[0].value.toString()}
+									icon={"bi:currency-dollar"}
+									className="!pl-8"
+									iconSize={16}
+									onChange={(e) => {
+										if (!Number.isNaN(e.target.value)) {
+											setProductPrices([
+												{
+													id: generateId(),
+													value: e.target.value,
+												},
+											]);
+										}
+									}}
+									onBlur={(e) => {
+										if (!Number.isNaN(parseFloat(e.target.value))) {
+											setProductPrices([
+												{
+													id: generateId(),
+													value: parseFloat(e.target.value).toFixed(2),
+												},
+											]);
+										}
+									}}
+									label={
+										<>
+											Price
+											<sup className="text-red-500">*</sup>
+										</>
 									}
-								}}
-								onBlur={(e) => {
-									if (!Number.isNaN(parseFloat(e.target.value))) {
-										setProductPrices([
-											{
-												id: generateId(),
-												value: parseFloat(e.target.value).toFixed(2),
-											},
-										]);
+								/>
+							</div>
+							<div className="w-2/5">
+								<p className="mb-1 text-neutral-600 dark:text-neutral-300">
+									Product category
+									<sup className="text-red-500">*</sup>
+								</p>
+								<Dropdown
+									content={
+										<div
+											className={clsx(
+												"flex items-center justify-between",
+												"rounded-md border-[1px] border-[#3C3C3C]",
+												"bg-light-500 transition-colors dark:bg-black/40 dark:text-neutral-400",
+												"w-full px-3 py-2 text-sm"
+											)}
+										>
+											<p>{productCategory ?? "Select one"}</p>
+											<Iconify icon="ic:baseline-expand-more" height={15} className="ml-1" />
+										</div>
 									}
-								}}
-								label={
-									<>
-										Price
-										<sup className="text-red-500">*</sup>
-									</>
-								}
-							/>
+									options={[
+										...productCategories.map((category) => ({
+											label: category.name,
+											onClick: () => setProductCategory(category.name),
+										})),
+										{
+											label: (
+												<div className="flex items-center space-x-2 ">
+													<Iconify
+														icon="ant-design:plus-outlined"
+														className="text-dank-300"
+													/>
+													<p className="text-white">Add new category</p>
+												</div>
+											),
+											onClick: () => setDialogOpen(true),
+										},
+									]}
+									isInput={false}
+									requireScroll={false}
+								/>
+							</div>
 						</div>
 					)}
 
@@ -474,6 +550,87 @@ export default function ProductCreator({ forceHide }: Props) {
 					<span className="text-dank-300">Useful if you wish to upload an image for the product.</span>
 				</Checkbox>
 			</div>
+		</>
+	);
+}
+
+function CategoryCreator({ onSuccess }: { onSuccess: (categoryId: string) => void }) {
+	const [categoryName, setCategoryName] = useState("");
+	const [pending, setPending] = useState(false);
+	const [error, setError] = useState<ReactNode | null>();
+
+	const createCategory = (e: any) => {
+		e.preventDefault();
+		if (categoryName.length < 1 || categoryName.length > 15) {
+			setError(
+				<>
+					Category names should be{" "}
+					<code className="rounded bg-neutral-200 py-0.5 px-2 dark:bg-dark-100">
+						1 {"<"} x {"<"} 15
+					</code>{" "}
+					in length.
+				</>
+			);
+		}
+		setPending(true);
+		axios({
+			url: "/api/website/static/store/categories/create",
+			method: "POST",
+			data: {
+				name: categoryName,
+			},
+		})
+			.then(({ data }) => {
+				setPending(false);
+				setCategoryName("");
+				onSuccess(data.category.id);
+			})
+			.catch((e: any) => {
+				setPending(false);
+				if ((e as AxiosError).response?.data.message) {
+					setError(<>{(e as AxiosError).response?.data.message}</>);
+				}
+			});
+	};
+
+	useEffect(() => {
+		if (error) {
+			setTimeout(() => {
+				setError(null);
+			}, 4000);
+		}
+	}, [error]);
+
+	return (
+		<>
+			<Title size="medium" className="font-semibold">
+				Create a new Product Category
+			</Title>
+			<p className="text-neutral-500 dark:text-neutral-400">
+				Simply type your desired category name below for it to usable on the store. The category will be
+				displayed as written here.
+			</p>
+			<div className="my-4">
+				<Input
+					width="w-1/3"
+					type={"text"}
+					placeholder={"Lootbox"}
+					value={categoryName}
+					onChange={(e) => setCategoryName(e.target.value)}
+					label="Category name"
+					required
+				/>
+				{error && <p className="text-red-400">{error}</p>}
+			</div>
+			<Button
+				onClick={(e) => createCategory(e)}
+				loading={{
+					state: pending,
+					text: "Creating category...",
+				}}
+			>
+				Create
+			</Button>
 		</>
 	);
 }
