@@ -13,7 +13,7 @@ export interface SortableColumn extends Column {
 	name: ReactNode;
 	content?: never;
 	width: string;
-	state: SortingState;
+	state: "desc" | "asc";
 	active: boolean;
 	onClick: MouseEventHandler<HTMLParagraphElement>;
 }

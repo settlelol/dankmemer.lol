@@ -2,7 +2,7 @@ import { Icon as Iconify } from "@iconify/react";
 import clsx from "clsx";
 
 interface Props {
-	active: boolean;
+	active?: boolean;
 	current?: "asc" | "desc";
 }
 
