@@ -78,7 +78,8 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			id: product.id,
 			image: product.images[0],
 			name: product.name,
-			type: (product.metadata as Metadata).type,
+			type: (product.metadata as Metadata).type!,
+			...((product.metadata as Metadata).category && { category: (product.metadata as Metadata).category }),
 			prices: prices.map((price) => ({
 				id: price.id,
 				value: price.unit_amount!,
