@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function Dialog({ open, onClose, children, closeButton }: Props) {
-	const dialog = useRef<HTMLDialogElement>(null);
+	const dialog = useRef<any>(null);
 	const state = useRef(false);
 
 	const closeDialog = () => {
@@ -20,7 +20,7 @@ export default function Dialog({ open, onClose, children, closeButton }: Props) 
 
 	const dismissDialog = ({ target }: MouseEvent) => {
 		// @ts-expect-error
-		if (target && target.nodeName === "DIALOG" && dialog.current) {
+		if (target && target.nodeName === "DIALOG") {
 			dialog.current?.close("dismiss");
 		}
 	};
