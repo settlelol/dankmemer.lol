@@ -20,7 +20,7 @@ export default function Dialog({ open, onClose, children, closeButton }: Props) 
 
 	const dismissDialog = ({ target }: MouseEvent) => {
 		// @ts-expect-error
-		if (target && target.nodeName === "DIALOG") {
+		if (target && target.nodeName === "DIALOG" && dialog.current) {
 			dialog.current?.close("dismiss");
 		}
 	};
