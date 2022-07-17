@@ -49,7 +49,7 @@ export default function ProductEditor({ id, forceHide }: Props) {
 			})
 			.catch((e) => {
 				toast.error("Failed to load categories");
-				if (process.env.NODE_ENV !== "production") {
+				if (process.env.NODE_ENV !== "production" && process.env.IN_TESTING) {
 					console.error(e);
 				}
 			});

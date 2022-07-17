@@ -65,7 +65,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		await redis.set(`paypal-event-for:${event.type}:${event.data.id}`, event.data.id, "PX", TIME.minute * 15);
 
 		if (result !== null && !error) {
-			if (process.env.NODE_ENV !== "production" && result.embeds) {
+			if (process.env.NODE_ENV !== "production" && process.env.IN_TESTING && result.embeds) {
 				result.embeds[0].title = "(DEV) " + result.embeds[0].title;
 			}
 			try {
@@ -90,7 +90,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			return res.status(500).json({ message: error });
 		}
 	} catch (e: any) {
-		if (process.env.NODE_ENV !== "production") {
+		if (process.env.NODE_ENV !== "production" && process.env.IN_TESTING) {
 			console.error(`[DEV] ${e.message.replace(/"/g, "")}`);
 			return res.status(200).json({ message: e.message.replace(/"/g, "") });
 		}

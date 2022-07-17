@@ -62,9 +62,9 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 			embeds.push({
 				title: "Failed to change product state.",
 				description: `When a product is created using the dashboard it is not available for purchase by users. To make a product purchasable an image needs to be added through the [Stripe dashboard](https://dashboard.stripe.com/${
-					process.env.NODE_ENV !== "production" ? "test/" : ""
+					process.env.NODE_ENV !== "production" && process.env.IN_TESTING ? "test/" : ""
 				}dashboard "Open Stripe dashboard"). This has been completed, however the product's metadata was not changed, meaning that the product cannot be purchased. This can be manually adjusted by navigating to [the product page](https://dashboard.stripe.com/${
-					process.env.NODE_ENV !== "production" ? "test/" : ""
+					process.env.NODE_ENV !== "production" && process.env.IN_TESTING ? "test/" : ""
 				}products/${product.id}) and editing the metadata yourself.`,
 				color: 16731212,
 				fields: [

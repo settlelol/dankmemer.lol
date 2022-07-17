@@ -113,7 +113,7 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 				{
 					title: "Charge dispute updated",
 					description: `This is just for notification's sake, it is best to view a dispute within the [Stripe dashboard](https://dashboard.stripe.com/${
-						process.env.NODE_ENV !== "production" ? "test/" : ""
+						process.env.NODE_ENV !== "production" && process.env.IN_TESTING ? "test/" : ""
 					}payments/${
 						dispute.charge
 					} "Open disputed charge on the Stripe dashboard"), there you will be able to better assess this dispute.`,

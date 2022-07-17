@@ -1,7 +1,7 @@
 import Stripe from "stripe";
 
 let key: string | undefined =
-	process.env.NODE_ENV === "production"
+	process.env.NODE_ENV === "production" && !process.env.IN_TESTING
 		? process.env.STRIPE_SECRET_LIVE_KEY
 		: process.env.STRIPE_SECRET_TEST_KEY;
 
@@ -10,7 +10,7 @@ let _stripe: Stripe;
 if (!key) {
 	throw new Error(
 		`Please define the ${
-			process.env.NODE_ENV === "production"
+			process.env.NODE_ENV === "production" && !process.env.IN_TESTING
 				? "STRIPE_SECRET_LIVE_KEY"
 				: "STRIPE_SECRET_TEST_KEY"
 		} environment variable inside .env`

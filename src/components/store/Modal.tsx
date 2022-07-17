@@ -47,7 +47,7 @@ export default function Modal({ productId, add, close }: Props) {
 				setLoading(false);
 			})
 			.catch((e) => {
-				if (process.env.NODE_ENV !== "production") {
+				if (process.env.NODE_ENV !== "production" && process.env.IN_TESTING && process.env.IN_TESTING) {
 					console.error(e.message.replace(/"/g, ""));
 				}
 			});
