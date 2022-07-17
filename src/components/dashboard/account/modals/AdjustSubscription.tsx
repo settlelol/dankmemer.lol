@@ -7,9 +7,9 @@ import Link from "src/components/ui/Link";
 import { Icon as Iconify } from "@iconify/react";
 import { DetailedPriceInterval } from "src/pages/api/store/product/details";
 import axios from "axios";
-import { AnyProduct } from "src/pages/store";
 import Stripe from "stripe";
 import ConfirmAdjustments from "./ConfirmAdjustments";
+import { ListedProduct } from "src/pages/store";
 
 interface Props {
 	userId: string;
@@ -47,21 +47,21 @@ export default function AdjustSubscription({
 
 	useEffect(() => {
 		if (availableSubscriptions.length < 1) {
-			axios("/api/store/products/subscriptions/list").then(({ data }: { data: AnyProduct[] }) => {
+			axios("/api/store/products/subscriptions/list").then(({ data }: { data: ListedProduct[] }) => {
 				const formatted: SubscriptionOption[] = [];
 				for (let product of data) {
 					for (let price of product.prices) {
 						formatted.push({
 							id: product.id,
 							name: product.name,
-							image: product.images[0],
+							image: product.image,
 							price: {
 								id: price.id,
-								value: `$${(price.price / 100).toFixed(2)}`,
+								value: `$${(price.value / 100).toFixed(2)}`,
 							},
 							interval: {
-								period: price.interval as Stripe.Price.Recurring.Interval,
-								count: 1,
+								period: price.interval!.period,
+								count: price.interval!.count,
 							},
 						});
 					}

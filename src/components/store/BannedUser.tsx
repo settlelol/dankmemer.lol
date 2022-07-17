@@ -6,7 +6,7 @@ import Button from "../ui/Button";
 import { useRouter } from "next/router";
 
 export default function BannedUser() {
-	const dialog = useRef<HTMLDialogElement>(null);
+	const dialog = useRef<any>(null);
 	const router = useRouter();
 
 	useEffect(() => {

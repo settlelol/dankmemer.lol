@@ -72,6 +72,10 @@ export default function PagedBanner({
 	const [paused, setPaused] = useState(false);
 	const [timePast, setTimePast] = useState(0);
 	const [pageIndex, setPageIndex] = useState(0);
+	// This ts-ignore is required because next won't allow the website
+	// to build because it doesn't allow the ternary operator to work?
+
+	// @ts-ignore
 	const [page, setPage] = useState<BannerPage>(pages ? pages[0] : displayPage);
 
 	useEffect(() => {

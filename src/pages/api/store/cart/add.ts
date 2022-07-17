@@ -31,8 +31,8 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	}
 
 	const typeToAdd = (product.metadata as Metadata)!.type;
-	const cartHasSubscription = cart.filter((i) => i.metadata?.type === "subscription").length >= 1;
-	const cartHasSingle = cart.filter((i) => i.metadata?.type === "single").length >= 1;
+	const cartHasSubscription = cart.filter((i) => i.type === "subscription").length >= 1;
+	const cartHasSingle = cart.filter((i) => i.type === "single").length >= 1;
 
 	if (typeToAdd === "subscription" && cartHasSubscription) {
 		toastMessage = "Only one subscription should be added your cart at a time.";

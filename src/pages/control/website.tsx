@@ -19,7 +19,8 @@ export default function ControlWebsitePage({ user }: PageProps) {
 						Website management
 					</div>
 					<div className="flex flex-col space-y-4 space-x-0 lg:flex-row lg:space-y-0 lg:space-x-4">
-						<ControlCard
+						<p>this page is not going to exist, i just need to finish the new control panel page for it</p>
+						{/* <ControlCard
 							endpoint="/api/discount/add?percent={{input}}&expiry={{dropdown}}"
 							label="Start a lootbox sale"
 							icon="store"
@@ -65,7 +66,7 @@ export default function ControlWebsitePage({ user }: PageProps) {
 									"The announcement banner has been updated."
 								);
 							}}
-						/>
+						/> */}
 					</div>
 				</div>
 			</div>
@@ -73,5 +74,4 @@ export default function ControlWebsitePage({ user }: PageProps) {
 	);
 }
 
-export const getServerSideProps: GetServerSideProps =
-	withSession(developerRoute);
+export const getServerSideProps: GetServerSideProps = withSession(developerRoute);

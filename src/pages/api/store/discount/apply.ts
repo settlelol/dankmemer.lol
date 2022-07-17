@@ -1,6 +1,7 @@
 import { NextApiResponse } from "next";
 import { CartItem } from "src/pages/store";
 import { DiscountItem } from "src/pages/store/checkout";
+import { getSelectedPriceValue } from "src/util/store";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { NextIronRequest, withSession } from "../../../../util/session";
@@ -25,9 +26,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	const code = req.query.code.toString();
 	if (!code) {
-		return res
-			.status(401)
-			.json({ error: "No discount code was provided." });
+		return res.status(401).json({ error: "No discount code was provided." });
 	}
 
 	const stripe = stripeConnect();
@@ -65,12 +64,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		});
 	}
 
-	if (
-		!(
-			promotionalCode.times_redeemed <=
-			(promotionalCode.max_redemptions ?? 0)
-		)
-	) {
+	if (!(promotionalCode.times_redeemed <= (promotionalCode.max_redemptions ?? 0))) {
 		return res.status(410).json({
 			message: "The code has reached its maximum redemptions.",
 		});
@@ -79,8 +73,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const coupon: Stripe.Coupon = promotionalCode.coupon;
 	const cart: CartItem[] = await req.session.get("cart")!;
 	const cartTotal = cart.reduce(
-		(acc, item: CartItem) =>
-			acc + (item.selectedPrice.price / 100) * item.quantity,
+		(acc, item: CartItem) => acc + (getSelectedPriceValue(item, item.selectedPrice).value / 100) * item.quantity,
 		0
 	);
 
@@ -100,23 +93,20 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			const { data: priceForProduct } = await stripe.prices.list({
 				product: appliesTo[i],
 			});
-			const itemInCart = cart.filter(
-				(item) => item.id === appliesTo[i]
-			)[0];
+			const itemInCart = cart.filter((item) => item.id === appliesTo[i])[0];
 
 			if (!itemInCart) break;
 
+			const selectedPrice = getSelectedPriceValue(itemInCart, itemInCart.selectedPrice);
 			const itemCost =
-				(itemInCart.selectedPrice.interval === "year"
-					? itemInCart.unit_cost * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
-					: itemInCart.unit_cost) * itemInCart.quantity;
+				(selectedPrice.interval?.period === "year"
+					? selectedPrice.value * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
+					: selectedPrice.value) * itemInCart.quantity;
 			const result: DiscountItem = {
 				id: appliesTo[i],
 				type: priceForProduct[0].type,
 				originalCost: itemCost,
-				discountedCost: parseFloat(
-					(itemCost - itemCost * discountAmount).toFixed(2)
-				),
+				discountedCost: parseFloat((itemCost - itemCost * discountAmount).toFixed(2)),
 				savings: parseFloat((itemCost * discountAmount).toFixed(2)),
 			};
 			discountedItems.push(result);
@@ -127,17 +117,17 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 			const { data: priceForProduct } = await stripe.prices.list({
 				product: cart[i].id,
 			});
+
+			const selectedPrice = getSelectedPriceValue(cart[i], cart[i].selectedPrice);
 			const itemCost =
-				(cart[i].selectedPrice.interval === "year"
-					? cart[i].unit_cost * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
-					: cart[i].unit_cost) * cart[i].quantity;
+				(selectedPrice.interval?.period === "year"
+					? selectedPrice.value * 10.8 // 10.8 is just 12 months (x12) with a 10% discount
+					: selectedPrice.value) * cart[i].quantity;
 			const result: DiscountItem = {
 				id: cart[i].id,
 				type: priceForProduct[0].type,
 				originalCost: itemCost,
-				discountedCost: parseFloat(
-					(itemCost - itemCost * discountAmount).toFixed(2)
-				),
+				discountedCost: parseFloat((itemCost - itemCost * discountAmount).toFixed(2)),
 				savings: parseFloat((itemCost * discountAmount).toFixed(2)),
 			};
 			discountedItems.push(result);

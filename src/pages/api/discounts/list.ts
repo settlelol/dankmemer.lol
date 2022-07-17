@@ -1,7 +1,7 @@
 import { NextApiResponse } from "next";
 import { NextIronRequest, withSession } from "../../../util/session";
 import { stripeConnect } from "src/util/stripe";
-import { Discount } from "src/components/control/Table/rows/Discounts";
+import { Discount } from "src/pages/control/store/discounts";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const user = await req.session.get("user");

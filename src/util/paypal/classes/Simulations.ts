@@ -1,5 +1,6 @@
 import { createPayPal } from "../PayPalEndpoint";
 import { LinkDescription } from "./Products";
+import { WebhookEvents } from "./Webhooks";
 
 interface WebhookSimulationOptionsA {
 	/**
@@ -45,9 +46,7 @@ interface WebhookSimulationOptionsB {
 	resource_version?: "1.0" | "2.0";
 }
 
-type WebhookSimulationOptions =
-	| WebhookSimulationOptionsA
-	| WebhookSimulationOptionsB;
+type WebhookSimulationOptions = WebhookSimulationOptionsA | WebhookSimulationOptionsB;
 
 interface WebhookResponse {
 	/**
