@@ -5,7 +5,7 @@ import { Title } from "src/components/Title";
 import Container from "src/components/ui/Container";
 import { PageProps } from "src/types";
 import { withSession } from "src/util/session";
-import { CartItem as CartItems, Metadata } from ".";
+import { CartItem as CartItems, Metadata, ProductType } from ".";
 import CartItem from "src/components/store/cart/CartItem";
 import MarketingBox, { MarketBoxVariants } from "src/components/store/cart/MarketingBox";
 import Button from "src/components/ui/Button";
@@ -34,7 +34,8 @@ export interface UpsellProduct {
 	id: string;
 	name: string;
 	image: string;
-	type: Metadata["type"];
+	type: ProductType;
+	category?: string;
 	prices: {
 		id: string;
 		value: number;
@@ -582,7 +583,8 @@ export const getServerSideProps: GetServerSideProps = withSession(
 				id: product.id,
 				image: product.images[0],
 				name: product.name,
-				type: (product.metadata as Metadata).type,
+				type: (product.metadata as Metadata).type!,
+				...((product.metadata as Metadata).category && { category: (product.metadata as Metadata).category }),
 				prices: prices.map((price) => ({
 					id: price.id,
 					value: price.unit_amount!,

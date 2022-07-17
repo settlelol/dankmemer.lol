@@ -7,6 +7,7 @@ export default function OtherProduct({
 	name,
 	prices,
 	type,
+	category,
 	image,
 	addToCart,
 }: UpsellProduct & { addToCart: (id: string) => void }) {
@@ -23,7 +24,7 @@ export default function OtherProduct({
 					<h4 className="text-sm font-bold leading-none text-gray-800 dark:text-white sm:text-base">
 						{name}
 					</h4>
-					<p className="text-sm leading-none text-light-600">{type && toTitleCase(type)}</p>
+					<p className="text-sm leading-none text-light-600">{category ?? toTitleCase(type) + " item"}</p>
 				</div>
 			</div>
 			<div className="flex items-center justify-center">

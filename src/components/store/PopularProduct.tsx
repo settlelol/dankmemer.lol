@@ -42,7 +42,7 @@ export default function PopularProduct({ product, add, openModal }: Props) {
 				<div>
 					<Title size="small">{product.name}</Title>
 					<p className="-mt-1.5 text-sm text-neutral-500 dark:text-neutral-400">
-						{toTitleCase(product.type!)} item
+						{product.category ?? toTitleCase(product.type!) + " item"}
 					</p>
 				</div>
 			</div>
