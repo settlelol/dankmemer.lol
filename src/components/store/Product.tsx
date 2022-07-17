@@ -26,7 +26,7 @@ export default function Product({ product, add, openModal }: Props) {
 
 	return (
 		<div className="flex flex-col">
-			<div className="relative mb-1 flex h-64 w-56 flex-col rounded-md border border-black/30 dark:border-white/20">
+			<div className="relative mb-1 flex h-64 w-56 flex-col rounded-md bg-light-500 dark:bg-dark-100">
 				{new Date().getTime() - new Date(product.created * 1000).getTime() <= TIME.month && (
 					<Badge variant="new" />
 				)}

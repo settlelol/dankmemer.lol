@@ -29,7 +29,7 @@ export default function PopularProduct({ product, add, openModal }: Props) {
 			className={clsx(
 				"relative h-40 w-96 rounded-md px-5 py-4 xl:transition-shadow",
 				"xl:shadow-lg xl:shadow-dank-300/20 xl:hover:shadow-xl xl:hover:shadow-dank-300/20",
-				"bg-light-500 dark:bg-dark-500"
+				"bg-light-500 dark:bg-dark-100"
 			)}
 		>
 			<div className="flex items-center justify-start space-x-4">
