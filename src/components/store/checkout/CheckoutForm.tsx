@@ -233,7 +233,7 @@ export default function CheckoutForm({
 					) : (
 						<>
 							If you wish to manage your subscription, you can do so{" "}
-							<Link href="/dashboard/account">
+							<Link href="/dashboard/@me">
 								<a className="underline">here</a>
 							</Link>
 							.
