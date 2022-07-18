@@ -82,6 +82,7 @@ export default function StoreHome({ user, banned, country, verification }: Props
 	const [cartQuantities, setCartQuantities] = useState(0);
 	const [cartItems, setCartItems] = useState<CartItem[] | []>([]);
 
+	const [loadingProducts, setLoadingProducts] = useState(true);
 	const [popularProducts, setPopularProducts] = useState<UpsellProduct[]>([]);
 	const [subscriptions, setSubscriptions] = useState<ListedProduct[]>([]);
 	const [products, setProducts] = useState<ListedProduct[]>([]);
@@ -122,7 +123,15 @@ export default function StoreHome({ user, banned, country, verification }: Props
 						setProducts(singles);
 						setSubscriptions(subscriptions);
 					})
-				);
+				)
+				.catch((e) => {
+					if (process.env.NODE_ENV !== "production" && process.env.IN_TESTING) {
+						console.error(e);
+					}
+				})
+				.finally(() => {
+					setLoadingProducts(false);
+				});
 		} catch (e) {
 			if (process.env.NODE_ENV !== "production" && process.env.IN_TESTING) {
 				console.error(e);
@@ -299,82 +308,133 @@ export default function StoreHome({ user, banned, country, verification }: Props
 							<PagedBanner pages={bannerPages} height={"h-72"} />
 						</div>
 					)}
-					<section className="mt-14">
-						<Title size="medium" className="font-semibold">
-							Popular products
-						</Title>
-						<div className="overflow-y-visible overflow-x-scroll xl:overflow-visible">
-							<div className="mt-3 flex min-w-[1280px] justify-between space-x-10 xl:min-w-[unset]">
-								{popularProducts.length >= 1
-									? popularProducts.map((product) => (
-											<PopularProduct
+					{loadingProducts ? (
+						<>
+							<section className="mt-14">
+								<Title size="medium" className="font-semibold">
+									Popular products
+								</Title>
+								<div className="overflow-y-visible overflow-x-scroll xl:overflow-visible">
+									<div className="mt-3 flex min-w-[1280px] justify-between space-x-10 xl:min-w-[unset]">
+										{Array(3)
+											.fill(0)
+											.map(() => (
+												<LoadingProduct variant="popular" />
+											))}
+									</div>
+								</div>
+							</section>
+							<section className="mt-4">
+								<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
+									<Title size="medium" className="font-semibold">
+										Subscriptions
+									</Title>
+								</div>
+								<div
+									className="col-auto mt-4 grid place-items-center justify-center gap-x-8 gap-y-7 phone:justify-between"
+									style={{
+										gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
+									}}
+								>
+									{Array(5)
+										.fill(0)
+										.map(() => (
+											<LoadingProduct variant="normal" />
+										))}
+								</div>
+							</section>
+							<section className="mt-12 mb-12">
+								<Title size="medium" className="text-center font-semibold phone:text-left">
+									Items
+								</Title>
+								<div
+									className={clsx("mt-4 grid gap-x-8 gap-y-7", "justify-start")}
+									style={{
+										gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
+									}}
+								>
+									{Array(5)
+										.fill(0)
+										.map(() => (
+											<LoadingProduct variant="normal" />
+										))}
+								</div>
+							</section>
+						</>
+					) : (
+						<>
+							{popularProducts.length >= 1 && (
+								<section className="mt-14">
+									<Title size="medium" className="font-semibold">
+										Popular products
+									</Title>
+									<div className="overflow-y-visible overflow-x-scroll xl:overflow-visible">
+										<div className="mt-3 flex min-w-[1280px] justify-between space-x-10 xl:min-w-[unset]">
+											{popularProducts.map((product) => (
+												<PopularProduct
+													key={product.id}
+													product={product}
+													add={() => addProductById(product.id)}
+													openModal={() => setModalProductId(product.id)}
+												/>
+											))}
+										</div>
+									</div>
+								</section>
+							)}
+							{subscriptions.length >= 1 && (
+								<section className="mt-4">
+									<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
+										<Title size="medium" className="font-semibold">
+											Subscriptions
+										</Title>
+									</div>
+									<div
+										className="col-auto mt-4 grid place-items-center justify-center gap-x-8 gap-y-7 phone:justify-between"
+										style={{
+											gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
+										}}
+									>
+										{subscriptions.map((product) => (
+											<Product
 												key={product.id}
 												product={product}
 												add={() => addProductById(product.id)}
 												openModal={() => setModalProductId(product.id)}
 											/>
-									  ))
-									: Array(3)
-											.fill(0)
-											.map(() => <LoadingProduct variant="popular" />)}
-							</div>
-						</div>
-					</section>
-					<section className="mt-4">
-						<div className="mt-12 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
-							<Title size="medium" className="font-semibold">
-								Subscriptions
-							</Title>
-						</div>
-						<div
-							className="col-auto mt-4 grid place-items-center justify-center gap-x-8 gap-y-7 phone:justify-between"
-							style={{
-								gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
-							}}
-						>
-							{subscriptions.length >= 1
-								? subscriptions.map((product) => (
-										<Product
-											key={product.id}
-											product={product}
-											add={() => addProductById(product.id)}
-											openModal={() => setModalProductId(product.id)}
-										/>
-								  ))
-								: Array(5)
-										.fill(0)
-										.map(() => <LoadingProduct variant="normal" />)}
-						</div>
-					</section>
-					<div className="mt-12 mb-12">
-						<Title size="medium" className="text-center font-semibold phone:text-left">
-							Items
-						</Title>
-						<div
-							className={clsx(
-								"mt-4 grid gap-x-8 gap-y-7",
-								products.length >= 1 && products.length < 5
-									? "justify-start"
-									: "justify-center phone:justify-between"
+										))}
+									</div>
+								</section>
 							)}
-							style={{
-								gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
-							}}
-						>
-							{products.length >= 1
-								? products.map((product) => (
-										<Product
-											key={product.id}
-											product={product}
-											add={() => addProductById(product.id)}
-											openModal={() => setModalProductId(product.id)}
-										/>
-								  ))
-								: Array(5)
-										.fill(0)
-										.map(() => <LoadingProduct variant="normal" />)}
-						</div>
-					</div>
+							{products.length >= 1 && (
+								<section className="mt-12 mb-12">
+									<Title size="medium" className="text-center font-semibold phone:text-left">
+										Items
+									</Title>
+									<div
+										className={clsx(
+											"mt-4 grid gap-x-8 gap-y-7",
+											products.length >= 1 && products.length < 5
+												? "justify-start"
+												: "justify-center phone:justify-between"
+										)}
+										style={{
+											gridTemplateColumns: "repeat(auto-fit, minmax(224px, auto))", // 224px is the width of the product card
+										}}
+									>
+										{products.map((product) => (
+											<Product
+												key={product.id}
+												product={product}
+												add={() => addProductById(product.id)}
+												openModal={() => setModalProductId(product.id)}
+											/>
+										))}
+									</div>
+								</section>
+							)}
+						</>
+					)}
 				</Container>
 			)}
 		</>
