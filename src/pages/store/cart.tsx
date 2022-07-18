@@ -304,11 +304,11 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 		}
 
 		const alreadyExists = cart.findIndex((i) => i.id === item.id);
-		if (alreadyExists !== -1) {
+		if (alreadyExists !== -1 && cart[alreadyExists].quantity < 100) {
 			let _cart = cart.slice();
 			_cart[alreadyExists].quantity += 1;
 			setCart(_cart);
-		} else {
+		} else if (alreadyExists === -1) {
 			setCart((i) => [...i, item]);
 		}
 	};
