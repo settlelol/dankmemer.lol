@@ -34,7 +34,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 					userVerification.years < 18)));
 	const cache = restrictResults ? "store:popular-purchases:restricted" : "store:popular-purchases";
 	const cached = await redis.get(cache);
-	if (cached) {
+	if (cached && JSON.parse(cached).length >= 1) {
 		return res.status(200).json(JSON.parse(cached));
 	}
 
