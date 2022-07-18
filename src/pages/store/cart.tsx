@@ -340,7 +340,7 @@ export default function Cart({ cartData, upsells, user }: Props) {
 						</div>
 					</div>
 				</div>
-				<div className="my-10 flex w-full flex-col items-center space-y-10 md:flex-row-reverse md:items-start md:space-y-0 lg:my-0 lg:w-80 lg:flex-col lg:space-y-5">
+				<div className="my-10 flex w-full flex-col items-center space-y-10 md:flex-row-reverse md:items-start md:space-y-0 lg:my-0 lg:mb-10 lg:w-80 lg:flex-col lg:space-y-5">
 					{cart[0] && cart[0].type === "subscription" ? (
 						<MarketingBox variant="subscriptionSavings" />
 					) : (
