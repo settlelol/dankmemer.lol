@@ -74,7 +74,6 @@ export default class Webhooks {
 			}
 
 			if (!Object.values(WebhookEvents).includes(req.body.event_type)) {
-				console.log(req.body.resource);
 				return reject(Error(`Event '${req.body.event_type}' is unsupported.`));
 			}
 
