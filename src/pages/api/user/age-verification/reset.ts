@@ -16,14 +16,14 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		return res.status(403).json({ error: "You do not have permission to perform this action." });
 	}
 
-	const { resetUserId } = req.body;
+	const { for: resetUserId } = req.query;
 
 	if (!resetUserId) {
 		return res.status(400).json({ error: "Missing user id" });
 	}
 
 	const db = await dbConnect();
-	const dbUser = (await db.collection("users").findOne({ _id: resetUserId.id })) as UserData;
+	const dbUser = (await db.collection("users").findOne({ _id: resetUserId })) as UserData;
 
 	if (!dbUser) {
 		return res.status(404).json({ error: "User not found" });
@@ -31,7 +31,7 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 
 	try {
 		await db.collection("users").updateOne(
-			{ _id: resetUserId.id },
+			{ _id: resetUserId },
 			{
 				$set: {
 					ageVerification: {
