@@ -62,8 +62,8 @@ export default function ShoppingCart({ totalCost, cart, setCart, label }: Props)
 			</Button>
 			{showCart &&
 				(cart.length >= 1 ? (
-					<div className="absolute right-0 pt-2 motion-safe:animate-slide-in">
-						<div className="w-[420px] rounded-md bg-neutral-200 py-3 px-4 dark:bg-dank-600">
+					<div className="absolute right-0 w-screen max-w-md pt-2 motion-safe:animate-slide-in">
+						<div className="w-full rounded-md bg-neutral-200 py-3 px-4 dark:bg-dank-600">
 							<Title size="small">Your cart</Title>
 							<div className="flex flex-col">
 								<div>
