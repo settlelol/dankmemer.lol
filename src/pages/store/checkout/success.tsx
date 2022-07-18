@@ -82,7 +82,7 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 					</p>
 					<p className="my-2 text-sm text-neutral-700 dark:text-neutral-300">
 						If you have yet to receive your purchased goods, join{" "}
-						<Link href="https://discord.gg/meme">
+						<Link href="https://discord.gg/dankmemerbot">
 							<a className="text-dank-300 underline" target="_blank">
 								our support server
 							</a>
