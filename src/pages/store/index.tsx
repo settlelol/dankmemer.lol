@@ -156,7 +156,7 @@ export default function StoreHome({ user, banned, country, verification }: Props
 		if (
 			typeToAdd === "single" &&
 			products.find((product) => product.id === item.id)?.category === "lootbox" &&
-			verification.verified &&
+			!verification.verified &&
 			!requiresAgeVerification
 		) {
 			setOpenDialog(true);
@@ -192,7 +192,14 @@ export default function StoreHome({ user, banned, country, verification }: Props
 			const { data: formatted }: { data: CartItem } = await axios(
 				`/api/store/product/find?id=${id}&action=format&to=cart-item`
 			);
-			if (requiresAgeVerification && formatted.category?.toLowerCase() === "lootbox") return setOpenDialog(true);
+			console.log(
+				requiresAgeVerification,
+				formatted.category?.toLowerCase() === "lootbox",
+				requiresAgeVerification && formatted.category?.toLowerCase() === "lootbox"
+			);
+			if (requiresAgeVerification && formatted.category?.toLowerCase() === "lootbox") {
+				return setOpenDialog(true);
+			}
 			addToCart(formatted);
 		} catch (e) {
 			console.error(e);
