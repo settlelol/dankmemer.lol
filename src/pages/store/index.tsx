@@ -78,6 +78,8 @@ export default function StoreHome({ user, banned, country, verification }: Props
 	const [openModal, setOpenModal] = useState(false);
 	const [openDialog, setOpenDialog] = useState(false);
 
+	const [processingCartChange, setProcessingCartChange] = useState(false);
+
 	const [totalCost, setTotalCost] = useState<string>("...");
 	const [cartQuantities, setCartQuantities] = useState(0);
 	const [cartItems, setCartItems] = useState<CartItem[] | []>([]);
@@ -189,25 +191,31 @@ export default function StoreHome({ user, banned, country, verification }: Props
 		}
 
 		const alreadyExists = cartItems.findIndex((_item) => _item.id === item.id);
-		if (alreadyExists !== -1) {
+		if (alreadyExists !== -1 && cartItems[alreadyExists].quantity < 100) {
 			let _cartItems = cartItems.slice();
 			_cartItems[alreadyExists].quantity += 1;
 			setCartItems(_cartItems);
-		} else setCartItems((_items) => [..._items, item]);
+		} else if (alreadyExists === -1) {
+			setCartItems((_items) => [..._items, item]);
+		}
+		setProcessingCartChange(false);
 	};
 
 	const addProductById = async (id: string) => {
-		try {
-			const { data: formatted }: { data: CartItem } = await axios(
-				`/api/store/product/find?id=${id}&action=format&to=cart-item`
-			);
-			if (requiresAgeVerification && formatted.category?.toLowerCase() === "lootbox") {
-				return setOpenDialog(true);
+		if (!processingCartChange) {
+			try {
+				setProcessingCartChange(true);
+				const { data: formatted }: { data: CartItem } = await axios(
+					`/api/store/product/find?id=${id}&action=format&to=cart-item`
+				);
+				if (requiresAgeVerification && formatted.category?.toLowerCase() === "lootbox") {
+					return setOpenDialog(true);
+				}
+				addToCart(formatted);
+			} catch (e) {
+				console.error(e);
+				toast.error("We were unable to update your cart information. Please try again later.");
 			}
-			addToCart(formatted);
-		} catch (e) {
-			console.error(e);
-			toast.error("We were unable to update your cart information. Please try again later.");
 		}
 	};
 

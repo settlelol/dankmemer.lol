@@ -311,19 +311,23 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 		} else if (alreadyExists === -1) {
 			setCart((i) => [...i, item]);
 		}
+		setProcessingChange(false);
 	};
 
 	const addUpsellProduct = async (id: string) => {
-		try {
-			const { data: formatted }: { data: CartItems } = await axios(
-				`/api/store/product/find?id=${id}&action=format&to=cart-item`
-			);
-			if (requiresAgeVerification && formatted.category?.toLowerCase() === "lootbox") {
-				return setOpenDialog(true);
+		if (!processingChange) {
+			try {
+				setProcessingChange(true);
+				const { data: formatted }: { data: CartItems } = await axios(
+					`/api/store/product/find?id=${id}&action=format&to=cart-item`
+				);
+				if (requiresAgeVerification && formatted.category?.toLowerCase() === "lootbox") {
+					return setOpenDialog(true);
+				}
+				addToCart(formatted);
+			} catch (e) {
+				toast.error("We were unable to update your cart information. Please try again later.");
 			}
-			addToCart(formatted);
-		} catch (e) {
-			toast.error("We were unable to update your cart information. Please try again later.");
 		}
 	};
 
