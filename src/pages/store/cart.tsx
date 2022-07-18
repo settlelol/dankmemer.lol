@@ -60,7 +60,7 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 
 	const [isGift, setIsGift] = useState(false);
 	const [giftRecipient, setGiftRecipient] = useState("");
-	const [validGiftRecipient, setValidGiftRecipient] = useState(false);
+	const [validGiftRecipient, setValidGiftRecipient] = useState(true);
 
 	const [discountData, setDiscountData] = useState<AppliedDiscount | null>(null);
 
@@ -327,15 +327,6 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 		}
 	};
 
-	useEffect(() => {
-		setValidGiftRecipient(
-			/^[0-9]*$/.test(giftRecipient) &&
-				giftRecipient.length >= 16 &&
-				giftRecipient.length <= 20 &&
-				giftRecipient !== user!.id
-		);
-	}, [giftRecipient]);
-
 	const goToCheckout = () => {
 		axios({
 			url: "/api/store/config/set",
@@ -352,6 +343,8 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 				console.error(e);
 			});
 	};
+
+	const validateGiftRecipient = (recipient: string) => /^\d{16,21}$/.test(recipient) && giftRecipient !== user!.id;
 
 	return (
 		<Container title="Shopping Cart" user={user}>
@@ -439,9 +432,25 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 												placeholder="270904126974590976"
 												className={clsx(
 													"!py-1 dark:placeholder:text-neutral-500",
-													validGiftRecipient ? "" : "border-red-500"
+													!validGiftRecipient && "border-red-500 dark:border-red-500"
 												)}
-												onChange={(e: any) => setGiftRecipient(e.target.value)}
+												value={giftRecipient}
+												onChange={(e: any) => {
+													setValidGiftRecipient(
+														giftRecipient !== "" && validateGiftRecipient(giftRecipient)
+													);
+													if (/^\d+$/.test(e.target.value) || e.target.value === "") {
+														setGiftRecipient(e.target.value);
+													}
+												}}
+												onBlur={(e) => {
+													setValidGiftRecipient(
+														giftRecipient !== "" && validateGiftRecipient(giftRecipient)
+													);
+													if (validateGiftRecipient(e.target.value)) {
+														setGiftRecipient(e.target.value);
+													}
+												}}
 											/>
 										</div>
 									)}
@@ -564,7 +573,7 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 							size="medium"
 							className={clsx("mt-3 w-full", processingChange ? "bg-[#7F847F] text-[#333533]" : "")}
 							onClick={goToCheckout}
-							disabled={processingChange}
+							disabled={processingChange || !validGiftRecipient}
 						>
 							Continue to Checkout
 						</Button>
