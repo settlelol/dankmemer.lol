@@ -24,7 +24,9 @@ export default function OtherProduct({
 					<h4 className="text-sm font-bold leading-none text-gray-800 dark:text-white sm:text-base">
 						{name}
 					</h4>
-					<p className="text-sm leading-none text-light-600">{category ?? toTitleCase(type) + " item"}</p>
+					<p className="hidden text-sm leading-none text-light-600 phone:block">
+						{category ?? toTitleCase(type) + " item"}
+					</p>
 				</div>
 			</div>
 			<div className="flex items-center justify-center">

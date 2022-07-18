@@ -41,8 +41,8 @@ export default function CartItem({
 	};
 
 	return (
-		<div className="mt-3 flex w-full flex-col items-start justify-between sm:flex-row sm:items-center">
-			<div className="flex w-full items-center justify-between">
+		<div className="mt-3 flex w-full flex-col items-start justify-between space-x-0 sm:flex-row sm:items-center">
+			<div className="flex w-full items-center justify-between sm:w-1/2">
 				<div className="flex items-center">
 					<div
 						className={clsx(
@@ -76,18 +76,20 @@ export default function CartItem({
 			</div>
 			<div
 				className={clsx(
-					size !== "small" && "ml-14",
+					size !== "small" && type !== "subscription" && "ml-14",
 					"float-right flex w-full items-center justify-between sm:w-auto"
 				)}
 			>
-				<div className={clsx(size === "small" ? "mr-5" : "mx-2 sm:mr-16")}>
+				<div
+					className={clsx(size === "small" ? "mr-5" : "mx-2 w-1/2" && type !== "subscription" && "sm:mr-16")}
+				>
 					{type === "subscription" ? (
 						<Dropdown
 							content={
 								<div
 									className={clsx(
 										"flex items-center justify-center rounded-md border-[1px] border-[#3C3C3C] bg-[#0C120D] transition-colors dark:text-[#707070] hover:dark:text-[#cccccc]",
-										size === "small" ? "px-2 py-1 text-xs" : "px-3 py-[6px] text-sm"
+										size === "small" ? "px-2 py-1 text-xs" : "px-3 py-[6px] text-xs xl:text-sm"
 									)}
 								>
 									<p>
@@ -175,7 +177,7 @@ export default function CartItem({
 				</div>
 				<p
 					className={clsx(
-						"mr-16 text-right font-montserrat font-semibold text-gray-800 dark:text-white sm:mr-7",
+						"mr-3 text-right font-montserrat font-semibold text-gray-800 dark:text-white sm:mr-7",
 						size === "small" ? "min-w-[50px] text-sm" : "min-w-[70px] text-sm sm:text-base"
 					)}
 				>
