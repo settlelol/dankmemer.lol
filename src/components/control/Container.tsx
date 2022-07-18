@@ -94,6 +94,7 @@ export default function ControlPanelContainer({
 					<div className={clsx("relative w-full", !customSpacing && "my-10")}>{children}</div>
 				</div>
 			</div>
+
 			<div
 				ref={rightPane}
 				style={{ width: draggedWidth }}
@@ -103,14 +104,20 @@ export default function ControlPanelContainer({
 					dragging && "pointer-events-none cursor-col-resize"
 				)}
 			>
-				<div
-					id="dragger"
-					className="absolute left-0 top-0 grid h-full w-2 cursor-col-resize select-none place-items-center pl-1"
-					onMouseDown={draggerMouseDown}
-				>
-					<span className="text-[10px] text-black opacity-20 dark:text-white">||</span>
-				</div>
 				{rightPaneVisible && rightPaneContent}
+			</div>
+			<div
+				id="dragger"
+				className="fixed top-0 z-50 grid h-screen w-2 cursor-col-resize select-none place-items-center pl-1"
+				style={{
+					right:
+						rightPane.current?.clientWidth! -
+						(rightPane.current?.scrollHeight! > rightPane.current?.clientHeight! ? -8 : 8) +
+						"px",
+				}}
+				onMouseDown={draggerMouseDown}
+			>
+				<span className="text-[10px] text-black opacity-20 dark:text-white">||</span>
 			</div>
 		</>
 	);
