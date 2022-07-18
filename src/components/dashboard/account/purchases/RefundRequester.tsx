@@ -186,7 +186,11 @@ export default function DisputeCreator({ purchase, userId, close }: Props) {
 						placeholder={
 							"Please explain as in-depth as possible the reasoning for your refund request. Keep in mind that the nicer you are, the more likely we are to give you a full refund."
 						}
-						className="h-48 max-h-[450px] min-h-[50px] w-full resize-y rounded-md border-[1px] border-neutral-300 px-3 py-2 font-inter text-sm focus-visible:border-dank-300 focus-visible:outline-none dark:border-neutral-700 dark:bg-black/30 placeholder:dark:text-neutral-400"
+						className={clsx(
+							"h-48 max-h-[450px] min-h-[50px] w-full resize-y rounded-md border-[1px] px-3 py-2",
+							"font-inter text-sm text-neutral-800 dark:text-white",
+							"border-neutral-300 focus-visible:border-dank-300 focus-visible:outline-none dark:border-neutral-700 dark:bg-black/30 placeholder:dark:text-neutral-400"
+						)}
 					/>
 				</div>
 				<div className="mt-3">
