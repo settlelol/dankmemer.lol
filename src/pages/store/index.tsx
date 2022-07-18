@@ -285,7 +285,7 @@ export default function StoreHome({ user, banned, country, verification }: Props
 						/>
 					</div>
 					{bannerPages.length >= 1 && (
-						<div className="mt-3">
+						<div className="sticky -z-10 mt-3 h-72 w-full max-w-7xl">
 							<PagedBanner pages={bannerPages} height={"h-72"} />
 						</div>
 					)}

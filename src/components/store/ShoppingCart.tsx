@@ -53,7 +53,7 @@ export default function ShoppingCart({ totalCost, cart, setCart, label }: Props)
 	};
 
 	return (
-		<div onMouseEnter={buttonEnter} onMouseLeave={buttonLeave} className="sticky float-right">
+		<div onMouseEnter={buttonEnter} onMouseLeave={buttonLeave}>
 			<Button size="small" className="w-full sm:w-auto" variant="dark" onClick={() => router.push(`/store/cart`)}>
 				<div className="flex items-center space-x-2 py-1">
 					<Iconify icon="akar-icons:cart" className="text-black dark:text-white" height={20} />
