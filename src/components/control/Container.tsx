@@ -106,19 +106,21 @@ export default function ControlPanelContainer({
 			>
 				{rightPaneVisible && rightPaneContent}
 			</div>
-			<div
-				id="dragger"
-				className="fixed top-0 z-50 grid h-screen w-2 cursor-col-resize select-none place-items-center pl-1"
-				style={{
-					right:
-						rightPane.current?.clientWidth! -
-						(rightPane.current?.scrollHeight! > rightPane.current?.clientHeight! ? -8 : 8) +
-						"px",
-				}}
-				onMouseDown={draggerMouseDown}
-			>
-				<span className="text-[10px] text-black opacity-20 dark:text-white">||</span>
-			</div>
+			{rightPaneVisible && (
+				<div
+					id="dragger"
+					className="fixed top-0 right-0 z-50 grid h-screen w-2 cursor-col-resize select-none place-items-center pl-1"
+					style={{
+						right:
+							rightPane.current?.clientWidth! -
+							(rightPane.current?.scrollHeight! > rightPane.current?.clientHeight! ? -8 : 8) +
+							"px",
+					}}
+					onMouseDown={draggerMouseDown}
+				>
+					<span className="text-[10px] text-black opacity-20 dark:text-white">||</span>
+				</div>
+			)}
 		</>
 	);
 }
