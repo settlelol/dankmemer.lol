@@ -83,7 +83,7 @@ export default function ProductCreator({ forceHide }: Props) {
 	useEffect(() => {
 		if (
 			productName.length >= 1 &&
-			productName.length <= 250 &&
+			productName.length <= 18 &&
 			productType.length >= 1 &&
 			productPrices.length >= 1 &&
 			productDescription.length <= 250 &&

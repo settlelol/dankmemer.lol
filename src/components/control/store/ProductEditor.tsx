@@ -88,7 +88,7 @@ export default function ProductEditor({ id, forceHide }: Props) {
 	useEffect(() => {
 		if (
 			productName.length >= 1 &&
-			productName.length <= 250 &&
+			productName.length <= 18 &&
 			productDescription.length <= 250 &&
 			primaryTitle.length >= 1 &&
 			primaryBody.length >= 1 &&
