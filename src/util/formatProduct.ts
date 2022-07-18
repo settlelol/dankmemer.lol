@@ -49,6 +49,9 @@ export const formatProduct = async (to: "cart-item", productId: string, stripe: 
 					id: product.id,
 					name: product.name,
 					type: (product.metadata as Metadata).type!,
+					...((product.metadata as Metadata).category && {
+						category: (product.metadata as Metadata).category,
+					}),
 					image: product.images[0],
 					selectedPrice: prices[0].id,
 					prices,

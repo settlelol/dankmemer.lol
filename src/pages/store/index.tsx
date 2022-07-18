@@ -42,6 +42,7 @@ export type CartItem = {
 	id: string;
 	name: string;
 	type: ProductType;
+	category?: string;
 	image: string;
 	selectedPrice: string;
 	prices: DetailedPrice[];
@@ -187,9 +188,11 @@ export default function StoreHome({ user, banned, country, verification }: Props
 	};
 
 	const addProductById = async (id: string) => {
-		if (requiresAgeVerification) return setOpenDialog(true);
 		try {
-			const { data: formatted } = await axios(`/api/store/product/find?id=${id}&action=format&to=cart-item`);
+			const { data: formatted }: { data: CartItem } = await axios(
+				`/api/store/product/find?id=${id}&action=format&to=cart-item`
+			);
+			if (requiresAgeVerification && formatted.category?.toLowerCase() === "lootbox") return setOpenDialog(true);
 			addToCart(formatted);
 		} catch (e) {
 			console.error(e);
