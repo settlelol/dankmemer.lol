@@ -174,7 +174,9 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 												Go to store
 											</a>
 										</Link>
-										<Button size="medium">Return home</Button>
+										<Button size="medium" onClick={() => router.push("/store")}>
+											Return home
+										</Button>
 									</div>
 								</div>
 							</div>
