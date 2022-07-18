@@ -11,7 +11,8 @@ import { Payer } from "../types/Orders/Payer";
 import { PurchaseUnit } from "../types/Orders/PurchaseUnit";
 import { LinkDescription } from "./Products";
 
-let hostURL = process.env.NODE_ENV === "production" ? "api.paypal.com" : "api.sandbox.paypal.com";
+let hostURL =
+	process.env.NODE_ENV === "production" && !process.env.IN_TESTING ? "api.paypal.com" : "api.sandbox.paypal.com";
 
 interface ValidRequest {
 	valid: Boolean;
