@@ -3,7 +3,7 @@ import qs from "qs";
 
 let instance: AxiosInstance | null = null;
 let baseURL =
-	process.env.NODE_ENV === "production"
+	process.env.NODE_ENV === "production" && !process.env.IN_TESTING
 		? "https://api-m.paypal.com"
 		: "https://api-m.sandbox.paypal.com";
 
@@ -39,12 +39,7 @@ export async function createPayPal(reset = false) {
 		});
 	} catch (e: any) {
 		console.error(e);
-		throw new Error(
-			`Failed to create PayPal REST Client: ${e.message.replace(
-				/"/g,
-				""
-			)}`
-		);
+		throw new Error(`Failed to create PayPal REST Client: ${e.message.replace(/"/g, "")}`);
 	}
 }
 
