@@ -47,13 +47,7 @@ export default function Navbar({ user }: Props) {
 				<nav className="z-10 mt-0 flex w-full max-w-7xl justify-between bg-light-200 p-4 drop-shadow-xl dark:bg-dark-200 dark:drop-shadow-none lg:mt-5 lg:w-11/12 lg:rounded-md">
 					<div className="flex items-center">
 						<Link href="/">
-							<img
-								className="cursor-pointer"
-								src={"/img/memer.png"}
-								alt="Logo"
-								width="42"
-								height="42"
-							/>
+							<img className="cursor-pointer" src={"/img/memer.png"} alt="Logo" width="42" height="42" />
 						</Link>
 						<ul className="ml-5 hidden space-x-4 lg:flex">
 							<Link href="/commands">Commands</Link>
@@ -77,15 +71,9 @@ export default function Navbar({ user }: Props) {
 					</div>
 
 					<div className="relative hidden items-center lg:flex">
-						<Link href="https://discord.gg/dankmemerbot">
-							Support
-						</Link>
+						<Link href="https://discord.gg/dankmemerbot">Support</Link>
 						{!user && (
-							<Link
-								className="pl-4"
-								href="/api/auth/login"
-								variant="primary"
-							>
+							<Link className="pl-4" href="/api/auth/login" variant="primary">
 								Login
 							</Link>
 						)}
@@ -100,14 +88,8 @@ export default function Navbar({ user }: Props) {
 								<Dropdown
 									content={
 										<div className="flex items-center space-x-2 p-2">
-											<Avatar
-												id={user.id}
-												link={user.avatar}
-												size="32px"
-											/>
-											<div className="text-dark-500 dark:text-white">
-												{user.username}
-											</div>
+											<Avatar id={user.id} link={user.avatar} size="32px" />
+											<div className="text-dark-500 dark:text-white">{user.username}</div>
 											<span className="material-icons text-dark-100 dark:text-white">
 												expand_more
 											</span>
@@ -120,6 +102,7 @@ export default function Navbar({ user }: Props) {
 													link: "/control",
 											  }
 											: null,
+										{ label: "Dashboard", link: "/dashboard/@me" },
 										{
 											label: "Profile",
 											link: `/@${user.id}`,
@@ -130,13 +113,8 @@ export default function Navbar({ user }: Props) {
 													<div>Notifications</div>
 													{notifications > 0 && (
 														<div className="z-50 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-xs">
-															{Math.min(
-																notifications,
-																9
-															)}
-															{notifications > 9
-																? "+"
-																: ""}
+															{Math.min(notifications, 9)}
+															{notifications > 9 ? "+" : ""}
 														</div>
 													)}
 												</div>
@@ -181,23 +159,12 @@ export default function Navbar({ user }: Props) {
 							<div className="mt-5 border-t-[1px] border-dank-600 pt-5">
 								<div
 									className="flex w-full select-none items-center justify-between"
-									onClick={() =>
-										setMobileAccountExpanded(
-											!mobileAccountExpanded
-										)
-									}
+									onClick={() => setMobileAccountExpanded(!mobileAccountExpanded)}
 								>
 									<div className="flex items-center">
-										<Avatar
-											id={user.id}
-											link={user.avatar}
-											size="64px"
-											className="mr-4"
-										/>
+										<Avatar id={user.id} link={user.avatar} size="64px" className="mr-4" />
 										<div>
-											<h3 className="font-montserrat font-bold leading-none">
-												{user.username}
-											</h3>
+											<h3 className="font-montserrat font-bold leading-none">{user.username}</h3>
 											<p className="text-sm font-medium italic leading-none text-light-600">
 												#{user.discriminator}
 											</p>
@@ -206,9 +173,7 @@ export default function Navbar({ user }: Props) {
 									<span
 										className="material-icons transition-transform ease-in-out"
 										style={{
-											transform: `rotate(${
-												mobileAccountExpanded ? 180 : 0
-											}deg)`,
+											transform: `rotate(${mobileAccountExpanded ? 180 : 0}deg)`,
 										}}
 									>
 										expand_more
@@ -218,40 +183,21 @@ export default function Navbar({ user }: Props) {
 									id="account-links"
 									className={clsx(
 										"ease overflow-hiddens flex flex-col space-y-8 py-8 pl-3 transition-all",
-										mobileAccountExpanded
-											? "hidden"
-											: "inline-block"
+										mobileAccountExpanded ? "hidden" : "inline-block"
 									)}
 								>
-									<Link href="/community/notifications">
-										Notifications
-									</Link>
+									<Link href="/community/notifications">Notifications</Link>
 									<Link href="/appeals">Appeal a ban</Link>
 									<Link href="/reports">Report a user</Link>
-									{user?.moderator && (
-										<Link href="/control">
-											Control panel
-										</Link>
-									)}
+									{user?.moderator && <Link href="/control">Control panel</Link>}
 								</div>
-								<Button
-									className="mt-4"
-									variant="danger"
-									size="medium"
-									block
-									href="/api/auth/logout"
-								>
+								<Button className="mt-4" variant="danger" size="medium" block href="/api/auth/logout">
 									Logout
 								</Button>
 							</div>
 						) : (
 							<div className="mt-5 border-t-[1px] border-dank-600 pt-5">
-								<Button
-									variant="primary"
-									size="medium"
-									block
-									href="/api/auth/login"
-								>
+								<Button variant="primary" size="medium" block href="/api/auth/login">
 									Login
 								</Button>
 							</div>
