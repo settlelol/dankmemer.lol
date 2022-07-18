@@ -201,11 +201,6 @@ export default function StoreHome({ user, banned, country, verification }: Props
 			const { data: formatted }: { data: CartItem } = await axios(
 				`/api/store/product/find?id=${id}&action=format&to=cart-item`
 			);
-			console.log(
-				requiresAgeVerification,
-				formatted.category?.toLowerCase() === "lootbox",
-				requiresAgeVerification && formatted.category?.toLowerCase() === "lootbox"
-			);
 			if (requiresAgeVerification && formatted.category?.toLowerCase() === "lootbox") {
 				return setOpenDialog(true);
 			}
@@ -461,7 +456,7 @@ export const getServerSideProps: GetServerSideProps = withSession(
 			props: {
 				user,
 				banned: await db.collection("bans").findOne({ id: user.id, type: "lootbox" }),
-				country: country,
+				country,
 				verification: {
 					verified: dbUser.ageVerification?.verified ?? false,
 					years: dbUser.ageVerification?.years ?? 0,

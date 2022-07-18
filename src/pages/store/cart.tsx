@@ -3,7 +3,7 @@ import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Title } from "src/components/Title";
 import Container from "src/components/ui/Container";
-import { PageProps } from "src/types";
+import { PageProps, UserAge, UserData } from "src/types";
 import { withSession } from "src/util/session";
 import { CartItem as CartItems, Metadata, ProductType } from ".";
 import CartItem from "src/components/store/cart/CartItem";
@@ -24,10 +24,15 @@ import { dbConnect } from "src/util/mongodb";
 import { PurchaseRecord } from "../api/store/checkout/finalize/paypal";
 import { stripeConnect } from "src/util/stripe";
 import { getSelectedPriceValue } from "src/util/store";
+import { STORE_BLOCKED_COUNTRIES, STORE_CUSTOM_MIN_AGE, STORE_NO_MIN_AGE } from "src/constants";
+import AgeVerification from "src/components/store/modals/AgeVerification";
+import Dialog from "src/components/Dialog";
 
 interface Props extends PageProps {
 	cartData: CartItems[];
 	upsells: UpsellProduct[];
+	country: keyof typeof STORE_CUSTOM_MIN_AGE | (string & {});
+	verification: Omit<UserAge, "verifiedOn">;
 }
 
 export interface UpsellProduct {
@@ -42,7 +47,7 @@ export interface UpsellProduct {
 	}[];
 }
 
-export default function Cart({ cartData, upsells, user }: Props) {
+export default function Cart({ cartData, upsells, country, user, verification }: Props) {
 	const router = useRouter();
 
 	const marketingBoxView = useRef<MarketBoxVariants>(Math.random() >= 0.5 ? "gifting" : "perks");
@@ -66,6 +71,15 @@ export default function Cart({ cartData, upsells, user }: Props) {
 	const [appliedCode, setAppliedCode] = useState("");
 	const [appliedSavings, setAppliedSavings] = useState(0);
 	const [appliedDiscount, setAppliedDiscount] = useState(false);
+
+	const [userCountry, setUserCountry] = useState(country);
+	const [openDialog, setOpenDialog] = useState(false);
+	const [requiresAgeVerification, setRequiresAgeVerification] = useState(
+		!(
+			Object.keys(STORE_NO_MIN_AGE).concat(Object.keys(STORE_BLOCKED_COUNTRIES)).includes(country) &&
+			!verification.verified
+		) && verification.years < (STORE_CUSTOM_MIN_AGE[userCountry as keyof typeof STORE_CUSTOM_MIN_AGE] ?? 18)
+	);
 
 	useEffect(() => {
 		const cartTotal = cart.reduce(
@@ -122,6 +136,25 @@ export default function Cart({ cartData, upsells, user }: Props) {
 	useEffect(() => {
 		if (discountError.length > 1) return setDiscountError("");
 	}, [discountInput]);
+
+	// If the country prop is unknown, re-attempt to retrieve it via Cloudflare Quic.
+	useEffect(() => {
+		if (country === "??") {
+			(async () => {
+				let { data } = await axios("https://cloudflare-quic.com/b/headers");
+				const country = data.headers["Cf-Ipcountry"];
+				setRequiresAgeVerification(
+					!(
+						Object.keys(STORE_NO_MIN_AGE).concat(Object.keys(STORE_BLOCKED_COUNTRIES)).includes(country) &&
+						!verification.verified
+					) &&
+						verification.years <
+							(STORE_CUSTOM_MIN_AGE[userCountry as keyof typeof STORE_CUSTOM_MIN_AGE] ?? 18)
+				);
+				setUserCountry(data.headers["Cf-Ipcountry"]);
+			})();
+		}
+	}, [country]);
 
 	const deleteItem = (index: number) => {
 		if (!processingChange) {
@@ -244,6 +277,15 @@ export default function Cart({ cartData, upsells, user }: Props) {
 		const cartHasSubscription = cart.filter((i) => i.type === "subscription").length >= 1;
 		const cartHasSingle = cart.filter((i) => i.type === "single").length >= 1;
 
+		if (
+			typeToAdd === "single" &&
+			item.category === "lootbox" &&
+			!verification.verified &&
+			!requiresAgeVerification
+		) {
+			setOpenDialog(true);
+		}
+
 		if (typeToAdd === "subscription" && cartHasSubscription) {
 			toastMessage = "Only one subscription should be added your cart at a time.";
 		} else if (typeToAdd === "subscription" && cartHasSingle) {
@@ -273,7 +315,12 @@ export default function Cart({ cartData, upsells, user }: Props) {
 
 	const addUpsellProduct = async (id: string) => {
 		try {
-			const { data: formatted } = await axios(`/api/store/product/find?id=${id}&action=format&to=cart-item`);
+			const { data: formatted }: { data: CartItems } = await axios(
+				`/api/store/product/find?id=${id}&action=format&to=cart-item`
+			);
+			if (requiresAgeVerification && formatted.category?.toLowerCase() === "lootbox") {
+				return setOpenDialog(true);
+			}
 			addToCart(formatted);
 		} catch (e) {
 			toast.error("We were unable to update your cart information. Please try again later.");
@@ -312,7 +359,9 @@ export default function Cart({ cartData, upsells, user }: Props) {
 				<Title size="big">Shopping cart</Title>
 			</div>
 			<StoreBreadcrumb currentPage="cart" />
-
+			<Dialog open={openDialog} onClose={setOpenDialog}>
+				<AgeVerification age={verification.years} country={userCountry} />
+			</Dialog>
 			<div className="flex flex-col justify-between lg:flex-row lg:space-x-5 xl:space-x-0">
 				<div className="flex w-full flex-col lg:w-[73%]">
 					<div className="h-max w-full rounded-lg bg-light-500 px-4 py-3 dark:bg-dark-200">
@@ -549,6 +598,10 @@ export const getServerSideProps: GetServerSideProps = withSession(
 			};
 
 		const db = await dbConnect();
+		const dbUser = (await db.collection("users").findOne({ _id: user.id })) as UserData;
+		// Check request headers for cloudflare country header
+		let country = ctx.req.headers["cf-ipcountry"] ?? "??";
+
 		const stripe = stripeConnect();
 		const samplePurchaseSet = (await db
 			.collection("purchases")
@@ -597,6 +650,11 @@ export const getServerSideProps: GetServerSideProps = withSession(
 				cartData: cart,
 				upsells,
 				user,
+				country,
+				verification: {
+					verified: dbUser.ageVerification?.verified ?? false,
+					years: dbUser.ageVerification?.years ?? 0,
+				},
 			},
 		};
 	}
