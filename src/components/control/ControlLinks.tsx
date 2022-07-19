@@ -6,6 +6,7 @@ import { User } from "src/types";
 import SimpleBar from "simplebar-react";
 import "simplebar/dist/simplebar.min.css";
 import { useEffect } from "react";
+import { offsetVerticalSimplebar } from "src/util/simplebarOffsets";
 
 interface Props {
 	user: User;
@@ -16,16 +17,12 @@ export default function ControlLinks({ user }: Props) {
 	const { theme, setTheme } = useTheme();
 
 	useEffect(() => {
-		const hScroll = document.querySelectorAll("div.simplebar-track:nth-child(2)")[0];
-		const vScroll = document.querySelectorAll("div.simplebar-track:nth-child(3)")[0];
-		hScroll.setAttribute("style", "display: none;");
-		vScroll.setAttribute("data-simplebar-v-scroll-offset", "");
-		vScroll.setAttribute("style", "--v-scroll-offset: -15px;");
+		offsetVerticalSimplebar(-15);
 	}, []);
 
 	return (
 		<>
-			<SimpleBar className="max-h-[670px] w-full xl:short:max-h-[650px] xl:tall:max-h-[750px]">
+			<SimpleBar className="max-h-[670px] w-full xl:short:max-h-[650px] xl:tall:max-h-[750px]" autoHide={false}>
 				<LinkGroup title="Website">
 					<Navlink icon="bx:bxs-dashboard" text="Website overview" href="/control/website/overview" />
 					<Navlink

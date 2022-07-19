@@ -17,7 +17,9 @@ import { OrdersRetrieveResponse } from "src/util/paypal/classes/Orders";
 import clsx from "clsx";
 import { formatProduct } from "src/util/formatProduct";
 import { CartItem } from "..";
-import { NonNegative } from "type-fest";
+import SimpleBar from "simplebar-react";
+import "simplebar/dist/simplebar.min.css";
+import { offsetVerticalSimplebar } from "src/util/simplebarOffsets";
 
 interface BuyerDetails {
 	discordId: string;
@@ -69,6 +71,7 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 
 	useEffect(() => {
 		router.replace("/store/checkout/success", undefined, { shallow: true });
+		offsetVerticalSimplebar(-20);
 	}, []);
 
 	return (
@@ -139,13 +142,15 @@ export default function Success({ paymentGateway, invoice, user }: Props) {
 										<h3 className="font-montserrat text-base font-bold text-black dark:text-white">
 											Items purchased
 										</h3>
-										<div className="flex flex-col">
-											{invoice.items.map((item) => (
-												<CartItemImmutable
-													{...item}
-													gifted={JSON.parse(invoice.metadata.isGift)}
-												/>
-											))}
+										<div>
+											<SimpleBar className="flex max-h-72 flex-col" autoHide={false}>
+												{invoice.items.map((item) => (
+													<CartItemImmutable
+														{...item}
+														gifted={JSON.parse(invoice.metadata.isGift)}
+													/>
+												))}
+											</SimpleBar>
 										</div>
 									</div>
 								</div>
