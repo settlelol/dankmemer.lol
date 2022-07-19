@@ -169,12 +169,16 @@ export default function ProductCreator({ forceHide }: Props) {
 					},
 				});
 				setCreatingProduct(false);
+				forceHide();
 				if (redirectAfterSubmit) {
-					window.location.href = `https://dashboard.stripe.com/${
-						process.env.NODE_ENV !== "production" && process.env.IN_TESTING ? "test" : ""
-					}/products/${data.product}`;
-				} else {
-					forceHide();
+					window
+						.open(
+							`https://dashboard.stripe.com/${
+								process.env.NODE_ENV !== "production" && process.env.IN_TESTING ? "test" : ""
+							}/products/${data.product}`,
+							"_blank"
+						)
+						?.focus();
 				}
 			} catch (e) {
 				toast.error("Issue while creating product, check response in devtools.");

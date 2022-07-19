@@ -195,9 +195,14 @@ export default function ManageDiscounts({ user }: PageProps) {
 				"Due to too many options being available when creating a discount, I made the decision to just redirect you to the Stripe dashboard.\n\nConfirm here to be redirected to the Stripe dashboard to create a coupon."
 			)
 		) {
-			window.location.href = `https://dashboard.stripe.com/${
-				process.env.NODE_ENV !== "production" && process.env.IN_TESTING ? "test/" : "/"
-			}coupons/create`;
+			window
+				.open(
+					`https://dashboard.stripe.com/${
+						process.env.NODE_ENV !== "production" && process.env.IN_TESTING ? "test/" : "/"
+					}coupons/create`,
+					"_blank"
+				)
+				?.focus();
 		}
 	};
 
