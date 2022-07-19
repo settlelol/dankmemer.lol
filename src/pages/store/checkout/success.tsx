@@ -293,7 +293,12 @@ export const getServerSideProps: GetServerSideProps = withSession(
 					salesTax = item.amount;
 				} else {
 					const formatted = await formatProduct("cart-item", product.id, stripe);
-					items.push({ ...formatted, quantity: item.quantity ?? 1 });
+					items.push({
+						...formatted,
+						quantity: item.quantity ?? 1,
+						selectedPrice:
+							formatted.prices.find((p) => p.value === invoice.total)?.id ?? formatted.selectedPrice,
+					});
 				}
 			}
 
