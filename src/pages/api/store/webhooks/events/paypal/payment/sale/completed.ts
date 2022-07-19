@@ -1,10 +1,12 @@
 import { APIEmbedField } from "discord-api-types/v10";
 import { PurchaseRecord } from "src/pages/api/store/checkout/finalize/paypal";
+import { UserData } from "src/types";
 import { dbConnect } from "src/util/mongodb";
 import PayPal from "src/util/paypal";
 import { PayPalEvent } from "src/util/paypal/classes/Webhooks";
 import { redisConnect } from "src/util/redis";
 import { stripeConnect } from "src/util/stripe";
+import Stripe from "stripe";
 import { EventResponse } from "../../../../paypal";
 
 export const billingPeriod = {
@@ -58,10 +60,18 @@ export default async function (event: PayPalEvent, paypal: PayPal): Promise<Even
 	}
 
 	const product = await stripe.products.retrieve(price.product as string);
+	const customerEmail =
+		subscription.subscriber?.email_address ??
+		(
+			(await stripe.customers.search({ query: `metadata['discordId']:'${purchasedBy}'` }))
+				.data as Stripe.Customer[]
+		)[0].email ??
+		((await db.collection("users").findOne({ _id: purchasedBy })) as UserData).email;
+
 	fields = [
 		{
 			name: "Purchased by",
-			value: `<@!${purchasedBy}> (${purchasedBy})`,
+			value: `<@!${purchasedBy}> (${purchasedBy})\n> ${customerEmail}`,
 			inline: isGift,
 		},
 	];

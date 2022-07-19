@@ -26,6 +26,7 @@ export interface User {
 
 export interface UserData {
 	id: string;
+	email: string;
 	name: string;
 	discriminator: string;
 	avatar: string;
