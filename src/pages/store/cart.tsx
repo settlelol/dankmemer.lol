@@ -578,7 +578,7 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 							size="medium"
 							className={clsx("mt-3 w-full", processingChange ? "bg-[#7F847F] text-[#333533]" : "")}
 							onClick={goToCheckout}
-							disabled={processingChange || !validGiftRecipient}
+							disabled={processingChange || (isGift && !validGiftRecipient)}
 						>
 							Continue to Checkout
 						</Button>
