@@ -79,6 +79,7 @@ export default function StoreHome({ user, banned, country, verification }: Props
 	const [openDialog, setOpenDialog] = useState(false);
 
 	const [processingCartChange, setProcessingCartChange] = useState(false);
+	const [cartButtonHovered, setCartButtonHovered] = useState(false);
 
 	const [totalCost, setTotalCost] = useState<string>("...");
 	const [cartQuantities, setCartQuantities] = useState(0);
@@ -299,6 +300,7 @@ export default function StoreHome({ user, banned, country, verification }: Props
 							totalCost={totalCost}
 							cart={cartItems}
 							setCart={setCartItems}
+							hovered={setCartButtonHovered}
 							label={
 								cartQuantities >= 1
 									? `${cartQuantities} item${cartQuantities === 1 ? "" : "s"} for $${totalCost}`
@@ -307,7 +309,7 @@ export default function StoreHome({ user, banned, country, verification }: Props
 						/>
 					</div>
 					{bannerPages.length >= 1 && (
-						<div className="sticky -z-10 mt-3 h-72 w-full max-w-7xl">
+						<div className={clsx(cartButtonHovered && "-z-10", "sticky mt-3 h-72 w-full max-w-7xl")}>
 							<PagedBanner pages={bannerPages} height={"h-72"} />
 						</div>
 					)}

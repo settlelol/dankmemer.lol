@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { CartItem as CartItems } from "src/pages/store";
 import { Title } from "../Title";
 import Button from "../ui/Button";
@@ -9,16 +9,16 @@ import { Icon as Iconify } from "@iconify/react";
 interface Props {
 	totalCost: string;
 	cart: CartItems[];
+	hovered: Dispatch<SetStateAction<boolean>>;
 	setCart: any;
 	label: String;
 }
 
-export default function ShoppingCart({ totalCost, cart, setCart, label }: Props) {
+export default function ShoppingCart({ totalCost, cart, hovered, setCart, label }: Props) {
 	const router = useRouter();
 	const [showCart, setShowCart] = useState(false);
 	// Thanks badosz
 	let timeoutEnter: NodeJS.Timeout;
-	let timeoutLeave: NodeJS.Timeout;
 
 	const deleteItem = (index: number) => {
 		const _cart = [...cart];
@@ -51,6 +51,10 @@ export default function ShoppingCart({ totalCost, cart, setCart, label }: Props)
 			setShowCart(false);
 		}
 	};
+
+	useEffect(() => {
+		hovered(showCart);
+	}, [showCart]);
 
 	return (
 		<div onMouseEnter={buttonEnter} onMouseLeave={buttonLeave}>
