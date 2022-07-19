@@ -1,9 +1,9 @@
 import { APIEmbedField } from "discord-api-types/v10";
+import { billingPeriod } from "src/components/store/cart/CartItem";
 import PayPal from "src/util/paypal";
 import { PayPalEvent } from "src/util/paypal/classes/Webhooks";
 import { stripeConnect } from "src/util/stripe";
 import { EventResponse } from "../../../../paypal";
-import { billingPeriod } from "../../payment/sale/completed";
 
 export default async function (event: PayPalEvent, paypal: PayPal): Promise<EventResponse> {
 	const stripe = stripeConnect();

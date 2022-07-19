@@ -1,4 +1,5 @@
 import { APIEmbedField } from "discord-api-types/v10";
+import { billingPeriod } from "src/components/store/cart/CartItem";
 import { PurchaseRecord } from "src/pages/api/store/checkout/finalize/paypal";
 import { UserData } from "src/types";
 import { dbConnect } from "src/util/mongodb";
@@ -8,13 +9,6 @@ import { redisConnect } from "src/util/redis";
 import { stripeConnect } from "src/util/stripe";
 import Stripe from "stripe";
 import { EventResponse } from "../../../../paypal";
-
-export const billingPeriod = {
-	day: "Daily",
-	week: "Weekly",
-	month: "Monthly",
-	year: "Annually",
-};
 
 export default async function (event: PayPalEvent, paypal: PayPal): Promise<EventResponse> {
 	let fields: APIEmbedField[] = [];

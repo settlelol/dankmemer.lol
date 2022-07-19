@@ -5,6 +5,7 @@ import Dropdown from "src/components/ui/Dropdown";
 import { CartItem as CartItems } from "src/pages/store";
 
 import { toTitleCase } from "src/util/string";
+import Stripe from "stripe";
 
 interface Props extends CartItems {
 	index: number;
@@ -14,6 +15,13 @@ interface Props extends CartItems {
 	deleteItem: any;
 	disabled: boolean;
 }
+
+export const billingPeriod = {
+	day: "Daily",
+	week: "Weekly",
+	month: "Monthly",
+	year: "Annually",
+};
 
 export default function CartItem({
 	index,
@@ -108,25 +116,15 @@ export default function CartItem({
 									/>
 								</div>
 							}
-							options={
-								price().interval?.period === "month"
-									? [
-											{
-												onClick: () => {
-													changeInterval(index, "year");
-												},
-												label: size === "small" ? "Annually" : "Annual subscription",
-											},
-									  ]
-									: [
-											{
-												onClick: () => {
-													changeInterval(index, "month");
-												},
-												label: size === "small" ? "Monthly" : "Monthly subscription",
-											},
-									  ]
-							}
+							options={prices.map((p) => ({
+								label:
+									size !== "small"
+										? (p.interval!.period === "year"
+												? "Annual"
+												: billingPeriod[p.interval!.period]) + " subscription"
+										: billingPeriod[p.interval!.period],
+								onClick: () => changeInterval(index, p.interval!.period),
+							}))}
 						/>
 					) : (
 						<div className="flex items-center justify-center">
