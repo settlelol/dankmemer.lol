@@ -377,6 +377,7 @@ export default function StoreHome({ user, banned, country, verification }: Props
 												<PopularProduct
 													key={product.id}
 													product={product}
+													canAdd={!processingCartChange}
 													add={() => addProductById(product.id)}
 													openModal={() => setModalProductId(product.id)}
 												/>
@@ -402,6 +403,7 @@ export default function StoreHome({ user, banned, country, verification }: Props
 											<Product
 												key={product.id}
 												product={product}
+												canAdd={!processingCartChange}
 												add={() => addProductById(product.id)}
 												openModal={() => setModalProductId(product.id)}
 											/>
@@ -429,6 +431,7 @@ export default function StoreHome({ user, banned, country, verification }: Props
 											<Product
 												key={product.id}
 												product={product}
+												canAdd={!processingCartChange}
 												add={() => addProductById(product.id)}
 												openModal={() => setModalProductId(product.id)}
 											/>

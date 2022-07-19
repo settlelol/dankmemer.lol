@@ -9,11 +9,12 @@ import Lottie from "react-lottie-player/dist/LottiePlayerLight";
 
 interface Props {
 	product: UpsellProduct;
+	canAdd: boolean;
 	add: () => void;
 	openModal: () => void;
 }
 
-export default function PopularProduct({ product, add, openModal }: Props) {
+export default function PopularProduct({ product, canAdd, add, openModal }: Props) {
 	const [showAdded, setShowAdded] = useState(false);
 
 	useEffect(() => {
@@ -52,8 +53,10 @@ export default function PopularProduct({ product, add, openModal }: Props) {
 						size="medium"
 						className="z-10 w-8/12"
 						onClick={() => {
-							setShowAdded(true);
-							add();
+							if (canAdd) {
+								setShowAdded(true);
+								add();
+							}
 						}}
 					>
 						{showAdded ? (

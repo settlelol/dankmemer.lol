@@ -9,11 +9,12 @@ import Lottie from "react-lottie-player/dist/LottiePlayerLight";
 
 interface Props {
 	product: ListedProduct;
+	canAdd: boolean;
 	add: () => void;
 	openModal: () => void;
 }
 
-export default function Product({ product, add, openModal }: Props) {
+export default function Product({ product, canAdd, add, openModal }: Props) {
 	const [showAdded, setShowAdded] = useState(false);
 
 	useEffect(() => {
@@ -42,8 +43,10 @@ export default function Product({ product, add, openModal }: Props) {
 							// Needs to use arbitrary values because the animation is behind the button, ruins the effect
 							className="w-full hover:bg-[#47aa5b] hover:!bg-opacity-100 hover:dark:bg-[#167a2a] hover:dark:!bg-opacity-100"
 							onClick={() => {
-								setShowAdded(true);
-								add();
+								if (canAdd) {
+									setShowAdded(true);
+									add();
+								}
 							}}
 						>
 							{showAdded ? "Added to cart!" : "Add to cart"}
