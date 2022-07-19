@@ -272,6 +272,12 @@ export default function StoreHome({ user, banned, country, verification }: Props
 	}, [cartItems]);
 
 	useEffect(() => {
+		if (!openModal) {
+			setModalProductId("");
+		}
+	}, [openModal]);
+
+	useEffect(() => {
 		if (modalProductId && modalProductId.length >= 1) {
 			setOpenModal(true);
 		} else {
@@ -281,13 +287,9 @@ export default function StoreHome({ user, banned, country, verification }: Props
 
 	return (
 		<>
-			{openModal && (
-				<Modal
-					productId={modalProductId}
-					add={() => addProductById(modalProductId)}
-					close={() => setModalProductId("")}
-				/>
-			)}
+			<Dialog open={openModal} onClose={setOpenModal} closeButton>
+				<Modal productId={modalProductId} add={() => addProductById(modalProductId)} />
+			</Dialog>
 			{banned && <BannedUser />}
 			{!banned && (
 				<Container title="Store" user={user}>

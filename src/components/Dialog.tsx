@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function Dialog({ open, onClose, children, closeButton }: Props) {
-	const dialog = useRef<any>(null);
+	const dialog = useRef<HTMLDialogElement | null>(null);
 	const state = useRef(false);
 
 	const closeDialog = () => {
@@ -44,16 +44,16 @@ export default function Dialog({ open, onClose, children, closeButton }: Props) 
 			ref={dialog}
 			className={clsx(
 				"relative m-auto overflow-hidden",
-				"backdrop:bg-dark-400/50 backdrop:backdrop-blur-sm",
+				"backdrop:bg-white dark:backdrop:bg-dark-300 phone:backdrop:!bg-dark-400/50 phone:backdrop:backdrop-blur-sm phone:dark:backdrop:!bg-dark-400/50",
 				"bg-white dark:bg-dark-300",
-				"rounded-md shadow-xl transition-all",
-				"sm:w-full sm:max-w-lg"
+				"transition-all phone:rounded-md phone:shadow-xl",
+				"w-full sm:max-w-lg"
 			)}
 		>
 			<form className="p-4 pr-5">
 				{closeButton && (
 					<span
-						className="absolute top-2 right-2 cursor-pointer opacity-50 hover:opacity-75"
+						className="absolute -top-1 -right-1 cursor-pointer opacity-50 hover:opacity-75 phone:top-2 phone:right-2"
 						onClick={() => dialog.current!.close()}
 					>
 						<Iconify icon="clarity:close-line" />
