@@ -24,9 +24,11 @@ import { dbConnect } from "src/util/mongodb";
 import { PurchaseRecord } from "../api/store/checkout/finalize/paypal";
 import { stripeConnect } from "src/util/stripe";
 import { getSelectedPriceValue } from "src/util/store";
-import { STORE_BLOCKED_COUNTRIES, STORE_CUSTOM_MIN_AGE, STORE_NO_MIN_AGE } from "src/constants";
+import { STORE_BLOCKED_COUNTRIES, STORE_CUSTOM_MIN_AGE, STORE_NO_MIN_AGE, TIME } from "src/constants";
 import AgeVerification from "src/components/store/modals/AgeVerification";
 import Dialog from "src/components/Dialog";
+import SubscriptionInfo from "src/components/store/cart/SubscriptionInfo";
+import { format } from "date-fns";
 
 interface Props extends PageProps {
 	cartData: CartItems[];
@@ -93,6 +95,7 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 
 	useEffect(() => {
 		try {
+			setProcessingChange(true);
 			axios({
 				url: "/api/store/cart/set",
 				method: "PUT",
@@ -130,6 +133,8 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 					position: "top-center",
 				});
 			}
+		} finally {
+			setProcessingChange(false);
 		}
 	}, [cart]);
 
@@ -237,7 +242,9 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 			return;
 		}
 
-		setProcessingChange(true);
+		if (!processingChange) {
+			setProcessingChange(true);
+		}
 		axios({
 			method: "POST",
 			url: `/api/store/discount/recalculate`,
@@ -348,10 +355,10 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 			});
 	};
 
+	const price = () => getSelectedPriceValue(cart[0], cart[0].selectedPrice);
 	const validateGiftRecipient = (recipient: string) => /^\d{16,21}$/.test(recipient) && giftRecipient !== user!.id;
 
 	useEffect(() => {
-		console.log(giftRecipient !== "" && validateGiftRecipient(giftRecipient));
 		setValidGiftRecipient(giftRecipient !== "" && validateGiftRecipient(giftRecipient));
 	}, [giftRecipient]);
 
@@ -366,30 +373,92 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 			</Dialog>
 			<div className="flex flex-col justify-between lg:flex-row lg:space-x-5 xl:space-x-0">
 				<div className="flex w-full flex-col lg:w-[73%]">
-					<div className="h-max w-full rounded-lg bg-light-500 px-4 py-3 dark:bg-dark-200">
-						<Title size="small">Your items</Title>
-						<div className="mt-2">
-							{cart.map((item, i) => (
-								<CartItem
-									size="large"
-									index={i}
-									{...item}
-									updateQuantity={updateQuantity}
-									changeInterval={changeInterval}
-									deleteItem={deleteItem}
-									disabled={processingChange}
-								/>
-							))}
-						</div>
-					</div>
-					<div className="mt-5 h-max w-full rounded-lg bg-light-500 px-4 py-3 dark:bg-dark-200">
-						<Title size="small">Other users have also bought</Title>
-						<div className="mt-2">
-							{upsells.map((upsell) => (
-								<OtherProduct {...upsell} addToCart={addUpsellProduct} />
-							))}
-						</div>
-					</div>
+					{cart[0].type !== "subscription" ? (
+						<>
+							<div className="h-max w-full rounded-lg bg-light-500 px-4 py-3 dark:bg-dark-200">
+								<Title size="small">Your items</Title>
+								<div className="mt-2">
+									{cart.map((item, i) => (
+										<CartItem
+											size="large"
+											index={i}
+											{...item}
+											updateQuantity={updateQuantity}
+											changeInterval={changeInterval}
+											deleteItem={deleteItem}
+											disabled={processingChange}
+										/>
+									))}
+								</div>
+							</div>
+							<div className="mt-5 h-max w-full rounded-lg bg-light-500 px-4 py-3 dark:bg-dark-200">
+								<Title size="small">Other users have also bought</Title>
+								<div className="mt-2">
+									{upsells.map((upsell) => (
+										<OtherProduct {...upsell} addToCart={addUpsellProduct} />
+									))}
+								</div>
+							</div>
+						</>
+					) : (
+						<>
+							<div className="mb-10 h-max w-full rounded-lg bg-light-500 px-4 py-3 dark:bg-dark-200">
+								<Title size="small">Your items</Title>
+								<div className="mt-2">
+									{cart.map((item, i) => (
+										<CartItem
+											size="large"
+											index={i}
+											{...item}
+											updateQuantity={updateQuantity}
+											changeInterval={changeInterval}
+											deleteItem={deleteItem}
+											disabled={processingChange}
+										/>
+									))}
+								</div>
+								<div className="my-5 flex w-full items-center justify-start space-x-5 rounded-lg bg-dank-200 py-3 px-5">
+									<p>
+										<Iconify icon="ant-design:info-circle-outlined" width={24} />
+									</p>
+									{isGift ? (
+										<p className="max-w-[90%] text-sm">
+											The selected subscription is being purchased as a gift. Gifted subscriptions
+											are not recurring products, therefore you will not be charged again for this
+											purchase.
+										</p>
+									) : (
+										<p className="max-w-[90%] text-sm">
+											The selected subscription will last {price().interval?.count}{" "}
+											{price().interval!.period + (price().interval!.count > 1 ? "s " : " ")}and
+											is automatically assigned to{" "}
+											<Tooltip content={user!.username + "#" + user!.discriminator}>
+												<span className="underline">your Discord account</span>
+											</Tooltip>
+											. You will be charged the same amount again (
+											{processingChange ? (
+												<div className="inline-block h-4 w-10 animate-[pulse_0.5s_ease-in-out_infinite] rounded bg-dank-400"></div>
+											) : (
+												<>
+													$
+													{(totalCost - (thresholdDiscount ? totalCost * 0.1 : 0)).toFixed(2)}
+												</>
+											)}
+											) on{" "}
+											{format(
+												new Date(
+													new Date().getTime() +
+														TIME[price().interval?.period as keyof typeof TIME]
+												),
+												"LLLL do, yyyy 'at' h:mm aaa"
+											)}
+										</p>
+									)}
+								</div>
+								<SubscriptionInfo productId={cart[0].id} />
+							</div>
+						</>
+					)}
 				</div>
 				<div className="my-10 flex w-full flex-col items-center space-y-10 md:flex-row-reverse md:items-start md:space-y-0 lg:my-0 lg:mb-10 lg:w-80 lg:flex-col lg:space-y-5">
 					{cart[0] && cart[0].type === "subscription" ? (
