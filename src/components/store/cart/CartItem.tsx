@@ -185,7 +185,7 @@ export default function CartItem({
 					icon="bx:bx-trash"
 					height={size === "small" ? "15" : "20"}
 					className="hidden w-4 cursor-pointer text-gray-800 transition-colors hover:!text-red-400 dark:text-gray-200 sm:inline sm:w-auto"
-					onClick={deleteItem}
+					onClick={() => deleteItem(index)}
 				/>
 			</div>
 		</div>
