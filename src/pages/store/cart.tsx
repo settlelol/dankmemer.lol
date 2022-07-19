@@ -350,6 +350,11 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 
 	const validateGiftRecipient = (recipient: string) => /^\d{16,21}$/.test(recipient) && giftRecipient !== user!.id;
 
+	useEffect(() => {
+		console.log(giftRecipient !== "" && validateGiftRecipient(giftRecipient));
+		setValidGiftRecipient(giftRecipient !== "" && validateGiftRecipient(giftRecipient));
+	}, [giftRecipient]);
+
 	return (
 		<Container title="Shopping Cart" user={user}>
 			<div className="mt-12 mb-5 flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
@@ -431,26 +436,22 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 									{isGift && (
 										<div className="mt-2">
 											<Input
-												width="w-[190px]"
+												width="w-full max-w-xs"
 												type="text"
 												placeholder="270904126974590976"
 												className={clsx(
 													"!py-1 dark:placeholder:text-neutral-500",
-													!validGiftRecipient && "border-red-500 dark:border-red-500"
+													!validGiftRecipient &&
+														giftRecipient !== "" &&
+														"!border-red-500 dark:!border-red-500"
 												)}
 												value={giftRecipient}
 												onChange={(e: any) => {
-													setValidGiftRecipient(
-														giftRecipient !== "" && validateGiftRecipient(giftRecipient)
-													);
 													if (/^\d+$/.test(e.target.value) || e.target.value === "") {
 														setGiftRecipient(e.target.value);
 													}
 												}}
 												onBlur={(e) => {
-													setValidGiftRecipient(
-														giftRecipient !== "" && validateGiftRecipient(giftRecipient)
-													);
 													if (validateGiftRecipient(e.target.value)) {
 														setGiftRecipient(e.target.value);
 													}
