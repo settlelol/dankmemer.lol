@@ -26,7 +26,6 @@ export interface User {
 
 export interface UserData {
 	id: string;
-	email: string;
 	name: string;
 	discriminator: string;
 	avatar: string;
@@ -37,6 +36,7 @@ export interface UserData {
 	modManager: boolean;
 
 	_id?: string;
+	email?: string;
 	banner?: string;
 	vanity?: string;
 	socials?: Record<string, string>;

@@ -75,7 +75,7 @@ export default async function (event: Stripe.Event, stripe: Stripe): Promise<Eve
 	const fields: APIEmbedField[] = [
 		{
 			name: "Purchased by",
-			value: `<@!${payee}> (${payee})\n> ${customer.email}`,
+			value: `<@!${payee}> (${payee})\n> ${customer.email ?? "Unknown email"}`,
 			inline: paymentIntent.metadata?.isGift && JSON.parse(paymentIntent.metadata.isGift),
 		},
 	];

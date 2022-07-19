@@ -72,7 +72,8 @@ export default async function (event: PayPalEvent, paypal: PayPal): Promise<Even
 			(await stripe.customers.search({ query: `metadata['discordId']:'${purchasedBy}'` }))
 				.data as Stripe.Customer[]
 		)[0].email ??
-		((await db.collection("users").findOne({ _id: purchasedBy })) as UserData).email;
+		((await db.collection("users").findOne({ _id: purchasedBy })) as UserData).email ??
+		"Unknown email";
 	let fields: APIEmbedField[] = [
 		{
 			name: "Purchased by",
