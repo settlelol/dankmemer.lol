@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
+import { isAfter } from "date-fns";
 import formatDistanceToNowStrict from "date-fns/formatDistanceToNowStrict";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -86,7 +87,11 @@ export default function AgeVerification({ age, country }: Props) {
 						type="date"
 						label="Date of birth"
 						width="medium"
-						onChange={(e) => setDate(e.target.value)}
+						onChange={(e) => {
+							if (!isAfter(new Date(e.target.value), new Date())) {
+								setDate(e.target.value);
+							}
+						}}
 						max={`${new Date().getFullYear()}-${(new Date().getMonth() + 1).toLocaleString("en-US", {
 							minimumIntegerDigits: 2,
 							useGrouping: false,
