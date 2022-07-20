@@ -39,7 +39,7 @@ export default function Navbar({ user }: Props) {
 	return (
 		<>
 			<div className="flex items-center justify-center text-lg">
-				<nav className="z-10 mt-0 flex w-full max-w-7xl justify-between bg-light-200 p-4 drop-shadow-xl dark:bg-dark-200 dark:drop-shadow-none lg:mt-5 lg:w-11/12 lg:rounded-md">
+				<nav className="relative z-10 mt-0 flex h-20 w-full max-w-7xl justify-between bg-light-200 p-4 drop-shadow-xl dark:bg-dark-200 dark:drop-shadow-none lg:mt-5 lg:w-11/12 lg:rounded-md">
 					<div className="flex items-center">
 						<Link href="/">
 							<img className="cursor-pointer" src={"/img/memer.png"} alt="Logo" width="42" height="42" />
@@ -59,7 +59,6 @@ export default function Navbar({ user }: Props) {
 							Dank Memer
 						</div>
 					</div>
-
 					<div className="relative hidden items-center lg:flex">
 						<Link href="https://discord.gg/dankmemerbot">Support</Link>
 						{!user && (
@@ -86,10 +85,10 @@ export default function Navbar({ user }: Props) {
 										</div>
 									}
 									options={[
-										user.moderator
+										user.moderator || user.developer
 											? {
 													label: "Control Panel",
-													link: "/control",
+													link: "/control/website/overview",
 											  }
 											: null,
 										{ label: "Dashboard", link: "/dashboard/@me" },
@@ -134,66 +133,77 @@ export default function Navbar({ user }: Props) {
 						onClick={() => setHamburger(!hamburger)}
 					>
 						<span className="material-icons">menu</span>
-					</div>
-				</nav>
-				{hamburger && (
-					<ul className="absolute top-[74px] z-[9999999] box-border flex h-screen w-screen flex-col bg-light-200 px-6 dark:bg-dark-200">
-						<div className="flex flex-col space-y-8">
-							<Link href="/commands">Commands</Link>
-							<Link href="/faq">Frequently asked questions</Link>
-							<Link href="/community">Community</Link>
-							<Link href="/store">Store</Link>
-							<Link href="/items">Items</Link>
-						</div>
-						{user ? (
-							<div className="mt-5 border-t-[1px] border-dank-600 pt-5">
-								<div
-									className="flex w-full select-none items-center justify-between"
-									onClick={() => setMobileAccountExpanded(!mobileAccountExpanded)}
-								>
-									<div className="flex items-center">
-										<Avatar id={user.id} link={user.avatar} size="64px" className="mr-4" />
-										<div>
-											<h3 className="font-montserrat font-bold leading-none">{user.username}</h3>
-											<p className="text-sm font-medium italic leading-none text-light-600">
-												#{user.discriminator}
-											</p>
-										</div>
-									</div>
-									<span
-										className="material-icons transition-transform ease-in-out"
-										style={{
-											transform: `rotate(${mobileAccountExpanded ? 180 : 0}deg)`,
-										}}
+					</div>{" "}
+					{hamburger && (
+						<ul className="absolute top-20 left-0 z-50 box-border flex h-screen w-screen flex-col bg-light-200 px-6 text-sm dark:bg-dark-200">
+							<div className="flex flex-col space-y-3">
+								<Link href="/commands">Commands</Link>
+								<Link href="/faq">Frequently asked questions</Link>
+								<Link href="/community">Community</Link>
+								<Link href="/store">Store</Link>
+								<Link href="/items">Items</Link>
+							</div>
+							{user ? (
+								<div className="mt-5 border-t border-dank-600 pt-5">
+									<div
+										className="flex w-full select-none items-center justify-between"
+										onClick={() => setMobileAccountExpanded(!mobileAccountExpanded)}
 									>
-										expand_more
-									</span>
+										<div className="flex items-center">
+											<Avatar id={user.id} link={user.avatar} size="64px" className="mr-4" />
+											<div>
+												<h3 className="font-montserrat font-bold leading-none">
+													{user.username}
+												</h3>
+												<p className="text-sm font-medium italic leading-none text-light-600">
+													#{user.discriminator}
+												</p>
+											</div>
+										</div>
+										<span
+											className="material-icons transition-transform ease-in-out"
+											style={{
+												transform: `rotate(${mobileAccountExpanded ? 180 : 0}deg)`,
+											}}
+										>
+											expand_more
+										</span>
+									</div>
+									<div
+										id="account-links"
+										className={clsx(
+											"flex flex-col space-y-3 overflow-hidden py-8 pl-3 transition-all ease-in-out",
+											mobileAccountExpanded ? "hidden" : "inline-block"
+										)}
+									>
+										<Link href="/community/notifications">Notifications</Link>
+										<Link href="/appeals">Appeal a ban</Link>
+										<Link href="/reports">Report a user</Link>
+										{(user?.moderator || user.developer) && (
+											<Link href="/control/website/overview">Control panel</Link>
+										)}
+										<Link href="/dashboard/@me">Dashboard</Link>
+									</div>
+									<Button
+										className="mt-4"
+										variant="danger"
+										size="medium"
+										block
+										href="/api/auth/logout"
+									>
+										Logout
+									</Button>
 								</div>
-								<div
-									id="account-links"
-									className={clsx(
-										"ease overflow-hiddens flex flex-col space-y-8 py-8 pl-3 transition-all",
-										mobileAccountExpanded ? "hidden" : "inline-block"
-									)}
-								>
-									<Link href="/community/notifications">Notifications</Link>
-									<Link href="/appeals">Appeal a ban</Link>
-									<Link href="/reports">Report a user</Link>
-									{user?.moderator && <Link href="/control">Control panel</Link>}
+							) : (
+								<div className="mt-5 border-t-[1px] border-dank-600 pt-5">
+									<Button variant="primary" size="medium" block href="/api/auth/login">
+										Login
+									</Button>
 								</div>
-								<Button className="mt-4" variant="danger" size="medium" block href="/api/auth/logout">
-									Logout
-								</Button>
-							</div>
-						) : (
-							<div className="mt-5 border-t-[1px] border-dank-600 pt-5">
-								<Button variant="primary" size="medium" block href="/api/auth/login">
-									Login
-								</Button>
-							</div>
-						)}
-					</ul>
-				)}
+							)}
+						</ul>
+					)}
+				</nav>
 			</div>
 		</>
 	);
