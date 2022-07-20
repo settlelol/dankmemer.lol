@@ -13,7 +13,6 @@ interface Props {
 
 export default function Navbar({ user }: Props) {
 	const [hamburger, setHamburger] = useState(false);
-	const [discount, setDiscount] = useState(0);
 	const [mobileAccountExpanded, setMobileAccountExpanded] = useState(false);
 	const [notifications, setNotifications] = useState(0);
 
@@ -25,10 +24,6 @@ export default function Navbar({ user }: Props) {
 		const handleResize = () => {
 			setHamburger(false);
 		};
-
-		axios(`/api/discount/get`).then(({ data }) => {
-			setDiscount((data.percent || 0) * 100);
-		});
 
 		axios(`/api/community/notifications/count`).then(({ data }) => {
 			setNotifications(data.count);
@@ -55,11 +50,6 @@ export default function Navbar({ user }: Props) {
 							<Link href="/store">
 								<div className="flex cursor-pointer items-center space-x-2">
 									<span>Store</span>
-									{!!discount && (
-										<span className="rounded-md bg-yellow-300 px-2 font-montserrat text-xs font-bold text-dark-500">
-											SALE: {discount}%
-										</span>
-									)}
 								</div>
 							</Link>
 							<Link href="/items">Items</Link>
