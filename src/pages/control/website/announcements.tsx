@@ -257,7 +257,7 @@ export function Announcement({ content, close }: { content: string | null; close
 	return (
 		<div className="relative w-full bg-dank-300 py-1 text-center">
 			<p
-				className="text-sm"
+				className="px-7 text-sm"
 				dangerouslySetInnerHTML={{
 					__html:
 						content ??
