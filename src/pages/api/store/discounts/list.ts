@@ -1,5 +1,5 @@
 import { NextApiResponse } from "next";
-import { NextIronRequest, withSession } from "../../../util/session";
+import { NextIronRequest, withSession } from "../../../../util/session";
 import { stripeConnect } from "src/util/stripe";
 import { Discount } from "src/pages/control/store/discounts";
 

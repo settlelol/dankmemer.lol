@@ -178,7 +178,7 @@ export default function ManageDiscounts({ user }: PageProps) {
 	};
 
 	useEffect(() => {
-		axios("/api/discounts/list").then(({ data }) => {
+		axios("/api/store/discounts/list").then(({ data }) => {
 			setDiscounts(data);
 			setLoading(false);
 		});

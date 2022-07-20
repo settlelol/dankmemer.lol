@@ -1,9 +1,11 @@
 import { NextApiResponse } from "next";
-import { dbConnect } from "../../../util/mongodb";
-import { NextIronRequest, withSession } from "../../../util/session";
+import { dbConnect } from "src/util/mongodb";
+import { redisConnect } from "src/util/redis";
+import { NextIronRequest, withSession } from "src/util/session";
 
 const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 	const db = await dbConnect();
+	const redis = await redisConnect();
 
 	const user = req.session.get("user");
 
@@ -15,16 +17,18 @@ const handler = async (req: NextIronRequest, res: NextApiResponse) => {
 		return res.status(401).json({ error: "You can't do this." });
 	}
 
-	if (!req.query?.percent || !req.query?.expiry) {
-		return res.status(400).json({ error: "Missing parameters." });
+	const { content } = req.body;
+	if (!content) {
+		return res.status(400).json({ message: "Missing announcement content in request body." });
 	}
 
+	await redis.del("announcements");
+
 	try {
-		await db.collection("discounts").insertOne({
-			percent: parseFloat(req.query.percent as string) / 100,
-			name: "",
-			expiry:
-				Date.now() + parseInt(req.query.expiry as string) * 3600 * 1000,
+		await db.collection("announcements").insertOne({
+			content: content || "",
+			createdAt: new Date().getTime(),
+			author: user.id,
 		});
 		return res.status(200).json({});
 	} catch (e) {
