@@ -176,7 +176,7 @@ export default function DisputeCreator({ purchase, userId, close }: Props) {
 						/>
 					</div>
 				</div>
-				<div className="mt-3">
+				<div className="relative mt-3">
 					<label className="mb-1 text-neutral-600 dark:text-neutral-300">
 						Reasoning behind your request<sup className="text-red-500">*</sup>
 					</label>
@@ -189,9 +189,21 @@ export default function DisputeCreator({ purchase, userId, close }: Props) {
 						className={clsx(
 							"h-48 max-h-[450px] min-h-[50px] w-full resize-y rounded-md border-[1px] px-3 py-2",
 							"font-inter text-sm text-neutral-800 dark:text-white",
-							"border-neutral-300 focus-visible:border-dank-300 focus-visible:outline-none dark:border-neutral-700 dark:bg-black/30 placeholder:dark:text-neutral-400"
+							"border-neutral-300 focus-visible:border-dank-300 focus-visible:outline-none dark:border-neutral-700 dark:bg-dark-400 placeholder:dark:text-neutral-400"
 						)}
 					/>
+					<span
+						className={clsx(
+							"absolute bottom-[3px] right-5 bg-white px-1 py-0.5 text-right text-xs dark:bg-dark-400",
+							refundBody.length < 100
+								? "text-red-400"
+								: refundBody.length < 2000
+								? "text-neutral-400 dark:text-neutral-500"
+								: "text-red-400"
+						)}
+					>
+						{refundBody.length}/{refundBody.length < 100 ? 100 : 2000}
+					</span>
 				</div>
 				<div className="mt-3">
 					<Checkbox state={acknowledgement} callback={() => setAcknowledgement((state) => !state)}>
