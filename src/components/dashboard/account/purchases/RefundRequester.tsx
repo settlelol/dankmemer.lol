@@ -119,13 +119,10 @@ export default function DisputeCreator({ purchase, userId, close }: Props) {
 						width="w-[300px]"
 						placeholder="Order ID"
 						type="text"
-						label={
-							<>
-								Order ID<sup className="text-red-500">*</sup>
-							</>
-						}
+						label="Order ID"
 						value={purchase._id}
 						className="dark:text-neutral-400"
+						required
 						disabled
 					/>
 					<div className="w-2/5">
