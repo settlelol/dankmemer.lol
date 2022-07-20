@@ -54,6 +54,8 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 
 	const marketingBoxView = useRef<MarketBoxVariants>(Math.random() >= 0.5 ? "gifting" : "perks");
 
+	const [itemsShaking, setItemsShaking] = useState<string[]>([]);
+
 	const [processingChange, setProcessingChange] = useState<boolean>(false);
 	const [cart, setCart] = useState<CartItems[]>(cartData);
 	const [salesTax, setSalesTax] = useState<number>(0);
@@ -322,6 +324,13 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 	};
 
 	const addUpsellProduct = async (id: string) => {
+		console.log(cart.find((i) => i.id === id) && cart.find((i) => i.id === id)!.quantity + 1 > 100);
+		if (cart.find((i) => i.id === id) && cart.find((i) => i.id === id)!.quantity + 1 > 100) {
+			setItemsShaking((curr) => [...curr, id]);
+			return setTimeout(() => {
+				setItemsShaking((curr) => curr.filter((i) => i !== id));
+			}, 820);
+		}
 		if (!processingChange) {
 			try {
 				setProcessingChange(true);
@@ -387,6 +396,7 @@ export default function Cart({ cartData, upsells, country, user, verification }:
 											changeInterval={changeInterval}
 											deleteItem={deleteItem}
 											disabled={processingChange}
+											shouldShake={itemsShaking.includes(item.id)}
 										/>
 									))}
 								</div>

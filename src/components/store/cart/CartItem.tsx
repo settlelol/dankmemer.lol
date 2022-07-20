@@ -1,6 +1,6 @@
 import { Icon as Iconify } from "@iconify/react";
 import clsx from "clsx";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Dropdown from "src/components/ui/Dropdown";
 import { CartItem as CartItems } from "src/pages/store";
 
@@ -14,6 +14,7 @@ interface Props extends CartItems {
 	changeInterval: any;
 	deleteItem: any;
 	disabled: boolean;
+	shouldShake?: boolean;
 }
 
 export const billingPeriod = {
@@ -36,7 +37,9 @@ export default function CartItem({
 	changeInterval,
 	deleteItem,
 	disabled,
+	shouldShake = false,
 }: Props) {
+	const [shake, setShake] = useState(shouldShake);
 	const price = () => {
 		return prices.find((price) => price.id === selectedPrice)!;
 	};
@@ -44,12 +47,32 @@ export default function CartItem({
 	const setQuantity = (value: any) => {
 		const quantity = parseInt(value);
 		if (isNaN(quantity)) return;
-		if (quantity < 1 || quantity > 100) return;
-		updateQuantity(index, quantity);
+		if (quantity < 1 || quantity > 100) {
+			setShake(true);
+			setTimeout(() => {
+				setShake(false);
+			}, 820);
+		} else {
+			updateQuantity(index, quantity);
+		}
 	};
 
+	useEffect(() => {
+		if (shouldShake) {
+			setShake(true);
+			setTimeout(() => {
+				setShake(false);
+			}, 820);
+		}
+	}, [shouldShake]);
+
 	return (
-		<div className="mt-3 flex w-full flex-col items-start justify-between space-x-0 sm:flex-row sm:items-center">
+		<div
+			className={clsx(
+				shake && "animate-shake border border-red-500/40",
+				"mt-3 flex w-full flex-col items-start justify-between space-x-0 rounded-md border border-transparent sm:flex-row sm:items-center"
+			)}
+		>
 			<div className="flex w-full items-center justify-between sm:w-1/2">
 				<div className="flex items-center">
 					<div
