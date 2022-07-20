@@ -44,13 +44,10 @@ export default function JobPage({ user, job }: Props) {
 			.then(() => router.reload())
 			.catch((e) => {
 				console.error(e);
-				toast.error(
-					"Something went wrong while toggling the job status.",
-					{
-						theme: "colored",
-						position: "top-center",
-					}
-				);
+				toast.error("Something went wrong while toggling the job status.", {
+					theme: "colored",
+					position: "top-center",
+				});
 			});
 	};
 
@@ -59,85 +56,60 @@ export default function JobPage({ user, job }: Props) {
 			<div className="my-10">
 				<GoBack />
 				{job.alreadyApplied && (
-					<div className="grid place-items-center w-full min-h-[3.5rem] bg-red-500 rounded-md my-3 shadow-[0px_0px_12px] shadow-red-500">
-						<p className="w-11/12 md:w-8/12 text-center">
-							You have already applied for this position, any
-							applications made are final and cannot be changed.
-							You are not able to submit another application at
-							this time.
+					<div className="my-3 grid min-h-[3.5rem] w-full place-items-center rounded-md bg-red-500 shadow-[0px_0px_12px] shadow-red-500">
+						<p className="w-11/12 text-center md:w-8/12">
+							You have already applied for this position, any applications made are final and cannot be
+							changed. You are not able to submit another application at this time.
 						</p>
 					</div>
 				)}
-				<div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+				<div className="flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
 					<Title size="big">{job?.title}</Title>
 					{user?.developer && (
 						<div className="flex flex-row space-x-2">
-							<Button
-								size="medium"
-								variant="dark"
-								onClick={toggleJob}
-							>
+							<Button size="medium" variant="dark" onClick={toggleJob}>
 								{job.active ? "Disable" : "Enable"} listing
 							</Button>
-							<Button
-								size="medium"
-								variant="dark"
-								href={`/control/jobs?edit=${job._id}`}
-							>
+							<Button size="medium" variant="dark" href={`/control/website/jobs?edit=${job._id}`}>
 								Edit listing
 							</Button>
 						</div>
 					)}
 				</div>
-				<div className="flex justify-start items-start flex-col md:flex-row mt-5 relative">
-					<div className="flex-1 h-full w-full md:w-max md:sticky top-4 ">
-						<div className="w-full md:w-60 min-h-[14rem] rounded-md bg-light-500 dark:bg-dark-100 py-4 px-5 flex flex-col justify-between mb-3">
+				<div className="relative mt-5 flex flex-col items-start justify-start md:flex-row">
+					<div className="top-4 h-full w-full flex-1 md:sticky md:w-max ">
+						<div className="mb-3 flex min-h-[14rem] w-full flex-col justify-between rounded-md bg-light-500 py-4 px-5 dark:bg-dark-100 md:w-60">
 							<div>
 								<div>
-									<h4 className="font-inter font-bold text-neutral-800 dark:text-neutral-400 leading-none">
+									<h4 className="font-inter font-bold leading-none text-neutral-800 dark:text-neutral-400">
 										Team
 									</h4>
-									<p className="text-neutral-600 dark:text-neutral-50">
-										{job.team}
-									</p>
+									<p className="text-neutral-600 dark:text-neutral-50">{job.team}</p>
 								</div>
 								<div className="mt-5">
-									<h4 className="font-inter font-bold text-neutral-800 dark:text-neutral-400 leading-none">
+									<h4 className="font-inter font-bold leading-none text-neutral-800 dark:text-neutral-400">
 										Location
 									</h4>
-									<p className="text-neutral-600 dark:text-neutral-50">
-										{job.location}
-									</p>
+									<p className="text-neutral-600 dark:text-neutral-50">{job.location}</p>
 								</div>
 								{user && user.developer && (
 									<div className="my-5">
-										<h4 className="font-inter font-bold text-neutral-800 dark:text-neutral-400 leading-none">
+										<h4 className="font-inter font-bold leading-none text-neutral-800 dark:text-neutral-400">
 											Status
 										</h4>
-										<p
-											className={clsx(
-												job.active
-													? "text-dank-300"
-													: "text-red-400"
-											)}
-										>
+										<p className={clsx(job.active ? "text-dank-300" : "text-red-400")}>
 											{job.active ? "Active" : "Inactive"}
 										</p>
 									</div>
 								)}
 							</div>
-							<Button
-								size="medium"
-								onClick={() =>
-									router.push(`/jobs/${job._id}/apply`)
-								}
-							>
+							<Button size="medium" onClick={() => router.push(`/jobs/${job._id}/apply`)}>
 								Apply now!
 							</Button>
 						</div>
 					</div>
 					<div
-						className="md:ml-8 w-full text-black dark:text-white"
+						className="w-full text-black dark:text-white md:ml-8"
 						dangerouslySetInnerHTML={{
 							__html: tailwindHtml(mdParser.render(job.body)),
 						}}

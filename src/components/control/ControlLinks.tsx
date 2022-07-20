@@ -30,6 +30,12 @@ export default function ControlLinks({ user }: Props) {
 						text="Announcements"
 						href="/control/website/announcements"
 					/>
+					<Navlink
+						icon="healthicons:city-worker"
+						size={24}
+						text="Job listings"
+						href="/control/website/jobs"
+					/>
 				</LinkGroup>
 				<LinkGroup title="Users">
 					<Navlink icon="la:user-cog" size={24} text="User access control" href="/control/users/access" />
