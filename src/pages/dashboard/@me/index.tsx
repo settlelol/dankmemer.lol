@@ -111,7 +111,7 @@ export default function Account({ user }: PageProps) {
 												userId={user.id}
 												ends={format(
 													new Date(subscribedTo.currentPeriod.end * 1000),
-													"LLLL do', at' h:mm aaa"
+													"LLLL do',' yyyy',' 'at' h:mm aaa"
 												)}
 											/>
 										);
