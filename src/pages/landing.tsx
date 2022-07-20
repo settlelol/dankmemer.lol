@@ -58,7 +58,11 @@ export default function LandingPage({ user }: PageProps) {
 						</div>
 					</div>
 					<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-						<Block title="Commands" icon="article">
+						<Block
+							title="Commands"
+							icon="article"
+							onClick={() => router.push("/commands")}
+						>
 							See all of the commands Dank Memer has to offer your
 							server!
 						</Block>
